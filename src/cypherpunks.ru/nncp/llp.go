@@ -603,7 +603,7 @@ func (state *LLPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, paylo
 			if err != nil {
 				unmarshalErr := err.(*xdr.UnmarshalError)
 				netErr, ok := unmarshalErr.Err.(net.Error)
-				if !(ok && netErr.Timeout()) {
+				if !((ok && netErr.Timeout()) || unmarshalErr.ErrorCode == xdr.ErrIO) {
 					state.ctx.LogE("llp-recv", SdsAdd(sds, SDS{"err": err}), "")
 				}
 				break
