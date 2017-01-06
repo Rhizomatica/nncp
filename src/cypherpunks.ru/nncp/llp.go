@@ -557,12 +557,13 @@ func (state *LLPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, paylo
 					Offset:  freq.Offset,
 					Payload: buf,
 				})
-				state.ctx.LogP("llp-file", SdsAdd(sdsp, SDS{
-					"fullsize": strconv.FormatInt(int64(fullSize), 10),
-				}), "")
+				ourSize := freq.Offset + uint64(len(buf))
+				sdsp["size"] = strconv.FormatInt(int64(ourSize), 10)
+				sdsp["fullsize"] = strconv.FormatInt(int64(fullSize), 10)
+				state.ctx.LogP("llp-file", sdsp, "")
 				state.Lock()
 				if len(state.queueTheir) > 0 && *state.queueTheir[0].Hash == *freq.Hash {
-					if freq.Offset+uint64(len(buf)) == fullSize {
+					if ourSize == fullSize {
 						state.ctx.LogD("llp-file", sdsp, "finished")
 						if len(state.queueTheir) > 1 {
 							state.queueTheir = state.queueTheir[1:]
