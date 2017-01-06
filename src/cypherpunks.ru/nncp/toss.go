@@ -49,6 +49,7 @@ func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 }
 
 func (ctx *Ctx) LockDir(nodeId *NodeId, xx TRxTx) (*os.File, error) {
+	ctx.ensureRxDir(nodeId)
 	lockPath := filepath.Join(ctx.Spool, nodeId.String(), string(xx)) + ".lock"
 	dirLock, err := os.OpenFile(
 		lockPath,
