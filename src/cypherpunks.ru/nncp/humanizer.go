@@ -216,7 +216,7 @@ func (ctx *Ctx) Humanize(s string) string {
 		case "rx":
 			msg = fmt.Sprintf("File %s is retreived (%s)", sds["hash"], size)
 		case "tx":
-			msg = fmt.Sprintf("File %s is sent (%s)", sds["hash"], size)
+			msg = fmt.Sprintf("File %s is sent", sds["hash"])
 		default:
 			return s
 		}
