@@ -1,0 +1,35 @@
+[submodule "src/github.com/davecgh/go-xdr"]
+	path = src/github.com/davecgh/go-xdr
+	url = https://github.com/davecgh/go-xdr.git
+[submodule "src/github.com/devi/blake2"]
+	path = src/github.com/devi/blake2
+	url = https://github.com/devi/blake2.git
+[submodule "src/github.com/dustin/go-humanize"]
+	path = src/github.com/dustin/go-humanize
+	url = https://github.com/dustin/go-humanize.git
+[submodule "src/github.com/flynn/noise"]
+	path = src/github.com/flynn/noise
+	url = https://github.com/flynn/noise.git
+[submodule "src/github.com/minio/blake2b-simd"]
+	path = src/github.com/minio/blake2b-simd
+	url = https://github.com/minio/blake2b-simd.git
+[submodule "src/gopkg.in/check.v1"]
+	path = src/gopkg.in/check.v1
+	url = https://github.com/go-check/check.git
+	branch = v1
+[submodule "src/gopkg.in/yaml.v2"]
+	path = src/gopkg.in/yaml.v2
+	url = https://github.com/go-yaml/yaml.git
+	branch = v2
+[submodule "src/golang.org/x/crypto"]
+	path = src/golang.org/x/crypto
+	url = https://go.googlesource.com/crypto
+[submodule "src/golang.org/x/sys"]
+	path = src/golang.org/x/sys
+	url = https://go.googlesource.com/sys
+[submodule "src/golang.org/x/net"]
+	path = src/golang.org/x/net
+	url = https://go.googlesource.com/net
+[submodule "src/github.com/devi/chap"]
+	path = src/github.com/devi/chap
+	url = https://github.com/devi/chap.git
