@@ -27,6 +27,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 
 	"cypherpunks.ru/nncp"
 )
@@ -34,7 +35,9 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-call -- call TCP daemon\n")
-	fmt.Fprintln(os.Stderr, "Usage: %s [options] NODE ADDR\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE[:ADDR] [FORCEADDR]\n", os.Args[0])
+	fmt.Fprintln(os.Stderr, "You must specify either [NODE:ADDR] or [NODE FORCEADDR]\n")
+	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }
 
@@ -58,7 +61,7 @@ func main() {
 		fmt.Println(nncp.VersionGet())
 		return
 	}
-	if flag.NArg() != 2 {
+	if flag.NArg() < 1 {
 		usage()
 		os.Exit(1)
 	}
@@ -80,16 +83,31 @@ func main() {
 	}
 	ctx.Debug = *debug
 
-	node, err := ctx.FindNode(flag.Arg(0))
+	splitted := strings.SplitN(flag.Arg(0), ":", 2)
+	node, err := ctx.FindNode(splitted[0])
 	if err != nil {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
+	if len(splitted) == 1 && flag.NArg() != 2 {
+		usage()
+		os.Exit(1)
+	}
+	var dst string
+	if len(splitted) == 2 {
+		var known bool
+		dst, known = ctx.Neigh[*node.Id].Addrs[splitted[1]]
+		if !known {
+			log.Fatalln("Unknown ADDR specified")
+		}
+	} else {
+		dst = flag.Arg(1)
+	}
 
-	conn, err := net.Dial("tcp", flag.Arg(1))
+	conn, err := net.Dial("tcp", dst)
 	if err != nil {
 		log.Fatalln("Can not connect:", err)
 	}
-	ctx.LogD("call", nncp.SDS{"addr": flag.Arg(1)}, "connected")
+	ctx.LogD("call", nncp.SDS{"addr": dst}, "connected")
 	var xxOnly nncp.TRxTx
 	if *rxOnly {
 		xxOnly = nncp.TRx
