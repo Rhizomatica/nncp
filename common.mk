@@ -1,11 +1,16 @@
 .PHONY: doc
 
+CFGPATH ?= /usr/local/etc/nncp.yaml
+SENDMAIL ?= /usr/sbin/sendmail
 LDFLAGS = \
 	-X cypherpunks.ru/nncp.Version=$(VERSION) \
 	-X cypherpunks.ru/nncp.DefaultCfgPath=$(CFGPATH) \
 	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL)
-
-all: \
+PREFIX ?= /usr/local
+BINDIR = $(DESTDIR)$(PREFIX)/bin
+INFODIR = $(DESTDIR)$(PREFIX)/info
+DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
+ALL = \
 	nncp-call \
 	nncp-check \
 	nncp-daemon \
@@ -18,6 +23,8 @@ all: \
 	nncp-stat \
 	nncp-toss \
 	nncp-xfer
+
+all: $(ALL)
 
 nncp-call:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-call
@@ -59,18 +66,21 @@ test:
 	GOPATH=$(GOPATH) go test cypherpunks.ru/nncp/...
 
 clean:
-	rm -f \
-		nncp-call \
-		nncp-daemon \
-		nncp-file \
-		nncp-freq \
-		nncp-log \
-		nncp-mail \
-		nncp-newnode \
-		nncp-pkt \
-		nncp-stat \
-		nncp-toss \
-		nncp-xfer
+	rm -f $(ALL)
 
 doc:
 	$(MAKE) -C doc
+
+install: all doc
+	mkdir -p $(BINDIR)
+	cp -f $(ALL) $(BINDIR)
+	for e in $(ALL) ; do chmod 755 $(BINDIR)/$$e ; done
+	mkdir -p $(INFODIR)
+	cp -f doc/nncp.info $(INFODIR)
+	chmod 644 $(INFODIR)/nncp.info
+	mkdir -p $(DOCDIR)
+	cp -f -L AUTHORS INSTALL NEWS README README.RU $(DOCDIR)
+	chmod 644 $(DOCDIR)/*
+
+install-strip: install
+	for e in $(ALL) ; do strip $(BINDIR)/$$e ; done
