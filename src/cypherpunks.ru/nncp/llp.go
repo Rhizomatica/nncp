@@ -248,21 +248,6 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8) [][]byte {
 	return payloadsSplit(payloads)
 }
 
-func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
-	dirPath := filepath.Join(ctx.Spool, nodeId.String(), string(TRx))
-	if err := os.MkdirAll(dirPath, os.FileMode(0700)); err != nil {
-		ctx.LogE("llp-ensure", SDS{"dir": dirPath, "err": err}, "")
-		return err
-	}
-	fd, err := os.Open(dirPath)
-	if err != nil {
-		ctx.LogE("llp-ensure", SDS{"dir": dirPath, "err": err}, "")
-		return err
-	}
-	fd.Close()
-	return nil
-}
-
 func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx) (*LLPState, error) {
 	err := ctx.ensureRxDir(nodeId)
 	if err != nil {
@@ -314,6 +299,7 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx)
 	if len(infosPayloads) > 0 {
 		firstPayload = infosPayloads[0]
 	}
+	// Pad first payload, to hide actual existing files
 	for i := 0; i < (MaxLLPSize-len(firstPayload))/LLPHeadOverhead; i++ {
 		firstPayload = append(firstPayload, LLPHaltMarshalized...)
 	}
@@ -433,6 +419,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*LLPState, err
 	if len(infosPayloads) > 0 {
 		firstPayload = infosPayloads[0]
 	}
+	// Pad first payload, to hide actual existing files
 	for i := 0; i < (MaxLLPSize-len(firstPayload))/LLPHeadOverhead; i++ {
 		firstPayload = append(firstPayload, LLPHaltMarshalized...)
 	}
