@@ -180,9 +180,9 @@ func (ctx *Ctx) Humanize(s string) string {
 	case "llp-infos":
 		switch sds["xx"] {
 		case "rx":
-			msg = fmt.Sprintf("We have got for %s: ", nodeS)
-		case "tx":
 			msg = fmt.Sprintf("%s has got for us: ", nodeS)
+		case "tx":
+			msg = fmt.Sprintf("We have got for %s: ", nodeS)
 		default:
 			return s
 		}
