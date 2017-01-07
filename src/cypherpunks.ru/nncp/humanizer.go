@@ -127,7 +127,7 @@ func (ctx *Ctx) Humanize(s string) string {
 		if err, exists := sds["err"]; exists {
 			msg += ": " + err
 		}
-	case "toss-check":
+	case "check":
 		msg = fmt.Sprintf(
 			"Integrity check: %s/%s/%s %s",
 			sds["node"], sds["xx"], sds["pkt"], sds["err"],

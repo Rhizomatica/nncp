@@ -45,12 +45,12 @@ func (ctx *Ctx) checkXx(nodeId *NodeId, xx TRxTx) bool {
 		gut, err := Check(job.Fd, job.HshValue[:])
 		job.Fd.Close()
 		if err != nil {
-			ctx.LogE("toss-check", SdsAdd(sds, SDS{"err": err}), "")
+			ctx.LogE("check", SdsAdd(sds, SDS{"err": err}), "")
 			return false
 		}
 		if !gut {
 			isBad = true
-			ctx.LogE("toss-check", sds, "bad")
+			ctx.LogE("check", sds, "bad")
 		}
 	}
 	return isBad
