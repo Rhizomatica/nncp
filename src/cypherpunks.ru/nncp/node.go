@@ -43,6 +43,7 @@ type Node struct {
 	Incoming *string
 	Freq     *string
 	Via      []*NodeId
+	Addrs    map[string]string
 }
 
 type NodeOur struct {

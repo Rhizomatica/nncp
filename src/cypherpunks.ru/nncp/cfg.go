@@ -39,6 +39,8 @@ type NodeYAML struct {
 	Incoming *string  `incoming,omitempty`
 	Freq     *string  `freq,omitempty`
 	Via      []string `via,omitempty`
+
+	Addrs map[string]string `addrs,omitempty`
 }
 
 type NodeOurYAML struct {
@@ -127,6 +129,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		NoisePub: new([32]byte),
 		Incoming: incoming,
 		Freq:     freq,
+		Addrs:    yml.Addrs,
 	}
 	copy(node.ExchPub[:], exchPub)
 	copy(node.NoisePub[:], noisePub)
