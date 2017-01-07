@@ -37,7 +37,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-xfer -- copy inbound and outbounds packets\n")
-	fmt.Fprintln(os.Stderr, "Usage: %s [options] DIR\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] DIR\nOptions:", os.Args[0])
 	flag.PrintDefaults()
 }
 

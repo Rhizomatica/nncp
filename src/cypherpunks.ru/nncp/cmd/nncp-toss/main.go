@@ -32,7 +32,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-toss -- process inbound packets\n")
-	fmt.Fprintln(os.Stderr, "Usage: %s [options]\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:", os.Args[0])
 	flag.PrintDefaults()
 }
 

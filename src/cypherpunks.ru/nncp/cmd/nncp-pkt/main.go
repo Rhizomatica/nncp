@@ -38,7 +38,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-pkt -- parse raw packet\n")
-	fmt.Fprintln(os.Stderr, "Usage: %s [options]\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:", os.Args[0])
 	flag.PrintDefaults()
 	fmt.Fprintln(os.Stderr, "Packet is read from stdin.")
 }
