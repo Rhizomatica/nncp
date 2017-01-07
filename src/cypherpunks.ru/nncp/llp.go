@@ -528,29 +528,32 @@ func (state *LLPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, paylo
 					state.ctx.LogE("llp-file", SdsAdd(sdsp, SDS{"err": err}), "")
 					break
 				}
-				state.ctx.LogD("llp-file", sdsp, "seeking")
-				if _, err = fd.Seek(int64(freq.Offset), 0); err != nil {
-					state.ctx.LogE("llp-file", SdsAdd(sdsp, SDS{"err": err}), "")
-					break
-				}
-				buf := make([]byte, MaxLLPSize-LLPHeadOverhead-LLPFileOverhead)
-				n, err := fd.Read(buf)
-				if err != nil {
-					state.ctx.LogE("llp-file", SdsAdd(sdsp, SDS{"err": err}), "")
-					break
-				}
-				buf = buf[:n]
-				state.ctx.LogD(
-					"llp-file",
-					SdsAdd(sdsp, SDS{"size": strconv.Itoa(n)}),
-					"read",
-				)
 				fi, err := fd.Stat()
 				if err != nil {
 					state.ctx.LogE("llp-file", SdsAdd(sdsp, SDS{"err": err}), "")
 					break
 				}
 				fullSize := uint64(fi.Size())
+				var buf []byte
+				if freq.Offset < fullSize {
+					state.ctx.LogD("llp-file", sdsp, "seeking")
+					if _, err = fd.Seek(int64(freq.Offset), 0); err != nil {
+						state.ctx.LogE("llp-file", SdsAdd(sdsp, SDS{"err": err}), "")
+						break
+					}
+					buf = make([]byte, MaxLLPSize-LLPHeadOverhead-LLPFileOverhead)
+					n, err := fd.Read(buf)
+					if err != nil {
+						state.ctx.LogE("llp-file", SdsAdd(sdsp, SDS{"err": err}), "")
+						break
+					}
+					buf = buf[:n]
+					state.ctx.LogD(
+						"llp-file",
+						SdsAdd(sdsp, SDS{"size": strconv.Itoa(n)}),
+						"read",
+					)
+				}
 				fd.Close()
 				payload = MarshalLLP(LLPTypeFile, LLPFile{
 					Hash:    freq.Hash,
