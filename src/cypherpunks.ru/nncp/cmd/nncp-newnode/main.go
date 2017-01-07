@@ -1,5 +1,5 @@
 /*
-NNCP -- Node-to-Node CoPy
+NNCP -- Node to Node copy, utilities for store-and-forward data exchange
 Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify

@@ -1,5 +1,5 @@
 /*
-NNCP -- Node-to-Node CoPy
+NNCP -- Node to Node copy, utilities for store-and-forward data exchange
 Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// NNCP -- Node-to-Node CoPy
+// NNCP -- Node to Node copy
 package nncp
 
 import (
