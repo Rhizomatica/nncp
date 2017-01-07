@@ -34,7 +34,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-mail -- send email\n")
-	fmt.Fprintln(os.Stderr, "Usage: %s [options] NODE USER ...\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE USER ...\nOptions:", os.Args[0])
 	flag.PrintDefaults()
 	fmt.Fprintln(os.Stderr, "Email body is read from stdin.")
 }

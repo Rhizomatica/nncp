@@ -33,7 +33,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-file -- send file\n")
-	fmt.Fprintln(os.Stderr, "Usage: %s [options] SRC NODE:DST\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] SRC NODE:DST\nOptions:", os.Args[0])
 	flag.PrintDefaults()
 }
 
