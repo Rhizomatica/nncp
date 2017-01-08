@@ -1,6 +1,6 @@
 package nncp
 
-type ByNice []*LLPInfo
+type ByNice []*SPInfo
 
 func (a ByNice) Len() int {
 	return len(a)
