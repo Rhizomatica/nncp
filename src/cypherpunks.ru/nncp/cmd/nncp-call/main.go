@@ -128,6 +128,8 @@ func main() {
 		}, "")
 	} else {
 		ctx.LogE("call-start", nncp.SDS{"node": state.NodeId, "err": err}, "")
+		conn.Close()
+		os.Exit(1)
 	}
 	conn.Close()
 }

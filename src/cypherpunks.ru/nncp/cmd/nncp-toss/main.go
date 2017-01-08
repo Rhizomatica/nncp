@@ -79,10 +79,14 @@ func main() {
 		}
 	}
 
+	isBad := false
 	for nodeId, node := range ctx.Neigh {
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		ctx.Toss(node.Id, nice, *dryRun)
+		isBad = ctx.Toss(node.Id, nice, *dryRun)
+	}
+	if isBad {
+		os.Exit(1)
 	}
 }

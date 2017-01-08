@@ -73,15 +73,14 @@ func main() {
 		}
 	}
 
-	checkIsBad := false
+	isBad := false
 	for nodeId, node := range ctx.Neigh {
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		checkIsBad = checkIsBad || ctx.Check(node.Id)
+		isBad = isBad || ctx.Check(node.Id)
 	}
-
-	if checkIsBad {
+	if isBad {
 		os.Exit(1)
 	}
 }
