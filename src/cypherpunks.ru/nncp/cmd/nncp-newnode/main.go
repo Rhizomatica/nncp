@@ -71,14 +71,14 @@ func main() {
 				ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
 				SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
 				NoisePub: nncp.ToBase32(nodeOur.NoisePub[:]),
+				Sendmail: []string{nncp.DefaultSendmailPath},
 				Incoming: &incoming,
 				Freq:     &freq,
 				Addrs:    map[string]string{"main": "localhost:5400"},
 			},
 		},
-		Spool:    "/path/to/spool",
-		Log:      "/path/to/log.file",
-		Sendmail: []string{nncp.DefaultSendmailPath},
+		Spool: "/path/to/spool",
+		Log:   "/path/to/log.file",
 		Notify: &nncp.NotifyYAML{
 			File: &nncp.FromToYAML{
 				From: "nncp@localhost",

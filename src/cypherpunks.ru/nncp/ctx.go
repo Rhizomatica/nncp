@@ -29,9 +29,7 @@ type Ctx struct {
 	Neigh map[NodeId]*Node
 	Alias map[string]*NodeId
 
-	Spool    string
-	Sendmail []string
-
+	Spool      string
 	LogPath    string
 	Debug      bool
 	NotifyFile *FromToYAML

@@ -107,12 +107,12 @@ func TestTossEmail(t *testing.T) {
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
-			ctx.Sendmail = []string{"/bin/sh", "-c", "false"}
+			ctx.Neigh[*nodeOur.Id].Sendmail = []string{"/bin/sh", "-c", "false"}
 			ctx.Toss(ctx.Self.Id, DefaultNiceMail)
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
-			ctx.Sendmail = []string{
+			ctx.Neigh[*nodeOur.Id].Sendmail = []string{
 				"/bin/sh", "-c",
 				fmt.Sprintf("cat >> %s", filepath.Join(spool, "mbox")),
 			}

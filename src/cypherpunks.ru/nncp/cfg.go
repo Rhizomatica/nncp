@@ -36,6 +36,7 @@ type NodeYAML struct {
 	ExchPub  string
 	SignPub  string
 	NoisePub string
+	Sendmail []string
 	Incoming *string  `incoming,omitempty`
 	Freq     *string  `freq,omitempty`
 	Via      []string `via,omitempty`
@@ -67,10 +68,9 @@ type CfgYAML struct {
 	Self  NodeOurYAML
 	Neigh map[string]NodeYAML
 
-	Spool    string
-	Log      string
-	Sendmail []string
-	Notify   *NotifyYAML `notify,omitempty`
+	Spool  string
+	Log    string
+	Notify *NotifyYAML `notify,omitempty`
 }
 
 func NewNode(name string, yml NodeYAML) (*Node, error) {
@@ -127,6 +127,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		ExchPub:  new([32]byte),
 		SignPub:  ed25519.PublicKey(signPub),
 		NoisePub: new([32]byte),
+		Sendmail: yml.Sendmail,
 		Incoming: incoming,
 		Freq:     freq,
 		Addrs:    yml.Addrs,
@@ -242,12 +243,11 @@ func CfgParse(data []byte) (*Ctx, error) {
 		return nil, errors.New("Log path must be absolute")
 	}
 	ctx := Ctx{
-		Spool:    spoolPath,
-		LogPath:  logPath,
-		Self:     self,
-		Neigh:    make(map[NodeId]*Node, len(cfgYAML.Neigh)),
-		Alias:    make(map[string]*NodeId),
-		Sendmail: cfgYAML.Sendmail,
+		Spool:   spoolPath,
+		LogPath: logPath,
+		Self:    self,
+		Neigh:   make(map[NodeId]*Node, len(cfgYAML.Neigh)),
+		Alias:   make(map[string]*NodeId),
 	}
 	if cfgYAML.Notify != nil {
 		if cfgYAML.Notify.File != nil {
