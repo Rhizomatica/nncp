@@ -800,7 +800,9 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				}
 				state.ctx.LogI("sp-done", SdsAdd(sdsp, SDS{"xx": string(TRx)}), "")
 				os.Rename(filePath+PartSuffix, filePath)
-				state.payloads <- MarshalSP(SPTypeDone, SPDone{file.Hash})
+				go func() {
+					state.payloads <- MarshalSP(SPTypeDone, SPDone{file.Hash})
+				}()
 			}()
 		case SPTypeDone:
 			state.ctx.LogD(
