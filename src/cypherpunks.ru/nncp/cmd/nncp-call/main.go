@@ -36,7 +36,6 @@ func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-call -- call TCP daemon\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE[:ADDR] [FORCEADDR]\n", os.Args[0])
-	fmt.Fprintln(os.Stderr, "You must specify either [NODE:ADDR] or [NODE FORCEADDR]\n")
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }
@@ -90,48 +89,59 @@ func main() {
 	if err != nil {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
-	if len(splitted) == 1 && flag.NArg() != 2 {
-		usage()
-		os.Exit(1)
-	}
-	var dst string
-	if len(splitted) == 2 {
-		var known bool
-		dst, known = ctx.Neigh[*node.Id].Addrs[splitted[1]]
-		if !known {
-			log.Fatalln("Unknown ADDR specified")
-		}
-	} else {
-		dst = flag.Arg(1)
-	}
 
-	conn, err := net.Dial("tcp", dst)
-	if err != nil {
-		log.Fatalln("Can not connect:", err)
-	}
-	ctx.LogD("call", nncp.SDS{"addr": dst}, "connected")
 	var xxOnly nncp.TRxTx
 	if *rxOnly {
 		xxOnly = nncp.TRx
 	} else if *txOnly {
 		xxOnly = nncp.TTx
 	}
-	state, err := ctx.StartI(conn, node.Id, nice, &xxOnly)
-	if err == nil {
-		ctx.LogI("call-start", nncp.SDS{"node": state.NodeId}, "connected")
-		state.Wait()
-		ctx.LogI("call-finish", nncp.SDS{
-			"node":     state.NodeId,
-			"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
-			"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
-			"txbytes":  strconv.FormatInt(state.TxBytes, 10),
-			"rxspeed":  strconv.FormatInt(state.RxSpeed, 10),
-			"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
-		}, "")
+
+	var addrs []string
+	if flag.NArg() == 2 {
+		addrs = append(addrs, flag.Arg(1))
+	} else if len(splitted) == 2 {
+		addr, known := ctx.Neigh[*node.Id].Addrs[splitted[1]]
+		if !known {
+			log.Fatalln("Unknown ADDR specified")
+		}
+		addrs = append(addrs, addr)
 	} else {
-		ctx.LogE("call-start", nncp.SDS{"node": state.NodeId, "err": err}, "")
-		conn.Close()
+		for _, addr := range ctx.Neigh[*node.Id].Addrs {
+			addrs = append(addrs, addr)
+		}
+	}
+
+	isGood := false
+	for _, addr := range addrs {
+		ctx.LogD("call", nncp.SDS{"addr": addr}, "dialing")
+		conn, err := net.Dial("tcp", addr)
+		if err != nil {
+			log.Println("Can not connect:", err)
+			continue
+		}
+		ctx.LogD("call", nncp.SDS{"addr": addr}, "connected")
+		state, err := ctx.StartI(conn, node.Id, nice, &xxOnly)
+		if err == nil {
+			ctx.LogI("call-start", nncp.SDS{"node": state.NodeId}, "connected")
+			state.Wait()
+			ctx.LogI("call-finish", nncp.SDS{
+				"node":     state.NodeId,
+				"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
+				"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
+				"txbytes":  strconv.FormatInt(state.TxBytes, 10),
+				"rxspeed":  strconv.FormatInt(state.RxSpeed, 10),
+				"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
+			}, "")
+			isGood = true
+			conn.Close()
+			break
+		} else {
+			ctx.LogE("call-start", nncp.SDS{"node": state.NodeId, "err": err}, "")
+			conn.Close()
+		}
+	}
+	if !isGood {
 		os.Exit(1)
 	}
-	conn.Close()
 }
