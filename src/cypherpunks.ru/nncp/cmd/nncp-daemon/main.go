@@ -81,7 +81,6 @@ func main() {
 		log.Fatalln("Can not listen:", err)
 	}
 	ln = netutil.LimitListener(ln, *maxConn)
-	ctx.LogI("daemon", nncp.SDS{"bind": *bind}, "listening")
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
