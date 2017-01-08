@@ -66,7 +66,7 @@ func main() {
 			NoisePrv: nncp.ToBase32(nodeOur.NoisePrv[:]),
 		},
 		Neigh: map[string]nncp.NodeYAML{
-			"myself": nncp.NodeYAML{
+			"self": nncp.NodeYAML{
 				Id:       nodeOur.Id.String(),
 				ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
 				SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
