@@ -11,13 +11,13 @@ BINDIR = $(DESTDIR)$(PREFIX)/bin
 INFODIR = $(DESTDIR)$(PREFIX)/info
 DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
 ALL = \
+	nncp-mail \
 	nncp-call \
 	nncp-check \
 	nncp-daemon \
 	nncp-file \
 	nncp-freq \
 	nncp-log \
-	nncp-mail \
 	nncp-newnode \
 	nncp-pkt \
 	nncp-stat \
