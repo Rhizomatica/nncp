@@ -46,7 +46,7 @@ func (ctx *Ctx) checkXx(nodeId *NodeId, xx TRxTx) bool {
 			"node": nodeId,
 			"pkt":  ToBase32(job.HshValue[:]),
 		}
-		ctx.LogI("check", sds, "")
+		ctx.LogP("check", sds, "")
 		gut, err := Check(job.Fd, job.HshValue[:])
 		job.Fd.Close()
 		if err != nil {
