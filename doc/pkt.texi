@@ -1,0 +1,156 @@
+@node Packet
+@unnumbered Packet format
+
+All packets are
+@url{https://en.wikipedia.org/wiki/External_Data_Representation,
+XDR}-encoded structures.
+
+@menu
+* Plain packet: Plain.
+* Encrypted packet: Encrypted.
+@end menu
+
+@node Plain
+@section Plain packet
+
+Plain packet contains either the whole file, or file request (freq), or
+transition packet or email message. It is called "plain", because it
+contains plaintext, but plain packets would never be stored on your hard
+drive.
+
+Each packet has the following header:
+
+@verbatim
+            HEADER
++-------------------------------+--...---+
+| MAGIC | TYPE | PATHLEN | PATH | PAYLOAD|
++-------------------------------+--...---+
+@end verbatim
+
+@multitable @columnfractions 0.2 0.3 0.5
+@headitem  @tab XDR type @tab Value
+
+@item Magic number @tab
+  8-byte, fixed length opaque data @tab
+  @code{NNCPP0x10x00x00}
+
+@item Payload type @tab
+  unsigned integer @tab
+  0 (file), 1 (freq), 2 (mail), 3 (transition)
+
+@item Path length @tab
+  unsigned integer @tab
+  actual length of following field's payload
+
+@item Path @tab
+  255 byte, fixed length opaque data @tab
+  @itemize
+  @item UTF-8 encoded destination path for file transfer
+  @item UTF-8 encoded source path for file request
+  @item UTF-8 encoded, space separated, email recipients list
+  @item Node id the transition packet must be relayed on
+  @end itemize
+
+@end multitable
+
+Path has fixed size because of hiding its actual length -- it is
+valuable metadata.
+
+Actual payload comes after that header to the very end:
+
+@itemize
+@item File contents
+@item Destination path for freq
+@item @url{http://zlib.net/, zlib} compressed email
+@item Whole encrypted packet we need to relay on
+@end itemize
+
+@node Encrypted
+@section Encrypted packet
+
+Encrypted packets are the only files found in spools, in exchangeable
+storages and that are synchronized between TCP daemons.
+
+Each encrypted packet has the following header:
+
+@verbatim
+                    HEADER
++--------------------------------------------+-------...--------+
+| MAGIC | NICE | SENDER | EPUB | SIGN | SIZE | CIPHERTEXT | MAC |
++------------------------------/------\------+-------...--------+
+                              /        \
+             +--------------------------------------------+
+             | MAGIC | NICE | RCPT | SENDER | EPUB | SIZE |
+             +--------------------------------------------+
+@end verbatim
+
+@multitable @columnfractions 0.2 0.3 0.5
+@headitem  @tab XDR type @tab Value
+
+@item Magic number @tab
+  8-byte, fixed length opaque data @tab
+  @code{NNCPE0x10x00x00}
+
+@item Niceness @tab
+  unsigned integer @tab
+  1-255, packet niceness level, its priority.
+  Lower value means higher precedence
+
+@item Sender @tab
+  32-byte, fixed length opaque data @tab
+  Sender node's id
+
+@item Exchange public key @tab
+  32-byte, fixed length opaque data @tab
+  Ephemeral curve25519 public key
+
+@item Signature @tab
+  64-byte, fixed length opaque data @tab
+  ed25519 signature for that encrypted packet
+
+@item Size @tab
+  unsigned hyper integer @tab
+  Encrypted payload size
+
+@end multitable
+
+Signature is calculated over the following structure:
+
+@itemize
+@item Magic number
+@item Niceness
+@item Recipient (32-byte recipient node's id)
+@item Sender
+@item Exchange public key
+@item Size
+@end itemize
+
+Actual encrypted payload comes after that header. Payload is encrypted
+using @url{https://www.schneier.com/academic/twofish/, Twofish}
+algorithm with 256-bit key in
+@url{https://en.wikipedia.org/wiki/Counter_mode#Counter_.28CTR.29, CTR}
+mode of operation with zero initialization vector (because each
+encrypted packet has ephemeral exchange key). Ciphertext's length is
+equal to plaintext. @url{https://blake2.net/, BLAKE2b-256} MAC is
+appended to the ciphertext.
+
+Each node has static @strong{exchange} and @strong{signature} keypairs.
+When node A want to send encrypted packet to node B, it:
+
+@enumerate
+@item generates ephemeral @url{http://cr.yp.to/ecdh.html, curve25519} keypair
+@item prepares structure for signing (underlying payload size must be
+already known)
+@item signs that structure using private @url{http://ed25519.cr.yp.to/,
+ed25519} signature key
+@item takes remote node's exchange public key and performs
+Diffie-Hellman computation on this remote static public key and private
+ephemeral one
+@item derived ephemeral key used as an input to
+@url{https://en.wikipedia.org/wiki/HKDF, HKDF}-BLAKE2b-256 key
+derivation function
+@item two 256-bit keys are derived from it for using with Twofish and
+BLAKE2b-MAC functions
+@item Twofish encryption and BLAKE2b-MACing is performed over the
+plaintext. Ciphertext and MAC tag are appended to the header
+@end enumerate
