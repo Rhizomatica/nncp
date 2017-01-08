@@ -73,6 +73,7 @@ func main() {
 				NoisePub: nncp.ToBase32(nodeOur.NoisePub[:]),
 				Incoming: &incoming,
 				Freq:     &freq,
+				Addrs:    map[string]string{"main": "localhost:5400"},
 			},
 		},
 		Spool:    "/path/to/spool",
