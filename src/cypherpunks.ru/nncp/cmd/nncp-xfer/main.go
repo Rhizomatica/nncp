@@ -95,7 +95,7 @@ func main() {
 	}
 
 	selfPath := filepath.Join(flag.Arg(0), ctx.Self.Id.String())
-	badExit := false
+	isBad := false
 	var dir *os.File
 	var fis []os.FileInfo
 	sds := nncp.SDS{}
@@ -111,20 +111,20 @@ func main() {
 			goto Tx
 		}
 		ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "stat")
-		badExit = true
+		isBad = true
 		goto Tx
 	}
 	dir, err = os.Open(selfPath)
 	if err != nil {
 		ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "open")
-		badExit = true
+		isBad = true
 		goto Tx
 	}
 	fis, err = dir.Readdir(0)
 	dir.Close()
 	if err != nil {
 		ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "read")
-		badExit = true
+		isBad = true
 		goto Tx
 	}
 	for _, fi := range fis {
@@ -148,14 +148,14 @@ func main() {
 		dir, err = os.Open(filepath.Join(selfPath, fi.Name()))
 		if err != nil {
 			ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "open")
-			badExit = true
+			isBad = true
 			continue
 		}
 		fisInt, err := dir.Readdir(0)
 		dir.Close()
 		if err != nil {
 			ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "read")
-			badExit = true
+			isBad = true
 			continue
 		}
 		for _, fiInt := range fisInt {
@@ -167,7 +167,7 @@ func main() {
 			fd, err := os.Open(filename)
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "open")
-				badExit = true
+				isBad = true
 				continue
 			}
 			var pktEnc nncp.PktEnc
@@ -190,7 +190,7 @@ func main() {
 			copied, err := io.Copy(tmp.W, bufio.NewReader(fd))
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "copy")
-				badExit = true
+				isBad = true
 				fd.Close()
 				tmp.Cancel()
 				continue
@@ -209,7 +209,7 @@ func main() {
 			if !*keep {
 				if err = os.Remove(filename); err != nil {
 					ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "remove")
-					badExit = true
+					isBad = true
 				}
 			}
 		}
@@ -217,7 +217,7 @@ func main() {
 
 Tx:
 	if *rxOnly {
-		if badExit {
+		if isBad {
 			os.Exit(1)
 		}
 		return
@@ -246,13 +246,13 @@ Tx:
 				if err = os.Mkdir(nodePath, os.FileMode(0700)); err != nil {
 					ctx.UnlockDir(dirLock)
 					ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "mkdir")
-					badExit = true
+					isBad = true
 					continue
 				}
 			} else {
 				ctx.UnlockDir(dirLock)
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "stat")
-				badExit = true
+				isBad = true
 				continue
 			}
 		}
@@ -264,13 +264,13 @@ Tx:
 				if err = os.Mkdir(dstPath, os.FileMode(0700)); err != nil {
 					ctx.UnlockDir(dirLock)
 					ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "mkdir")
-					badExit = true
+					isBad = true
 					continue
 				}
 			} else {
 				ctx.UnlockDir(dirLock)
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "stat")
-				badExit = true
+				isBad = true
 				continue
 			}
 		}
@@ -287,7 +287,7 @@ Tx:
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "mktemp")
 				job.Fd.Close()
-				badExit = true
+				isBad = true
 				break
 			}
 			sds["tmp"] = tmp.Name()
@@ -298,7 +298,7 @@ Tx:
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "copy")
 				tmp.Close()
-				badExit = true
+				isBad = true
 				continue
 			}
 			err = bufW.Flush()
@@ -306,12 +306,12 @@ Tx:
 			tmp.Close()
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "copy")
-				badExit = true
+				isBad = true
 				continue
 			}
 			if err = os.Rename(tmp.Name(), filepath.Join(dstPath, pktName)); err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "rename")
-				badExit = true
+				isBad = true
 				continue
 			}
 			delete(sds, "tmp")
@@ -321,13 +321,13 @@ Tx:
 			if !*keep {
 				if err = os.Remove(job.Fd.Name()); err != nil {
 					ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "remove")
-					badExit = true
+					isBad = true
 				}
 			}
 		}
 		ctx.UnlockDir(dirLock)
 	}
-	if badExit {
+	if isBad {
 		os.Exit(1)
 	}
 }
