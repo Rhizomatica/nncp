@@ -112,6 +112,9 @@ func (ctx *Ctx) LogP(who string, sds SDS, msg string) {
 
 func (ctx *Ctx) LogE(who string, sds SDS, msg string) {
 	msg = msgFmt(LogLevel("E"), who, sds, msg)
+	if len(msg) > 2048 {
+		msg = msg[:2048]
+	}
 	fmt.Fprintln(os.Stderr, ctx.Humanize(msg))
 	ctx.Log(msg)
 }
