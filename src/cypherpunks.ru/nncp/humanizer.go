@@ -177,7 +177,7 @@ func (ctx *Ctx) Humanize(s string) string {
 			humanize.IBytes(uint64(rx)), humanize.IBytes(uint64(rxs)),
 			humanize.IBytes(uint64(tx)), humanize.IBytes(uint64(txs)),
 		)
-	case "llp-infos":
+	case "sp-infos":
 		switch sds["xx"] {
 		case "rx":
 			msg = fmt.Sprintf("%s has got for us: ", nodeS)
@@ -187,7 +187,7 @@ func (ctx *Ctx) Humanize(s string) string {
 			return s
 		}
 		msg += fmt.Sprintf("%s packets, %s", sds["pkts"], size)
-	case "llp-file":
+	case "sp-file":
 		switch sds["xx"] {
 		case "rx":
 			msg = "Got file "
@@ -211,7 +211,7 @@ func (ctx *Ctx) Humanize(s string) string {
 			humanize.IBytes(uint64(sizeParsed)),
 			humanize.IBytes(uint64(fullsize)),
 		)
-	case "llp-done":
+	case "sp-done":
 		switch sds["xx"] {
 		case "rx":
 			msg = fmt.Sprintf("File %s is retreived (%s)", sds["hash"], size)
