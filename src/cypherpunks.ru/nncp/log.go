@@ -98,12 +98,16 @@ func (ctx *Ctx) LogD(who string, sds SDS, msg string) {
 
 func (ctx *Ctx) LogI(who string, sds SDS, msg string) {
 	msg = msgFmt(LogLevel("I"), who, sds, msg)
-	fmt.Fprintln(os.Stderr, ctx.Humanize(msg))
+	if !ctx.Quiet {
+		fmt.Fprintln(os.Stderr, ctx.Humanize(msg))
+	}
 	ctx.Log(msg)
 }
 
 func (ctx *Ctx) LogP(who string, sds SDS, msg string) {
-	fmt.Fprintln(os.Stderr, ctx.Humanize(msgFmt(LogLevel("P"), who, sds, msg)))
+	if !ctx.Quiet {
+		fmt.Fprintln(os.Stderr, ctx.Humanize(msgFmt(LogLevel("P"), who, sds, msg)))
+	}
 }
 
 func (ctx *Ctx) LogE(who string, sds SDS, msg string) {

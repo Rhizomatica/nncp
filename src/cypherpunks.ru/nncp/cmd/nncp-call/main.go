@@ -47,6 +47,7 @@ func main() {
 		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
 		rxOnly   = flag.Bool("rx", false, "Only receive packets")
 		txOnly   = flag.Bool("tx", false, "Only transfer packets")
+		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Enable debugging information")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
@@ -81,6 +82,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Can not parse config:", err)
 	}
+	ctx.Quiet = *quiet
 	ctx.Debug = *debug
 
 	splitted := strings.SplitN(flag.Arg(0), ":", 2)

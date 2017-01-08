@@ -50,6 +50,7 @@ func main() {
 		txOnly   = flag.Bool("tx", false, "Only transfer packets")
 		force    = flag.Bool("force", false, "Force outbound directories creation")
 		keep     = flag.Bool("keep", false, "Do not delete transferred packets")
+		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Enable debugging information")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
@@ -84,6 +85,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Can not parse config:", err)
 	}
+	ctx.Quiet = *quiet
 	ctx.Debug = *debug
 
 	var nodeOnly *nncp.Node

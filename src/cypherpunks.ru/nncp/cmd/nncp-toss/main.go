@@ -42,6 +42,7 @@ func main() {
 		nodeRaw  = flag.String("node", "", "Process only that node")
 		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
 		dryRun   = flag.Bool("dryrun", false, "Do not actually write any tossed data")
+		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Enable debugging information")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
@@ -69,6 +70,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Can not parse config:", err)
 	}
+	ctx.Quiet = *quiet
 	ctx.Debug = *debug
 
 	var nodeOnly *nncp.Node
