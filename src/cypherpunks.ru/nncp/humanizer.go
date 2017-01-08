@@ -150,8 +150,6 @@ func (ctx *Ctx) Humanize(s string) string {
 		if err, exists := sds["err"]; exists {
 			msg += ": " + err
 		}
-	case "daemon":
-		msg = fmt.Sprintf("Daemon listening on %s", sds["bind"])
 	case "call-start":
 		msg = fmt.Sprintf("Connected to %s", nodeS)
 	case "call-finish":
