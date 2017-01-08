@@ -25,7 +25,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -98,8 +97,11 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size int64, src io.Reader) 
 }
 
 func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string) error {
-	dstPath = path.Clean(dstPath)
-	if path.IsAbs(dstPath) {
+	if dstPath == "" {
+		dstPath = filepath.Base(srcPath)
+	}
+	dstPath = filepath.Clean(dstPath)
+	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
 	}
 	pkt, err := NewPkt(PktTypeFile, dstPath)
@@ -140,12 +142,12 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string) error {
 }
 
 func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string) error {
-	dstPath = path.Clean(dstPath)
-	if path.IsAbs(dstPath) {
+	dstPath = filepath.Clean(dstPath)
+	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
 	}
-	srcPath = path.Clean(srcPath)
-	if path.IsAbs(srcPath) {
+	srcPath = filepath.Clean(srcPath)
+	if filepath.IsAbs(srcPath) {
 		return errors.New("Relative source path required")
 	}
 	pkt, err := NewPkt(PktTypeFreq, srcPath)
