@@ -76,18 +76,18 @@ func (ctx *Ctx) Humanize(s string) string {
 		switch sds["type"] {
 		case "file":
 			msg = fmt.Sprintf(
-				"File %s (%s) transfer to %s:%s (nice %s): %s",
-				sds["src"], size, nodeS, sds["dst"], sds["nice"], rem,
+				"File %s (%s) transfer to %s:%s: %s",
+				sds["src"], size, nodeS, sds["dst"], rem,
 			)
 		case "freq":
 			msg = fmt.Sprintf(
-				"File request from %s:%s to %s (nice %s): %s",
-				nodeS, sds["src"], sds["dst"], sds["nice"], rem,
+				"File request from %s:%s to %s: %s",
+				nodeS, sds["src"], sds["dst"], rem,
 			)
 		case "mail":
 			msg = fmt.Sprintf(
-				"Mail to %s@%s (%s) (nice %s): %s",
-				nodeS, strings.Replace(sds["dst"], " ", ",", -1), size, sds["nice"], rem,
+				"Mail to %s@%s (%s): %s",
+				nodeS, strings.Replace(sds["dst"], " ", ",", -1), size, rem,
 			)
 		case "trns":
 			msg = fmt.Sprintf(
