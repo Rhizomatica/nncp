@@ -1,0 +1,75 @@
+\input texinfo
+@documentencoding UTF-8
+@settitle NNCP
+
+@copying
+This manual is for NNCP (Node to Node copy) --  collection of utilities
+simplifying secure store-and-forward files and mail exchanging.
+
+Copyright @copyright{} 2016-2017 @email{stargrave@@stargrave.org, Sergey Matveev}
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled "Copying conditions".
+@end quotation
+@end copying
+
+@node Top
+@top NNCP
+
+NNCP (Node to Node copy) is a collection of utilities simplifying
+secure store-and-forward files and mail exchanging.
+
+This utilities are intended to help build up small size (dozens of
+nodes) ad-hoc @url{https://en.wikipedia.org/wiki/Friend-to-friend,
+friend-to-friend} (F2F) statically routed
+@url{https://en.wikipedia.org/wiki/Darknet, darknet} networks for
+fire-and-forget secure reliable files, file requests and Internet mail
+transmission. All packets are integrity checked,
+@url{https://en.wikipedia.org/wiki/End-to-end_encryption, end-to-end}
+encrypted, explicitly authenticated by known participants public keys.
+@url{https://en.wikipedia.org/wiki/Onion_routing, Onion encryption} is
+applied to relayed packets. Each node acts both as a client and server,
+can use push and poll behaviour model.
+
+Out-of-box offline @url{https://en.wikipedia.org/wiki/Sneakernet,
+sneakernet/floppynet}, @url{https://en.wikipedia.org/wiki/Dead_drop,
+dead drops} and @url{https://en.wikipedia.org/wiki/Air_gap_(networking),
+air-gapped} computers support. But online TCP daemon with full-duplex
+resumable data transmission exists.
+
+NNCP is @url{https://www.gnu.org/philosophy/pragmatic.html, copylefted}
+@url{https://www.gnu.org/philosophy/free-sw.html, free software}
+licenced under @url{https://www.gnu.org/licenses/gpl-3.0.html, GPLv3+}.
+It should work on all @url{https://en.wikipedia.org/wiki/POSIX,
+POSIX}-compatible systems. Easy integration with existing
+@url{https://en.wikipedia.org/wiki/SMTP, SMTP} servers. Single
+@url{http://yaml.org/, YAML} configuration file.
+
+@menu
+* Comparison with existing solutions: Comparison.
+* Use cases::
+* Commands::
+* Configuration file: Configuration.
+* Packet format: Packet.
+* Sync protocol: Sync.
+* Copying conditions::
+@end menu
+
+@include comparison.texi
+@include usecases.texi
+@include cmds.texi
+@include cfg.texi
+@include pkt.texi
+@include sp.texi
+
+@node Copying conditions
+@unnumbered Copying conditions
+
+@insertcopying
+@verbatiminclude fdl.txt
+
+@bye

@@ -1,0 +1,29 @@
+NNCP (Node to Node copy) is a collection of utilities simplifying
+secure store-and-forward files and mail exchanging.
+
+This utilities are intended to help build up small size (dozens of
+nodes) ad-hoc friend-to-friend (F2F) statically routed darknet networks
+for fire-and-forget secure reliable files, file requests and Internet
+mail transmission. All packets are integrity checked, end-to-end
+encrypted (E2EE), explicitly authenticated by known participants public
+keys. Onion encryption is applied to relayed packets. Each node acts
+both as a client and server, can use push and poll behaviour model.
+
+Out-of-box offline sneakernet/floppynet, dead drops and air-gapped
+computers support. But online TCP daemon with full-duplex resumable data
+transmission exists.
+
+NNCP is copylefted free software: see the file COPYING for copying
+conditions. It should work on all POSIX-compatible systems. Easy
+integration with existing SMTP servers. Single YAML configuration file.
+
+Home page: http://www.nncpgo.org/
+
+Please send questions regarding the use of NNCP, bug reports and
+patches to nncp-devel mailing list:
+https://lists.cypherpunks.ru/pipermail/nncp-devel/
+
+Development Git source code repository currently is located here:
+http://git.cypherpunks.ru/cgit.cgi/nncp.git/
+
+For further information please read either doc/nncp.info or doc/nncp.texi.

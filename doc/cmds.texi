@@ -1,0 +1,62 @@
+@node Commands
+@unnumbered Commands
+
+@node nncp-call
+@section nncp-call
+
+TODO.
+
+@node nncp-check
+@section nncp-check
+
+TODO.
+
+@node nncp-daemon
+@section nncp-daemon
+
+TODO.
+
+@node nncp-file
+@section nncp-file
+
+TODO.
+
+@node nncp-freq
+@section nncp-freq
+
+TODO.
+
+@node nncp-log
+@section nncp-log
+
+TODO.
+
+@node nncp-mail
+@section nncp-mail
+
+TODO.
+
+@node nncp-newnode
+@section nncp-newnode
+
+TODO.
+
+@node nncp-pkt
+@section nncp-pkt
+
+TODO.
+
+@node nncp-stat
+@section nncp-stat
+
+TODO.
+
+@node nncp-toss
+@section nncp-toss
+
+TODO.
+
+@node nncp-xfer
+@section nncp-xfer
+
+TODO.

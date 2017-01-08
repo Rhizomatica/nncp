@@ -1,0 +1,214 @@
+@node Use cases
+@unnumbered Use cases
+
+@table @strong
+
+@item Occasional connection to mail server
+
+Assume that you have got your own @url{http://www.postfix.org/, Postfix}
+SMTP server connected to the Internet. But you read and write emails on
+your notebook, that is connected to it just from time to time. How can
+you flush buffered mail queues when your notebook is connected?
+
+One possibility is to log in and run something like @command{postqueue
+-f}, but by default you have got only several days so and sender will
+receive notification emails that his messages still are not delivered
+yet. Also you must have secure link (SSH, VPN, etc).
+
+Another possibility is to use POP3/IMAP4 servers, but this is too
+overcomplicated and bloated for the simple task. Not an option.
+
+Just tell both of your Postfixes (on the server and notebook) to drop
+email as a mail via NNCP to specified node. Search for @code{uucp}
+related strings in @code{master.cf} and replace command to NNCP ones:
+
+@verbatim
+nncp      unix  -       n       n       -       -       pipe
+  flags=Fqhu user=nncp argv=nncp-mail -quiet $nexthop $recipient
+@end verbatim
+
+Now, all mail will be stored in NNCP spool, that after exchanging and
+tossing will call local @code{sendmail} command to deliver them just
+that was happened on the same machine.
+
+@item Unreliable/expensive communication link
+
+Assume that you have got slow modem/radio/cellular link that frequently
+disconnects and causes TCP timeouts. Not all HTTP servers support file
+download continuation. SMTP does not support resuming at all and heavy
+messages is a problem to retrieve. Moreover, each disconnect leads to
+the same data retransmission again, that can be expensive to afford.
+
+Just send your mail and files through NNCP. You can use either offline
+delivery methods -- read about them below, or you can use included NNCP
+TCP daemon.
+
+The command below:
+
+@verbatim
+% nncp-file file_i_want_to_send bob:
+% nncp-file another_file bob:movie.avi
+@end verbatim
+
+will queue two files for sending to @code{bob} node. Fire and forget!
+Now this is daemon's job (or offline transfer) to send this file part by
+part to remote system when it is available.
+
+@item Slow/expensive link for high-volume data
+
+Assume that you can give your relatively cheap 2 TiB removable hard
+drive to someone each day at the morning (and take it back at the
+evening). This equals to 185 Mbps good quality (without any speed
+degradation) link in single direction. What about more and bigger hard
+drives? This type of data transferring is called
+@url{https://en.wikipedia.org/wiki/Sneakernet, sneakernet}/floppynet.
+
+@item Extreme terrestrial environments, no link
+
+This is some kind of too slow link. Offline delivery methods is the only
+choice. Just send files as shown above, but use removable media for
+transferring packets to other nodes.
+
+Assume that you send two files to @code{bob} node. Insert USB storage
+device, mount it and run:
+
+@verbatim
+% nncp-xfer -node bob /media/usbstick
+@end verbatim
+
+to copy all outbound packets related to @code{bob}'s node. Use
+@code{-force} option to forcefully create related directory on USB
+storage if they are missing (for example when running for the first
+time).
+
+If you use single storage device to transfer data both to @code{bob} and
+@code{alice}, then just omit @code{-node} option to copy all existing
+outgoing packets to that storage device.
+
+@verbatim
+% nncp-xfer /media/usbstick
+@end verbatim
+
+Unmount it and transfer somehow to Bob and Alice. When they will insert
+it in their computers, they will use exactly the same command:
+
+@verbatim
+% nncp-xfer /media/usbstick
+@end verbatim
+
+to find all packets related to their node and copy them locally for
+further processing. @code{nncp-xfer} is the only command used with
+removable devices.
+
+@item Private, isolated MitM-resistant networks
+
+All Internet connections can be eavesdropped and forged. You
+@strong{have to} to use encryption and authentication for securing them.
+But it is very hard to secure metadata, that leaks during each online
+session. When you start your shiny new software server be sure that
+there could be huge quantity of bogus peers trying to perform
+@url{https://en.wikipedia.org/wiki/Sybil_attack, Sybil attack}. Opennet
+peer-to-peer networking is dangerous thing to do.
+
+The most popular cryptographic protocol in Internet is
+@url{https://en.wikipedia.org/wiki/Transport_Layer_Security, TLS} that
+is very hard to implement right and hard to configure for mutual
+participants authentication. Not all TLS configurations and related
+protocols provide @url{https://en.wikipedia.org/wiki/Forward_secrecy,
+forward secrecy} property -- all previously intercepted packets could be
+read if private keys are compromised.
+
+Friend-to-friend networks, darknets can mitigate risks related to fake
+and forged nodes. However they are harder to support require more time
+to be done right.
+
+NNCP's TCP daemon uses @url{http://noiseprotocol.org/, Noise-IK}
+protocol to mutually authenticate peers and provide effective (both
+participants send payload in the very first packet) secure transport
+with forward secrecy property.
+
+@verbatim
+% nncp-daemon -bind [::]:5400
+@end verbatim
+will start TCP daemon listening on all interfaces for incoming
+connections.
+
+@verbatim
+% nncp-call bob
+@end verbatim
+will try to connect to @code{bob}'s node known TCP addresses (taken from
+configuration file) and send all related outbound packets and retrieve
+those the Bob has. All interrupted transfers will be automatically
+resumed.
+
+@item Highly secure isolated air-gap computers
+
+If you worry much about security, then air-gapped computer could be the
+only choice you can afford. Computer without any modems, wired and
+wireless networks. Obviously the only possibility to exchange mail and
+files is to use physically removable storage devices like CD-ROM, hard
+drive, tape and USB flash drives (worst choice, due to those devices
+complexity).
+
+Presumably you have got another own hop before that computer: another
+intermediate node which performs basic verification of retrieved storage
+devices, possibly by rewriting the data from USB/hard drives to CD-RWs.
+
+NNCP supports packets relying (transitioning) out-of-box.
+
+@verbatim
+neigh:
+  bob:
+    [...]
+    addrs:
+      lan: [fe80::5400%igb0]:5400
+  bob-airgap:
+    [...]
+    via: [bob]
+@end verbatim
+
+That configuration file tells that we have got two known neighbours
+(nodes, peers): @code{bob} and @code{bob-airgap}. @code{bob} can be
+reached via online connection using @code{lan} address.
+@code{bob-airgap} can be reached by sending intermediate relay packet
+through the @code{bob}.
+
+Any command like @code{nncp-file myfile bob-airgap:} will automatically
+create two packets: one for the destination endpoint, other for
+intermediate relaying node.
+
+Pay attention that relaying node knows nothing about the packet inside,
+but just its size and priority. Transition packets are encrypted too.
+@code{bob} can not read @code{bob-airgap}'s packets.
+
+@item Reconnaissance, spying, intelligence, covert agents
+
+Those guys know how Internet is a dangerous place incompatible with
+privacy. They require quick, fast dropping and picking of data. No
+possibility of many round-trips -- just drop the data, fire-and-forget.
+It could be either removable media again, or
+@url{https://en.wikipedia.org/wiki/USB_dead_drop, USB dead drops}, or
+@url{https://en.wikipedia.org/wiki/PirateBox, PirateBox}es, or
+@url{https://en.wikipedia.org/wiki/Short-range_agent_communications, SRAC}.
+Short lived short range networks like Bluetooth and WiFi can also
+be pretty fast, allowing to quickly fire chunks of queued packets.
+
+Very important property is that compromising of those dead drops and
+storages must not be fatal and even dangerous. Packets sent through the
+network and exchanged via those devices are end-to-end encrypted (but
+unfortunately without forward secrecy property). No filenames, mail
+recipients are seen.
+
+All communications are done with so-called spool area: directory
+containing only those unprocessed encrypted packets. After packet
+transfer you still can not read any mail of get files: you have to run
+another stage: tossing. Only that stage involves your private
+cryptographic keys. So even if your loose your computer, storage devices
+and so on -- it is not so bad, because you are not carrying private keys
+with it, you do not "toss" those packets immediately on the same device.
+
+Tossing (reading those encrypted packets and extracting transferred
+files and mail messages) could and should be done on a separate
+computer.
+
+@end table
