@@ -41,7 +41,12 @@ func Check(src io.Reader, checksum []byte) (bool, error) {
 func (ctx *Ctx) checkXx(nodeId *NodeId, xx TRxTx) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, xx) {
-		sds := SDS{"xx": string(xx), "node": nodeId, "pkt": job.Fd.Name()}
+		sds := SDS{
+			"xx":   string(xx),
+			"node": nodeId,
+			"pkt":  ToBase32(job.HshValue[:]),
+		}
+		ctx.LogI("check", sds, "")
 		gut, err := Check(job.Fd, job.HshValue[:])
 		job.Fd.Close()
 		if err != nil {

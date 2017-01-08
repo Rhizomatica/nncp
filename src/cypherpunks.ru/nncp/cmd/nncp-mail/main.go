@@ -43,6 +43,7 @@ func main() {
 	var (
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw  = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
+		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Enable debugging information")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
@@ -74,6 +75,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Can not parse config:", err)
 	}
+	ctx.Quiet = *quiet
 	ctx.Debug = *debug
 
 	node, err := ctx.FindNode(flag.Arg(0))

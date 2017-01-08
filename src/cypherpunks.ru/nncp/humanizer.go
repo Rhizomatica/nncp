@@ -128,10 +128,10 @@ func (ctx *Ctx) Humanize(s string) string {
 			msg += ": " + err
 		}
 	case "check":
-		msg = fmt.Sprintf(
-			"Integrity check: %s/%s/%s %s",
-			sds["node"], sds["xx"], sds["pkt"], sds["err"],
-		)
+		msg = fmt.Sprintf("Checking: %s/%s/%s", sds["node"], sds["xx"], sds["pkt"])
+		if err, exists := sds["err"]; exists {
+			msg += fmt.Sprintf(" %s", err)
+		}
 	case "nncp-xfer":
 		switch sds["xx"] {
 		case "rx":

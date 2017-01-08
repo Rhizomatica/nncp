@@ -31,6 +31,7 @@ type Ctx struct {
 
 	Spool      string
 	LogPath    string
+	Quiet      bool
 	Debug      bool
 	NotifyFile *FromToYAML
 	NotifyFreq *FromToYAML
