@@ -76,7 +76,7 @@ func (ctx *Ctx) UnlockDir(fd *os.File) {
 	}
 }
 
-func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8) {
+func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) {
 	dirLock, err := ctx.LockDir(nodeId, TRx)
 	if err != nil {
 		return
@@ -131,21 +131,25 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8) {
 				log.Fatalln(err)
 			}
 			sendmail := ctx.Neigh[*job.PktEnc.Sender].Sendmail
-			cmd := exec.Command(
-				sendmail[0],
-				append(
-					sendmail[1:len(sendmail)],
-					strings.Split(recipients, " ")...,
-				)...,
-			)
-			cmd.Stdin = decompressor
-			if err = cmd.Run(); err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "sendmail")
-				goto Closing
+			if !dryRun {
+				cmd := exec.Command(
+					sendmail[0],
+					append(
+						sendmail[1:len(sendmail)],
+						strings.Split(recipients, " ")...,
+					)...,
+				)
+				cmd.Stdin = decompressor
+				if err = cmd.Run(); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "sendmail")
+					goto Closing
+				}
 			}
 			ctx.LogI("rx", sds, "")
-			if err = os.Remove(job.Fd.Name()); err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
+			if !dryRun {
+				if err = os.Remove(job.Fd.Name()); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
+				}
 			}
 		case PktTypeFile:
 			dst := string(pkt.Path[:int(pkt.PathLen)])
@@ -160,56 +164,60 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8) {
 				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "mkdir")
 				goto Closing
 			}
-			tmp, err := ioutil.TempFile(dir, "nncp-file")
-			sds["tmp"] = tmp.Name()
-			ctx.LogD("rx", sds, "created")
-			if err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "mktemp")
-				goto Closing
-			}
-			bufW := bufio.NewWriter(tmp)
-			if _, err = io.Copy(bufW, pipeR); err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "copy")
-				goto Closing
-			}
-			bufW.Flush()
-			tmp.Sync()
-			tmp.Close()
-			dstPathOrig := filepath.Join(*incoming, dst)
-			dstPath := dstPathOrig
-			dstPathCtr := 0
-			for {
-				if _, err = os.Stat(dstPath); err != nil {
-					if os.IsNotExist(err) {
-						break
-					}
-					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "stat")
+			if !dryRun {
+				tmp, err := ioutil.TempFile(dir, "nncp-file")
+				sds["tmp"] = tmp.Name()
+				ctx.LogD("rx", sds, "created")
+				if err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "mktemp")
 					goto Closing
 				}
-				dstPath = dstPathOrig + strconv.Itoa(dstPathCtr)
-				dstPathCtr++
+				bufW := bufio.NewWriter(tmp)
+				if _, err = io.Copy(bufW, pipeR); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "copy")
+					goto Closing
+				}
+				bufW.Flush()
+				tmp.Sync()
+				tmp.Close()
+				dstPathOrig := filepath.Join(*incoming, dst)
+				dstPath := dstPathOrig
+				dstPathCtr := 0
+				for {
+					if _, err = os.Stat(dstPath); err != nil {
+						if os.IsNotExist(err) {
+							break
+						}
+						ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "stat")
+						goto Closing
+					}
+					dstPath = dstPathOrig + strconv.Itoa(dstPathCtr)
+					dstPathCtr++
+				}
+				if err = os.Rename(tmp.Name(), dstPath); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "rename")
+				}
+				delete(sds, "tmp")
 			}
-			if err = os.Rename(tmp.Name(), dstPath); err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "rename")
-			}
-			delete(sds, "tmp")
 			ctx.LogI("rx", sds, "")
-			if err = os.Remove(job.Fd.Name()); err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
-			}
-			sendmail := ctx.Neigh[*ctx.Self.Id].Sendmail
-			if ctx.NotifyFile != nil {
-				cmd := exec.Command(
-					sendmail[0],
-					append(sendmail[1:len(sendmail)], ctx.NotifyFile.To)...,
-				)
-				cmd.Stdin = newNotification(ctx.NotifyFile, fmt.Sprintf(
-					"File from %s: %s (%s)",
-					ctx.Neigh[*job.PktEnc.Sender].Name,
-					dst,
-					humanize.IBytes(uint64(pktSize)),
-				))
-				cmd.Run()
+			if !dryRun {
+				if err = os.Remove(job.Fd.Name()); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
+				}
+				sendmail := ctx.Neigh[*ctx.Self.Id].Sendmail
+				if ctx.NotifyFile != nil {
+					cmd := exec.Command(
+						sendmail[0],
+						append(sendmail[1:len(sendmail)], ctx.NotifyFile.To)...,
+					)
+					cmd.Stdin = newNotification(ctx.NotifyFile, fmt.Sprintf(
+						"File from %s: %s (%s)",
+						ctx.Neigh[*job.PktEnc.Sender].Name,
+						dst,
+						humanize.IBytes(uint64(pktSize)),
+					))
+					cmd.Run()
+				}
 			}
 		case PktTypeFreq:
 			src := string(pkt.Path[:int(pkt.PathLen)])
@@ -227,27 +235,30 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8) {
 				ctx.LogE("rx", sds, "freqing is not allowed")
 				goto Closing
 			}
-			err = ctx.TxFile(sender, job.PktEnc.Nice, filepath.Join(*freq, src), dst)
-			if err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "tx file")
-				goto Closing
+			if !dryRun {
+				if err = ctx.TxFile(sender, job.PktEnc.Nice, filepath.Join(*freq, src), dst); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "tx file")
+					goto Closing
+				}
 			}
 			ctx.LogI("rx", sds, "")
-			if err = os.Remove(job.Fd.Name()); err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
-			}
-			if ctx.NotifyFreq != nil {
-				sendmail := ctx.Neigh[*ctx.Self.Id].Sendmail
-				cmd := exec.Command(
-					sendmail[0],
-					append(sendmail[1:len(sendmail)], ctx.NotifyFreq.To)...,
-				)
-				cmd.Stdin = newNotification(ctx.NotifyFreq, fmt.Sprintf(
-					"Freq from %s: %s",
-					ctx.Neigh[*job.PktEnc.Sender].Name,
-					src,
-				))
-				cmd.Run()
+			if !dryRun {
+				if err = os.Remove(job.Fd.Name()); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
+				}
+				if ctx.NotifyFreq != nil {
+					sendmail := ctx.Neigh[*ctx.Self.Id].Sendmail
+					cmd := exec.Command(
+						sendmail[0],
+						append(sendmail[1:len(sendmail)], ctx.NotifyFreq.To)...,
+					)
+					cmd.Stdin = newNotification(ctx.NotifyFreq, fmt.Sprintf(
+						"Freq from %s: %s",
+						ctx.Neigh[*job.PktEnc.Sender].Name,
+						src,
+					))
+					cmd.Run()
+				}
 			}
 		case PktTypeTrns:
 			dst := new([blake2b.Size256]byte)
@@ -260,13 +271,17 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8) {
 				goto Closing
 			}
 			ctx.LogD("rx", sds, "taken")
-			if err = ctx.TxTrns(node, job.PktEnc.Nice, pktSize, pipeR); err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "tx trns")
-				goto Closing
+			if !dryRun {
+				if err = ctx.TxTrns(node, job.PktEnc.Nice, pktSize, pipeR); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "tx trns")
+					goto Closing
+				}
 			}
 			ctx.LogI("rx", sds, "")
-			if err = os.Remove(job.Fd.Name()); err != nil {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
+			if !dryRun {
+				if err = os.Remove(job.Fd.Name()); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
+				}
 			}
 		default:
 			ctx.LogE("rx", sds, "unknown type")

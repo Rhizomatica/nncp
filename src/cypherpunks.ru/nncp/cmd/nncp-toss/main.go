@@ -41,6 +41,7 @@ func main() {
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		nodeRaw  = flag.String("node", "", "Process only that node")
 		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
+		dryRun   = flag.Bool("dryrun", false, "Do not actually write any tossed data")
 		debug    = flag.Bool("debug", false, "Enable debugging information")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
@@ -82,6 +83,6 @@ func main() {
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		ctx.Toss(node.Id, nice)
+		ctx.Toss(node.Id, nice, *dryRun)
 	}
 }
