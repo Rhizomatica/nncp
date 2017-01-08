@@ -40,6 +40,7 @@ type Node struct {
 	ExchPub  *[32]byte
 	SignPub  ed25519.PublicKey
 	NoisePub *[32]byte
+	Sendmail []string
 	Incoming *string
 	Freq     *string
 	Via      []*NodeId

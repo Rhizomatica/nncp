@@ -130,10 +130,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8) {
 			if err != nil {
 				log.Fatalln(err)
 			}
+			sendmail := ctx.Neigh[*job.PktEnc.Sender].Sendmail
 			cmd := exec.Command(
-				ctx.Sendmail[0],
+				sendmail[0],
 				append(
-					ctx.Sendmail[1:len(ctx.Sendmail)],
+					sendmail[1:len(sendmail)],
 					strings.Split(recipients, " ")...,
 				)...,
 			)
@@ -196,13 +197,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8) {
 			if err = os.Remove(job.Fd.Name()); err != nil {
 				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 			}
+			sendmail := ctx.Neigh[*ctx.Self.Id].Sendmail
 			if ctx.NotifyFile != nil {
 				cmd := exec.Command(
-					ctx.Sendmail[0],
-					append(
-						ctx.Sendmail[1:len(ctx.Sendmail)],
-						ctx.NotifyFile.To,
-					)...,
+					sendmail[0],
+					append(sendmail[1:len(sendmail)], ctx.NotifyFile.To)...,
 				)
 				cmd.Stdin = newNotification(ctx.NotifyFile, fmt.Sprintf(
 					"File from %s: %s (%s)",
@@ -238,12 +237,10 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8) {
 				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 			}
 			if ctx.NotifyFreq != nil {
+				sendmail := ctx.Neigh[*ctx.Self.Id].Sendmail
 				cmd := exec.Command(
-					ctx.Sendmail[0],
-					append(
-						ctx.Sendmail[1:len(ctx.Sendmail)],
-						ctx.NotifyFreq.To,
-					)...,
+					sendmail[0],
+					append(sendmail[1:len(sendmail)], ctx.NotifyFreq.To)...,
 				)
 				cmd.Stdin = newNotification(ctx.NotifyFreq, fmt.Sprintf(
 					"Freq from %s: %s",
