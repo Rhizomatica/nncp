@@ -190,9 +190,9 @@ func (ctx *Ctx) Humanize(s string) string {
 	case "sp-file":
 		switch sds["xx"] {
 		case "rx":
-			msg = "Got file "
+			msg = "Got packet "
 		case "tx":
-			msg = "Sent file "
+			msg = "Sent packet "
 		default:
 			return s
 		}
@@ -214,9 +214,9 @@ func (ctx *Ctx) Humanize(s string) string {
 	case "sp-done":
 		switch sds["xx"] {
 		case "rx":
-			msg = fmt.Sprintf("File %s is retreived (%s)", sds["hash"], size)
+			msg = fmt.Sprintf("Packet %s is retreived (%s)", sds["hash"], size)
 		case "tx":
-			msg = fmt.Sprintf("File %s is sent", sds["hash"])
+			msg = fmt.Sprintf("Packet %s is sent", sds["hash"])
 		default:
 			return s
 		}
