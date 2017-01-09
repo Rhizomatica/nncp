@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	MaxSPSize        = 2<<15 - 256
+	MaxSPSize        = 2<<16 - 256
 	PartSuffix       = ".part"
 	DeadlineDuration = 10
 )
