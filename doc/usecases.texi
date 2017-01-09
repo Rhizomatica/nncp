@@ -1,9 +1,19 @@
 @node Use cases
 @unnumbered Use cases
 
-@table @strong
+@menu
+* Occasional connection to mail server: UsecaseMail.
+* Unreliable/expensive communication link: UsecaseUnreliable.
+* Slow/expensive link for high-volume data, bad QoS: UsecaseQoS.
+* Extreme terrestrial environments, no link: UsecaseNoLink.
+* Private, isolated MitM-resistant networks: UsecaseF2F.
+* Highly secure isolated air-gap computers: UsecaseAirgap.
+* Network censorship bypassing: UsecaseCensor.
+* Reconnaissance, spying, intelligence, covert agents: UsecaseSpy.
+@end menu
 
-@item Occasional connection to mail server
+@node UsecaseMail
+@section Occasional connection to mail server
 
 Assume that you have got your own @url{http://www.postfix.org/, Postfix}
 SMTP server connected to the Internet. But you read and write emails on
@@ -16,22 +26,35 @@ receive notification emails that his messages still are not delivered
 yet. Also you must have secure link (SSH, VPN, etc).
 
 Another possibility is to use POP3/IMAP4 servers, but this is too
-overcomplicated and bloated for the simple task. Not an option.
+overcomplicated and bloated for the simple task. Not an option. KISS!
+
+@anchor{Postfix}
 
 Just tell both of your Postfixes (on the server and notebook) to drop
-email as a mail via NNCP to specified node. Search for @code{uucp}
-related strings in @code{master.cf} and replace command to NNCP ones:
+email as a mail via NNCP to specified node. This is done similarly as
+with UUCP and as written in Postfix
+@url{http://www.postfix.org/UUCP_README.html, documentation}.
+
+Search for @code{uucp} related strings in @code{master.cf} and replace
+command to NNCP ones:
 
 @verbatim
-nncp      unix  -       n       n       -       -       pipe
-  flags=Fqhu user=nncp argv=nncp-mail -quiet $nexthop $recipient
+nncp unix - n n - - pipe flags=Fqhu user=nncp argv=nncp-mail -quiet $nexthop $recipient
+@end verbatim
+
+then add transport map, telling that mail for example.com domain can be
+reached through NNCP transport to node @code{bob}:
+
+@verbatim
+example.com nncp:bob
 @end verbatim
 
 Now, all mail will be stored in NNCP spool, that after exchanging and
 tossing will call local @code{sendmail} command to deliver them just
 that was happened on the same machine.
 
-@item Unreliable/expensive communication link
+@node UsecaseUnreliable
+@section Unreliable/expensive communication link
 
 Assume that you have got slow modem/radio/cellular link that frequently
 disconnects and causes TCP timeouts. Not all HTTP servers support file
@@ -54,16 +77,29 @@ will queue two files for sending to @code{bob} node. Fire and forget!
 Now this is daemon's job (or offline transfer) to send this file part by
 part to remote system when it is available.
 
-@item Slow/expensive link for high-volume data
+@node UsecaseQoS
+@section Slow/expensive link for high-volume data, bad QoS
 
 Assume that you can give your relatively cheap 2 TiB removable hard
 drive to someone each day at the morning (and take it back at the
 evening). This equals to 185 Mbps good quality (without any speed
 degradation) link in single direction. What about more and bigger hard
-drives? This type of data transferring is called
+drives? This type of data exchange is called
 @url{https://en.wikipedia.org/wiki/Sneakernet, sneakernet}/floppynet.
 
-@item Extreme terrestrial environments, no link
+NNCP allows traffic prioritizing: each packet has niceness level,
+that will guarantee that it will be processed earlier or later than the
+other ones. Nearly all commands has corresponding option:
+
+@verbatim
+% nncp-file -nice 32 myfile node:dst
+% nncp-xfer -nice 192 /mnt/shared
+% nncp-call -nice 224 bob
+[...]
+@end verbatim
+
+@node UsecaseNoLink
+@section Extreme terrestrial environments, no link
 
 This is some kind of too slow link. Offline delivery methods is the only
 choice. Just send files as shown above, but use removable media for
@@ -100,7 +136,8 @@ to find all packets related to their node and copy them locally for
 further processing. @code{nncp-xfer} is the only command used with
 removable devices.
 
-@item Private, isolated MitM-resistant networks
+@node UsecaseF2F
+@section Private, isolated MitM-resistant networks
 
 All Internet connections can be eavesdropped and forged. You
 @strong{have to} to use encryption and authentication for securing them.
@@ -141,7 +178,8 @@ configuration file) and send all related outbound packets and retrieve
 those the Bob has. All interrupted transfers will be automatically
 resumed.
 
-@item Highly secure isolated air-gap computers
+@node UsecaseAirgap
+@section Highly secure isolated air-gap computers
 
 If you worry much about security, then air-gapped computer could be the
 only choice you can afford. Computer without any modems, wired and
@@ -181,7 +219,26 @@ Pay attention that relaying node knows nothing about the packet inside,
 but just its size and priority. Transition packets are encrypted too.
 @code{bob} can not read @code{bob-airgap}'s packets.
 
-@item Reconnaissance, spying, intelligence, covert agents
+@node UsecaseCensor
+@section Network censorship bypassing
+
+This is some kind of bad link too. Some governments tend to forbid
+@strong{any} kind of private communication between people, allowing only
+entertainment content delivering and popular social networks access
+(that are already bloated with advertisements, local proprietary
+JavaScript code execution (for spying on user activities, collect data
+on them), shamelessly exploiting of very basic interhuman need of
+communication).
+
+This is their natural right and wish. Nobody forces you to obey huge
+corporations like Apple, Google or Microsoft. It is your choice to
+create isolated friend-to-friend network with piles of harmless content
+and private messaging. Only predators silently watch for their victims
+in mammals world -- it harms your health being watched and feeling that
+you are the victim that has already done something wrong.
+
+@node UsecaseSpy
+@section Reconnaissance, spying, intelligence, covert agents
 
 Those guys know how Internet is a dangerous place incompatible with
 privacy. They require quick, fast dropping and picking of data. No
@@ -196,8 +253,8 @@ be pretty fast, allowing to quickly fire chunks of queued packets.
 Very important property is that compromising of those dead drops and
 storages must not be fatal and even dangerous. Packets sent through the
 network and exchanged via those devices are end-to-end encrypted (but
-unfortunately without forward secrecy property). No filenames, mail
-recipients are seen.
+unfortunately lacking forward secrecy). No filenames, mail recipients
+are seen.
 
 All communications are done with so-called spool area: directory
 containing only those unprocessed encrypted packets. After packet
@@ -206,9 +263,6 @@ another stage: tossing. Only that stage involves your private
 cryptographic keys. So even if your loose your computer, storage devices
 and so on -- it is not so bad, because you are not carrying private keys
 with it, you do not "toss" those packets immediately on the same device.
-
 Tossing (reading those encrypted packets and extracting transferred
 files and mail messages) could and should be done on a separate
 computer.
-
-@end table

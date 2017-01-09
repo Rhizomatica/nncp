@@ -1,4 +1,104 @@
 @node Configuration
 @unnumbered Configuration file
 
-TODO.
+Example YAML configuration file:
+
+@verbatim
+spool: /var/spool/nncp
+log: /var/spool/nncp/log
+notify:
+  file:
+    from: nncp@localhost
+    to: user+file@example.com
+  freq:
+    from: nncp@localhost
+    to: user+freq@example.com
+self:
+  id: TIJQL...2NGIA
+  exchpub: CYVGQ...PSEWQ
+  exchprv: 65PUY...MPZ3Q
+  signpub: 2NMVC...CMH5Q
+  signprv: 555JD...RGD6Y
+  noiseprv: D62XU...NKYPA
+  noisepub: KIBKK...ESM7Q
+neigh:
+  self:
+    id: TIJQL...2NGIA
+    exchpub: CYVGQ...PSEWQ
+    signpub: 2NMVC...CMH5Q
+    noisepub: KIBKK...ESM7Q
+    sendmail: [/usr/sbin/sendmail]
+  alice:
+    id: XJZBK...65IJQ
+    exchpub: MJACJ...FAI6A
+    signpub: T4AFC...N2FRQ
+    noisepub: UBM5K...VI42A
+    sendmail: [/bin/sh, -c, false]
+    incoming: /home/alice/incoming
+    addrs:
+      lan: "[fe80::1234%igb0]:5400"
+      internet: alice.com:3389
+  bob:
+    id: 2IZNP...UYGYA
+    exchpub: WFLMZ...B7NHA
+    signpub: GTGXG...IE3OA
+    noisepub: EQAZM...J3NBA
+    sendmail: [/usr/sbin/sendmail]
+    freq: /home/bob/pub
+    via: [alice]
+@end verbatim
+
+@strong{spool} field contains an absolute path to @ref{Spool, spool}
+directory. @strong{log} field contains an absolute path to @ref{Log,
+log} file.
+
+@strong{notify} section contains notification settings for successfully
+tossed file and file request packets. Corresponding @strong{from} and
+@strong{to} fields will substituted in notification email message.
+@emph{neigh/self/sendmail} will be used as a local mailer. If
+either of @emph{from}/@emph{to} fields are omitted, then no notification
+will be sent.
+
+@strong{self} section contains our node's private keypairs.
+@strong{exch*} and @strong{sign*} are used during @ref{Encrypted,
+encrypted} packet creation. @strong{noise*} are used during @ref{Sync,
+sync protocol} working in @ref{nncp-call}/@ref{nncp-daemon}.
+
+@strong{neigh} section contains all known neighbours information. It
+always has @strong{self} neighbour that is copy of our node's public
+data (public keys). It is useful for copy-paste sharing with your
+friends. Each section's key is a human-readable name of the neighbour.
+
+Except for @emph{id}, @emph{exchpub} and @emph{signpub} each node has
+the following fields:
+
+@table @strong
+@item noisepub
+Must be present, but can be dummy (only zeros) if no online
+communication using @ref{Sync, sync protocol} will be used.
+
+@item sendmail
+An array containing path to executable and its command line arguments
+that is called for mail sending.
+
+@item incoming
+Full path to directory where all file uploads will be saved. May be
+omitted to forbid file uploading on that node.
+
+@item freq
+Full path to directory from where file requests will queue files for
+transmission. May be omitted to forbid freqing from that node.
+
+@item via
+An array of node identifiers that will be used as a relay to that node.
+For example @code{[foo,bar]} means that packet can reach current node by
+transitioning through @code{foo} and then @code{bar} nodes. May be
+omitted if direct connection exists and no relaying is required.
+
+@item addrs
+Dictionary containing known network addresses of the node. Each key is
+human-readable name of the link/address. Values are @code{addr:port}
+pairs pointing to @ref{nncp-daemon}'s listening instance. May be omitted
+if either no direct connection exists, or @ref{nncp-call} is used with
+forced address specifying.
+@end table

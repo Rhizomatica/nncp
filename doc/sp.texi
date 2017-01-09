@@ -1,16 +1,130 @@
 @node Sync
 @unnumbered Sync protocol
 
-So-called sync protocol is used in current TCP daemon's implementation.
-It is aimed to be very simple and effective. It is used over reliable
-transport like TCP connections.
+So-called sync protocol (SP) is used in current TCP daemon's
+implementation. It is used for synchronizing @ref{Spool, spool}
+directory contents between two nodes.
 
-It must be effective both on single-duplex and full-duplex links (for
-example satellites have very high throughput, but high-delay links).
-Acknowledging of each received packet, like
+It is aimed to be very simple and effective. It uses reliable transport
+like TCP connections. It must be effective both on single-duplex and
+full-duplex links: for example satellites have very high throughput and
+high-delay links, so acknowledging of each received packet, like
 @url{https://en.wikipedia.org/wiki/XMODEM, XMODEM} does, causes
 unacceptable performance degradation.
 
-TODO
+SP works on top of
+@url{http://noiseprotocol.org/noise.html#interactive-patterns,
+@code{Noise_IK_25519_ChaChaPoly_BLAKE2b}} protocol. Each Noise packet
+are sent inside XDR envelope:
 
-http://noiseprotocol.org/noise.html#interactive-patterns
+@verbatim
++-----------------+
+| MAGIC | PAYLOAD |
++-----------------+
+@end verbatim
+
+@multitable @columnfractions 0.2 0.3 0.5
+@headitem  @tab XDR type @tab Value
+@item Magic number @tab
+    8-byte, fixed length opaque data @tab
+    @code{NNCPS0x10x00x00}
+@item Payload @tab
+    variable length opaque data @tab
+    Noise packet itself
+@end multitable
+
+Peers static keys are specified as @ref{Configuration, @code{noisepub}}
+configuration entry.
+
+Payload inside Noise packets has maximum size of @code{65 KiB - 256 B =
+65280 B}. It is sent immediately in the first message by each side. The
+very first payload (that is carried inside handshake messages) is always
+padded to the maximum size with @code{HALT} packets (read below), for
+hiding actual number of @code{INFO} packets (number of files available
+for transmission).
+
+Each SP payload is a concatenation of various SP packets. Each packet
+has XDR-encoded header and then corresponding XDR-encoded body. Header
+is just an unsigned integer telling what body structure follows.
+
+@table @code
+
+@item HALT
+    Stop file transmission, empty sending queue on the remote side.
+    Actually @code{HALT} packet does not have any body, only the header
+    with the type. It is also used in the first payload for padding to
+    the maximum size.
+
+@item INFO
+    Information about the file we have for transmission.
+@verbatim
++--------------------+
+| NICE | SIZE | HASH |
++--------------------+
+@end verbatim
+    @multitable @columnfractions 0.2 0.3 0.5
+    @headitem  @tab XDR type @tab Value
+    @item Niceness @tab
+        unsigned integer @tab
+        1-255, file niceness level, its priority
+    @item Size @tab
+        unsigned hyper integer @tab
+        File size
+    @item Hash @tab
+        32-byte, fixed length opaque data @tab
+        Unique file identifier, its checksum
+    @end multitable
+
+@item FREQ
+    File transmission request. Ask remote side to queue the file for
+    transmission.
+@verbatim
++---------------+
+| HASH | OFFSET |
++---------------+
+@end verbatim
+    @multitable @columnfractions 0.2 0.3 0.5
+    @headitem  @tab XDR type @tab Value
+    @item Hash @tab
+        32-byte, fixed length opaque data @tab
+        Unique file identifier, its checksum
+    @item Offset @tab
+        unsigned hyper integer @tab
+        Offset from which remote side must transmit the file
+    @end multitable
+
+@item FILE
+    Chunk of file.
+@verbatim
++-------------------------+
+| HASH | OFFSET | PAYLOAD |
++-------------------------+
+@end verbatim
+    @multitable @columnfractions 0.2 0.3 0.5
+    @headitem  @tab XDR type @tab Value
+    @item Hash @tab
+        32-byte, fixed length opaque data @tab
+        Unique file identifier, its checksum
+    @item Offset @tab
+        unsigned hyper integer @tab
+        Offset from which transmission goes
+    @item Payload @tab
+        variable length opaque data @tab
+        Chunk of file itself
+    @end multitable
+
+@item DONE
+    Signal remote side that we have successfully downloaded the file.
+@verbatim
++------+
+| HASH |
++------+
+@end verbatim
+    @multitable @columnfractions 0.2 0.3 0.5
+    @headitem  @tab XDR type @tab Value
+    @item Hash @tab
+        32-byte, fixed length opaque data @tab
+        Unique file identifier, its checksum
+    @end multitable
+
+@end table

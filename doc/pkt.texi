@@ -18,8 +18,6 @@ transition packet or email message. It is called "plain", because it
 contains plaintext, but plain packets would never be stored on your hard
 drive.
 
-Each packet has the following header:
-
 @verbatim
             HEADER
 +-------------------------------+--...---+
@@ -29,34 +27,31 @@ Each packet has the following header:
 
 @multitable @columnfractions 0.2 0.3 0.5
 @headitem  @tab XDR type @tab Value
-
 @item Magic number @tab
-  8-byte, fixed length opaque data @tab
-  @code{NNCPP0x10x00x00}
-
+    8-byte, fixed length opaque data @tab
+    @code{NNCPP0x10x00x00}
 @item Payload type @tab
-  unsigned integer @tab
-  0 (file), 1 (freq), 2 (mail), 3 (transition)
-
+    unsigned integer @tab
+    0 (file), 1 (freq), 2 (mail), 3 (transition)
 @item Path length @tab
-  unsigned integer @tab
-  actual length of following field's payload
-
+    unsigned integer @tab
+    actual length of following field's payload
 @item Path @tab
-  255 byte, fixed length opaque data @tab
-  @itemize
-  @item UTF-8 encoded destination path for file transfer
-  @item UTF-8 encoded source path for file request
-  @item UTF-8 encoded, space separated, email recipients list
-  @item Node id the transition packet must be relayed on
-  @end itemize
-
+    255 byte, fixed length opaque data @tab
+    @itemize
+    @item UTF-8 encoded destination path for file transfer
+    @item UTF-8 encoded source path for file request
+    @item UTF-8 encoded, space separated, email recipients list
+    @item Node id the transition packet must be relayed on
+    @end itemize
 @end multitable
 
 Path has fixed size because of hiding its actual length -- it is
-valuable metadata.
+valuable metadata. Payload is appended to the header -- it is not stored
+as XDR field, because most XDR libraries will store all that data in the
+memory.
 
-Actual payload comes after that header to the very end:
+Depending on the packet's type, payload could store:
 
 @itemize
 @item File contents
@@ -86,32 +81,25 @@ Each encrypted packet has the following header:
 
 @multitable @columnfractions 0.2 0.3 0.5
 @headitem  @tab XDR type @tab Value
-
 @item Magic number @tab
-  8-byte, fixed length opaque data @tab
-  @code{NNCPE0x10x00x00}
-
+    8-byte, fixed length opaque data @tab
+    @code{NNCPE0x10x00x00}
 @item Niceness @tab
-  unsigned integer @tab
-  1-255, packet niceness level, its priority.
-  Lower value means higher precedence
-
+    unsigned integer @tab
+    1-255, packet niceness level, its priority.
+    Lower value means higher precedence
 @item Sender @tab
-  32-byte, fixed length opaque data @tab
-  Sender node's id
-
+    32-byte, fixed length opaque data @tab
+    Sender node's id
 @item Exchange public key @tab
-  32-byte, fixed length opaque data @tab
-  Ephemeral curve25519 public key
-
+    32-byte, fixed length opaque data @tab
+    Ephemeral curve25519 public key
 @item Signature @tab
-  64-byte, fixed length opaque data @tab
-  ed25519 signature for that encrypted packet
-
+    64-byte, fixed length opaque data @tab
+    ed25519 signature for that encrypted packet
 @item Size @tab
-  unsigned hyper integer @tab
-  Encrypted payload size
-
+    unsigned hyper integer @tab
+    Encrypted payload size
 @end multitable
 
 Signature is calculated over the following structure:

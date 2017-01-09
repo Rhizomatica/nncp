@@ -32,7 +32,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-toss -- process inbound packets\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
@@ -43,7 +43,7 @@ func main() {
 		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
 		dryRun   = flag.Bool("dryrun", false, "Do not actually write any tossed data")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Enable debugging information")
+		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
 	)

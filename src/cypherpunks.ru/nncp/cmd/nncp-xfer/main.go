@@ -37,7 +37,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-xfer -- copy inbound and outbounds packets\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] DIR\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] DIR\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
@@ -51,7 +51,7 @@ func main() {
 		force    = flag.Bool("force", false, "Force outbound directories creation")
 		keep     = flag.Bool("keep", false, "Do not delete transferred packets")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Enable debugging information")
+		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
 	)
