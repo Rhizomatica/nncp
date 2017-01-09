@@ -43,7 +43,7 @@ func main() {
 	var (
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
-		bind     = flag.String("bind", ":5400", "Address to bind to")
+		bind     = flag.String("bind", "[::]:5400", "Address to bind to")
 		maxConn  = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Enable debugging information")
