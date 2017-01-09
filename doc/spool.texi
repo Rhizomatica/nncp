@@ -1,0 +1,34 @@
+@node Spool
+@unnumbered Spool directory
+
+Spool directory holds @ref{Encrypted, encrypted packets} received from
+remote nodes and queued for sending to them. It has the following
+example structure:
+
+@verbatim
+spool/tmp/
+spool/2WHB...OABQ/rx.lock
+spool/2WHB...OABQ/rx/5ZIB...UMKW.part
+spool/2WHB...OABQ/tx.lock
+spool/BYRR...CG6Q/rx.lock
+spool/BYRR...CG6Q/rx/
+spool/BYRR...CG6Q/tx.lock
+spool/BYRR...CG6Q/tx/NSYY...ZUU6
+spool/BYRR...CG6Q/tx/ZI5U...5RRQ
+@end verbatim
+
+Except for @code{tmp}, all other directories are Base32-encoded node
+identifiers (@code{2WHB...OABQ}, @code{BYRR...CG6Q} in our example).
+Each node subdirectory has @code{rx} (received, partly received and
+currently unprocessed packets) and @code{tx} (for outbound packets)
+directories.
+
+Each @code{rx}/@code{tx} directory contains one file per encrypted
+packet. Its filename is Base32 encoded BLAKE2b hash of the contents. So
+it can be integrity checked at any time. @code{5ZIB...UMKW.part} is
+partly received file from @code{2WHB...OABQ} node. @code{tx} directory
+can not contain partly written files -- they are moved atomically from
+@code{tmp}.
+
+Only one process can work with @code{rx}/@code{tx} directories at once,
+so there are corresponding lock files.

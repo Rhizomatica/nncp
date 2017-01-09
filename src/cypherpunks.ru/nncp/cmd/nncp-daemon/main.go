@@ -35,7 +35,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-daemon -- TCP daemon\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
@@ -46,7 +46,7 @@ func main() {
 		bind     = flag.String("bind", "[::]:5400", "Address to bind to")
 		maxConn  = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Enable debugging information")
+		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
 	)

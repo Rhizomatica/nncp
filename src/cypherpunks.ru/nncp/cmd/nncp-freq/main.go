@@ -33,7 +33,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-freq -- send file request\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE:SRC DST\nOptions:", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE:SRC DST\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
@@ -42,7 +42,7 @@ func main() {
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw  = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Enable debugging information")
+		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
 	)

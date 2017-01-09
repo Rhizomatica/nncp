@@ -52,21 +52,27 @@ POSIX}-compatible systems. Easy integration with existing
 @menu
 * Comparison with existing solutions: Comparison.
 * Use cases::
-* Commands::
+* Workflow::
 * Configuration file: Configuration.
+* Commands::
+* Spool directory: Spool.
+* Log format: Log.
 * Packet format: Packet.
 * Sync protocol: Sync.
-* Copying conditions::
+* Copying conditions: Copying.
 @end menu
 
 @include comparison.texi
 @include usecases.texi
-@include cmds.texi
+@include workflow.texi
 @include cfg.texi
+@include cmds.texi
+@include spool.texi
+@include log.texi
 @include pkt.texi
 @include sp.texi
 
-@node Copying conditions
+@node Copying
 @unnumbered Copying conditions
 
 @insertcopying

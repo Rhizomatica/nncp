@@ -47,7 +47,7 @@ func main() {
 		rxOnly   = flag.Bool("rx", false, "Only receive packets")
 		txOnly   = flag.Bool("tx", false, "Only transfer packets")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Enable debugging information")
+		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
 	)
