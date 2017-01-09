@@ -202,7 +202,7 @@ func (state *SPState) WriteSP(dst io.Writer, payload []byte) error {
 
 func (state *SPState) ReadSP(src io.Reader) ([]byte, error) {
 	var sp SPRaw
-	n, err := xdr.Unmarshal(src, &sp)
+	n, err := xdr.UnmarshalLimited(src, &sp, 2<<17)
 	if err != nil {
 		return nil, err
 	}
