@@ -21,7 +21,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 @item Push/poll @tab @strong{Both} @tab @strong{Both} @tab @strong{Both} @tab Push
 @item Delay tolerant @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Intended network size @tab Dozens @tab Global @tab Dozens @tab Global
-@item Routing @tab Manual/static @tab Automatic @tab Manual/static @tab Automatic
+@item Routing @tab Manual/static @tab Federated @tab Manual/static @tab Federated
 @item PSTN support @tab @strong{Yes} @tab @strong{Yes} @tab Possible @tab No
 @item Anonymous peers @tab @strong{Yes} @tab No @tab No @tab @strong{Yes}
 @item Peers authentication @tab PAP @tab PAP/CHAP @tab public-key @tab No
