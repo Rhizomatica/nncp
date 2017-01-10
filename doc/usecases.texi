@@ -49,9 +49,9 @@ reached through NNCP transport to node @code{bob}:
 example.com nncp:bob
 @end verbatim
 
-Now, all mail will be stored in NNCP spool, that after exchanging and
-tossing will call local @code{sendmail} command to deliver them just
-that was happened on the same machine.
+Now, all mail will be stored in NNCP @ref{Spool, spool}, that after
+exchanging and tossing will call local @code{sendmail} command to
+deliver them just that was happened on the same machine.
 
 @node UsecaseUnreliable
 @section Unreliable/expensive communication link
@@ -63,8 +63,8 @@ messages is a problem to retrieve. Moreover, each disconnect leads to
 the same data retransmission again, that can be expensive to afford.
 
 Just send your mail and files through NNCP. You can use either offline
-delivery methods -- read about them below, or you can use included NNCP
-TCP daemon.
+delivery methods -- read about them in the next section, or you can use
+included NNCP TCP daemon.
 
 The command below:
 
@@ -87,9 +87,9 @@ degradation) link in single direction. What about more and bigger hard
 drives? This type of data exchange is called
 @url{https://en.wikipedia.org/wiki/Sneakernet, sneakernet}/floppynet.
 
-NNCP allows traffic prioritizing: each packet has niceness level,
-that will guarantee that it will be processed earlier or later than the
-other ones. Nearly all commands has corresponding option:
+NNCP allows traffic @ref{Niceness, prioritizing}: each packet has
+niceness level, that will guarantee that it will be processed earlier or
+later than the other ones. Nearly all commands has corresponding option:
 
 @verbatim
 % nncp-file -nice 32 myfile node:dst
@@ -102,8 +102,8 @@ other ones. Nearly all commands has corresponding option:
 @section Extreme terrestrial environments, no link
 
 This is some kind of too slow link. Offline delivery methods is the only
-choice. Just send files as shown above, but use removable media for
-transferring packets to other nodes.
+choice. Just send files as shown in previous section, but use removable
+media for transferring packets to other nodes.
 
 Assume that you send two files to @code{bob} node. Insert USB storage
 device, mount it and run:
@@ -156,8 +156,8 @@ forward secrecy} property -- all previously intercepted packets could be
 read if private keys are compromised.
 
 Friend-to-friend networks, darknets can mitigate risks related to fake
-and forged nodes. However they are harder to support require more time
-to be done right.
+and forged nodes. However they are harder to support and require more
+time to be done right.
 
 NNCP's TCP daemon uses @url{http://noiseprotocol.org/, Noise-IK}
 protocol to mutually authenticate peers and provide effective (both
@@ -205,15 +205,14 @@ neigh:
     via: [bob]
 @end verbatim
 
-That configuration file tells that we have got two known neighbours
-(nodes, peers): @code{bob} and @code{bob-airgap}. @code{bob} can be
-reached via online connection using @code{lan} address.
-@code{bob-airgap} can be reached by sending intermediate relay packet
-through the @code{bob}.
+That configuration file tells that we have got two known neighbours:
+@code{bob} and @code{bob-airgap}. @code{bob} can be reached via online
+connection using @code{lan} address. @code{bob-airgap} can be reached by
+sending intermediate relay packet through the @code{bob}.
 
 Any command like @code{nncp-file myfile bob-airgap:} will automatically
-create two packets: one for the destination endpoint, other for
-intermediate relaying node.
+create an encapsulated packet: one for the destination endpoint, and
+other carrying it for intermediate relaying node.
 
 Pay attention that relaying node knows nothing about the packet inside,
 but just its size and priority. Transition packets are encrypted too.
@@ -225,12 +224,12 @@ but just its size and priority. Transition packets are encrypted too.
 This is some kind of bad link too. Some governments tend to forbid
 @strong{any} kind of private communication between people, allowing only
 entertainment content delivering and popular social networks access
-(that are already bloated with advertisements, local proprietary
-JavaScript code execution (for spying on user activities, collect data
+(that are already bloated with advertisements, locally executed
+proprietary JavaScript code (for spying on user activities, collect data
 on them), shamelessly exploiting of very basic interhuman need of
 communication).
 
-This is their natural right and wish. Nobody forces you to obey huge
+This is their natural wish. But nobody forces you to obey huge
 corporations like Apple, Google or Microsoft. It is your choice to
 create isolated friend-to-friend network with piles of harmless content
 and private messaging. Only predators silently watch for their victims
@@ -252,17 +251,16 @@ be pretty fast, allowing to quickly fire chunks of queued packets.
 
 Very important property is that compromising of those dead drops and
 storages must not be fatal and even dangerous. Packets sent through the
-network and exchanged via those devices are end-to-end encrypted (but
-unfortunately lacking forward secrecy). No filenames, mail recipients
-are seen.
+network and exchanged via those devices are end-to-end @ref{Encrypted,
+encrypted} (but unfortunately lacking forward secrecy). No filenames,
+mail recipients are seen.
 
-All communications are done with so-called spool area: directory
-containing only those unprocessed encrypted packets. After packet
-transfer you still can not read any mail of get files: you have to run
-another stage: tossing. Only that stage involves your private
-cryptographic keys. So even if your loose your computer, storage devices
-and so on -- it is not so bad, because you are not carrying private keys
-with it, you do not "toss" those packets immediately on the same device.
-Tossing (reading those encrypted packets and extracting transferred
-files and mail messages) could and should be done on a separate
-computer.
+All communications are done with so-called @ref{Spool, spool} area:
+directory containing only those unprocessed encrypted packets. After
+packet transfer you still can not read any of them: you have to run
+another stage: tossing, that involves your private cryptographic keys.
+So even if your loose your computer, storage devices and so on -- it is
+not so bad, because you are not carrying private keys with it, you do
+not "toss" those packets immediately on the same device. Tossing
+(reading those encrypted packets and extracting transferred files and
+mail messages) could and should be done on a separate computer.

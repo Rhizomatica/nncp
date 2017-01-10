@@ -61,6 +61,7 @@ integration with current SMTP servers are the reasons.
 * Installation::
 * Configuration::
 * Commands::
+* Niceness::
 * Spool directory: Spool.
 * Log format: Log.
 * Packet format: Packet.
@@ -75,6 +76,7 @@ integration with current SMTP servers are the reasons.
 @include install.texi
 @include cfg.texi
 @include cmds.texi
+@include niceness.texi
 @include spool.texi
 @include log.texi
 @include pkt.texi

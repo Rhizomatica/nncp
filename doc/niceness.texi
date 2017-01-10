@@ -1,0 +1,15 @@
+@node Niceness
+@unnumbered Niceness
+
+Each transmitted packet has niceness level, as Unix has @code{nice}
+command for controlling processes priority. Higher nicer level means
+that packet is "nicer" and allows other to bypass him -- that means
+lower transmission precedence.
+
+Send big files with higher nicer level! That will guarantee you that
+higher priority packets, like mail messages, will pass first, even when
+lower priority packet was already been partly downloaded.
+
+There are default niceness levels built-in for @ref{nncp-mail},
+@ref{nncp-file} and @ref{nncp-freq} commands. But pay attention that it
+can give information about underlying payload to the adversary!
