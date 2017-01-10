@@ -49,28 +49,37 @@ POSIX}-compatible systems. Easy integration with existing
 @url{https://en.wikipedia.org/wiki/SMTP, SMTP} servers. Single
 @url{http://yaml.org/, YAML} configuration file.
 
+Why create yet another store-and-forward solution when UUCP, FTN and
+even SMTP exists? Look in @ref{Comparison, comparison} section!
+Simplicity, cryptographic security, sneakernet compatibility and easy
+integration with current SMTP servers are the reasons.
+
 @menu
-* Comparison with existing solutions: Comparison.
+* Comparison::
 * Use cases::
 * Workflow::
-* Configuration file: Configuration.
+* Installation::
+* Configuration::
 * Commands::
 * Spool directory: Spool.
 * Log format: Log.
 * Packet format: Packet.
 * Sync protocol: Sync.
+* Contacts and feedback: Contacts.
 * Copying conditions: Copying.
 @end menu
 
 @include comparison.texi
 @include usecases.texi
 @include workflow.texi
+@include install.texi
 @include cfg.texi
 @include cmds.texi
 @include spool.texi
 @include log.texi
 @include pkt.texi
 @include sp.texi
+@include contacts.texi
 
 @node Copying
 @unnumbered Copying conditions
