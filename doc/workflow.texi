@@ -10,8 +10,8 @@ following workflow with them.
 @item Tune it up and set at least @ref{Spool, spool} and log paths.
 @item Share your public keys and reachability addressees with your
 neighbours. Add their keys to your configuration file and do any other
-required configuration about their reachability, allowance of file or
-freq transmissions.
+required configuration about their reachability, permissions of file or
+freq transmission.
 @item Use @ref{nncp-file}, @ref{nncp-freq}, @ref{nncp-mail}
 (@ref{Postfix, look how} Postfix SMTP server could be configured for its
 usage) commands to queue file, freq and mail transmissions. Repeat as

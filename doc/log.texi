@@ -2,7 +2,10 @@
 @unnumbered Log format
 
 Log is a plaintext file with single log entry per line. Lines are "\n"
-separated. Each line has the following format:
+separated. It is not intended to be read by human -- use @ref{nncp-log}
+utility.
+
+Each line has the following format:
 
 @verbatim
 LEVEL | DATETIME | SD | MSG

@@ -63,8 +63,8 @@ file will be renamed from @code{.part} one and when you rerun
 
 Perform @ref{Spool, spool} directory integrity check. Read all files
 that has Base32-encoded filenames and compare it with recalculated
-BLAKE2b hash output of their contents. This supplementary command should
-not be used often in practice, if ever.
+BLAKE2b hash output of their contents. This supplementary command are
+not used often in practice, if ever.
 
 @node nncp-daemon
 @section nncp-daemon
@@ -74,8 +74,9 @@ not be used often in practice, if ever.
 @end verbatim
 
 Start listening TCP daemon, wait for incoming connections and run
-@ref{Sync, sync protocol} with each of them. You can run @ref{nncp-toss}
-utility in background to process inbound packets from time to time.
+@ref{Sync, synchronization protocol} with each of them. You can run
+@ref{nncp-toss} utility in background to process inbound packets from
+time to time.
 
 @code{-maxconn} option specifies how many simultaneous clients daemon
 can handle. @code{-bind} option specifies @code{addr:port} it must bind

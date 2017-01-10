@@ -1,13 +1,13 @@
 @node Sync
-@unnumbered Sync protocol
+@unnumbered Synchronization protocol
 
-So-called sync protocol (SP) is used in current TCP daemon's
+So-called synchronization protocol (SP) is used in current TCP daemon's
 implementation. It is used for synchronizing @ref{Spool, spool}
 directory contents between two nodes.
 
 It is aimed to be very simple and effective. It uses reliable transport
 like TCP connections. It must be effective both on single-duplex and
-full-duplex links: for example satellites have very high throughput and
+full-duplex links: for example satellites have very high throughput but
 high-delay links, so acknowledging of each received packet, like
 @url{https://en.wikipedia.org/wiki/XMODEM, XMODEM} does, causes
 unacceptable performance degradation.
@@ -43,9 +43,9 @@ padded to the maximum size with @code{HALT} packets (read below), for
 hiding actual number of @code{INFO} packets (number of files available
 for transmission).
 
-Each SP payload is a concatenation of various SP packets. Each packet
-has XDR-encoded header and then corresponding XDR-encoded body. Header
-is just an unsigned integer telling what body structure follows.
+Each SP payload is a concatenation of SP packets. Each packet has
+XDR-encoded header and then corresponding XDR-encoded body. Header is
+just an unsigned integer telling what body structure follows.
 
 @table @code
 
@@ -66,7 +66,7 @@ is just an unsigned integer telling what body structure follows.
     @headitem  @tab XDR type @tab Value
     @item Niceness @tab
         unsigned integer @tab
-        1-255, file niceness level, its priority
+        1-255, file niceness level
     @item Size @tab
         unsigned hyper integer @tab
         File size

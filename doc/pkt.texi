@@ -86,8 +86,7 @@ Each encrypted packet has the following header:
     @code{NNCPE0x10x00x00}
 @item Niceness @tab
     unsigned integer @tab
-    1-255, packet niceness level, its priority.
-    Lower value means higher precedence
+    1-255, packet @ref{Niceness, niceness} level
 @item Sender @tab
     32-byte, fixed length opaque data @tab
     Sender node's id
@@ -96,7 +95,7 @@ Each encrypted packet has the following header:
     Ephemeral curve25519 public key
 @item Signature @tab
     64-byte, fixed length opaque data @tab
-    ed25519 signature for that encrypted packet
+    ed25519 signature for that packet's header
 @item Size @tab
     unsigned hyper integer @tab
     Encrypted payload size
@@ -139,6 +138,7 @@ ephemeral one
 derivation function
 @item two 256-bit keys are derived from it for using with Twofish and
 BLAKE2b-MAC functions
-@item Twofish encryption and BLAKE2b-MACing is performed over the
-plaintext. Ciphertext and MAC tag are appended to the header
+@item Twofish encryption is performed over the plaintext and
+BLAKE2b-MACing is performed over the ciphertext. Ciphertext and MAC tag
+go after header.
 @end enumerate

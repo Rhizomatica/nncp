@@ -33,7 +33,7 @@ neigh:
     exchpub: MJACJ...FAI6A
     signpub: T4AFC...N2FRQ
     noisepub: UBM5K...VI42A
-    sendmail: [/bin/sh, -c, false]
+    sendmail: ["/bin/sh", "-c", "false"]
     incoming: /home/alice/incoming
     addrs:
       lan: "[fe80::1234%igb0]:5400"
@@ -53,29 +53,29 @@ directory. @strong{log} field contains an absolute path to @ref{Log,
 log} file.
 
 @strong{notify} section contains notification settings for successfully
-tossed file and file request packets. Corresponding @strong{from} and
+tossed file and freq packets. Corresponding @strong{from} and
 @strong{to} fields will substituted in notification email message.
-@emph{neigh/self/sendmail} will be used as a local mailer. If
-either of @emph{from}/@emph{to} fields are omitted, then no notification
-will be sent.
+@emph{neigh/self/sendmail} will be used as a local mailer. If either of
+@emph{from}/@emph{to} fields are omitted, then no notification will be
+sent.
 
 @strong{self} section contains our node's private keypairs.
 @strong{exch*} and @strong{sign*} are used during @ref{Encrypted,
 encrypted} packet creation. @strong{noise*} are used during @ref{Sync,
-sync protocol} working in @ref{nncp-call}/@ref{nncp-daemon}.
+synchronization protocol} working in @ref{nncp-call}/@ref{nncp-daemon}.
 
 @strong{neigh} section contains all known neighbours information. It
 always has @strong{self} neighbour that is copy of our node's public
 data (public keys). It is useful for copy-paste sharing with your
 friends. Each section's key is a human-readable name of the neighbour.
 
-Except for @emph{id}, @emph{exchpub} and @emph{signpub} each node has
-the following fields:
+Except for @emph{id}, @emph{exchpub} and @emph{signpub} each neighbour
+node has the following fields:
 
 @table @strong
 @item noisepub
 Must be present, but can be dummy (only zeros) if no online
-communication using @ref{Sync, sync protocol} will be used.
+communication using @ref{Sync, synchronization protocol} will be used.
 
 @item sendmail
 An array containing path to executable and its command line arguments

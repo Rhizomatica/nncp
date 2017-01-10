@@ -57,7 +57,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 @item Packets prioritizing
     UUCP and NNCP will push higher priority ("grade" in UUCP
     terminology) packets first. You mail will pass, even when many
-    gigabytes files is queued in parallel.
+    gigabytes files are queued in parallel.
 
 @item SMTP integration
     Mail servers like @url{http://www.postfix.org/, Postfix} offers
