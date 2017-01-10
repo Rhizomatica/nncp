@@ -94,7 +94,7 @@ cd $cur
 cat <<EOF
 Subject: NNCP $release release announcement
 
-I am pleased to announce nncp $release release availability!
+I am pleased to announce NNCP $release release availability!
 
 NNCP (Node to Node copy) is a collection of utilities simplifying
 secure store-and-forward files and mail exchanging.
