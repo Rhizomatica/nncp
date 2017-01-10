@@ -54,6 +54,8 @@ even SMTP exists? Look in @ref{Comparison, comparison} section!
 Simplicity, cryptographic security, sneakernet compatibility and easy
 integration with current SMTP servers are the reasons.
 
+@center Interested? @ref{Tarballs, @strong{Download it}}!
+
 @menu
 * Comparison::
 * Use cases::
