@@ -18,3 +18,4 @@ nncp.html: *.texi
 		--set-customization-variable CLOSE_QUOTE_SYMBOL=\" \
 		--set-customization-variable OPEN_QUOTE_SYMBOL=\" \
 		-o nncp.html index.texi
+	cp -r .well-known nncp.html/

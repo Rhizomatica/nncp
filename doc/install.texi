@@ -1,0 +1,50 @@
+@node Installation
+@unnumbered Installation
+
+NNCP should run on any POSIX-compatible operating system with file
+systems supporting directory and filename's length up to 57 characters.
+
+NNCP is written on @url{https://golang.org/, Go} programming language
+and you have to install Go compiler (1.7+ version is highly
+recommended). @emph{Make} (BSD and GNU ones are fine) is recommended for
+convenient building. @url{https://www.gnu.org/software/texinfo/,
+Texinfo} is used for building documentation.
+
+Included required libraries:
+
+@multitable @columnfractions .50 .50
+@headitem Library @tab Licence
+@item @code{github.com/dustin/go-humanize} @tab MIT
+@item @code{github.com/flynn/noise} @tab BSD 3-Clause
+@item @code{github.com/go-check/check} @tab BSD 2-Clause
+@item @code{github.com/go-yaml/yaml} @tab Apache License 2.0 and MIT
+@item @code{github.com/minio/blake2b-simd} @tab Apache License 2.0
+@item @code{golang.org/x/crypto} @tab BSD 3-Clause
+@item @code{golang.org/x/net} @tab BSD 3-Clause
+@item @code{golang.org/x/sys} @tab BSD 3-Clause
+@end multitable
+
+Get @ref{Tarballs, the tarball}, check its
+@ref{Integrity, integrity and authenticity} and run @command{make}.
+@emph{nncp-*} binaries will be built in the current directory:
+
+@verbatim
+% wget http://www.nncpgo.org/download/nncp-0.1.tar.xz
+% wget http://www.nncpgo.org/download/nncp-0.1.tar.xz.sig
+% gpg --verify nncp-0.1.tar.xz.sig nncp-0.1.tar.xz
+% tar xf nncp-0.1.tar.xz
+% make -C nncp-0.1 all
+@end verbatim
+
+There is @code{install} target respecting @env{DESTDIR}. It will
+install binaries and info-documentation.
+
+@menu
+* Prepared tarballs: Tarballs.
+* Tarballs integrity check: Integrity.
+* Development source code: Sources.
+@end menu
+
+@include download.texi
+@include integrity.texi
+@include sources.texi

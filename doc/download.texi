@@ -1,0 +1,10 @@
+@node Tarballs
+@section Prepared tarballs
+
+You can obtain releases source code prepared tarballs from the links below
+Do not forget to check tarball @ref{Integrity, integrity}.
+
+@multitable {XXXXX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+@headitem Version @tab Size @tab Tarball @tab SHA256 checksum
+
+@end multitable
