@@ -54,13 +54,18 @@ just an unsigned integer telling what body structure follows.
     Actually @code{HALT} packet does not have any body, only the header
     with the type. It is also used in the first payload for padding to
     the maximum size.
+@verbatim
++------+
+| HALT |
++------+
+@end verbatim
 
 @item INFO
     Information about the file we have for transmission.
 @verbatim
-+--------------------+
-| NICE | SIZE | HASH |
-+--------------------+
++------+--------------------+
+| INFO | NICE | SIZE | HASH |
++------+--------------------+
 @end verbatim
     @multitable @columnfractions 0.2 0.3 0.5
     @headitem  @tab XDR type @tab Value
@@ -79,9 +84,9 @@ just an unsigned integer telling what body structure follows.
     File transmission request. Ask remote side to queue the file for
     transmission.
 @verbatim
-+---------------+
-| HASH | OFFSET |
-+---------------+
++------+---------------+
+| FREQ | HASH | OFFSET |
++------+---------------+
 @end verbatim
     @multitable @columnfractions 0.2 0.3 0.5
     @headitem  @tab XDR type @tab Value
@@ -96,9 +101,9 @@ just an unsigned integer telling what body structure follows.
 @item FILE
     Chunk of file.
 @verbatim
-+-------------------------+
-| HASH | OFFSET | PAYLOAD |
-+-------------------------+
++------+-------------------------+
+| FILE | HASH | OFFSET | PAYLOAD |
++------+-------------------------+
 @end verbatim
     @multitable @columnfractions 0.2 0.3 0.5
     @headitem  @tab XDR type @tab Value
@@ -116,9 +121,9 @@ just an unsigned integer telling what body structure follows.
 @item DONE
     Signal remote side that we have successfully downloaded the file.
 @verbatim
-+------+
-| HASH |
-+------+
++------+------+
+| DONE | HASH |
++------+------+
 @end verbatim
     @multitable @columnfractions 0.2 0.3 0.5
     @headitem  @tab XDR type @tab Value
