@@ -101,10 +101,8 @@ func main() {
 					"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
 				}, "")
 			} else {
-				var nodeId string
-				if state == nil {
-					nodeId = "unknown"
-				} else {
+				nodeId := "unknown"
+				if state != nil && state.NodeId != nil {
 					nodeId = state.NodeId.String()
 				}
 				ctx.LogE("call-start", nncp.SDS{"node": nodeId, "err": err}, "")
