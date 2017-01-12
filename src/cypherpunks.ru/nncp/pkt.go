@@ -52,8 +52,8 @@ const (
 )
 
 var (
-	MagicNNCPPv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 1, 0, 0}
-	MagicNNCPEv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 1, 0, 0}
+	MagicNNCPPv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 1}
+	MagicNNCPEv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 1}
 	BadMagic     error   = errors.New("Unknown magic number")
 	BadPktType   error   = errors.New("Unknown packet type")
 
