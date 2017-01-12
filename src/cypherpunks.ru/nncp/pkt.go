@@ -74,7 +74,6 @@ type PktTbs struct {
 	Recipient *NodeId
 	Sender    *NodeId
 	ExchPub   *[32]byte
-	Size      uint64
 }
 
 type PktEnc struct {
@@ -83,7 +82,6 @@ type PktEnc struct {
 	Sender  *NodeId
 	ExchPub *[32]byte
 	Sign    *[ed25519.SignatureSize]byte
-	Size    uint64
 }
 
 func init() {
@@ -96,7 +94,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	PktOverhead = int64(n) + blake2b.Size256
+	PktOverhead = 8 + blake2b.Size256 + int64(n) + blake2b.Size256
 	buf.Reset()
 
 	dummyId, err := NodeIdFromString("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
@@ -109,7 +107,6 @@ func init() {
 		Sender:  dummyId,
 		ExchPub: new([32]byte),
 		Sign:    new([ed25519.SignatureSize]byte),
-		Size:    123,
 	}
 	n, err = xdr.Marshal(&buf, pktEnc)
 	if err != nil {
@@ -156,7 +153,6 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size int64, da
 		Recipient: their.Id,
 		Sender:    our.Id,
 		ExchPub:   pubEph,
-		Size:      uint64(size + PktOverhead),
 	}
 	var tbsBuf bytes.Buffer
 	if _, err = xdr.Marshal(&tbsBuf, &tbs); err != nil {
@@ -170,7 +166,6 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size int64, da
 		Sender:  our.Id,
 		ExchPub: pubEph,
 		Sign:    signature,
-		Size:    tbs.Size,
 	}
 	if _, err = xdr.Marshal(out, &pktEnc); err != nil {
 		return err
@@ -178,12 +173,33 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size int64, da
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, prvEph, their.ExchPub)
 	kdf := hkdf.New(blake256, sharedKey[:], nil, MagicNNCPEv1[:])
+
+	// Derive keys
+	keyEnc4Size := make([]byte, 32)
+	if _, err = io.ReadFull(kdf, keyEnc4Size); err != nil {
+		return err
+	}
+	keyAuth4Size := make([]byte, 64)
+	if _, err = io.ReadFull(kdf, keyAuth4Size); err != nil {
+		return err
+	}
 	keyEnc := make([]byte, 32)
 	if _, err = io.ReadFull(kdf, keyEnc); err != nil {
 		return err
 	}
 	keyAuth := make([]byte, 64)
 	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
+		return err
+	}
+
+	// Initialize ciphers and MACs
+	ciph4Size, err := twofish.NewCipher(keyEnc4Size)
+	if err != nil {
+		return err
+	}
+	ctr4Size := cipher.NewCTR(ciph4Size, make([]byte, twofish.BlockSize))
+	mac4Size, err := blake2b.New256(keyAuth4Size)
+	if err != nil {
 		return err
 	}
 	ciph, err := twofish.NewCipher(keyEnc)
@@ -195,8 +211,17 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size int64, da
 	if err != nil {
 		return err
 	}
-	mw := io.MultiWriter(out, mac)
-	ae := &cipher.StreamWriter{S: ctr, W: mw}
+
+	mw := io.MultiWriter(out, mac4Size)
+	ae := &cipher.StreamWriter{S: ctr4Size, W: mw}
+	usize := uint64(size)
+	if _, err = xdr.Marshal(ae, &usize); err != nil {
+		return err
+	}
+	out.Write(mac4Size.Sum(nil))
+
+	mw = io.MultiWriter(out, mac)
+	ae = &cipher.StreamWriter{S: ctr, W: mw}
 	ae.Write(pktBuf.Bytes())
 	if _, err = io.CopyN(ae, data, int64(size)); err != nil {
 		return err
@@ -213,7 +238,6 @@ func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 		Recipient: our.Id,
 		Sender:    their.Id,
 		ExchPub:   pktEnc.ExchPub,
-		Size:      pktEnc.Size,
 	}
 	var tbsBuf bytes.Buffer
 	if _, err := xdr.Marshal(&tbsBuf, &tbs); err != nil {
@@ -245,12 +269,33 @@ func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Wri
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, our.ExchPrv, pktEnc.ExchPub)
 	kdf := hkdf.New(blake256, sharedKey[:], nil, MagicNNCPEv1[:])
+
+	// Derive keys
+	keyEnc4Size := make([]byte, 32)
+	if _, err = io.ReadFull(kdf, keyEnc4Size); err != nil {
+		return their, err
+	}
+	keyAuth4Size := make([]byte, 64)
+	if _, err = io.ReadFull(kdf, keyAuth4Size); err != nil {
+		return their, err
+	}
 	keyEnc := make([]byte, 32)
 	if _, err = io.ReadFull(kdf, keyEnc); err != nil {
 		return their, err
 	}
 	keyAuth := make([]byte, 64)
 	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
+		return their, err
+	}
+
+	// Initialize ciphers and MACs
+	ciph4Size, err := twofish.NewCipher(keyEnc4Size)
+	if err != nil {
+		return their, err
+	}
+	ctr4Size := cipher.NewCTR(ciph4Size, make([]byte, twofish.BlockSize))
+	mac4Size, err := blake2b.New256(keyAuth4Size)
+	if err != nil {
 		return their, err
 	}
 	ciph, err := twofish.NewCipher(keyEnc)
@@ -262,12 +307,26 @@ func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Wri
 	if err != nil {
 		return their, err
 	}
-	trA := io.TeeReader(data, mac)
-	ae := &cipher.StreamReader{S: ctr, R: trA}
-	if _, err = io.CopyN(out, ae, int64(pktEnc.Size)-blake2b.Size256); err != nil {
+
+	tr := io.TeeReader(data, mac4Size)
+	ae := &cipher.StreamReader{S: ctr4Size, R: tr}
+	var usize uint64
+	if _, err = xdr.Unmarshal(ae, &usize); err != nil {
 		return their, err
 	}
 	tag := make([]byte, blake2b.Size256)
+	if _, err = io.ReadFull(data, tag); err != nil {
+		return their, err
+	}
+	if subtle.ConstantTimeCompare(mac4Size.Sum(nil), tag) != 1 {
+		return their, errors.New("Unauthenticated payload")
+	}
+
+	tr = io.TeeReader(data, mac)
+	ae = &cipher.StreamReader{S: ctr, R: tr}
+	if _, err = io.CopyN(out, ae, PktOverhead+int64(usize)-8-blake2b.Size256-blake2b.Size256); err != nil {
+		return their, err
+	}
 	if _, err = io.ReadFull(data, tag); err != nil {
 		return their, err
 	}

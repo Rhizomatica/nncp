@@ -62,7 +62,7 @@ func main() {
 	}
 
 	var err error
-	beginning := make([]byte, nncp.PktOverhead-blake2b.Size256)
+	beginning := make([]byte, nncp.PktOverhead - 8 - 2*blake2b.Size256)
 	if _, err = io.ReadFull(os.Stdin, beginning); err != nil {
 		log.Fatalln("Not enough data to read")
 	}
@@ -130,8 +130,8 @@ func main() {
 			return
 		}
 		fmt.Printf(
-			"Packet type: encrypted\nNiceness: %d\nSender: %s\nPayload size: %s (%d bytes)\n",
-			pktEnc.Nice, pktEnc.Sender, humanize.IBytes(pktEnc.Size), pktEnc.Size,
+			"Packet type: encrypted\nNiceness: %d\nSender: %s\n",
+			pktEnc.Nice, pktEnc.Sender,
 		)
 		return
 	}
