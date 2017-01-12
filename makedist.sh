@@ -60,6 +60,7 @@ rm -fr $tmp/golang.org $tmp/includes
 
 find src -name .travis.yml -delete
 rm -fr src/github.com/davecgh/go-xdr/xdr
+rm makedist.sh
 
 cat > doc/download.texi <<EOF
 @node Tarballs
