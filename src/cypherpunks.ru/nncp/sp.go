@@ -42,7 +42,7 @@ const (
 )
 
 var (
-	MagicNNCPLv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'S', 1, 0, 0}
+	MagicNNCPLv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'S', 0, 0, 1}
 
 	SPHeadOverhead    int
 	SPInfoOverhead    int
