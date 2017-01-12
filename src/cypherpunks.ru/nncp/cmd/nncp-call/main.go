@@ -73,7 +73,7 @@ func main() {
 		log.Fatalln("-rx and -tx can not be set simultaneously")
 	}
 
-	cfgRaw, err := ioutil.ReadFile(*cfgPath)
+	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 	if err != nil {
 		log.Fatalln("Can not read config:", err)
 	}
