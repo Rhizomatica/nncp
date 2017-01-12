@@ -56,9 +56,6 @@ func TestPktEncWrite(t *testing.T) {
 		if *pktEnc.Sender != *nodeOur.Id {
 			return false
 		}
-		if pktEnc.Size != uint64(ct.Len()) {
-			return false
-		}
 		return true
 	}
 	if err := quick.Check(f, nil); err != nil {
@@ -75,7 +72,7 @@ func TestPktEncRead(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	f := func(path string, pathSize uint8, data [1 << 16]byte, size uint16) bool {
+	f := func(path string, pathSize uint8, data [1 << 16]byte, size uint16, junk []byte) bool {
 		dataR := bytes.NewReader(data[:])
 		var ct bytes.Buffer
 		if len(path) > int(pathSize) {
@@ -89,6 +86,7 @@ func TestPktEncRead(t *testing.T) {
 		if err != nil {
 			return false
 		}
+		ct.Write(junk)
 		var pt bytes.Buffer
 		nodes := make(map[NodeId]*Node)
 		nodes[*node1.Id] = node1.Their()
