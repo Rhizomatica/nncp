@@ -104,7 +104,7 @@ func main() {
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc)
 	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv1 {
 		if *dump {
-			cfgRaw, err := ioutil.ReadFile(*cfgPath)
+			cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 			if err != nil {
 				log.Fatalln("Can not read config:", err)
 			}

@@ -4,6 +4,9 @@
 Nearly all commands have the following common options:
 
 @table @code
+@item -cfg
+    Path to configuration file. May be overrided by @code{NNCPCFG}
+    environment variable.
 @item -debug
     Print debug messages. Normally this option should not be used.
 @item -nice

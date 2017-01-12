@@ -20,10 +20,15 @@ package nncp
 
 import (
 	"errors"
+	"os"
 	"path"
 
 	"golang.org/x/crypto/ed25519"
 	"gopkg.in/yaml.v2"
+)
+
+const (
+	CfgPathEnv = "NNCPCFG"
 )
 
 var (
@@ -283,4 +288,12 @@ func CfgParse(data []byte) (*Ctx, error) {
 		}
 	}
 	return &ctx, nil
+}
+
+func CfgPathFromEnv(cmdlineFlag *string) (p string) {
+	p = os.Getenv(CfgPathEnv)
+	if p == "" {
+		p = *cmdlineFlag
+	}
+	return
 }
