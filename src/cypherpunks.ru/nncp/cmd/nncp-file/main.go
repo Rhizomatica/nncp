@@ -41,6 +41,7 @@ func main() {
 	var (
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw  = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
+		minSize  = flag.Uint64("minsize", 0, "Minimal required resulting packet size")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
@@ -86,7 +87,7 @@ func main() {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
 
-	if err = ctx.TxFile(node, nice, flag.Arg(0), splitted[1]); err != nil {
+	if err = ctx.TxFile(node, nice, flag.Arg(0), splitted[1], int64(*minSize)); err != nil {
 		log.Fatalln(err)
 	}
 }

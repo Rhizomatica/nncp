@@ -92,6 +92,7 @@ func TestTossEmail(t *testing.T) {
 				DefaultNiceMail,
 				"recipient",
 				[]byte{123},
+				1<<15,
 			); err != nil {
 				panic(err)
 			}
@@ -180,6 +181,7 @@ func TestTossFile(t *testing.T) {
 				DefaultNiceFile,
 				src,
 				fileName,
+				1<<15,
 			); err != nil {
 				panic(err)
 			}
@@ -249,6 +251,7 @@ func TestTossFileSameName(t *testing.T) {
 				DefaultNiceFile,
 				srcPath,
 				"samefile",
+				1<<15,
 			); err != nil {
 				panic(err)
 			}
@@ -314,6 +317,7 @@ func TestTossFreq(t *testing.T) {
 				DefaultNiceFreq,
 				fileName,
 				fileName,
+				1<<15,
 			); err != nil {
 				panic(err)
 			}
@@ -346,7 +350,7 @@ func TestTossFreq(t *testing.T) {
 		}
 		for job := range ctx.Jobs(ctx.Self.Id, TTx) {
 			var buf bytes.Buffer
-			_, err := PktEncRead(ctx.Self, ctx.Neigh, job.Fd, &buf)
+			_, _, err := PktEncRead(ctx.Self, ctx.Neigh, job.Fd, &buf)
 			if err != nil {
 				panic(err)
 			}
@@ -417,6 +421,7 @@ func TestTossTrns(t *testing.T) {
 				&pktTrans,
 				123,
 				int64(len(data)),
+				0,
 				bytes.NewReader(data),
 				&dst,
 			); err != nil {

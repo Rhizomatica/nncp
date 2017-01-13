@@ -9,6 +9,10 @@ Nearly all commands have the following common options:
     environment variable.
 @item -debug
     Print debug messages. Normally this option should not be used.
+@item -minsize
+    Minimal required resulting packet size. For example if you send 2
+    KiB file and set @option{-minsize 4096}, then resulting packet will
+    be 4 KiB (containing file itself and some junk).
 @item -nice
     Set desired outgoing packet niceness level. 1-255 values are
     allowed. Higher value means lower priority. In some commands that
