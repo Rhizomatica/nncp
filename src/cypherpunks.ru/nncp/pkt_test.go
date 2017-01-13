@@ -35,7 +35,7 @@ func TestPktEncWrite(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	f := func(path string, pathSize uint8, data [1 << 16]byte, size uint16) bool {
+	f := func(path string, pathSize uint8, data [1 << 16]byte, size, padSize uint16) bool {
 		dataR := bytes.NewReader(data[:])
 		var ct bytes.Buffer
 		if len(path) > int(pathSize) {
@@ -45,7 +45,16 @@ func TestPktEncWrite(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		err = PktEncWrite(nodeOur, nodeTheir.Their(), pkt, 123, int64(size), dataR, &ct)
+		err = PktEncWrite(
+			nodeOur,
+			nodeTheir.Their(),
+			pkt,
+			123,
+			int64(size),
+			int64(padSize),
+			dataR,
+			&ct,
+		)
 		if err != nil {
 			return false
 		}
@@ -72,7 +81,7 @@ func TestPktEncRead(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	f := func(path string, pathSize uint8, data [1 << 16]byte, size uint16, junk []byte) bool {
+	f := func(path string, pathSize uint8, data [1 << 16]byte, size, padSize uint16, junk []byte) bool {
 		dataR := bytes.NewReader(data[:])
 		var ct bytes.Buffer
 		if len(path) > int(pathSize) {
@@ -82,7 +91,16 @@ func TestPktEncRead(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		err = PktEncWrite(node1, node2.Their(), pkt, 123, int64(size), dataR, &ct)
+		err = PktEncWrite(
+			node1,
+			node2.Their(),
+			pkt,
+			123,
+			int64(size),
+			int64(padSize),
+			dataR,
+			&ct,
+		)
 		if err != nil {
 			return false
 		}
@@ -90,11 +108,14 @@ func TestPktEncRead(t *testing.T) {
 		var pt bytes.Buffer
 		nodes := make(map[NodeId]*Node)
 		nodes[*node1.Id] = node1.Their()
-		node, err := PktEncRead(node2, nodes, &ct, &pt)
+		node, sizeGot, err := PktEncRead(node2, nodes, &ct, &pt)
 		if err != nil {
 			return false
 		}
 		if *node.Id != *node1.Id {
+			return false
+		}
+		if sizeGot != int64(size) {
 			return false
 		}
 		var pktBuf bytes.Buffer

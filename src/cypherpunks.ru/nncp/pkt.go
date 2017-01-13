@@ -138,7 +138,16 @@ func blake256() hash.Hash {
 	return h
 }
 
-func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size int64, data io.Reader, out io.Writer) error {
+type DevZero struct{}
+
+func (d DevZero) Read(b []byte) (n int, err error) {
+	for n = 0; n < len(b); n++ {
+		b[n] = 0
+	}
+	return
+}
+
+func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize int64, data io.Reader, out io.Writer) error {
 	pubEph, prvEph, err := box.GenerateKey(rand.Reader)
 	if err != nil {
 		return err
@@ -174,15 +183,6 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size int64, da
 	curve25519.ScalarMult(sharedKey, prvEph, their.ExchPub)
 	kdf := hkdf.New(blake256, sharedKey[:], nil, MagicNNCPEv1[:])
 
-	// Derive keys
-	keyEnc4Size := make([]byte, 32)
-	if _, err = io.ReadFull(kdf, keyEnc4Size); err != nil {
-		return err
-	}
-	keyAuth4Size := make([]byte, 64)
-	if _, err = io.ReadFull(kdf, keyAuth4Size); err != nil {
-		return err
-	}
 	keyEnc := make([]byte, 32)
 	if _, err = io.ReadFull(kdf, keyEnc); err != nil {
 		return err
@@ -192,16 +192,6 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size int64, da
 		return err
 	}
 
-	// Initialize ciphers and MACs
-	ciph4Size, err := twofish.NewCipher(keyEnc4Size)
-	if err != nil {
-		return err
-	}
-	ctr4Size := cipher.NewCTR(ciph4Size, make([]byte, twofish.BlockSize))
-	mac4Size, err := blake2b.New256(keyAuth4Size)
-	if err != nil {
-		return err
-	}
 	ciph, err := twofish.NewCipher(keyEnc)
 	if err != nil {
 		return err
@@ -212,22 +202,56 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size int64, da
 		return err
 	}
 
-	mw := io.MultiWriter(out, mac4Size)
-	ae := &cipher.StreamWriter{S: ctr4Size, W: mw}
+	mw := io.MultiWriter(out, mac)
+	ae := &cipher.StreamWriter{S: ctr, W: mw}
 	usize := uint64(size)
 	if _, err = xdr.Marshal(ae, &usize); err != nil {
 		return err
 	}
-	out.Write(mac4Size.Sum(nil))
+	ae.Close()
+	out.Write(mac.Sum(nil))
+
+	if _, err = io.ReadFull(kdf, keyEnc); err != nil {
+		return err
+	}
+	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
+		return err
+	}
+
+	ciph, err = twofish.NewCipher(keyEnc)
+	if err != nil {
+		return err
+	}
+	ctr = cipher.NewCTR(ciph, make([]byte, twofish.BlockSize))
+	mac, err = blake2b.New256(keyAuth)
+	if err != nil {
+		return err
+	}
 
 	mw = io.MultiWriter(out, mac)
 	ae = &cipher.StreamWriter{S: ctr, W: mw}
 	ae.Write(pktBuf.Bytes())
-	if _, err = io.CopyN(ae, data, int64(size)); err != nil {
+	if _, err = io.CopyN(ae, data, size); err != nil {
 		return err
 	}
 	ae.Close()
 	out.Write(mac.Sum(nil))
+
+	if padSize > 0 {
+		if _, err = io.ReadFull(kdf, keyEnc); err != nil {
+			return err
+		}
+		ciph, err = twofish.NewCipher(keyEnc)
+		if err != nil {
+			return err
+		}
+		ctr = cipher.NewCTR(ciph, make([]byte, twofish.BlockSize))
+		ae = &cipher.StreamWriter{S: ctr, W: out}
+		if _, err = io.CopyN(ae, DevZero{}, padSize); err != nil {
+			return err
+		}
+		ae.Close()
+	}
 	return nil
 }
 
@@ -246,92 +270,91 @@ func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 	return ed25519.Verify(their.SignPub, tbsBuf.Bytes(), pktEnc.Sign[:]), nil
 }
 
-func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Writer) (*Node, error) {
+func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Writer) (*Node, int64, error) {
 	var pktEnc PktEnc
 	_, err := xdr.Unmarshal(data, &pktEnc)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	if pktEnc.Magic != MagicNNCPEv1 {
-		return nil, BadMagic
+		return nil, 0, BadMagic
 	}
 	their, known := nodes[*pktEnc.Sender]
 	if !known {
-		return nil, errors.New("Unknown sender")
+		return nil, 0, errors.New("Unknown sender")
 	}
 	verified, err := TbsVerify(our, their, &pktEnc)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	if !verified {
-		return their, errors.New("Invalid signature")
+		return their, 0, errors.New("Invalid signature")
 	}
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, our.ExchPrv, pktEnc.ExchPub)
 	kdf := hkdf.New(blake256, sharedKey[:], nil, MagicNNCPEv1[:])
 
-	// Derive keys
-	keyEnc4Size := make([]byte, 32)
-	if _, err = io.ReadFull(kdf, keyEnc4Size); err != nil {
-		return their, err
-	}
-	keyAuth4Size := make([]byte, 64)
-	if _, err = io.ReadFull(kdf, keyAuth4Size); err != nil {
-		return their, err
-	}
 	keyEnc := make([]byte, 32)
 	if _, err = io.ReadFull(kdf, keyEnc); err != nil {
-		return their, err
+		return their, 0, err
 	}
 	keyAuth := make([]byte, 64)
 	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
-		return their, err
+		return their, 0, err
 	}
 
-	// Initialize ciphers and MACs
-	ciph4Size, err := twofish.NewCipher(keyEnc4Size)
-	if err != nil {
-		return their, err
-	}
-	ctr4Size := cipher.NewCTR(ciph4Size, make([]byte, twofish.BlockSize))
-	mac4Size, err := blake2b.New256(keyAuth4Size)
-	if err != nil {
-		return their, err
-	}
 	ciph, err := twofish.NewCipher(keyEnc)
 	if err != nil {
-		return their, err
+		return their, 0, err
 	}
 	ctr := cipher.NewCTR(ciph, make([]byte, twofish.BlockSize))
 	mac, err := blake2b.New256(keyAuth)
 	if err != nil {
-		return their, err
+		return their, 0, err
 	}
 
-	tr := io.TeeReader(data, mac4Size)
-	ae := &cipher.StreamReader{S: ctr4Size, R: tr}
+	tr := io.TeeReader(data, mac)
+	ae := &cipher.StreamReader{S: ctr, R: tr}
 	var usize uint64
 	if _, err = xdr.Unmarshal(ae, &usize); err != nil {
-		return their, err
+		return their, 0, err
 	}
 	tag := make([]byte, blake2b.Size256)
 	if _, err = io.ReadFull(data, tag); err != nil {
-		return their, err
+		return their, 0, err
 	}
-	if subtle.ConstantTimeCompare(mac4Size.Sum(nil), tag) != 1 {
-		return their, errors.New("Unauthenticated payload")
+	if subtle.ConstantTimeCompare(mac.Sum(nil), tag) != 1 {
+		return their, 0, errors.New("Unauthenticated size")
+	}
+	size := int64(usize)
+
+	if _, err = io.ReadFull(kdf, keyEnc); err != nil {
+		return their, size, err
+	}
+	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
+		return their, size, err
+	}
+
+	ciph, err = twofish.NewCipher(keyEnc)
+	if err != nil {
+		return their, size, err
+	}
+	ctr = cipher.NewCTR(ciph, make([]byte, twofish.BlockSize))
+	mac, err = blake2b.New256(keyAuth)
+	if err != nil {
+		return their, size, err
 	}
 
 	tr = io.TeeReader(data, mac)
 	ae = &cipher.StreamReader{S: ctr, R: tr}
-	if _, err = io.CopyN(out, ae, PktOverhead+int64(usize)-8-blake2b.Size256-blake2b.Size256); err != nil {
-		return their, err
+	if _, err = io.CopyN(out, ae, PktOverhead+size-8-blake2b.Size256-blake2b.Size256); err != nil {
+		return their, size, err
 	}
 	if _, err = io.ReadFull(data, tag); err != nil {
-		return their, err
+		return their, size, err
 	}
 	if subtle.ConstantTimeCompare(mac.Sum(nil), tag) != 1 {
-		return their, errors.New("Unauthenticated payload")
+		return their, size, errors.New("Unauthenticated payload")
 	}
-	return their, nil
+	return their, size, nil
 }

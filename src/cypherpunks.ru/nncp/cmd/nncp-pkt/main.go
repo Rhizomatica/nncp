@@ -31,7 +31,6 @@ import (
 
 	"cypherpunks.ru/nncp"
 	"github.com/davecgh/go-xdr/xdr2"
-	"github.com/dustin/go-humanize"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -62,7 +61,7 @@ func main() {
 	}
 
 	var err error
-	beginning := make([]byte, nncp.PktOverhead - 8 - 2*blake2b.Size256)
+	beginning := make([]byte, nncp.PktOverhead-8-2*blake2b.Size256)
 	if _, err = io.ReadFull(os.Stdin, beginning); err != nil {
 		log.Fatalln("Not enough data to read")
 	}
@@ -113,7 +112,7 @@ func main() {
 				log.Fatalln("Can not parse config:", err)
 			}
 			bufW := bufio.NewWriter(os.Stdout)
-			if _, err = nncp.PktEncRead(
+			if _, _, err = nncp.PktEncRead(
 				ctx.Self,
 				ctx.Neigh,
 				io.MultiReader(
