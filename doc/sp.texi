@@ -27,7 +27,7 @@ are sent inside XDR envelope:
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @code{NNCPS0x10x00x00}
+    @code{NNCPS0x00x00x01}
 @item Payload @tab
     variable length opaque data @tab
     Noise packet itself

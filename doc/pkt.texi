@@ -29,7 +29,7 @@ drive.
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @code{NNCPP0x10x00x00}
+    @code{NNCPP0x00x00x01}
 @item Payload type @tab
     unsigned integer @tab
     0 (file), 1 (freq), 2 (mail), 3 (transition)
@@ -69,21 +69,22 @@ storages and that are synchronized between TCP daemons.
 Each encrypted packet has the following header:
 
 @verbatim
-                    HEADER
-+--------------------------------------------+-------...--------+
-| MAGIC | NICE | SENDER | EPUB | SIGN | SIZE | CIPHERTEXT | MAC |
-+------------------------------/------\------+-------...--------+
+  +--------------- HEADER ----------+   +-------- ENCRYPTED --------+
+ /                                   \ /                             \
++-------------------------------------+------------+----...-----------+------+
+| MAGIC | NICE | SENDER | EPUB | SIGN | SIZE | MAC | CIPHERTEXT | MAC | JUNK |
++------------------------------/------\------------+----...-----------+------+
                               /        \
-             +--------------------------------------------+
-             | MAGIC | NICE | RCPT | SENDER | EPUB | SIZE |
-             +--------------------------------------------+
+               +-------------------------------------+
+               | MAGIC | NICE | RCPT | SENDER | EPUB |
+               +-------------------------------------+
 @end verbatim
 
 @multitable @columnfractions 0.2 0.3 0.5
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @code{NNCPE0x10x00x00}
+    @code{NNCPE0x00x00x01}
 @item Niceness @tab
     unsigned integer @tab
     1-255, packet @ref{Niceness, niceness} level
@@ -96,9 +97,6 @@ Each encrypted packet has the following header:
 @item Signature @tab
     64-byte, fixed length opaque data @tab
     ed25519 signature for that packet's header
-@item Size @tab
-    unsigned hyper integer @tab
-    Encrypted payload size
 @end multitable
 
 Signature is calculated over the following structure:
@@ -109,36 +107,53 @@ Signature is calculated over the following structure:
 @item Recipient (32-byte recipient node's id)
 @item Sender
 @item Exchange public key
-@item Size
 @end itemize
 
-Actual encrypted payload comes after that header. Payload is encrypted
-using @url{https://www.schneier.com/academic/twofish/, Twofish}
-algorithm with 256-bit key in
+All following encryption is done using
+@url{https://www.schneier.com/academic/twofish/, Twofish} algorithm with
+256-bit key in
 @url{https://en.wikipedia.org/wiki/Counter_mode#Counter_.28CTR.29, CTR}
 mode of operation with zero initialization vector (because each
-encrypted packet has ephemeral exchange key). Ciphertext's length is
-equal to plaintext. @url{https://blake2.net/, BLAKE2b-256} MAC is
-appended to the ciphertext.
+encrypted packet has ephemeral exchange key). @url{https://blake2.net/,
+BLAKE2b-256} MAC is appended to the ciphertext.
+
+After the headers comes an encrypted payload size and MAC of that size.
+
+@multitable @columnfractions 0.2 0.3 0.5
+@headitem  @tab XDR type @tab Value
+@item Size @tab
+    unsigned hyper integer @tab
+    @code{NNCPE0x00x00x01}
+    Payload size.
+@end multitable
+
+Next comes the actual encrypted payload with corresponding MAC.
 
 Each node has static @strong{exchange} and @strong{signature} keypairs.
 When node A want to send encrypted packet to node B, it:
 
 @enumerate
 @item generates ephemeral @url{http://cr.yp.to/ecdh.html, curve25519} keypair
-@item prepares structure for signing (underlying payload size must be
-already known)
-@item signs that structure using private @url{http://ed25519.cr.yp.to/,
-ed25519} signature key
+@item prepares structure for signing
+@item signs that structure using private
+    @url{http://ed25519.cr.yp.to/, ed25519} signature key
 @item takes remote node's exchange public key and performs
-Diffie-Hellman computation on this remote static public key and private
-ephemeral one
-@item derived ephemeral key used as an input to
-@url{https://en.wikipedia.org/wiki/HKDF, HKDF}-BLAKE2b-256 key
-derivation function
-@item two 256-bit keys are derived from it for using with Twofish and
-BLAKE2b-MAC functions
-@item Twofish encryption is performed over the plaintext and
-BLAKE2b-MACing is performed over the ciphertext. Ciphertext and MAC tag
-go after header.
+    Diffie-Hellman computation on this remote static public key and
+    private ephemeral one
+@item derived ephemeral key is used as an input to
+    @url{https://en.wikipedia.org/wiki/HKDF, HKDF}-BLAKE2b-256 KDF
+@item derives four session keys using
+    @url{https://en.wikipedia.org/wiki/HKDF, HKDF}-BLAKE2b-256 KDF:
+    @enumerate
+    @item "Size" encryption (for Twofish) key
+    @item "Size" authentication (for BLAKE2b-MAC) key
+    @item Payload encryption key
+    @item Payload authentication key
+    @end enumerate
+@item encrypts size, appends its ciphertext to the header
+@item appends MAC tag over that ciphertext
+@item encrypts and appends payload ciphertext
+@item appends MAC tag over that payload ciphertext
+@item possibly appends any kind of "junk" noise data to hide real
+    payload's size from the adversary
 @end enumerate
