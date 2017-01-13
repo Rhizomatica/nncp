@@ -29,7 +29,7 @@ drive.
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @code{NNCPP0x00x00x01}
+    @verb{|NNCPP0x00x00x01|}
 @item Payload type @tab
     unsigned integer @tab
     0 (file), 1 (freq), 2 (mail), 3 (transition)
@@ -84,7 +84,7 @@ Each encrypted packet has the following header:
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @code{NNCPE0x00x00x01}
+    @verb{|NNCPE0x00x00x01|}
 @item Niceness @tab
     unsigned integer @tab
     1-255, packet @ref{Niceness, niceness} level
@@ -123,7 +123,7 @@ After the headers comes an encrypted payload size and MAC of that size.
 @headitem  @tab XDR type @tab Value
 @item Size @tab
     unsigned hyper integer @tab
-    @code{NNCPE0x00x00x01}
+    @verb{|NNCPE0x00x00x01|}
     Payload size.
 @end multitable
 

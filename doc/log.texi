@@ -19,14 +19,14 @@ I 2017-01-09T08:42:18.990005394Z [sp-infos node="BYRRQUULEHINPKEFN7CHMSHR5I5CK7P
 I 2017-01-09T08:48:59.264847401Z [call-finish duration="10" node="BYRRQUULEHINPKEFN7CHMSHR5I5CK7PMX5HQNCYERTBAR4BOCG6Q" rxbytes="60" rxspeed="60" txbytes="108" txspeed="108"]
 @end verbatim
 
-@table @code
+@table @emph
 @item |
     Space character.
 @item LEVEL
-    Is single character log level. As a rule is is either @code{I}
-    (informational message), or @code{E} (error message).
+    Is single character log level. As a rule is is either @verb{|I|}
+    (informational message), or @verb{|E|} (error message).
 @item DATETIME
-    UTC datetime in RFC 3339 @code{2006-01-02T15:04:05.999999999Z} format.
+    UTC datetime in RFC 3339 @verb{|2006-01-02T15:04:05.999999999Z|} format.
 @item SD
     Structured data as in RFC 5424.
 @item MSG

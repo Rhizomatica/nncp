@@ -91,13 +91,13 @@ transmission. May be omitted to forbid freqing from that node.
 
 @item via
 An array of node identifiers that will be used as a relay to that node.
-For example @code{[foo,bar]} means that packet can reach current node by
-transitioning through @code{foo} and then @code{bar} nodes. May be
+For example @verb{|[foo,bar]|} means that packet can reach current node
+by transitioning through @emph{foo} and then @emph{bar} nodes. May be
 omitted if direct connection exists and no relaying is required.
 
 @item addrs
 Dictionary containing known network addresses of the node. Each key is
-human-readable name of the link/address. Values are @code{addr:port}
+human-readable name of the link/address. Values are @verb{|addr:port|}
 pairs pointing to @ref{nncp-daemon}'s listening instance. May be omitted
 if either no direct connection exists, or @ref{nncp-call} is used with
 forced address specifying.
