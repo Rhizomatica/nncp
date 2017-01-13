@@ -14,7 +14,7 @@ unacceptable performance degradation.
 
 SP works on top of
 @url{http://noiseprotocol.org/noise.html#interactive-patterns,
-@code{Noise_IK_25519_ChaChaPoly_BLAKE2b}} protocol. Each Noise packet
+@verb{|Noise_IK_25519_ChaChaPoly_BLAKE2b|}} protocol. Each Noise packet
 are sent inside XDR envelope:
 
 @verbatim
@@ -27,31 +27,31 @@ are sent inside XDR envelope:
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @code{NNCPS0x00x00x01}
+    @verb{|NNCPS0x00x00x01|}
 @item Payload @tab
     variable length opaque data @tab
     Noise packet itself
 @end multitable
 
-Peers static keys are specified as @ref{Configuration, @code{noisepub}}
+Peers static keys are specified as @ref{Configuration, @emph{noisepub}}
 configuration entry.
 
-Payload inside Noise packets has maximum size of @code{65 KiB - 256 B =
+Payload inside Noise packets has maximum size of @emph{65 KiB - 256 B =
 65280 B}. It is sent immediately in the first message by each side. The
 very first payload (that is carried inside handshake messages) is always
-padded to the maximum size with @code{HALT} packets (read below), for
-hiding actual number of @code{INFO} packets (number of files available
+padded to the maximum size with @emph{HALT} packets (read below), for
+hiding actual number of @emph{INFO} packets (number of files available
 for transmission).
 
 Each SP payload is a concatenation of SP packets. Each packet has
 XDR-encoded header and then corresponding XDR-encoded body. Header is
 just an unsigned integer telling what body structure follows.
 
-@table @code
+@table @emph
 
 @item HALT
     Stop file transmission, empty sending queue on the remote side.
-    Actually @code{HALT} packet does not have any body, only the header
+    Actually @emph{HALT} packet does not have any body, only the header
     with the type. It is also used in the first payload for padding to
     the maximum size.
 @verbatim

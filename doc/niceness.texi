@@ -1,7 +1,7 @@
 @node Niceness
 @unnumbered Niceness
 
-Each transmitted packet has niceness level, as Unix has @code{nice}
+Each transmitted packet has niceness level, as Unix has @command{nice}
 command for controlling processes priority. Higher nicer level means
 that packet is "nicer" and allows other to bypass him -- that means
 lower transmission precedence.

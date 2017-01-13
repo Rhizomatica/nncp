@@ -12,7 +12,7 @@
 % make -C nncp-0.1 all
 @end verbatim
 
-There is @code{install} target respecting @env{DESTDIR}. It will
+There is @command{install} target respecting @env{DESTDIR}. It will
 install binaries and info-documentation.
 
 @node FreeBSD
