@@ -184,7 +184,7 @@ func main() {
 				fd.Close()
 				continue
 			}
-			fd.Seek(0, 0)
+			fd.Seek(0, io.SeekStart)
 			tmp, err := ctx.NewTmpFileWHash()
 			if err != nil {
 				log.Fatalln(err)
