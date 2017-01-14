@@ -42,7 +42,6 @@ neigh:
     id: 2IZNP...UYGYA
     exchpub: WFLMZ...B7NHA
     signpub: GTGXG...IE3OA
-    noisepub: EQAZM...J3NBA
     sendmail: [/usr/sbin/sendmail]
     freq: /home/bob/pub
     via: [alice]
@@ -74,8 +73,8 @@ node has the following fields:
 
 @table @strong
 @item noisepub
-Must be present, but can be dummy (only zeros) if no online
-communication using @ref{Sync, synchronization protocol} will be used.
+If present, then node can be online called using @ref{Sync,
+synchronization protocol}. Contains authentication public key.
 
 @item sendmail
 An array containing path to executable and its command line arguments

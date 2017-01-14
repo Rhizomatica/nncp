@@ -89,6 +89,9 @@ func main() {
 	if err != nil {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
+	if node.NoisePub == nil {
+		log.Fatalln("Node does not have online communication capability")
+	}
 
 	var xxOnly nncp.TRxTx
 	if *rxOnly {

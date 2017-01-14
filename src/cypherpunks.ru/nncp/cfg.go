@@ -40,7 +40,7 @@ type NodeYAML struct {
 	Id       string
 	ExchPub  string
 	SignPub  string
-	NoisePub string
+	NoisePub *string `noisepub,omitempty`
 	Sendmail []string
 	Incoming *string  `incoming,omitempty`
 	Freq     *string  `freq,omitempty`
@@ -100,12 +100,15 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		return nil, errors.New("Invalid signPub size")
 	}
 
-	noisePub, err := FromBase32(yml.NoisePub)
-	if err != nil {
-		return nil, err
-	}
-	if len(noisePub) != 32 {
-		return nil, errors.New("Invalid noisePub size")
+	var noisePub []byte
+	if yml.NoisePub != nil {
+		noisePub, err = FromBase32(*yml.NoisePub)
+		if err != nil {
+			return nil, err
+		}
+		if len(noisePub) != 32 {
+			return nil, errors.New("Invalid noisePub size")
+		}
 	}
 
 	var incoming *string
@@ -131,14 +134,16 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		Id:       nodeId,
 		ExchPub:  new([32]byte),
 		SignPub:  ed25519.PublicKey(signPub),
-		NoisePub: new([32]byte),
 		Sendmail: yml.Sendmail,
 		Incoming: incoming,
 		Freq:     freq,
 		Addrs:    yml.Addrs,
 	}
 	copy(node.ExchPub[:], exchPub)
-	copy(node.NoisePub[:], noisePub)
+	if len(noisePub) > 0 {
+		node.NoisePub = new([32]byte)
+		copy(node.NoisePub[:], noisePub)
+	}
 	return &node, nil
 }
 
