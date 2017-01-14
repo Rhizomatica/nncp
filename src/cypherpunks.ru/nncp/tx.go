@@ -44,7 +44,7 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io
 		lastNode = ctx.Neigh[*node.Via[i-1]]
 		hops = append(hops, lastNode)
 	}
-	padSize := minSize - size - int64(len(hops)) * (PktOverhead + PktEncOverhead)
+	padSize := minSize - size - int64(len(hops))*(PktOverhead+PktEncOverhead)
 	if padSize < 0 {
 		padSize = 0
 	}
