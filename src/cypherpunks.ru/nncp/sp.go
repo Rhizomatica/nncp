@@ -299,7 +299,7 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx)
 	if len(infosPayloads) > 0 {
 		firstPayload = infosPayloads[0]
 	}
-	// Pad first payload, to hide actual existing files
+	// Pad first payload, to hide actual number of existing files
 	for i := 0; i < (MaxSPSize-len(firstPayload))/SPHeadOverhead; i++ {
 		firstPayload = append(firstPayload, SPHaltMarshalized...)
 	}
@@ -419,7 +419,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 	if len(infosPayloads) > 0 {
 		firstPayload = infosPayloads[0]
 	}
-	// Pad first payload, to hide actual existing files
+	// Pad first payload, to hide actual number of existing files
 	for i := 0; i < (MaxSPSize-len(firstPayload))/SPHeadOverhead; i++ {
 		firstPayload = append(firstPayload, SPHaltMarshalized...)
 	}
