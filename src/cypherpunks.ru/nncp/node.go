@@ -35,16 +35,17 @@ func (id NodeId) String() string {
 }
 
 type Node struct {
-	Name     string
-	Id       *NodeId
-	ExchPub  *[32]byte
-	SignPub  ed25519.PublicKey
-	NoisePub *[32]byte
-	Sendmail []string
-	Incoming *string
-	Freq     *string
-	Via      []*NodeId
-	Addrs    map[string]string
+	Name           string
+	Id             *NodeId
+	ExchPub        *[32]byte
+	SignPub        ed25519.PublicKey
+	NoisePub       *[32]byte
+	Sendmail       []string
+	Incoming       *string
+	Freq           *string
+	Via            []*NodeId
+	Addrs          map[string]string
+	OnlineDeadline int
 }
 
 type NodeOur struct {
