@@ -55,6 +55,7 @@ func main() {
 	}
 	incoming := "/path/to/upload/dir, omit it to forbid uploading"
 	freq := "/path/to/freq/able/dir, omit to forbid freqing"
+	noisePub := nncp.ToBase32(nodeOur.NoisePub[:])
 	cfg := nncp.CfgYAML{
 		Self: nncp.NodeOurYAML{
 			Id:       nodeOur.Id.String(),
@@ -70,7 +71,7 @@ func main() {
 				Id:       nodeOur.Id.String(),
 				ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
 				SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
-				NoisePub: nncp.ToBase32(nodeOur.NoisePub[:]),
+				NoisePub: &noisePub,
 				Sendmail: []string{nncp.DefaultSendmailPath},
 				Incoming: &incoming,
 				Freq:     &freq,
