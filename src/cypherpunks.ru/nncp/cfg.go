@@ -47,6 +47,8 @@ type NodeYAML struct {
 	Via      []string `via,omitempty`
 
 	Addrs map[string]string `addrs,omitempty`
+
+	OnlineDeadline *int `onlinedeadline,omitempty`
 }
 
 type NodeOurYAML struct {
@@ -130,19 +132,26 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 	}
 
 	node := Node{
-		Name:     name,
-		Id:       nodeId,
-		ExchPub:  new([32]byte),
-		SignPub:  ed25519.PublicKey(signPub),
-		Sendmail: yml.Sendmail,
-		Incoming: incoming,
-		Freq:     freq,
-		Addrs:    yml.Addrs,
+		Name:           name,
+		Id:             nodeId,
+		ExchPub:        new([32]byte),
+		SignPub:        ed25519.PublicKey(signPub),
+		Sendmail:       yml.Sendmail,
+		Incoming:       incoming,
+		Freq:           freq,
+		Addrs:          yml.Addrs,
+		OnlineDeadline: DefaultDeadline,
 	}
 	copy(node.ExchPub[:], exchPub)
 	if len(noisePub) > 0 {
 		node.NoisePub = new([32]byte)
 		copy(node.NoisePub[:], noisePub)
+	}
+	if yml.OnlineDeadline != nil {
+		if *yml.OnlineDeadline <= 0 {
+			return nil, errors.New("OnlineDeadline must be at least 1 second")
+		}
+		node.OnlineDeadline = *yml.OnlineDeadline
 	}
 	return &node, nil
 }

@@ -36,9 +36,9 @@ import (
 )
 
 const (
-	MaxSPSize        = 2<<16 - 256
-	PartSuffix       = ".part"
-	DeadlineDuration = 10
+	MaxSPSize       = 2<<16 - 256
+	PartSuffix      = ".part"
+	DefaultDeadline = 10
 )
 
 var (
@@ -158,7 +158,7 @@ func payloadsSplit(payloads [][]byte) [][]byte {
 
 type SPState struct {
 	ctx          *Ctx
-	NodeId       *NodeId
+	Node         *Node
 	nice         uint8
 	hs           *noise.HandshakeState
 	csOur        *noise.CipherState
@@ -184,7 +184,7 @@ type SPState struct {
 
 func (state *SPState) isDead() bool {
 	now := time.Now()
-	return now.Sub(state.RxLastSeen).Seconds() >= DeadlineDuration && now.Sub(state.TxLastSeen).Seconds() >= DeadlineDuration
+	return int(now.Sub(state.RxLastSeen).Seconds()) >= state.Node.OnlineDeadline && int(now.Sub(state.TxLastSeen).Seconds()) >= state.Node.OnlineDeadline
 }
 
 func (state *SPState) dirUnlock() {
@@ -275,6 +275,7 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx)
 		}
 	}
 	started := time.Now()
+	node := ctx.Neigh[*nodeId]
 	conf := noise.Config{
 		CipherSuite: NoiseCipherSuite,
 		Pattern:     noise.HandshakeIK,
@@ -283,12 +284,12 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx)
 			Private: ctx.Self.NoisePrv[:],
 			Public:  ctx.Self.NoisePub[:],
 		},
-		PeerStatic: ctx.Neigh[*nodeId].NoisePub[:],
+		PeerStatic: node.NoisePub[:],
 	}
 	state := SPState{
 		ctx:          ctx,
 		hs:           noise.NewHandshakeState(conf),
-		NodeId:       nodeId,
+		Node:         node,
 		nice:         nice,
 		payloads:     make(chan []byte),
 		infosTheir:   make(map[[32]byte]*SPInfo),
@@ -317,14 +318,14 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx)
 	buf, _, _ = state.hs.WriteMessage(nil, firstPayload)
 	sds := SDS{"node": nodeId, "nice": strconv.Itoa(int(nice))}
 	ctx.LogD("sp-start", sds, "sending first message")
-	conn.SetWriteDeadline(time.Now().Add(DeadlineDuration * time.Second))
+	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline * time.Second))
 	if err = state.WriteSP(conn, buf); err != nil {
 		ctx.LogE("sp-start", SdsAdd(sds, SDS{"err": err}), "")
 		state.dirUnlock()
 		return nil, err
 	}
 	ctx.LogD("sp-start", sds, "waiting for first message")
-	conn.SetReadDeadline(time.Now().Add(DeadlineDuration * time.Second))
+	conn.SetReadDeadline(time.Now().Add(DefaultDeadline * time.Second))
 	if buf, err = state.ReadSP(conn); err != nil {
 		ctx.LogE("sp-start", SdsAdd(sds, SDS{"err": err}), "")
 		state.dirUnlock()
@@ -375,7 +376,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 		SDS{"nice": strconv.Itoa(int(nice))},
 		"waiting for first message",
 	)
-	conn.SetReadDeadline(time.Now().Add(DeadlineDuration * time.Second))
+	conn.SetReadDeadline(time.Now().Add(DefaultDeadline * time.Second))
 	if buf, err = state.ReadSP(conn); err != nil {
 		ctx.LogE("sp-start", SDS{"err": err}, "")
 		return nil, err
@@ -385,27 +386,26 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 		return nil, err
 	}
 
-	var nodeId *NodeId
-	for _, node := range ctx.Neigh {
+	var node *Node
+	for _, node = range ctx.Neigh {
 		if subtle.ConstantTimeCompare(state.hs.PeerStatic(), node.NoisePub[:]) == 1 {
-			nodeId = node.Id
 			break
 		}
 	}
-	if nodeId == nil {
+	if node == nil {
 		peerId := ToBase32(state.hs.PeerStatic())
 		ctx.LogE("sp-start", SDS{"peer": peerId}, "unknown")
 		return nil, errors.New("Unknown peer: " + peerId)
 	}
-	state.NodeId = nodeId
-	sds := SDS{"node": nodeId, "nice": strconv.Itoa(int(nice))}
+	state.Node = node
+	sds := SDS{"node": node.Id, "nice": strconv.Itoa(int(nice))}
 
-	if ctx.ensureRxDir(nodeId); err != nil {
+	if ctx.ensureRxDir(node.Id); err != nil {
 		return nil, err
 	}
 	var rxLock *os.File
 	if xxOnly != nil && *xxOnly == TRx {
-		rxLock, err = ctx.LockDir(nodeId, TRx)
+		rxLock, err = ctx.LockDir(node.Id, TRx)
 		if err != nil {
 			return nil, err
 		}
@@ -413,7 +413,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 	state.rxLock = rxLock
 	var txLock *os.File
 	if xxOnly != nil && *xxOnly == TTx {
-		txLock, err = ctx.LockDir(nodeId, TTx)
+		txLock, err = ctx.LockDir(node.Id, TTx)
 		if err != nil {
 			return nil, err
 		}
@@ -422,7 +422,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 
 	var infosPayloads [][]byte
 	if xxOnly == nil || *xxOnly != TTx {
-		infosPayloads = ctx.infosOur(nodeId, nice, &state.infosOurSeen)
+		infosPayloads = ctx.infosOur(node.Id, nice, &state.infosOurSeen)
 	}
 	var firstPayload []byte
 	if len(infosPayloads) > 0 {
@@ -435,7 +435,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 
 	ctx.LogD("sp-start", sds, "sending first message")
 	buf, state.csTheir, state.csOur = state.hs.WriteMessage(nil, firstPayload)
-	conn.SetWriteDeadline(time.Now().Add(DeadlineDuration * time.Second))
+	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline * time.Second))
 	if err = state.WriteSP(conn, buf); err != nil {
 		ctx.LogE("sp-start", SdsAdd(sds, SDS{"err": err}), "")
 		state.dirUnlock()
@@ -451,7 +451,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 }
 
 func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payload []byte) error {
-	sds := SDS{"node": state.NodeId, "nice": strconv.Itoa(int(state.nice))}
+	sds := SDS{"node": state.Node.Id, "nice": strconv.Itoa(int(state.nice))}
 	if len(infosPayloads) > 1 {
 		go func() {
 			for _, payload := range infosPayloads[1:] {
@@ -489,7 +489,7 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 	go func() {
 		for range time.Tick(time.Second) {
 			for _, payload := range state.ctx.infosOur(
-				state.NodeId,
+				state.Node.Id,
 				state.nice,
 				&state.infosOurSeen,
 			) {
@@ -538,7 +538,7 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 				state.ctx.LogD("sp-file", sdsp, "queueing")
 				fd, err := os.Open(filepath.Join(
 					state.ctx.Spool,
-					state.NodeId.String(),
+					state.Node.Id.String(),
 					string(TTx),
 					ToBase32(freq.Hash[:]),
 				))
@@ -604,7 +604,7 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 				SdsAdd(sds, SDS{"size": strconv.Itoa(len(payload))}),
 				"sending",
 			)
-			conn.SetWriteDeadline(time.Now().Add(DeadlineDuration * time.Second))
+			conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := state.WriteSP(conn, state.csOur.Encrypt(nil, nil, payload)); err != nil {
 				state.ctx.LogE("sp-xmit", SdsAdd(sds, SDS{"err": err}), "")
 				break
@@ -620,7 +620,7 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 				return
 			}
 			state.ctx.LogD("sp-recv", sds, "waiting for payload")
-			conn.SetReadDeadline(time.Now().Add(DeadlineDuration * time.Second))
+			conn.SetReadDeadline(time.Now().Add(DefaultDeadline * time.Second))
 			payload, err := state.ReadSP(conn)
 			if err != nil {
 				unmarshalErr := err.(*xdr.UnmarshalError)
@@ -685,7 +685,7 @@ func (state *SPState) Wait() {
 }
 
 func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
-	sds := SDS{"node": state.NodeId, "nice": strconv.Itoa(int(state.nice))}
+	sds := SDS{"node": state.Node.Id, "nice": strconv.Itoa(int(state.nice))}
 	r := bytes.NewReader(payload)
 	var err error
 	var replies [][]byte
@@ -725,7 +725,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.ctx.LogD("sp-process", sdsp, "stating part")
 			if _, err = os.Stat(filepath.Join(
 				state.ctx.Spool,
-				state.NodeId.String(),
+				state.Node.Id.String(),
 				string(TRx),
 				ToBase32(info.Hash[:]),
 			)); err == nil {
@@ -735,7 +735,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			}
 			fi, err := os.Stat(filepath.Join(
 				state.ctx.Spool,
-				state.NodeId.String(),
+				state.Node.Id.String(),
 				string(TRx),
 				ToBase32(info.Hash[:])+PartSuffix,
 			))
@@ -773,7 +773,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			})
 			filePath := filepath.Join(
 				state.ctx.Spool,
-				state.NodeId.String(),
+				state.Node.Id.String(),
 				string(TRx),
 				ToBase32(file.Hash[:]),
 			)
@@ -852,7 +852,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.ctx.LogD("sp-done", sdsp, "removing")
 			err := os.Remove(filepath.Join(
 				state.ctx.Spool,
-				state.NodeId.String(),
+				state.Node.Id.String(),
 				string(TTx),
 				ToBase32(done.Hash[:]),
 			))
@@ -900,7 +900,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 		}
 		state.ctx.LogI("sp-infos", SDS{
 			"xx":   string(TRx),
-			"node": state.NodeId,
+			"node": state.Node.Id,
 			"pkts": strconv.Itoa(pkts),
 			"size": strconv.FormatInt(int64(size), 10),
 		}, "")

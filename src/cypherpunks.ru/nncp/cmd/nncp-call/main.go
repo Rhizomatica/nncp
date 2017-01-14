@@ -50,6 +50,8 @@ func main() {
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
+
+		onlineDeadline = flag.Int("onlinedeadline", 0, "Override onlinedeadline option")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -93,6 +95,10 @@ func main() {
 		log.Fatalln("Node does not have online communication capability")
 	}
 
+	if *onlineDeadline > 0 {
+		node.OnlineDeadline = *onlineDeadline
+	}
+
 	var xxOnly nncp.TRxTx
 	if *rxOnly {
 		xxOnly = nncp.TRx
@@ -126,10 +132,10 @@ func main() {
 		ctx.LogD("call", nncp.SDS{"addr": addr}, "connected")
 		state, err := ctx.StartI(conn, node.Id, nice, &xxOnly)
 		if err == nil {
-			ctx.LogI("call-start", nncp.SDS{"node": state.NodeId}, "connected")
+			ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
 			state.Wait()
 			ctx.LogI("call-finish", nncp.SDS{
-				"node":     state.NodeId,
+				"node":     state.Node.Id,
 				"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
 				"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
 				"txbytes":  strconv.FormatInt(state.TxBytes, 10),
@@ -140,7 +146,7 @@ func main() {
 			conn.Close()
 			break
 		} else {
-			ctx.LogE("call-start", nncp.SDS{"node": state.NodeId, "err": err}, "")
+			ctx.LogE("call-start", nncp.SDS{"node": state.Node.Id, "err": err}, "")
 			conn.Close()
 		}
 	}
