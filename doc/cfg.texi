@@ -54,9 +54,9 @@ log} file.
 @strong{notify} section contains notification settings for successfully
 tossed file and freq packets. Corresponding @strong{from} and
 @strong{to} fields will substituted in notification email message.
-@emph{neigh/self/sendmail} will be used as a local mailer. If either of
-@emph{from}/@emph{to} fields are omitted, then no notification will be
-sent.
+@emph{neigh/self/sendmail} will be used as a local mailer. You can omit
+either of those two @emph{from}/@emph{to} sections to omit corresponding
+notifications, or the whole section at once.
 
 @strong{self} section contains our node's private keypairs.
 @strong{exch*} and @strong{sign*} are used during @ref{Encrypted,
