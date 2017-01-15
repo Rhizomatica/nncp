@@ -133,6 +133,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 				log.Fatalln(err)
 			}
 			sendmail := ctx.Neigh[*job.PktEnc.Sender].Sendmail
+			if len(sendmail) == 0 {
+				ctx.LogE("rx", SdsAdd(sds, SDS{"err": "No sendmail configured"}), "")
+				isBad = true
+				goto Closing
+			}
 			if !dryRun {
 				cmd := exec.Command(
 					sendmail[0],
