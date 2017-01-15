@@ -14,7 +14,7 @@ unacceptable performance degradation.
 
 SP works on top of
 @url{http://noiseprotocol.org/noise.html#interactive-patterns,
-@verb{|Noise_IK_25519_ChaChaPoly_BLAKE2b|}} protocol. Each Noise packet
+@code{Noise_IK_25519_ChaChaPoly_BLAKE2b}} protocol. Each Noise packet
 are sent inside XDR envelope:
 
 @verbatim
@@ -133,3 +133,39 @@ just an unsigned integer telling what body structure follows.
     @end multitable
 
 @end table
+
+Typical peers behaviour is following:
+
+@enumerate
+@item Perform Noise-IK handshake.
+@item When remote peer's identity is known (by definition for initiator
+and after receiving first packet for responser (however it is not
+authenticated yet)), then collect all @emph{tx}-related files
+information and prepare payload packets with all that @emph{INFO}s.
+@item Pad the very first payload packet (that is sent with first Noise
+handshake message) with @emph{HALT}s to the maximal size.
+@item Send all queued payload packets.
+@item When @emph{INFO} packet received, check that is has an acceptable
+niceness level (skip if not), check if file's @file{.part} exists and
+queue @emph{FREQ} outgoing packet (with corresponding offset if
+required).
+@item When @emph{FREQ} packet received, append it to current sending
+queue. Sending queue contains files with offsets that are needed to be
+sent.
+@item While sending queue is not empty, send @emph{FILE} packet until
+queue's head is not fully sent. @emph{FREQ} can contain offset equal to
+size -- anyway sent @emph{FILE} packet with an empty payload.
+@item When @emph{FILE} packet received, check if it is not fully
+downloaded (comparing to @emph{INFO}'s packet information). If so, then
+run background integrity checker on it. If check is succeeded, then
+delete @file{.part} suffix from file's name and send @emph{DONE} packet.
+@item When @emph{DONE} packet received, delete corresponding file.
+@item When @emph{HALT} packet received, empty file sending queue.
+@item @emph{FILE} sending is performed only if no other outgoing packets
+are queued.
+@item Each second node check are there any new @emph{tx} packets
+appeared and queues corresponding @emph{INFO} packets.
+@item If no packets are sent and received during @ref{Onlinedeadline,
+onlinedeadline} duration, then close the connection. There is no
+explicit indication that session is over.
+@end enumerate

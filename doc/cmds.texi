@@ -34,7 +34,7 @@ Nearly all commands have the following common options:
 @section nncp-call
 
 @verbatim
-% nncp-call [options] [-rx|-tx] NODE[:ADDR] [FORCEADDR]
+% nncp-call [options] [-onlinedeadline INT] [-rx|-tx] NODE[:ADDR] [FORCEADDR]
 @end verbatim
 
 Call (connect to) specified @option{NODE} and run @ref{Sync,
@@ -47,6 +47,9 @@ transfer.
 If @option{-rx} option is specified then only inbound packets transmission
 is performed. If @option{-tx} option is specified, then only outbound
 transmission is performed.
+
+@option{-onlinedeadline} overrides @ref{Onlinedeadline,
+@emph{onlinedeadline}} configuration option.
 
 Each @option{NODE} can contain several uniquely identified
 @option{ADDR}esses in @ref{Configuration, configuration} file. If you do
