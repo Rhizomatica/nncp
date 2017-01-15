@@ -80,7 +80,8 @@ synchronization protocol}. Contains authentication public key.
 
 @item sendmail
 An array containing path to executable and its command line arguments
-that is called for mail sending.
+that is called for mail sending. If it is empty, then no mail processing
+will be performed from that node.
 
 @item incoming
 Full path to directory where all file uploads will be saved. May be
