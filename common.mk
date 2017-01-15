@@ -1,15 +1,21 @@
-.PHONY: doc
+PREFIX ?= /usr/local
 
 SENDMAIL ?= /usr/sbin/sendmail
-PREFIX ?= /usr/local
 CFGPATH ?= $(PREFIX)/etc/nncp.yaml
+SPOOLPATH ?= /var/spool/nncp
+LOGPATH ?= /var/log/nncp.log
+
 BINDIR = $(DESTDIR)$(PREFIX)/bin
 INFODIR = $(DESTDIR)$(PREFIX)/info
 DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
+
 LDFLAGS = \
 	-X cypherpunks.ru/nncp.Version=$(VERSION) \
 	-X cypherpunks.ru/nncp.DefaultCfgPath=$(CFGPATH) \
-	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL)
+	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL) \
+	-X cypherpunks.ru/nncp.DefaultSpoolPath=$(SPOOLPATH) \
+	-X cypherpunks.ru/nncp.DefaultLogPath=$(LOGPATH)
+
 ALL = \
 	nncp-mail \
 	nncp-call \
@@ -71,6 +77,8 @@ test:
 
 clean:
 	rm -f $(ALL)
+
+.PHONY: doc
 
 doc:
 	$(MAKE) -C doc

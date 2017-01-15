@@ -73,8 +73,8 @@ func main() {
 				Sendmail: []string{nncp.DefaultSendmailPath},
 			},
 		},
-		Spool: "/path/to/spool",
-		Log:   "/path/to/log.file",
+		Spool: nncp.DefaultSpoolPath,
+		Log:   nncp.DefaultLogPath,
 	}
 	raw, err := yaml.Marshal(&cfg)
 	if err != nil {
