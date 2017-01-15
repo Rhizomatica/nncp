@@ -189,7 +189,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		}
 		onlineDeadline := defOnlineDeadline
 		if callYml.OnlineDeadline != nil {
-			if *yml.OnlineDeadline <= 0 {
+			if *callYml.OnlineDeadline == 0 {
 				return nil, errors.New("OnlineDeadline must be at least 1 second")
 			}
 			onlineDeadline = *callYml.OnlineDeadline
