@@ -1,15 +1,15 @@
 .PHONY: doc
 
-CFGPATH ?= /usr/local/etc/nncp.yaml
 SENDMAIL ?= /usr/sbin/sendmail
+PREFIX ?= /usr/local
+CFGPATH ?= $(PREFIX)/etc/nncp.yaml
+BINDIR = $(DESTDIR)$(PREFIX)/bin
+INFODIR = $(DESTDIR)$(PREFIX)/info
+DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
 LDFLAGS = \
 	-X cypherpunks.ru/nncp.Version=$(VERSION) \
 	-X cypherpunks.ru/nncp.DefaultCfgPath=$(CFGPATH) \
 	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL)
-PREFIX ?= /usr/local
-BINDIR = $(DESTDIR)$(PREFIX)/bin
-INFODIR = $(DESTDIR)$(PREFIX)/info
-DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
 ALL = \
 	nncp-mail \
 	nncp-call \
