@@ -179,12 +179,13 @@ type SPState struct {
 	rxLock       *os.File
 	txLock       *os.File
 	xxOnly       *TRxTx
+	isDead       bool
 	sync.RWMutex
 }
 
-func (state *SPState) isDead() bool {
+func (state *SPState) NotAlive() bool {
 	now := time.Now()
-	return int(now.Sub(state.RxLastSeen).Seconds()) >= state.Node.OnlineDeadline && int(now.Sub(state.TxLastSeen).Seconds()) >= state.Node.OnlineDeadline
+	return state.isDead || (int(now.Sub(state.RxLastSeen).Seconds()) >= state.Node.OnlineDeadline && int(now.Sub(state.TxLastSeen).Seconds()) >= state.Node.OnlineDeadline)
 }
 
 func (state *SPState) dirUnlock() {
@@ -505,9 +506,12 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 
 	state.wg.Add(1)
 	go func() {
-		defer state.wg.Done()
+		defer func() {
+			state.isDead = true
+			state.wg.Done()
+		}()
 		for {
-			if state.isDead() {
+			if state.NotAlive() {
 				return
 			}
 			var payload []byte
@@ -614,9 +618,12 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 
 	state.wg.Add(1)
 	go func() {
-		defer state.wg.Done()
+		defer func() {
+			state.isDead = true
+			state.wg.Done()
+		}()
 		for {
-			if state.isDead() {
+			if state.NotAlive() {
 				return
 			}
 			state.ctx.LogD("sp-recv", sds, "waiting for payload")
@@ -625,12 +632,14 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 			if err != nil {
 				unmarshalErr := err.(*xdr.UnmarshalError)
 				netErr, ok := unmarshalErr.Err.(net.Error)
-				if (ok && netErr.Timeout()) || unmarshalErr.ErrorCode == xdr.ErrIO {
+				if ok && netErr.Timeout() {
 					continue
-				} else {
-					state.ctx.LogE("sp-recv", SdsAdd(sds, SDS{"err": err}), "")
+				}
+				if unmarshalErr.ErrorCode == xdr.ErrIO {
 					break
 				}
+				state.ctx.LogE("sp-recv", SdsAdd(sds, SDS{"err": err}), "")
+				break
 			}
 			state.ctx.LogD(
 				"sp-recv",
