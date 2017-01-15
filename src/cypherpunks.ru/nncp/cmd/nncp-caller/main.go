@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Call NNCP TCP daemon
+// Croned NNCP TCP daemon caller
 package main
 
 import (
@@ -25,15 +25,17 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
+	"strconv"
+	"sync"
+	"time"
 
 	"cypherpunks.ru/nncp"
 )
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-call -- call TCP daemon\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE[:ADDR] [FORCEADDR]\n", os.Args[0])
+	fmt.Fprintln(os.Stderr, "nncp-caller -- croned NNCP TCP daemon caller\n")
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] [NODE ...]\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }
@@ -41,15 +43,10 @@ func usage() {
 func main() {
 	var (
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
-		rxOnly   = flag.Bool("rx", false, "Only receive packets")
-		txOnly   = flag.Bool("tx", false, "Only transfer packets")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
-
-		onlineDeadline = flag.Int("onlinedeadline", 0, "Override onlinedeadline option")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -60,17 +57,6 @@ func main() {
 	if *version {
 		fmt.Println(nncp.VersionGet())
 		return
-	}
-	if flag.NArg() < 1 {
-		usage()
-		os.Exit(1)
-	}
-	if *niceRaw < 1 || *niceRaw > 255 {
-		log.Fatalln("-nice must be between 1 and 255")
-	}
-	nice := uint8(*niceRaw)
-	if *rxOnly && *txOnly {
-		log.Fatalln("-rx and -tx can not be set simultaneously")
 	}
 
 	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
@@ -84,42 +70,69 @@ func main() {
 	ctx.Quiet = *quiet
 	ctx.Debug = *debug
 
-	splitted := strings.SplitN(flag.Arg(0), ":", 2)
-	node, err := ctx.FindNode(splitted[0])
-	if err != nil {
-		log.Fatalln("Invalid NODE specified:", err)
-	}
-	if node.NoisePub == nil {
-		log.Fatalln("Node does not have online communication capability")
-	}
-
-	if *onlineDeadline == 0 {
-		onlineDeadline = &node.OnlineDeadline
-	}
-
-	var xxOnly nncp.TRxTx
-	if *rxOnly {
-		xxOnly = nncp.TRx
-	} else if *txOnly {
-		xxOnly = nncp.TTx
-	}
-
-	var addrs []string
-	if flag.NArg() == 2 {
-		addrs = append(addrs, flag.Arg(1))
-	} else if len(splitted) == 2 {
-		addr, known := ctx.Neigh[*node.Id].Addrs[splitted[1]]
-		if !known {
-			log.Fatalln("Unknown ADDR specified")
+	var nodes []*nncp.Node
+	if flag.NArg() > 0 {
+		for _, nodeId := range flag.Args() {
+			node, err := ctx.FindNode(nodeId)
+			if err != nil {
+				log.Fatalln("Invalid NODE specified:", err)
+			}
+			if len(node.Calls) == 0 {
+				ctx.LogD("caller", nncp.SDS{"node": node.Id}, "has no calls, skipping")
+				continue
+			}
+			nodes = append(nodes, node)
 		}
-		addrs = append(addrs, addr)
 	} else {
-		for _, addr := range ctx.Neigh[*node.Id].Addrs {
-			addrs = append(addrs, addr)
+		for _, node := range ctx.Neigh {
+			if len(node.Calls) == 0 {
+				ctx.LogD("caller", nncp.SDS{"node": node.Id}, "has no calls, skipping")
+				continue
+			}
+			nodes = append(nodes, node)
 		}
 	}
 
-	if !ctx.CallNode(node, addrs, nice, &xxOnly, *onlineDeadline) {
-		os.Exit(1)
+	var wg sync.WaitGroup
+	for _, node := range nodes {
+		for i, call := range node.Calls {
+			wg.Add(1)
+			go func(node *nncp.Node, i int, call *nncp.Call) {
+				defer wg.Done()
+				var addrs []string
+				if call.Addr == nil {
+					for _, addr := range node.Addrs {
+						addrs = append(addrs, addr)
+					}
+				} else {
+					addrs = append(addrs, *call.Addr)
+				}
+				sds := nncp.SDS{"node": node.Id, "callindex": strconv.Itoa(i)}
+				for {
+					n := time.Now()
+					t := call.Cron.Next(n)
+					ctx.LogD("caller", sds, t.String())
+					if t.IsZero() {
+						ctx.LogE("caller", sds, "got zero time")
+						return
+					}
+					time.Sleep(t.Sub(n))
+					node.Lock()
+					if node.Busy {
+						node.Unlock()
+						ctx.LogD("caller", sds, "busy")
+						continue
+					} else {
+						node.Busy = true
+						node.Unlock()
+						ctx.CallNode(node, addrs, call.Nice, call.Xx, call.OnlineDeadline)
+						node.Lock()
+						node.Busy = false
+						node.Unlock()
+					}
+				}
+			}(node, i, call)
+		}
 	}
+	wg.Wait()
 }

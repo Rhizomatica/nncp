@@ -165,7 +165,7 @@ delete @file{.part} suffix from file's name and send @emph{DONE} packet.
 are queued.
 @item Each second node check are there any new @emph{tx} packets
 appeared and queues corresponding @emph{INFO} packets.
-@item If no packets are sent and received during @ref{Onlinedeadline,
+@item If no packets are sent and received during @ref{CfgOnlineDeadline,
 onlinedeadline} duration, then close the connection. There is no
 explicit indication that session is over.
 @end enumerate

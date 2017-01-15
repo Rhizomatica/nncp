@@ -157,35 +157,36 @@ func payloadsSplit(payloads [][]byte) [][]byte {
 }
 
 type SPState struct {
-	ctx          *Ctx
-	Node         *Node
-	nice         uint8
-	hs           *noise.HandshakeState
-	csOur        *noise.CipherState
-	csTheir      *noise.CipherState
-	payloads     chan []byte
-	infosTheir   map[[32]byte]*SPInfo
-	infosOurSeen map[[32]byte]struct{}
-	queueTheir   []*SPFreq
-	wg           sync.WaitGroup
-	RxBytes      int64
-	RxLastSeen   time.Time
-	TxBytes      int64
-	TxLastSeen   time.Time
-	started      time.Time
-	Duration     time.Duration
-	RxSpeed      int64
-	TxSpeed      int64
-	rxLock       *os.File
-	txLock       *os.File
-	xxOnly       *TRxTx
-	isDead       bool
+	ctx            *Ctx
+	Node           *Node
+	onlineDeadline int
+	nice           uint8
+	hs             *noise.HandshakeState
+	csOur          *noise.CipherState
+	csTheir        *noise.CipherState
+	payloads       chan []byte
+	infosTheir     map[[32]byte]*SPInfo
+	infosOurSeen   map[[32]byte]struct{}
+	queueTheir     []*SPFreq
+	wg             sync.WaitGroup
+	RxBytes        int64
+	RxLastSeen     time.Time
+	TxBytes        int64
+	TxLastSeen     time.Time
+	started        time.Time
+	Duration       time.Duration
+	RxSpeed        int64
+	TxSpeed        int64
+	rxLock         *os.File
+	txLock         *os.File
+	xxOnly         *TRxTx
+	isDead         bool
 	sync.RWMutex
 }
 
 func (state *SPState) NotAlive() bool {
 	now := time.Now()
-	return state.isDead || (int(now.Sub(state.RxLastSeen).Seconds()) >= state.Node.OnlineDeadline && int(now.Sub(state.TxLastSeen).Seconds()) >= state.Node.OnlineDeadline)
+	return state.isDead || (int(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline && int(now.Sub(state.TxLastSeen).Seconds()) >= state.onlineDeadline)
 }
 
 func (state *SPState) dirUnlock() {
@@ -256,7 +257,7 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]struct{}
 	return payloadsSplit(payloads)
 }
 
-func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx) (*SPState, error) {
+func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx, onlineDeadline int) (*SPState, error) {
 	err := ctx.ensureRxDir(nodeId)
 	if err != nil {
 		return nil, err
@@ -288,17 +289,18 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx)
 		PeerStatic: node.NoisePub[:],
 	}
 	state := SPState{
-		ctx:          ctx,
-		hs:           noise.NewHandshakeState(conf),
-		Node:         node,
-		nice:         nice,
-		payloads:     make(chan []byte),
-		infosTheir:   make(map[[32]byte]*SPInfo),
-		infosOurSeen: make(map[[32]byte]struct{}),
-		started:      started,
-		rxLock:       rxLock,
-		txLock:       txLock,
-		xxOnly:       xxOnly,
+		ctx:            ctx,
+		hs:             noise.NewHandshakeState(conf),
+		Node:           node,
+		onlineDeadline: onlineDeadline,
+		nice:           nice,
+		payloads:       make(chan []byte),
+		infosTheir:     make(map[[32]byte]*SPInfo),
+		infosOurSeen:   make(map[[32]byte]struct{}),
+		started:        started,
+		rxLock:         rxLock,
+		txLock:         txLock,
+		xxOnly:         xxOnly,
 	}
 
 	var infosPayloads [][]byte
@@ -399,6 +401,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 		return nil, errors.New("Unknown peer: " + peerId)
 	}
 	state.Node = node
+	state.onlineDeadline = node.OnlineDeadline
 	sds := SDS{"node": node.Id, "nice": strconv.Itoa(int(nice))}
 
 	if ctx.ensureRxDir(node.Id); err != nil {

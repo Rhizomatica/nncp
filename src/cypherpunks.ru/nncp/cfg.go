@@ -23,6 +23,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/gorhill/cronexpr"
 	"golang.org/x/crypto/ed25519"
 	"gopkg.in/yaml.v2"
 )
@@ -42,13 +43,22 @@ type NodeYAML struct {
 	SignPub  string
 	NoisePub *string `noisepub,omitempty`
 	Sendmail []string
-	Incoming *string  `incoming,omitempty`
-	Freq     *string  `freq,omitempty`
-	Via      []string `via,omitempty`
+	Incoming *string    `incoming,omitempty`
+	Freq     *string    `freq,omitempty`
+	Via      []string   `via,omitempty`
+	Calls    []CallYAML `calls,omitempty`
 
 	Addrs map[string]string `addrs,omitempty`
 
 	OnlineDeadline *int `onlinedeadline,omitempty`
+}
+
+type CallYAML struct {
+	Cron           string
+	Nice           *int    `nice,omitempty`
+	Xx             *string `xx,omitempty`
+	Addr           *string `addr,omitempty`
+	OnlineDeadline *int    `onlinedeadline,omitempty`
 }
 
 type NodeOurYAML struct {
@@ -131,6 +141,62 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		freq = &fr
 	}
 
+	defOnlineDeadline := int(DefaultDeadline)
+	if yml.OnlineDeadline != nil {
+		if *yml.OnlineDeadline <= 0 {
+			return nil, errors.New("OnlineDeadline must be at least 1 second")
+		}
+		defOnlineDeadline = *yml.OnlineDeadline
+	}
+
+	var calls []*Call
+	for _, callYml := range yml.Calls {
+		expr, err := cronexpr.Parse(callYml.Cron)
+		if err != nil {
+			return nil, err
+		}
+		nice := uint8(255)
+		if callYml.Nice != nil {
+			if *callYml.Nice < 1 || *callYml.Nice > 255 {
+				return nil, errors.New("Nice must be between 1 and 255")
+			}
+			nice = uint8(*callYml.Nice)
+		}
+		var xx TRxTx
+		if callYml.Xx != nil {
+			switch *callYml.Xx {
+			case "rx":
+				xx = TRx
+			case "tx":
+				xx = TTx
+			default:
+				return nil, errors.New("xx field must be either \"rx\" or \"tx\"")
+			}
+		}
+		var addr *string
+		if callYml.Addr != nil {
+			if a, exists := yml.Addrs[*callYml.Addr]; exists {
+				addr = &a
+			} else {
+				addr = callYml.Addr
+			}
+		}
+		onlineDeadline := defOnlineDeadline
+		if callYml.OnlineDeadline != nil {
+			if *yml.OnlineDeadline <= 0 {
+				return nil, errors.New("OnlineDeadline must be at least 1 second")
+			}
+			onlineDeadline = *callYml.OnlineDeadline
+		}
+		calls = append(calls, &Call{
+			Cron:           expr,
+			Nice:           nice,
+			Xx:             &xx,
+			Addr:           addr,
+			OnlineDeadline: onlineDeadline,
+		})
+	}
+
 	node := Node{
 		Name:           name,
 		Id:             nodeId,
@@ -139,19 +205,14 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		Sendmail:       yml.Sendmail,
 		Incoming:       incoming,
 		Freq:           freq,
+		Calls:          calls,
 		Addrs:          yml.Addrs,
-		OnlineDeadline: DefaultDeadline,
+		OnlineDeadline: defOnlineDeadline,
 	}
 	copy(node.ExchPub[:], exchPub)
 	if len(noisePub) > 0 {
 		node.NoisePub = new([32]byte)
 		copy(node.NoisePub[:], noisePub)
-	}
-	if yml.OnlineDeadline != nil {
-		if *yml.OnlineDeadline <= 0 {
-			return nil, errors.New("OnlineDeadline must be at least 1 second")
-		}
-		node.OnlineDeadline = *yml.OnlineDeadline
 	}
 	return &node, nil
 }
