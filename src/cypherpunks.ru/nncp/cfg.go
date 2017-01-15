@@ -50,7 +50,8 @@ type NodeYAML struct {
 
 	Addrs map[string]string `addrs,omitempty`
 
-	OnlineDeadline *int `onlinedeadline,omitempty`
+	OnlineDeadline *uint `onlinedeadline,omitempty`
+	MaxOnlineTime  *uint `maxonlinetime,omitempty`
 }
 
 type CallYAML struct {
@@ -58,7 +59,8 @@ type CallYAML struct {
 	Nice           *int    `nice,omitempty`
 	Xx             *string `xx,omitempty`
 	Addr           *string `addr,omitempty`
-	OnlineDeadline *int    `onlinedeadline,omitempty`
+	OnlineDeadline *uint   `onlinedeadline,omitempty`
+	MaxOnlineTime  *uint   `maxonlinetime,omitempty`
 }
 
 type NodeOurYAML struct {
@@ -141,12 +143,16 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		freq = &fr
 	}
 
-	defOnlineDeadline := int(DefaultDeadline)
+	defOnlineDeadline := uint(DefaultDeadline)
 	if yml.OnlineDeadline != nil {
 		if *yml.OnlineDeadline <= 0 {
 			return nil, errors.New("OnlineDeadline must be at least 1 second")
 		}
 		defOnlineDeadline = *yml.OnlineDeadline
+	}
+	var defMaxOnlineTime uint
+	if yml.MaxOnlineTime != nil {
+		defMaxOnlineTime = *yml.MaxOnlineTime
 	}
 
 	var calls []*Call
@@ -188,12 +194,17 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 			}
 			onlineDeadline = *callYml.OnlineDeadline
 		}
+		var maxOnlineTime uint
+		if callYml.MaxOnlineTime != nil {
+			maxOnlineTime = *callYml.MaxOnlineTime
+		}
 		calls = append(calls, &Call{
 			Cron:           expr,
 			Nice:           nice,
 			Xx:             &xx,
 			Addr:           addr,
 			OnlineDeadline: onlineDeadline,
+			MaxOnlineTime:  maxOnlineTime,
 		})
 	}
 
@@ -208,6 +219,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		Calls:          calls,
 		Addrs:          yml.Addrs,
 		OnlineDeadline: defOnlineDeadline,
+		MaxOnlineTime:  defMaxOnlineTime,
 	}
 	copy(node.ExchPub[:], exchPub)
 	if len(noisePub) > 0 {

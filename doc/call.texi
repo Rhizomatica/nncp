@@ -13,7 +13,8 @@ calls:
     nice: 64
   -
     cron: "30 * * * 5-6"
-    onlinedeadline: 10
+    onlinedeadline: 1800
+    maxonlinetime: 1750
     nice: 64
   -
     cron: "0 * * * 5-6"
@@ -25,11 +26,11 @@ tells that on work days of the week call that node every minute,
 disconnect after an hour of inactivity and process only relatively high
 priority packets (presumably mail ones). So we connect and hold
 connection for very long time to pass only emails. On weekends call that
-node only each half-hour for processing high-priority packets and
-quickly disconnect. Also only on weekends try to connect to that node
-every hour only using LAN address and only receiving any (any priority)
-packets (assume that low priority huge file transmission are done
-additionally via offline connections).
+node only each half-hour for processing high-priority packets. Also only
+on weekends try to connect to that node every hour only using LAN
+address and only receiving any (any priority) packets (assume that low
+priority huge file transmission are done additionally via offline
+connections).
 
 It contains the following fields (only @emph{cron} is required):
 
@@ -168,6 +169,10 @@ from @emph{addrs} dictionary, or an ordinary @option{addr:port}.
 
 @item onlinedeadline
 Optional. Override @ref{CfgOnlineDeadline, @emph{onlinedeadline}}
+configuration option when calling.
+
+@item maxonlinetime
+Optional. Override @ref{CfgMaxOnlineTime, @emph{maxonlinetime}}
 configuration option when calling.
 
 @end table

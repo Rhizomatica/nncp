@@ -159,7 +159,8 @@ func payloadsSplit(payloads [][]byte) [][]byte {
 type SPState struct {
 	ctx            *Ctx
 	Node           *Node
-	onlineDeadline int
+	onlineDeadline uint
+	maxOnlineTime  uint
 	nice           uint8
 	hs             *noise.HandshakeState
 	csOur          *noise.CipherState
@@ -185,8 +186,14 @@ type SPState struct {
 }
 
 func (state *SPState) NotAlive() bool {
+	if state.isDead {
+		return true
+	}
 	now := time.Now()
-	return state.isDead || (int(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline && int(now.Sub(state.TxLastSeen).Seconds()) >= state.onlineDeadline)
+	if state.maxOnlineTime > 0 && state.started.Add(time.Duration(state.maxOnlineTime)*time.Second).Before(now) {
+		return true
+	}
+	return uint(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline && uint(now.Sub(state.TxLastSeen).Seconds()) >= state.onlineDeadline
 }
 
 func (state *SPState) dirUnlock() {
@@ -257,7 +264,7 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]struct{}
 	return payloadsSplit(payloads)
 }
 
-func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx, onlineDeadline int) (*SPState, error) {
+func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx, onlineDeadline, maxOnlineTime uint) (*SPState, error) {
 	err := ctx.ensureRxDir(nodeId)
 	if err != nil {
 		return nil, err
@@ -293,6 +300,7 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx,
 		hs:             noise.NewHandshakeState(conf),
 		Node:           node,
 		onlineDeadline: onlineDeadline,
+		maxOnlineTime:  maxOnlineTime,
 		nice:           nice,
 		payloads:       make(chan []byte),
 		infosTheir:     make(map[[32]byte]*SPInfo),
@@ -402,6 +410,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 	}
 	state.Node = node
 	state.onlineDeadline = node.OnlineDeadline
+	state.maxOnlineTime = node.MaxOnlineTime
 	sds := SDS{"node": node.Id, "nice": strconv.Itoa(int(nice))}
 
 	if ctx.ensureRxDir(node.Id); err != nil {

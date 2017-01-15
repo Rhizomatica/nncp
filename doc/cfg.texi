@@ -35,7 +35,8 @@ neigh:
     noisepub: UBM5K...VI42A
     sendmail: ["/bin/sh", "-c", "false"]
     incoming: /home/alice/incoming
-    onlinedeadline: 3600
+    onlinedeadline: 1800
+    maxonlinetime: 3600
     addrs:
       lan: "[fe80::1234%igb0]:5400"
       internet: alice.com:3389
@@ -121,6 +122,11 @@ that disconnecting after 10 seconds when no packets received and
 transmitted. This can be set to rather high values to keep connection
 alive (to reduce handshake overhead and delays), wait for appearing
 packets ready to send and notifying remote side about their appearance.
+
+@anchor{CfgMaxOnlineTime}
+@item maxonlinetime
+If greater than zero, then it is maximal amount of time connect could be
+alive. Forcefully disconnect if it is exceeded.
 
 @anchor{CfgCalls}
 @item calls

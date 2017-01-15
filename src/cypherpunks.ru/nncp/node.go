@@ -47,7 +47,8 @@ type Node struct {
 	Freq           *string
 	Via            []*NodeId
 	Addrs          map[string]string
-	OnlineDeadline int
+	OnlineDeadline uint
+	MaxOnlineTime  uint
 	Calls          []*Call
 
 	Busy bool
@@ -69,7 +70,8 @@ type Call struct {
 	Nice           uint8
 	Xx             *TRxTx
 	Addr           *string
-	OnlineDeadline int
+	OnlineDeadline uint
+	MaxOnlineTime  uint
 }
 
 func NewNodeGenerate() (*NodeOur, error) {
