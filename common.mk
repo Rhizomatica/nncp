@@ -13,6 +13,7 @@ DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
 ALL = \
 	nncp-mail \
 	nncp-call \
+	nncp-caller \
 	nncp-check \
 	nncp-daemon \
 	nncp-file \
@@ -28,6 +29,9 @@ all: $(ALL)
 
 nncp-call:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-call
+
+nncp-caller:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-caller
 
 nncp-check:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-check

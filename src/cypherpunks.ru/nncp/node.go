@@ -21,8 +21,10 @@ package nncp
 import (
 	"crypto/rand"
 	"errors"
+	"sync"
 
 	"github.com/flynn/noise"
+	"github.com/gorhill/cronexpr"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/nacl/box"
@@ -46,6 +48,10 @@ type Node struct {
 	Via            []*NodeId
 	Addrs          map[string]string
 	OnlineDeadline int
+	Calls          []*Call
+
+	Busy bool
+	sync.Mutex
 }
 
 type NodeOur struct {
@@ -56,6 +62,14 @@ type NodeOur struct {
 	SignPrv  ed25519.PrivateKey
 	NoisePub *[32]byte
 	NoisePrv *[32]byte
+}
+
+type Call struct {
+	Cron           *cronexpr.Expression
+	Nice           uint8
+	Xx             *TRxTx
+	Addr           *string
+	OnlineDeadline int
 }
 
 func NewNodeGenerate() (*NodeOur, error) {

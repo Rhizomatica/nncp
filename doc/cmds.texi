@@ -48,11 +48,25 @@ If @option{-rx} option is specified then only inbound packets transmission
 is performed. If @option{-tx} option is specified, then only outbound
 transmission is performed.
 
-@option{-onlinedeadline} overrides @ref{Onlinedeadline,
+@node nncp-caller
+@section nncp-caller
+
+@verbatim
+% nncp-caller [options] [NODE ...]
+@end verbatim
+
+Croned daemon that calls remote nodes from time to time, according to
+their @ref{CfgCalls, @emph{calls}} configuration field.
+
+Optional number of @option{NODE}s tells to call only them, ignoring the
+other. Otherwise all nodes with specified @emph{calls} configuration
+field will be called.
+
+@option{-onlinedeadline} overrides @ref{CfgOnlineDeadline,
 @emph{onlinedeadline}} configuration option.
 
 Each @option{NODE} can contain several uniquely identified
-@option{ADDR}esses in @ref{Configuration, configuration} file. If you do
+@option{ADDR}esses in @ref{CfgAddrs, configuration} file. If you do
 not specify the exact one, then all will be tried until the first
 success. Optionally you can force @option{FORCEADDR} address usage,
 instead of addresses taken from configuration file.
@@ -100,7 +114,7 @@ bind to and listen.
 @end verbatim
 
 Send @file{SRC} file to remote @option{NODE}. @file{DST} specifies
-destination file name in remote's @ref{Configuration, incoming}
+destination file name in remote's @ref{CfgIncoming, incoming}
 directory. If this file already exists there, then counter will be
 appended to it.
 
@@ -108,7 +122,7 @@ This command queues file in @ref{Spool, spool} directory immediately
 (through the temporary file of course) -- so pay attention that sending
 2 GiB file will create 2 GiB outbound encrypted packet.
 
-If @ref{Configuration, notification} is enabled on the remote side for
+If @ref{CfgNotify, notification} is enabled on the remote side for
 file transmissions, then it will sent simple letter after successful
 file receiving.
 
@@ -120,10 +134,10 @@ file receiving.
 @end verbatim
 
 Send file request to @option{NODE}, asking it to send its @file{SRC}
-file from @ref{Configuration, freq} directory to our node under
-@file{DST} filename in our @ref{Configuration, incoming} one.
+file from @ref{CfgFreq, freq} directory to our node under @file{DST}
+filename in our @ref{CfgIncoming, incoming} one.
 
-If @ref{Configuration, notification} is enabled on the remote side for
+If @ref{CfgNotify, notification} is enabled on the remote side for
 file request, then it will sent simple letter after successful file
 queuing.
 
@@ -145,7 +159,7 @@ Parse @ref{Log, log} file and print out its records in human-readable form.
 
 Send mail, that is read from stdin, to @option{NODE} and specified
 @option{USER}s. Mail message will be compressed. After receiving, remote
-side will execute specified @ref{Configuration, sendmail} command with
+side will execute specified @ref{CfgSendmail, sendmail} command with
 @option{USER}s appended as a command line argument and feed decompressed
 mail body to that command's stdin.
 
