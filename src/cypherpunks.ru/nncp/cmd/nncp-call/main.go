@@ -49,7 +49,8 @@ func main() {
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
 
-		onlineDeadline = flag.Int("onlinedeadline", 0, "Override onlinedeadline option")
+		onlineDeadline = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
+		maxOnlineTime  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -96,6 +97,9 @@ func main() {
 	if *onlineDeadline == 0 {
 		onlineDeadline = &node.OnlineDeadline
 	}
+	if *maxOnlineTime == 0 {
+		maxOnlineTime = &node.MaxOnlineTime
+	}
 
 	var xxOnly nncp.TRxTx
 	if *rxOnly {
@@ -119,7 +123,7 @@ func main() {
 		}
 	}
 
-	if !ctx.CallNode(node, addrs, nice, &xxOnly, *onlineDeadline) {
+	if !ctx.CallNode(node, addrs, nice, &xxOnly, *onlineDeadline, *maxOnlineTime) {
 		os.Exit(1)
 	}
 }

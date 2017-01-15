@@ -125,7 +125,14 @@ func main() {
 					} else {
 						node.Busy = true
 						node.Unlock()
-						ctx.CallNode(node, addrs, call.Nice, call.Xx, call.OnlineDeadline)
+						ctx.CallNode(
+							node,
+							addrs,
+							call.Nice,
+							call.Xx,
+							call.OnlineDeadline,
+							call.MaxOnlineTime,
+						)
 						node.Lock()
 						node.Busy = false
 						node.Unlock()

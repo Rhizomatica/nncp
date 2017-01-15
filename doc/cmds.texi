@@ -34,7 +34,8 @@ Nearly all commands have the following common options:
 @section nncp-call
 
 @verbatim
-% nncp-call [options] [-onlinedeadline INT] [-rx|-tx] NODE[:ADDR] [FORCEADDR]
+% nncp-call [options] [-onlinedeadline INT] [-maxonlinetime INT] [-rx|-tx]
+                      NODE[:ADDR] [FORCEADDR]
 @end verbatim
 
 Call (connect to) specified @option{NODE} and run @ref{Sync,
@@ -44,9 +45,12 @@ either check for incoming packets, or to send out queued ones.
 Synchronization protocol allows resuming and bidirectional packets
 transfer.
 
-If @option{-rx} option is specified then only inbound packets transmission
-is performed. If @option{-tx} option is specified, then only outbound
-transmission is performed.
+If @option{-rx} option is specified then only inbound packets
+transmission is performed. If @option{-tx} option is specified, then
+only outbound transmission is performed. @option{-onlinedeadline}
+overrides @ref{CfgOnlineDeadline, @emph{onlinedeadline}}.
+@option{-maxonlinetime} overrides @ref{CfgMaxOnlineTime,
+@emph{maxonlinetime}}.
 
 @node nncp-caller
 @section nncp-caller
