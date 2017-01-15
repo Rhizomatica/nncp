@@ -61,6 +61,7 @@ rm -fr $tmp/golang.org $tmp/includes
 find src -name .travis.yml -delete
 rm -fr src/github.com/davecgh/go-xdr/xdr
 rm -fr src/github.com/gorhill/cronexpr/cronexpr src/github.com/gorhill/cronexpr/APLv2
+rm -fr ports
 rm makedist.sh
 
 cat > doc/download.texi <<EOF
