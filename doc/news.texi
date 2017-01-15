@@ -1,0 +1,21 @@
+@node News
+@unnumbered News
+
+@node Release 0.2
+@section Release 0.2
+@itemize
+@item @strong{Incompatible} packet format change (magic number is
+changed too): size field is encrypted and is not send in plaintext
+anymore.
+@item @option{-minsize} option gives ability to automatically pad
+outgoing packets to specified minimal size.
+@item @ref{nncp-daemon} and @ref{nncp-call}/@ref{nncp-caller} always
+checks new @emph{tx} packet appearance in the background while
+connected. Remote side is notified immediately about them.
+@item @option{-onlinedeadline} option gives ability to configure timeout
+of inactivity of online connection, when it could be disconnected. It
+could be used to keep connection alive for a long time.
+@item @option{-maxonlinetime} option gives ability to set maximal
+allowable online connection alive time.
+@item @ref{nncp-caller} command appeared: cron-ed TCP daemon caller.
+@end itemize
