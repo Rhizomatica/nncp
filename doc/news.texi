@@ -18,4 +18,5 @@ could be used to keep connection alive for a long time.
 @item @option{-maxonlinetime} option gives ability to set maximal
 allowable online connection alive time.
 @item @ref{nncp-caller} command appeared: cron-ed TCP daemon caller.
+@item @ref{nncp-pkt} command can decompress the data.
 @end itemize
