@@ -20,8 +20,8 @@ many times any time as you wish.
     @itemize
     @item run @ref{nncp-daemon} to accept remotely initiated connections
     to your node
-    @item run @ref{nncp-caller} to initiate connection to required nodes
-    from time to time
+    @item run either @ref{nncp-call} or @ref{nncp-caller} to initiate
+    connection to required nodes from time to time
     @item use @ref{nncp-xfer} with removable storage devices for copying
     packets for/from other nodes
     @end itemize
