@@ -189,7 +189,10 @@ func (ctx *Ctx) TxMail(node *Node, nice uint8, recipient string, body []byte, mi
 		return err
 	}
 	var compressed bytes.Buffer
-	compressor := zlib.NewWriter(&compressed)
+	compressor, err := zlib.NewWriterLevel(&compressed, zlib.BestCompression)
+	if err != nil {
+		return err
+	}
 	if _, err = io.Copy(compressor, bytes.NewReader(body)); err != nil {
 		return err
 	}
