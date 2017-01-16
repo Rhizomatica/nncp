@@ -17,7 +17,7 @@ BUILD_DEPENDS=	go:lang/go
 USES=		tar:xz
 MAKEFILE=	BSDmakefile
 
-USE_RC_SUBR=	nncp-caller nncp-daemon
+USE_RC_SUBR=	nncp-caller nncp-daemon nncp-toss
 REQUIRE=	DAEMON
 
 SUB_FILES=	pkg-message pkg-deinstall nncp.newsyslog.conf
