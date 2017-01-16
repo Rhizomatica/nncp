@@ -28,30 +28,15 @@ yet. Also you must have secure link (SSH, VPN, etc).
 Another possibility is to use POP3/IMAP4 servers, but this is too
 overcomplicated and bloated for the simple task. Not an option. KISS!
 
-@anchor{Postfix}
-
 Just tell both of your Postfixes (on the server and notebook) to drop
 email as a mail via NNCP to specified node. This is done similarly as
-with UUCP and as written in Postfix
-@url{http://www.postfix.org/UUCP_README.html, documentation}.
+with UUCP and as written in
+@url{http://www.postfix.org/UUCP_README.html, Postfix documentation}.
 
-Search for @verb{|uucp|} related strings in @file{master.cf} and replace
-command to NNCP ones:
-
-@verbatim
-nncp unix - n n - - pipe flags=Fqhu user=nncp argv=nncp-mail -quiet $nexthop $recipient
-@end verbatim
-
-then add transport map, telling that mail for example.com domain can be
-reached through NNCP transport to node @emph{bob}:
-
-@verbatim
-example.com nncp:bob
-@end verbatim
-
-Now, all mail will be stored in NNCP @ref{Spool, spool}, that after
-exchanging and tossing will call local @command{sendmail} command to
-deliver them just that was happened on the same machine.
+Look @ref{Postfix, here} for further information. All mail will be
+stored in NNCP @ref{Spool, spool}, that after exchanging and tossing
+will call local @command{sendmail} command to deliver them just that was
+happened on the same machine.
 
 @node UsecaseUnreliable
 @section Unreliable/expensive communication link

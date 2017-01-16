@@ -64,6 +64,7 @@ integration with current SMTP servers are the reasons.
 * Installation::
 * Configuration::
 * Call configuration: Call.
+* Integration with Postfix: Postfix.
 * Commands::
 * Niceness::
 * Spool directory: Spool.
@@ -82,6 +83,7 @@ integration with current SMTP servers are the reasons.
 @include install.texi
 @include cfg.texi
 @include call.texi
+@include postfix.texi
 @include cmds.texi
 @include niceness.texi
 @include spool.texi
