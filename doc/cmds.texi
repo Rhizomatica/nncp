@@ -185,7 +185,7 @@ operating system.
 
 @verbatim
 % nncp-pkt [options] < pkt
-% nncp-pkt [options] -dump < pkt > payload
+% nncp-pkt [options] [-decompress] -dump < pkt > payload
 @end verbatim
 
 Low level packet parser. Normally it should not be used, but can help in
@@ -215,7 +215,9 @@ Path: stargrave@stargrave.org
 @end verbatim
 
 And with the @option{-dump} option it will give you the actual payload
-(the whole file, mail message, and so on).
+(the whole file, mail message, and so on). @option{-decompress} option
+tries to zlib-decompress the data from plain packet (useful for mail
+packets).
 
 @node nncp-stat
 @section nncp-stat

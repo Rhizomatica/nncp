@@ -22,6 +22,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"compress/zlib"
 	"flag"
 	"fmt"
 	"io"
@@ -44,10 +45,11 @@ func usage() {
 
 func main() {
 	var (
-		dump     = flag.Bool("dump", false, "Write decrypted/parsed payload to stdout")
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		dump       = flag.Bool("dump", false, "Write decrypted/parsed payload to stdout")
+		decompress = flag.Bool("decompress", false, "Try to zlib decompress dumped data")
+		cfgPath    = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		version    = flag.Bool("version", false, "Print version information")
+		warranty   = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -70,7 +72,16 @@ func main() {
 	if err == nil && pkt.Magic == nncp.MagicNNCPPv1 {
 		if *dump {
 			bufW := bufio.NewWriter(os.Stdout)
-			if _, err = io.Copy(bufW, bufio.NewReader(os.Stdin)); err != nil {
+			var r io.Reader
+			r = bufio.NewReader(os.Stdin)
+			if *decompress {
+				decompressor, err := zlib.NewReader(r)
+				if err != nil {
+					log.Fatalln(err)
+				}
+				r = decompressor
+			}
+			if _, err = io.Copy(bufW, r); err != nil {
 				log.Fatalln(err)
 			}
 			if err = bufW.Flush(); err != nil {
