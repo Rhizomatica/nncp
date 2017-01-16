@@ -36,7 +36,7 @@ var (
 	DefaultCfgPath      string = "/usr/local/etc/nncp.yaml"
 	DefaultSendmailPath string = "/usr/sbin/sendmail"
 	DefaultSpoolPath    string = "/var/spool/nncp"
-	DefaultLogPath      string = "/var/log/nncp.log"
+	DefaultLogPath      string = "/var/spool/nncp/log"
 )
 
 type NodeYAML struct {
