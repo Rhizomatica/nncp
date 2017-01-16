@@ -3,7 +3,7 @@ PREFIX ?= /usr/local
 SENDMAIL ?= /usr/sbin/sendmail
 CFGPATH ?= $(PREFIX)/etc/nncp.yaml
 SPOOLPATH ?= /var/spool/nncp
-LOGPATH ?= /var/log/nncp.log
+LOGPATH ?= /var/spool/nncp/log
 
 BINDIR = $(DESTDIR)$(PREFIX)/bin
 INFODIR = $(DESTDIR)$(PREFIX)/info
