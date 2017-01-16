@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	MaxSPSize       = 2<<16 - 256
+	MaxSPSize       = 1<<16 - 256
 	PartSuffix      = ".part"
 	DefaultDeadline = 10
 )
@@ -212,7 +212,7 @@ func (state *SPState) WriteSP(dst io.Writer, payload []byte) error {
 
 func (state *SPState) ReadSP(src io.Reader) ([]byte, error) {
 	var sp SPRaw
-	n, err := xdr.UnmarshalLimited(src, &sp, 2<<17)
+	n, err := xdr.UnmarshalLimited(src, &sp, 1<<17)
 	if err != nil {
 		return nil, err
 	}
