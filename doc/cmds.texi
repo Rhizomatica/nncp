@@ -235,7 +235,7 @@ queues.
 @section nncp-toss
 
 @verbatim
-% nncp-toss [options] [-dryrun]
+% nncp-toss [options] [-dryrun] [-cycle INT]
 @end verbatim
 
 Perform "tossing" operation on all inbound packets. This is the tool
@@ -245,6 +245,10 @@ packets. It should be run after each online/offline exchange.
 
 @option{-dryrun} option does not perform any writing and sending, just
 tells what it will do.
+
+@option{-cycle} option tells not to quit, but to repeat tossing every
+@option{INT} seconds in an infinite loop. That can be useful when
+running this command as a daemon.
 
 @node nncp-xfer
 @section nncp-xfer
