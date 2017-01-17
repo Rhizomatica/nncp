@@ -75,6 +75,7 @@ rm -r doc/.well-known doc/nncp.html/.well-known
 
 find . -name .git -type d | xargs rm -fr
 find . -name .gitignore -delete
+rm .gitmodules
 
 cd ..
 tar cvf nncp-"$release".tar nncp-"$release"
