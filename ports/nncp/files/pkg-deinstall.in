@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ "$2" != "POST-DEINSTALL" ]; then
+	exit 0
+fi
+
+if [ -e %%PREFIX%%/etc/nncp.yaml ]; then
+	echo "%%PREFIX%%/etc/nncp.yaml with your private keys is not removed!"
+fi
+
+if [ -e /var/spool/nncp ]; then
+	echo "/var/spool/nncp is not removed!"
+fi

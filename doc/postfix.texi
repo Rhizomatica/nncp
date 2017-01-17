@@ -1,0 +1,115 @@
+@node Postfix
+@unnumbered Integration with Postfix
+
+This section is taken from @url{http://www.postfix.org/nncp_README.html,
+Postfix and UUCP} manual and just replaces UUCP-related calls with NNCP
+ones.
+
+@strong{Setting up a Postfix Internet to NNCP gateway}
+
+Here is how to set up a machine that sits on the Internet and that forwards
+mail to a LAN that is connected via NNCP.
+
+@itemize
+
+@item You need an @ref{nncp-mail} program that extracts the sender
+address from mail that arrives via NNCP, and that feeds the mail into
+the Postfix @command{sendmail} command.
+
+@item Define a @command{pipe(8)} based mail delivery transport for
+delivery via NNCP:
+@verbatim
+/usr/local/etc/postfix/master.cf:
+nncp      unix  -       n       n       -       -       pipe
+          flags=F user=nncp argv=nncp-mail -quiet $nexthop $recipient
+@end verbatim
+
+This runs the @command{nncp-mail} command to place outgoing mail into
+the NNCP queue after replacing @var{$nexthop} by the the receiving NNCP
+node and after replacing @var{$recipient} by the recipients. The
+@command{pipe(8)} delivery agent executes the @command{nncp-mail}
+command without assistance from the shell, so there are no problems with
+shell meta characters in command-line parameters.
+
+@item Specify that mail for @emph{example.com}, should be delivered via
+NNCP, to a host named @emph{nncp-host}:
+
+@verbatim
+/usr/local/etc/postfix/transport:
+    example.com     nncp:nncp-host
+    .example.com    nncp:nncp-host
+@end verbatim
+
+See the @command{transport(5)} manual page for more details.
+
+@item Execute the command @command{postmap /etc/postfix/transport}
+whenever you change the @file{transport} file.
+
+@item Enable @file{transport} table lookups:
+
+@verbatim
+/usr/local/etc/postfix/main.cf:
+    transport_maps = hash:$config_directory/transport
+@end verbatim
+
+@item Add @emph{example.com} to the list of domains that your site is
+willing to relay mail for.
+
+@verbatim
+/usr/local/etc/postfix/main.cf:
+    relay_domains = example.com ...other relay domains...
+@end verbatim
+
+See the @option{relay_domains} configuration parameter description for
+details.
+
+@item Execute the command @command{postfix reload} to make the changes
+effective.
+
+@end itemize
+
+@strong{Setting up a Postfix LAN to NNCP gateway}
+
+Here is how to relay mail from a LAN via NNCP to the Internet.
+
+@itemize
+
+@item You need an @ref{nncp-mail} program that extracts the sender
+address from mail that arrives via NNCP, and that feeds the mail into
+the Postfix @command{sendmail} command.
+
+@item Specify that all remote mail must be sent via the @command{nncp}
+mail transport to your NNCP gateway host, say, @emph{nncp-gateway}:
+
+@verbatim
+/usr/local/etc/postfix/main.cf:
+    relayhost = nncp-gateway
+    default_transport = nncp
+@end verbatim
+
+Postfix 2.0 and later also allows the following more succinct form:
+
+@verbatim
+/usr/local/etc/postfix/main.cf:
+    default_transport = nncp:nncp-gateway
+@end verbatim
+
+@item Define a @command{pipe(8)} based message delivery transport for
+mail delivery via NNCP:
+
+@verbatim
+/usr/local/etc/postfix/master.cf:
+nncp      unix  -       n       n       -       -       pipe
+          flags=F user=nncp argv=nncp-mail -quiet $nexthop $recipient
+@end verbatim
+
+This runs the @command{nncp-mail} command to place outgoing mail into
+the NNCP queue. It substitutes the hostname (@emph{nncp-gateway}, or
+whatever you specified) and the recipients before executing the command.
+The @command{nncp-mail} command is executed without assistance from the
+shell, so there are no problems with shell meta characters.
+
+@item Execute the command @command{postfix reload} to make the changes
+effective.
+
+@end itemize

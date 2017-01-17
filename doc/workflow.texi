@@ -2,7 +2,7 @@
 @unnumbered Workflow
 
 NNCP consists of several utilities. As a rule you will have the
-following workflow with them.
+following workflow:
 
 @enumerate
 @item Run @ref{nncp-newnode} on each node to create an initial
@@ -13,16 +13,17 @@ neighbours. Add their keys to your configuration file and do any other
 required configuration about their reachability, permissions of file or
 freq transmission.
 @item Use @ref{nncp-file}, @ref{nncp-freq}, @ref{nncp-mail}
-(@ref{Postfix, look how} Postfix SMTP server could be configured for its
-usage) commands to queue file, freq and mail transmissions. Repeat as
+(@ref{Postfix, look how} Postfix SMTP server could be configured)
+commands to queue file, freq and mail transmissions. Repeat as
 many times any time as you wish.
 @item Depending on connection methods, either:
     @itemize
     @item run @ref{nncp-daemon} to accept remotely initiated connections
     to your node
-    @item run @ref{nncp-call} to initiate connection to required nodes
+    @item run either @ref{nncp-call} or @ref{nncp-caller} to initiate
+    connection to required nodes from time to time
     @item use @ref{nncp-xfer} with removable storage devices for copying
-    packets for/from other nodes
+    packets to/from other nodes
     @end itemize
 @item After successful packet exchanging (or just simply from time to
 time), run @ref{nncp-toss} for tossing (decrypting and processing) all

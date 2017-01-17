@@ -3,14 +3,19 @@
 
 Nearly all commands have the following common options:
 
-@table @code
+@table @option
+@item -cfg
+    Path to configuration file. May be overrided by @env{NNCPCFG}
+    environment variable.
 @item -debug
     Print debug messages. Normally this option should not be used.
+@item -minsize
+    Minimal required resulting packet size. For example if you send 2
+    KiB file and set @option{-minsize 4096}, then resulting packet will
+    be 4 KiB (containing file itself and some junk).
 @item -nice
-    Set desired outgoing packet niceness level. 1-255 values are
-    allowed. Higher value means lower priority. In some commands that
-    means processing of packets that have equal or lower nice value.
-    That is used for controlling network QoS.
+    Set desired outgoing packet @ref{Niceness, niceness level}.
+    1-255 values are allowed.
 @item -node
     Process only single specified node.
 @item -quiet
@@ -27,32 +32,54 @@ Nearly all commands have the following common options:
 @section nncp-call
 
 @verbatim
-% nncp-call [options] [-rx|-tx] NODE[:ADDR] [FORCEADDR]
+% nncp-call [options] [-onlinedeadline INT] [-maxonlinetime INT] [-rx|-tx]
+                      NODE[:ADDR] [FORCEADDR]
 @end verbatim
 
-Call (connect to) specified @code{NODE} and run @ref{Sync,
+Call (connect to) specified @option{NODE} and run @ref{Sync,
 synchronization} protocol with the @ref{nncp-daemon, daemon} on the
 remote side. Normally this command could be run any time you wish to
 either check for incoming packets, or to send out queued ones.
 Synchronization protocol allows resuming and bidirectional packets
 transfer.
 
-If @code{-rx} option is specified then only inbound packets transmission
-is performed. If @code{-tx} option is specified, then only outbound
-transmission is performed.
+If @option{-rx} option is specified then only inbound packets
+transmission is performed. If @option{-tx} option is specified, then
+only outbound transmission is performed. @option{-onlinedeadline}
+overrides @ref{CfgOnlineDeadline, @emph{onlinedeadline}}.
+@option{-maxonlinetime} overrides @ref{CfgMaxOnlineTime,
+@emph{maxonlinetime}}.
 
-Each @code{NODE} can contain several uniquely identified
-@code{ADDR}esses in @ref{Configuration, configuration} file. If you do
+@node nncp-caller
+@section nncp-caller
+
+@verbatim
+% nncp-caller [options] [NODE ...]
+@end verbatim
+
+Croned daemon that calls remote nodes from time to time, according to
+their @ref{CfgCalls, @emph{calls}} configuration field.
+
+Optional number of @option{NODE}s tells to ignore other ones.
+Otherwise all nodes with specified @emph{calls} configuration
+field will be called.
+
+@option{-onlinedeadline} overrides @ref{CfgOnlineDeadline,
+@emph{onlinedeadline}} configuration option.
+
+Each @option{NODE} can contain several uniquely identified
+@option{ADDR}esses in @ref{CfgAddrs, configuration} file. If you do
 not specify the exact one, then all will be tried until the first
-success. Optionally you can force @code{FORCEADDR} address usage,
+success. Optionally you can force @option{FORCEADDR} address usage,
 instead of addresses taken from configuration file.
 
-Pay attention that this command run integrity check for each completely
-received packet in the background. This can be time consuming and
-connection could be lost during that check time and remote node won't be
+Pay attention that this command runs integrity check for each completely
+received packet in the background. This can be time consuming.
+Connection could be lost during that check and remote node won't be
 notified that file is done. But after successful integrity check that
-file will be renamed from @code{.part} one and when you rerun
-@code{nncp-call} again, remote node will receive completion at once.
+file is renamed from @file{.part} one and when you rerun
+@command{nncp-call} again, remote node will receive completion
+notification.
 
 @node nncp-check
 @section nncp-check
@@ -63,7 +90,7 @@ file will be renamed from @code{.part} one and when you rerun
 
 Perform @ref{Spool, spool} directory integrity check. Read all files
 that has Base32-encoded filenames and compare it with recalculated
-BLAKE2b hash output of their contents. This supplementary command are
+BLAKE2b hash output of their contents. This supplementary command is
 not used often in practice, if ever.
 
 @node nncp-daemon
@@ -78,9 +105,9 @@ Start listening TCP daemon, wait for incoming connections and run
 @ref{nncp-toss} utility in background to process inbound packets from
 time to time.
 
-@code{-maxconn} option specifies how many simultaneous clients daemon
-can handle. @code{-bind} option specifies @code{addr:port} it must bind
-to and listen.
+@option{-maxconn} option specifies how many simultaneous clients daemon
+can handle. @option{-bind} option specifies @option{addr:port} it must
+bind to and listen.
 
 @node nncp-file
 @section nncp-file
@@ -89,8 +116,8 @@ to and listen.
 % nncp-file [options] SRC NODE:[DST]
 @end verbatim
 
-Send @code{SRC} file to remote @code{NODE}. @code{DST} specifies
-destination file name in remote's @ref{Configuration, incoming}
+Send @file{SRC} file to remote @option{NODE}. @file{DST} specifies
+destination file name in remote's @ref{CfgIncoming, incoming}
 directory. If this file already exists there, then counter will be
 appended to it.
 
@@ -98,7 +125,7 @@ This command queues file in @ref{Spool, spool} directory immediately
 (through the temporary file of course) -- so pay attention that sending
 2 GiB file will create 2 GiB outbound encrypted packet.
 
-If @ref{Configuration, notification} is enabled on the remote side for
+If @ref{CfgNotify, notification} is enabled on the remote side for
 file transmissions, then it will sent simple letter after successful
 file receiving.
 
@@ -109,11 +136,11 @@ file receiving.
 % nncp-freq [options] NODE:SRC DST
 @end verbatim
 
-Send file request to @code{NODE}, asking it to send its @code{SRC} file
-from @ref{Configuration, freq} directory to our node under @code{DST}
-filename in our @ref{Configuration, incoming} one.
+Send file request to @option{NODE}, asking it to send its @file{SRC}
+file from @ref{CfgFreq, freq} directory to our node under @file{DST}
+filename in our @ref{CfgIncoming, incoming} one.
 
-If @ref{Configuration, notification} is enabled on the remote side for
+If @ref{CfgNotify, notification} is enabled on the remote side for
 file request, then it will sent simple letter after successful file
 queuing.
 
@@ -133,10 +160,10 @@ Parse @ref{Log, log} file and print out its records in human-readable form.
 % nncp-mail [options] NODE USER ...
 @end verbatim
 
-Send mail, that is read from stdin, to @code{NODE} and specified
-@code{USER}s. Mail message will be compressed. After receiving, remote
-side will execute specified @ref{Configuration, sendmail} command with
-@code{USER}s appended as a command line argument and feed decompressed
+Send mail, that is read from stdin, to @option{NODE} and specified
+@option{USER}s. Mail message will be compressed. After receiving, remote
+side will execute specified @ref{CfgSendmail, sendmail} command with
+@option{USER}s appended as a command line argument and feed decompressed
 mail body to that command's stdin.
 
 @node nncp-newnode
@@ -157,7 +184,7 @@ operating system.
 
 @verbatim
 % nncp-pkt [options] < pkt
-% nncp-pkt [options] -dump < pkt > payload
+% nncp-pkt [options] [-decompress] -dump < pkt > payload
 @end verbatim
 
 Low level packet parser. Normally it should not be used, but can help in
@@ -168,13 +195,12 @@ By default it will print packet's type, for example:
 Packet type: encrypted
 Niceness: 64
 Sender: 2WHBV3TPZHDOZGUJEH563ZEK7M33J4UESRFO4PDKWD5KZNPROABQ
-Payload size: 4.0 MiB (4162852 bytes)
 @end verbatim
 
-If you specify @code{-dump} option and provide an @ref{Encrypted,
+If you specify @option{-dump} option and provide an @ref{Encrypted,
 encrypted} packet, then it will verify and decrypt it to stdout.
 Encrypted packets contain @ref{Plain, plain} ones, that also can be fed
-to @code{nncp-pkt}:
+to @command{nncp-pkt}:
 
 @verbatim
 Packet type: plain
@@ -186,8 +212,10 @@ Payload type: mail
 Path: stargrave@stargrave.org
 @end verbatim
 
-And with the @code{-dump} option it will give you the actual payload
-(the whole file, mail message, and so on).
+And with the @option{-dump} option it will give you the actual payload
+(the whole file, mail message, and so on). @option{-decompress} option
+tries to zlib-decompress the data from plain packet (useful for mail
+packets).
 
 @node nncp-stat
 @section nncp-stat
@@ -205,7 +233,7 @@ queues.
 @section nncp-toss
 
 @verbatim
-% nncp-toss [options] [-dryrun]
+% nncp-toss [options] [-dryrun] [-cycle INT]
 @end verbatim
 
 Perform "tossing" operation on all inbound packets. This is the tool
@@ -213,8 +241,12 @@ that decrypts all packets and processes all payload packets in them:
 copies files, sends mails, sends out file requests and relays transition
 packets. It should be run after each online/offline exchange.
 
-@code{-dryrun} option does not perform any writing and sending, just
+@option{-dryrun} option does not perform any writing and sending, just
 tells what it will do.
+
+@option{-cycle} option tells not to quit, but to repeat tossing every
+@option{INT} seconds in an infinite loop. That can be useful when
+running this command as a daemon.
 
 @node nncp-xfer
 @section nncp-xfer
@@ -223,21 +255,21 @@ tells what it will do.
 % nncp-xfer [options] [-force] [-keep] [-rx|-tx] DIR
 @end verbatim
 
-Search for directory in @code{DIR} containing inbound packets for us and
+Search for directory in @file{DIR} containing inbound packets for us and
 move them to local @ref{Spool, spool} directory. Also search for known
 neighbours directories and move locally queued outbound packets to them.
 This command is used for offline packets transmission.
 
-If @code{-force} option is specified, then outbound neighbour(s)
+If @option{-force} option is specified, then outbound neighbour(s)
 directories will be created. This is useful for the first time usage,
 when storage device does not have any directories tree.
 
-If @code{-keep} option is specified, then keep copied files, do not
+If @option{-keep} option is specified, then keep copied files, do not
 remove them.
 
-@code{-rx} option tells only to move inbound packets addressed to us.
-@code{-tx} option tells exactly the opposite: move only outbound packets.
+@option{-rx} option tells only to move inbound packets addressed to us.
+@option{-tx} option tells exactly the opposite: move only outbound packets.
 
-@code{DIR} directory has the following structure:
-@code{RECIPIENT/SENDER/PACKET}, where @code{RECIPIENT} is Base32 encoded
-destination node, @code{SENDER} is Base32 encoded sender node.
+@file{DIR} directory has the following structure:
+@file{RECIPIENT/SENDER/PACKET}, where @file{RECIPIENT} is Base32 encoded
+destination node, @file{SENDER} is Base32 encoded sender node.

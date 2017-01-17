@@ -54,18 +54,24 @@ even SMTP exists? Look in @ref{Comparison, comparison} section!
 Simplicity, cryptographic security, sneakernet compatibility and easy
 integration with current SMTP servers are the reasons.
 
+@center Interested? @ref{Tarballs, @strong{Download it}}!
+
 @menu
 * Comparison::
 * Use cases::
 * Workflow::
+* News::
 * Installation::
 * Configuration::
+* Call configuration: Call.
+* Integration with Postfix: Postfix.
 * Commands::
 * Niceness::
 * Spool directory: Spool.
 * Log format: Log.
 * Packet format: Packet.
 * Sync protocol: Sync.
+* Thanks::
 * Contacts and feedback: Contacts.
 * Copying conditions: Copying.
 @end menu
@@ -73,14 +79,18 @@ integration with current SMTP servers are the reasons.
 @include comparison.texi
 @include usecases.texi
 @include workflow.texi
+@include news.texi
 @include install.texi
 @include cfg.texi
+@include call.texi
+@include postfix.texi
 @include cmds.texi
 @include niceness.texi
 @include spool.texi
 @include log.texi
 @include pkt.texi
 @include sp.texi
+@include thanks.texi
 @include contacts.texi
 
 @node Copying

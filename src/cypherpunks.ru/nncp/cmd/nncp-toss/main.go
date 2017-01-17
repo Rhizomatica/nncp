@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"cypherpunks.ru/nncp"
 )
@@ -42,6 +43,7 @@ func main() {
 		nodeRaw  = flag.String("node", "", "Process only that node")
 		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
 		dryRun   = flag.Bool("dryrun", false, "Do not actually write any tossed data")
+		cycle    = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
@@ -62,7 +64,7 @@ func main() {
 	}
 	nice := uint8(*niceRaw)
 
-	cfgRaw, err := ioutil.ReadFile(*cfgPath)
+	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 	if err != nil {
 		log.Fatalln("Can not read config:", err)
 	}
@@ -81,12 +83,17 @@ func main() {
 		}
 	}
 
+Cycle:
 	isBad := false
 	for nodeId, node := range ctx.Neigh {
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
 		isBad = ctx.Toss(node.Id, nice, *dryRun)
+	}
+	if *cycle > 0 {
+		time.Sleep(time.Duration(*cycle) * time.Second)
+		goto Cycle
 	}
 	if isBad {
 		os.Exit(1)

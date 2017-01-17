@@ -3,8 +3,8 @@
 
 Development source code contains the latest version of the code. It may
 be buggy. It does not contain compiled documentation and dependent
-libraries source code. Because of that, it is not recommended for
-porters to use @ref{Tarballs} instead.
+libraries source code. Because of that, it is recommended for porters
+to use @ref{Tarballs, tarballs} instead.
 
 You can obtain it by cloning @url{http://git-scm.com/, Git}
 @url{http://git.cypherpunks.ru/cgit.cgi/nncp.git/log/, repository}

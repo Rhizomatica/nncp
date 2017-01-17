@@ -22,6 +22,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"compress/zlib"
 	"flag"
 	"fmt"
 	"io"
@@ -31,7 +32,6 @@ import (
 
 	"cypherpunks.ru/nncp"
 	"github.com/davecgh/go-xdr/xdr2"
-	"github.com/dustin/go-humanize"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -45,10 +45,11 @@ func usage() {
 
 func main() {
 	var (
-		dump     = flag.Bool("dump", false, "Write decrypted/parsed payload to stdout")
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		dump       = flag.Bool("dump", false, "Write decrypted/parsed payload to stdout")
+		decompress = flag.Bool("decompress", false, "Try to zlib decompress dumped data")
+		cfgPath    = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		version    = flag.Bool("version", false, "Print version information")
+		warranty   = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -62,7 +63,7 @@ func main() {
 	}
 
 	var err error
-	beginning := make([]byte, nncp.PktOverhead-blake2b.Size256)
+	beginning := make([]byte, nncp.PktOverhead-8-2*blake2b.Size256)
 	if _, err = io.ReadFull(os.Stdin, beginning); err != nil {
 		log.Fatalln("Not enough data to read")
 	}
@@ -71,7 +72,16 @@ func main() {
 	if err == nil && pkt.Magic == nncp.MagicNNCPPv1 {
 		if *dump {
 			bufW := bufio.NewWriter(os.Stdout)
-			if _, err = io.Copy(bufW, bufio.NewReader(os.Stdin)); err != nil {
+			var r io.Reader
+			r = bufio.NewReader(os.Stdin)
+			if *decompress {
+				decompressor, err := zlib.NewReader(r)
+				if err != nil {
+					log.Fatalln(err)
+				}
+				r = decompressor
+			}
+			if _, err = io.Copy(bufW, r); err != nil {
 				log.Fatalln(err)
 			}
 			if err = bufW.Flush(); err != nil {
@@ -104,7 +114,7 @@ func main() {
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc)
 	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv1 {
 		if *dump {
-			cfgRaw, err := ioutil.ReadFile(*cfgPath)
+			cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 			if err != nil {
 				log.Fatalln("Can not read config:", err)
 			}
@@ -113,7 +123,7 @@ func main() {
 				log.Fatalln("Can not parse config:", err)
 			}
 			bufW := bufio.NewWriter(os.Stdout)
-			if _, err = nncp.PktEncRead(
+			if _, _, err = nncp.PktEncRead(
 				ctx.Self,
 				ctx.Neigh,
 				io.MultiReader(
@@ -130,8 +140,8 @@ func main() {
 			return
 		}
 		fmt.Printf(
-			"Packet type: encrypted\nNiceness: %d\nSender: %s\nPayload size: %s (%d bytes)\n",
-			pktEnc.Nice, pktEnc.Sender, humanize.IBytes(pktEnc.Size), pktEnc.Size,
+			"Packet type: encrypted\nNiceness: %d\nSender: %s\n",
+			pktEnc.Nice, pktEnc.Sender,
 		)
 		return
 	}

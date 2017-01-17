@@ -65,7 +65,7 @@ func main() {
 	}
 	nice := uint8(*niceRaw)
 
-	cfgRaw, err := ioutil.ReadFile(*cfgPath)
+	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 	if err != nil {
 		log.Fatalln("Can not read config:", err)
 	}
@@ -90,10 +90,10 @@ func main() {
 		go func(conn net.Conn) {
 			state, err := ctx.StartR(conn, nice, nil)
 			if err == nil {
-				ctx.LogI("call-start", nncp.SDS{"node": state.NodeId}, "connected")
+				ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
 				state.Wait()
 				ctx.LogI("call-finish", nncp.SDS{
-					"node":     state.NodeId,
+					"node":     state.Node.Id,
 					"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
 					"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
 					"txbytes":  strconv.FormatInt(state.TxBytes, 10),
@@ -101,11 +101,9 @@ func main() {
 					"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
 				}, "")
 			} else {
-				var nodeId string
-				if state == nil {
-					nodeId = "unknown"
-				} else {
-					nodeId = state.NodeId.String()
+				nodeId := "unknown"
+				if state != nil && state.Node != nil {
+					nodeId = state.Node.Id.String()
 				}
 				ctx.LogE("call-start", nncp.SDS{"node": nodeId, "err": err}, "")
 			}

@@ -60,6 +60,9 @@ rm -fr $tmp/golang.org $tmp/includes
 
 find src -name .travis.yml -delete
 rm -fr src/github.com/davecgh/go-xdr/xdr
+rm -fr src/github.com/gorhill/cronexpr/cronexpr src/github.com/gorhill/cronexpr/APLv2
+rm -fr ports
+rm makedist.sh
 
 cat > doc/download.texi <<EOF
 @node Tarballs
@@ -94,7 +97,7 @@ cd $cur
 cat <<EOF
 Subject: NNCP $release release announcement
 
-I am pleased to announce nncp $release release availability!
+I am pleased to announce NNCP $release release availability!
 
 NNCP (Node to Node copy) is a collection of utilities simplifying
 secure store-and-forward files and mail exchanging.

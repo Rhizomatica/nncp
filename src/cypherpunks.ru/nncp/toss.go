@@ -96,7 +96,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 		errs := make(chan error, 1)
 		go func(job Job) {
 			pipeWB := bufio.NewWriter(pipeW)
-			_, err := PktEncRead(
+			_, _, err := PktEncRead(
 				ctx.Self,
 				ctx.Neigh,
 				bufio.NewReader(job.Fd),
@@ -133,6 +133,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 				log.Fatalln(err)
 			}
 			sendmail := ctx.Neigh[*job.PktEnc.Sender].Sendmail
+			if len(sendmail) == 0 {
+				ctx.LogE("rx", SdsAdd(sds, SDS{"err": "No sendmail configured"}), "")
+				isBad = true
+				goto Closing
+			}
 			if !dryRun {
 				cmd := exec.Command(
 					sendmail[0],
@@ -249,7 +254,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 				goto Closing
 			}
 			if !dryRun {
-				if err = ctx.TxFile(sender, job.PktEnc.Nice, filepath.Join(*freq, src), dst); err != nil {
+				if err = ctx.TxFile(sender, job.PktEnc.Nice, filepath.Join(*freq, src), dst, 0); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "tx file")
 					isBad = true
 					goto Closing
