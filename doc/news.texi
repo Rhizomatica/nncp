@@ -20,3 +20,7 @@ allowable online connection aliveness time.
 @item @ref{nncp-caller} command appeared: cron-ed TCP daemon caller.
 @item @ref{nncp-pkt} command can decompress the data.
 @end itemize
+
+@node Release 0.3
+@section Release 0.3
+Fixed compatibility with Go 1.6.

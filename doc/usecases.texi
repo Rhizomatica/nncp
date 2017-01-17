@@ -3,6 +3,7 @@
 
 @menu
 * Occasional connection to mail server: UsecaseMail.
+* Lightweight fast POP3/IMAP4 replacement: UsecasePOP.
 * Unreliable/expensive communication link: UsecaseUnreliable.
 * Slow/expensive link for high-volume data, bad QoS: UsecaseQoS.
 * Extreme terrestrial environments, no link: UsecaseNoLink.
@@ -37,6 +38,22 @@ Look @ref{Postfix, here} for further information. All mail will be
 stored in NNCP @ref{Spool, spool}, that after exchanging and tossing
 will call local @command{sendmail} command to deliver them just like
 that happened on the same machine.
+
+@node UsecasePOP
+@section Lightweight fast POP3/IMAP4 replacement
+
+@ref{nncp-daemon} can be connected with @ref{nncp-caller} for a long
+time -- it can create TCP connection that lasts for many hours. When
+SMTP server receives mail, it will call @ref{nncp-mail} creating an
+outbound encrypted packet. Daemon checks outbound directory each second
+and immediately sends notification about undelivered packets to remote
+side, that also downloads it at once.
+
+There are only dozens of bytes notifying about incoming packets, dozens
+of bytes telling to download those packets. Mail packets are compressed
+(POP3 and IMAP4 as a rule do not). You have lightweight, compressed,
+low-delay, reliable link for the mail with strong encryption and mutual
+sides authentication!
 
 @node UsecaseUnreliable
 @section Unreliable/expensive communication link
