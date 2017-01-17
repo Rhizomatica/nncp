@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -69,7 +68,7 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 				fd.Close()
 				continue
 			}
-			fd.Seek(0, io.SeekStart)
+			fd.Seek(0, 0)
 			ctx.LogD("jobs", SDS{
 				"xx":   string(xx),
 				"node": pktEnc.Sender,

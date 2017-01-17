@@ -27,4 +27,8 @@ Tarballs include all necessary required libraries:
 @tab @url{download/nncp-0.1.tar.xz, link} @url{download/nncp-0.1.tar.xz.sig, sign}
 @tab @code{8F71D65B 70865EBF FE802CDF A5C14D00 A9FD6559 FD722E60 5D97E82C 5E2412C2}
 
+@item @ref{Release 0.2, 0.2} @tab 740 KiB
+@tab @url{download/nncp-0.2.tar.xz, link} @url{download/nncp-0.2.tar.xz.sig, sign}
+@tab @code{00BEAC5A 0C4083B0 42E3152B ACA6FF20 12768B82 CE24D716 8E04279C ECE14DB7}
+
 @end multitable
