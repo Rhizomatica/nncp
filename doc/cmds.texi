@@ -14,10 +14,8 @@ Nearly all commands have the following common options:
     KiB file and set @option{-minsize 4096}, then resulting packet will
     be 4 KiB (containing file itself and some junk).
 @item -nice
-    Set desired outgoing packet niceness level. 1-255 values are
-    allowed. Higher value means lower priority. In some commands that
-    means processing of packets that have equal or lower nice value.
-    That is used for controlling network QoS.
+    Set desired outgoing packet @ref{Niceness, niceness level}.
+    1-255 values are allowed.
 @item -node
     Process only single specified node.
 @item -quiet
@@ -62,8 +60,8 @@ overrides @ref{CfgOnlineDeadline, @emph{onlinedeadline}}.
 Croned daemon that calls remote nodes from time to time, according to
 their @ref{CfgCalls, @emph{calls}} configuration field.
 
-Optional number of @option{NODE}s tells to call only them, ignoring the
-other. Otherwise all nodes with specified @emph{calls} configuration
+Optional number of @option{NODE}s tells to ignore other ones.
+Otherwise all nodes with specified @emph{calls} configuration
 field will be called.
 
 @option{-onlinedeadline} overrides @ref{CfgOnlineDeadline,
@@ -75,12 +73,13 @@ not specify the exact one, then all will be tried until the first
 success. Optionally you can force @option{FORCEADDR} address usage,
 instead of addresses taken from configuration file.
 
-Pay attention that this command run integrity check for each completely
-received packet in the background. This can be time consuming and
-connection could be lost during that check time and remote node won't be
+Pay attention that this command runs integrity check for each completely
+received packet in the background. This can be time consuming.
+Connection could be lost during that check and remote node won't be
 notified that file is done. But after successful integrity check that
-file will be renamed from @file{.part} one and when you rerun
-@command{nncp-call} again, remote node will receive completion at once.
+file is renamed from @file{.part} one and when you rerun
+@command{nncp-call} again, remote node will receive completion
+notification.
 
 @node nncp-check
 @section nncp-check
@@ -91,7 +90,7 @@ file will be renamed from @file{.part} one and when you rerun
 
 Perform @ref{Spool, spool} directory integrity check. Read all files
 that has Base32-encoded filenames and compare it with recalculated
-BLAKE2b hash output of their contents. This supplementary command are
+BLAKE2b hash output of their contents. This supplementary command is
 not used often in practice, if ever.
 
 @node nncp-daemon
@@ -196,7 +195,6 @@ By default it will print packet's type, for example:
 Packet type: encrypted
 Niceness: 64
 Sender: 2WHBV3TPZHDOZGUJEH563ZEK7M33J4UESRFO4PDKWD5KZNPROABQ
-Payload size: 4.0 MiB (4162852 bytes)
 @end verbatim
 
 If you specify @option{-dump} option and provide an @ref{Encrypted,

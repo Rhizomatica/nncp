@@ -29,20 +29,20 @@ drive.
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|NNCPP0x00x00x01|}
+    @verb{|N N C P P 0x00 0x00 0x01|}
 @item Payload type @tab
     unsigned integer @tab
     0 (file), 1 (freq), 2 (mail), 3 (transition)
 @item Path length @tab
     unsigned integer @tab
-    actual length of following field's payload
+    actual length of @emph{path} field's payload
 @item Path @tab
     255 byte, fixed length opaque data @tab
     @itemize
     @item UTF-8 encoded destination path for file transfer
     @item UTF-8 encoded source path for file request
     @item UTF-8 encoded, space separated, email recipients list
-    @item Node id the transition packet must be relayed on
+    @item Node's id the transition packet must be relayed on
     @end itemize
 @end multitable
 
@@ -69,7 +69,7 @@ storages and that are synchronized between TCP daemons.
 Each encrypted packet has the following header:
 
 @verbatim
-  +--------------- HEADER ----------+   +-------- ENCRYPTED --------+
+  +------------ HEADER -------------+   +-------- ENCRYPTED --------+
  /                                   \ /                             \
 +-------------------------------------+------------+----...-----------+------+
 | MAGIC | NICE | SENDER | EPUB | SIGN | SIZE | MAC | CIPHERTEXT | MAC | JUNK |
@@ -84,7 +84,7 @@ Each encrypted packet has the following header:
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|NNCPE0x00x00x01|}
+    @verb{|N N C P E 0x00 0x00 0x01|}
 @item Niceness @tab
     unsigned integer @tab
     1-255, packet @ref{Niceness, niceness} level
@@ -123,7 +123,6 @@ After the headers comes an encrypted payload size and MAC of that size.
 @headitem  @tab XDR type @tab Value
 @item Size @tab
     unsigned hyper integer @tab
-    @verb{|NNCPE0x00x00x01|}
     Payload size.
 @end multitable
 

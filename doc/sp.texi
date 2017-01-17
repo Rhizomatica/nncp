@@ -27,7 +27,7 @@ are sent inside XDR envelope:
 @headitem  @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|NNCPS0x00x00x01|}
+    @verb{|N N C P S 0x00 0x00 0x01|}
 @item Payload @tab
     variable length opaque data @tab
     Noise packet itself
@@ -36,7 +36,7 @@ are sent inside XDR envelope:
 Peers static keys are specified as @ref{Configuration, @emph{noisepub}}
 configuration entry.
 
-Payload inside Noise packets has maximum size of @emph{65 KiB - 256 B =
+Payload inside Noise packets has maximum size of @emph{64 KiB - 256 B =
 65280 B}. It is sent immediately in the first message by each side. The
 very first payload (that is carried inside handshake messages) is always
 padded to the maximum size with @emph{HALT} packets (read below), for
