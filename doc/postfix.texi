@@ -2,7 +2,7 @@
 @unnumbered Integration with Postfix
 
 This section is taken from @url{http://www.postfix.org/nncp_README.html,
-Postfix and nncp} manual and just replaces nncp-related calls with NNCP
+Postfix and UUCP} manual and just replaces UUCP-related calls with NNCP
 ones.
 
 @strong{Setting up a Postfix Internet to NNCP gateway}
