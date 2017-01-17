@@ -41,6 +41,7 @@ func main() {
 	var (
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw  = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
+		minSize  = flag.Uint64("minsize", 0, "Minimal required resulting packet size")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
@@ -65,7 +66,7 @@ func main() {
 	}
 	nice := uint8(*niceRaw)
 
-	cfgRaw, err := ioutil.ReadFile(*cfgPath)
+	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 	if err != nil {
 		log.Fatalln("Can not read config:", err)
 	}
@@ -86,7 +87,7 @@ func main() {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
 
-	if err = ctx.TxFreq(node, nice, splitted[1], flag.Arg(1)); err != nil {
+	if err = ctx.TxFreq(node, nice, splitted[1], flag.Arg(1), int64(*minSize)); err != nil {
 		log.Fatalln(err)
 	}
 }

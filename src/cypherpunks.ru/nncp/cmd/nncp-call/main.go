@@ -24,9 +24,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"os"
-	"strconv"
 	"strings"
 
 	"cypherpunks.ru/nncp"
@@ -50,6 +48,9 @@ func main() {
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
+
+		onlineDeadline = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
+		maxOnlineTime  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -73,7 +74,7 @@ func main() {
 		log.Fatalln("-rx and -tx can not be set simultaneously")
 	}
 
-	cfgRaw, err := ioutil.ReadFile(*cfgPath)
+	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 	if err != nil {
 		log.Fatalln("Can not read config:", err)
 	}
@@ -88,6 +89,16 @@ func main() {
 	node, err := ctx.FindNode(splitted[0])
 	if err != nil {
 		log.Fatalln("Invalid NODE specified:", err)
+	}
+	if node.NoisePub == nil {
+		log.Fatalln("Node does not have online communication capability")
+	}
+
+	if *onlineDeadline == 0 {
+		onlineDeadline = &node.OnlineDeadline
+	}
+	if *maxOnlineTime == 0 {
+		maxOnlineTime = &node.MaxOnlineTime
 	}
 
 	var xxOnly nncp.TRxTx
@@ -112,36 +123,7 @@ func main() {
 		}
 	}
 
-	isGood := false
-	for _, addr := range addrs {
-		ctx.LogD("call", nncp.SDS{"addr": addr}, "dialing")
-		conn, err := net.Dial("tcp", addr)
-		if err != nil {
-			log.Println("Can not connect:", err)
-			continue
-		}
-		ctx.LogD("call", nncp.SDS{"addr": addr}, "connected")
-		state, err := ctx.StartI(conn, node.Id, nice, &xxOnly)
-		if err == nil {
-			ctx.LogI("call-start", nncp.SDS{"node": state.NodeId}, "connected")
-			state.Wait()
-			ctx.LogI("call-finish", nncp.SDS{
-				"node":     state.NodeId,
-				"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
-				"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
-				"txbytes":  strconv.FormatInt(state.TxBytes, 10),
-				"rxspeed":  strconv.FormatInt(state.RxSpeed, 10),
-				"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
-			}, "")
-			isGood = true
-			conn.Close()
-			break
-		} else {
-			ctx.LogE("call-start", nncp.SDS{"node": state.NodeId, "err": err}, "")
-			conn.Close()
-		}
-	}
-	if !isGood {
+	if !ctx.CallNode(node, addrs, nice, &xxOnly, *onlineDeadline, *maxOnlineTime) {
 		os.Exit(1)
 	}
 }

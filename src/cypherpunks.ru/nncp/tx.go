@@ -32,7 +32,7 @@ import (
 	"golang.org/x/crypto/blake2b"
 )
 
-func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size int64, src io.Reader) (*Node, error) {
+func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io.Reader) (*Node, error) {
 	tmp, err := ctx.NewTmpFileWHash()
 	if err != nil {
 		return nil, err
@@ -44,6 +44,10 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size int64, src io.Reader) 
 		lastNode = ctx.Neigh[*node.Via[i-1]]
 		hops = append(hops, lastNode)
 	}
+	padSize := minSize - size - int64(len(hops))*(PktOverhead+PktEncOverhead)
+	if padSize < 0 {
+		padSize = 0
+	}
 	errs := make(chan error)
 	curSize := size
 	pipeR, pipeW := io.Pipe()
@@ -53,9 +57,10 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size int64, src io.Reader) 
 			"nice": strconv.Itoa(int(nice)),
 			"size": strconv.FormatInt(size, 10),
 		}, "wrote")
-		errs <- PktEncWrite(ctx.Self, hops[0], pkt, nice, size, src, dst)
+		errs <- PktEncWrite(ctx.Self, hops[0], pkt, nice, size, padSize, src, dst)
 		dst.Close()
 	}(curSize, src, pipeW)
+	curSize += padSize
 
 	var pipeRPrev io.Reader
 	for i := 1; i < len(hops); i++ {
@@ -75,7 +80,7 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size int64, src io.Reader) 
 				"nice": strconv.Itoa(int(nice)),
 				"size": strconv.FormatInt(size, 10),
 			}, "trns wrote")
-			errs <- PktEncWrite(ctx.Self, node, pkt, nice, size, src, dst)
+			errs <- PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
 			dst.Close()
 		}(hops[i], &pktTrans, curSize, pipeRPrev, pipeW)
 	}
@@ -96,7 +101,7 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size int64, src io.Reader) 
 	return lastNode, err
 }
 
-func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string) error {
+func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize int64) error {
 	if dstPath == "" {
 		dstPath = filepath.Base(srcPath)
 	}
@@ -117,7 +122,7 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string) error {
 	if err != nil {
 		return err
 	}
-	_, err = ctx.Tx(node, pkt, nice, srcStat.Size(), bufio.NewReader(src))
+	_, err = ctx.Tx(node, pkt, nice, srcStat.Size(), minSize, bufio.NewReader(src))
 	if err == nil {
 		ctx.LogI("tx", SDS{
 			"type": "file",
@@ -141,7 +146,7 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string) error {
 	return err
 }
 
-func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string) error {
+func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string, minSize int64) error {
 	dstPath = filepath.Clean(dstPath)
 	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
@@ -156,7 +161,7 @@ func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string) error {
 	}
 	src := strings.NewReader(dstPath)
 	size := int64(src.Len())
-	_, err = ctx.Tx(node, pkt, nice, size, src)
+	_, err = ctx.Tx(node, pkt, nice, size, minSize, src)
 	if err == nil {
 		ctx.LogI("tx", SDS{
 			"type": "freq",
@@ -178,19 +183,22 @@ func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string) error {
 	return err
 }
 
-func (ctx *Ctx) TxMail(node *Node, nice uint8, recipient string, body []byte) error {
+func (ctx *Ctx) TxMail(node *Node, nice uint8, recipient string, body []byte, minSize int64) error {
 	pkt, err := NewPkt(PktTypeMail, recipient)
 	if err != nil {
 		return err
 	}
 	var compressed bytes.Buffer
-	compressor := zlib.NewWriter(&compressed)
+	compressor, err := zlib.NewWriterLevel(&compressed, zlib.BestCompression)
+	if err != nil {
+		return err
+	}
 	if _, err = io.Copy(compressor, bytes.NewReader(body)); err != nil {
 		return err
 	}
 	compressor.Close()
 	size := int64(compressed.Len())
-	_, err = ctx.Tx(node, pkt, nice, size, &compressed)
+	_, err = ctx.Tx(node, pkt, nice, size, minSize, &compressed)
 	if err == nil {
 		ctx.LogI("tx", SDS{
 			"type": "mail",

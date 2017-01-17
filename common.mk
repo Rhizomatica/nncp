@@ -1,18 +1,25 @@
-.PHONY: doc
-
-CFGPATH ?= /usr/local/etc/nncp.yaml
-SENDMAIL ?= /usr/sbin/sendmail
-LDFLAGS = \
-	-X cypherpunks.ru/nncp.Version=$(VERSION) \
-	-X cypherpunks.ru/nncp.DefaultCfgPath=$(CFGPATH) \
-	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL)
 PREFIX ?= /usr/local
+
+SENDMAIL ?= /usr/sbin/sendmail
+CFGPATH ?= $(PREFIX)/etc/nncp.yaml
+SPOOLPATH ?= /var/spool/nncp
+LOGPATH ?= /var/spool/nncp/log
+
 BINDIR = $(DESTDIR)$(PREFIX)/bin
 INFODIR = $(DESTDIR)$(PREFIX)/info
 DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
+
+LDFLAGS = \
+	-X cypherpunks.ru/nncp.Version=$(VERSION) \
+	-X cypherpunks.ru/nncp.DefaultCfgPath=$(CFGPATH) \
+	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL) \
+	-X cypherpunks.ru/nncp.DefaultSpoolPath=$(SPOOLPATH) \
+	-X cypherpunks.ru/nncp.DefaultLogPath=$(LOGPATH)
+
 ALL = \
 	nncp-mail \
 	nncp-call \
+	nncp-caller \
 	nncp-check \
 	nncp-daemon \
 	nncp-file \
@@ -28,6 +35,9 @@ all: $(ALL)
 
 nncp-call:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-call
+
+nncp-caller:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-caller
 
 nncp-check:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-check
@@ -68,6 +78,8 @@ test:
 clean:
 	rm -f $(ALL)
 
+.PHONY: doc
+
 doc:
 	$(MAKE) -C doc
 
@@ -79,7 +91,7 @@ install: all doc
 	cp -f doc/nncp.info $(INFODIR)
 	chmod 644 $(INFODIR)/nncp.info
 	mkdir -p $(DOCDIR)
-	cp -f -L AUTHORS README $(DOCDIR)
+	cp -f -L AUTHORS NEWS README THANKS $(DOCDIR)
 	chmod 644 $(DOCDIR)/*
 
 install-strip: install

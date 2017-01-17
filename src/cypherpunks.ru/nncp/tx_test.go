@@ -33,7 +33,7 @@ import (
 )
 
 func TestTx(t *testing.T) {
-	f := func(hops uint8, pathSrc, data string, nice uint8) bool {
+	f := func(hops uint8, pathSrc, data string, nice uint8, padSize int16) bool {
 		if len(pathSrc) > int(MaxPathSize) {
 			pathSrc = pathSrc[:MaxPathSize]
 		}
@@ -77,7 +77,14 @@ func TestTx(t *testing.T) {
 		}
 		pkt, err := NewPkt(PktTypeMail, pathSrc)
 		src := strings.NewReader(data)
-		dstNode, err := ctx.Tx(nodeTgt, pkt, 123, int64(src.Len()), src)
+		dstNode, err := ctx.Tx(
+			nodeTgt,
+			pkt,
+			123,
+			int64(src.Len()),
+			int64(padSize),
+			src,
+		)
 		if err != nil {
 			return false
 		}
@@ -99,7 +106,7 @@ func TestTx(t *testing.T) {
 		vias := append(nodeTgt.Via, nodeTgt.Id)
 		for i, hopId := range vias {
 			hopOur := privates[*hopId]
-			foundNode, err := PktEncRead(hopOur, ctx.Neigh, &bufR, &bufW)
+			foundNode, _, err := PktEncRead(hopOur, ctx.Neigh, &bufR, &bufW)
 			if err != nil {
 				return false
 			}

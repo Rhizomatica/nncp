@@ -5,7 +5,26 @@ You can obtain releases source code prepared tarballs from the links below
 (or use @url{https://sourceforge.net/projects/nncp/files/, Sourceforge mirror}).
 Do not forget to check tarball @ref{Integrity, integrity}.
 
+Tarballs include all necessary required libraries:
+
+@multitable @columnfractions .50 .50
+@headitem Library @tab Licence
+@item @code{github.com/dustin/go-humanize} @tab MIT
+@item @code{github.com/flynn/noise} @tab BSD 3-Clause
+@item @code{github.com/go-check/check} @tab BSD 2-Clause
+@item @code{github.com/go-yaml/yaml} @tab Apache License 2.0 and MIT
+@item @code{github.com/gorhill/cronexpr} @tab GPLv3
+@item @code{github.com/minio/blake2b-simd} @tab Apache License 2.0
+@item @code{golang.org/x/crypto} @tab BSD 3-Clause
+@item @code{golang.org/x/net} @tab BSD 3-Clause
+@item @code{golang.org/x/sys} @tab BSD 3-Clause
+@end multitable
+
 @multitable {XXXXX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Size @tab Tarball @tab SHA256 checksum
+
+@item 0.1 @tab 720 KiB
+@tab @url{download/nncp-0.1.tar.xz, link} @url{download/nncp-0.1.tar.xz.sig, sign}
+@tab @code{8F71D65B 70865EBF FE802CDF A5C14D00 A9FD6559 FD722E60 5D97E82C 5E2412C2}
 
 @end multitable
