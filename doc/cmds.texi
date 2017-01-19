@@ -166,15 +166,28 @@ side will execute specified @ref{CfgSendmail, sendmail} command with
 @option{USER}s appended as a command line argument and feed decompressed
 mail body to that command's stdin.
 
-@node nncp-newnode
-@section nncp-newnode
+@node nncp-mincfg
+@section nncp-mincfg
 
 @verbatim
-% nncp-newnode [options] > mynewnode.yaml
+% nncp-mincfg [options] > stripped.yaml
 @end verbatim
 
-Generate new node: private keys, example configuration file and print it
-to stdout. You must use this command when you setup the new node.
+Print out stripped configuration version: only path to @ref{Spool,
+spool}, path to log file, neighbours public keys are stayed. This is
+useful mainly for usage with @ref{nncp-xfer} that has to know only
+neighbours, without private keys involving.
+
+@node nncp-newcfg
+@section nncp-newcfg
+
+@verbatim
+% nncp-newcfg [options] > new.yaml
+@end verbatim
+
+Generate new node configuration: private keys, example configuration
+file and print it to stdout. You must use this command when you setup
+the new node.
 
 Pay attention that private keys generation consumes an entropy from your
 operating system.
@@ -269,6 +282,9 @@ remove them.
 
 @option{-rx} option tells only to move inbound packets addressed to us.
 @option{-tx} option tells exactly the opposite: move only outbound packets.
+
+@ref{nncp-mincfg} could be useful for creating stripped minimalistic
+configuration file version without any private keys.
 
 @file{DIR} directory has the following structure:
 @file{RECIPIENT/SENDER/PACKET}, where @file{RECIPIENT} is Base32 encoded

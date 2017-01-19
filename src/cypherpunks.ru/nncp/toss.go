@@ -220,7 +220,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 					isBad = true
 				}
-				sendmail := ctx.Neigh[*ctx.Self.Id].Sendmail
+				sendmail := ctx.Neigh[*ctx.SelfId].Sendmail
 				if ctx.NotifyFile != nil {
 					cmd := exec.Command(
 						sendmail[0],
@@ -267,7 +267,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 					isBad = true
 				}
 				if ctx.NotifyFreq != nil {
-					sendmail := ctx.Neigh[*ctx.Self.Id].Sendmail
+					sendmail := ctx.Neigh[*ctx.SelfId].Sendmail
 					cmd := exec.Command(
 						sendmail[0],
 						append(sendmail[1:len(sendmail)], ctx.NotifyFreq.To)...,

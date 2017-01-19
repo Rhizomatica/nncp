@@ -826,13 +826,16 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				return nil, err
 			}
 			ourSize := uint64(file.Offset) + uint64(len(file.Payload))
+			state.RLock()
 			sdsp["fullsize"] = strconv.FormatInt(int64(state.infosTheir[*file.Hash].Size), 10)
 			sdsp["size"] = strconv.FormatInt(int64(ourSize), 10)
 			state.ctx.LogP("sp-file", sdsp, "")
 			if state.infosTheir[*file.Hash].Size != ourSize {
+				state.RUnlock()
 				fd.Close()
 				continue
 			}
+			state.RUnlock()
 			go func() {
 				if err := fd.Sync(); err != nil {
 					state.ctx.LogE("sp-file", SdsAdd(sdsp, SDS{"err": err}), "sync")
@@ -918,10 +921,12 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 	if infosGot {
 		var pkts int
 		var size uint64
+		state.RLock()
 		for _, info := range state.infosTheir {
 			pkts++
 			size += info.Size
 		}
+		state.RUnlock()
 		state.ctx.LogI("sp-infos", SDS{
 			"xx":   string(TRx),
 			"node": state.Node.Id,

@@ -16,12 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Generate new NNCP node keys
+// Stripped NNCP configuration file.
 package main
 
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 
 	"cypherpunks.ru/nncp"
@@ -30,12 +32,14 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-newnode -- generate new node keys\nOptions:")
+	fmt.Fprintln(os.Stderr, "nncp-mincfg -- print stripped configuration\n")
+	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
 func main() {
 	var (
+		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
 	)
@@ -49,32 +53,33 @@ func main() {
 		fmt.Println(nncp.VersionGet())
 		return
 	}
-	nodeOur, err := nncp.NewNodeGenerate()
+
+	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 	if err != nil {
-		panic(err)
+		log.Fatalln("Can not read config:", err)
 	}
-	noisePub := nncp.ToBase32(nodeOur.NoisePub[:])
+	ctx, err := nncp.CfgParse(cfgRaw)
+	if err != nil {
+		log.Fatalln("Can not parse config:", err)
+	}
+
 	cfg := nncp.CfgYAML{
-		Self: nncp.NodeOurYAML{
-			Id:       nodeOur.Id.String(),
-			ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
-			ExchPrv:  nncp.ToBase32(nodeOur.ExchPrv[:]),
-			SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
-			SignPrv:  nncp.ToBase32(nodeOur.SignPrv[:]),
-			NoisePub: nncp.ToBase32(nodeOur.NoisePub[:]),
-			NoisePrv: nncp.ToBase32(nodeOur.NoisePrv[:]),
-		},
-		Neigh: map[string]nncp.NodeYAML{
-			"self": nncp.NodeYAML{
-				Id:       nodeOur.Id.String(),
-				ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
-				SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
-				NoisePub: &noisePub,
-				Sendmail: []string{nncp.DefaultSendmailPath},
-			},
-		},
-		Spool: nncp.DefaultSpoolPath,
-		Log:   nncp.DefaultLogPath,
+		Spool: ctx.Spool,
+		Log:   ctx.LogPath,
+		Neigh: make(map[string]nncp.NodeYAML),
+	}
+	for _, node := range ctx.Neigh {
+		var noisePub *string
+		if node.NoisePub != nil {
+			np := nncp.ToBase32(node.NoisePub[:])
+			noisePub = &np
+		}
+		cfg.Neigh[node.Name] = nncp.NodeYAML{
+			Id:       node.Id.String(),
+			ExchPub:  nncp.ToBase32(node.ExchPub[:]),
+			SignPub:  nncp.ToBase32(node.SignPub[:]),
+			NoisePub: noisePub,
+		}
 	}
 	raw, err := yaml.Marshal(&cfg)
 	if err != nil {

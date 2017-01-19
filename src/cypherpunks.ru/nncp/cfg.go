@@ -43,8 +43,8 @@ type NodeYAML struct {
 	Id       string
 	ExchPub  string
 	SignPub  string
-	NoisePub *string `noisepub,omitempty`
-	Sendmail []string
+	NoisePub *string    `noisepub,omitempty`
+	Sendmail []string   `sendmail,omitempty`
 	Incoming *string    `incoming,omitempty`
 	Freq     *string    `freq,omitempty`
 	Via      []string   `via,omitempty`
@@ -86,7 +86,7 @@ type NotifyYAML struct {
 }
 
 type CfgYAML struct {
-	Self  NodeOurYAML
+	Self  *NodeOurYAML `self,omitempty`
 	Neigh map[string]NodeYAML
 
 	Spool  string
@@ -231,7 +231,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 	return &node, nil
 }
 
-func NewNodeOur(yml NodeOurYAML) (*NodeOur, error) {
+func NewNodeOur(yml *NodeOurYAML) (*NodeOur, error) {
 	id, err := NodeIdFromString(yml.Id)
 	if err != nil {
 		return nil, err
@@ -324,9 +324,15 @@ func CfgParse(data []byte) (*Ctx, error) {
 	if err != nil {
 		return nil, err
 	}
-	self, err := NewNodeOur(cfgYAML.Self)
-	if err != nil {
-		return nil, err
+	if _, exists := cfgYAML.Neigh["self"]; !exists {
+		return nil, errors.New("self neighbour missing")
+	}
+	var self *NodeOur
+	if cfgYAML.Self != nil {
+		self, err = NewNodeOur(cfgYAML.Self)
+		if err != nil {
+			return nil, err
+		}
 	}
 	spoolPath := path.Clean(cfgYAML.Spool)
 	if !path.IsAbs(spoolPath) {
@@ -364,6 +370,7 @@ func CfgParse(data []byte) (*Ctx, error) {
 		ctx.Alias[name] = neigh.Id
 		vias[*neigh.Id] = neighYAML.Via
 	}
+	ctx.SelfId = ctx.Alias["self"]
 	for neighId, viasRaw := range vias {
 		for _, viaRaw := range viasRaw {
 			foundNodeId, err := ctx.FindNode(viaRaw)

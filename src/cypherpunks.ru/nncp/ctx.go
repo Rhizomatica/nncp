@@ -25,9 +25,10 @@ import (
 )
 
 type Ctx struct {
-	Self  *NodeOur
-	Neigh map[NodeId]*Node
-	Alias map[string]*NodeId
+	Self   *NodeOur
+	SelfId *NodeId
+	Neigh  map[NodeId]*Node
+	Alias  map[string]*NodeId
 
 	Spool      string
 	LogPath    string
