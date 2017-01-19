@@ -24,3 +24,15 @@ allowable online connection aliveness time.
 @node Release 0.3
 @section Release 0.3
 Fixed compatibility with Go 1.6.
+
+@node Release 0.4
+@section Release 0.4
+@itemize
+@item Small fix in @ref{nncp-call}, @ref{nncp-caller},
+@ref{nncp-daemon}: they can segmentation fail sometimes (no data is lost).
+@item @command{nncp-newnode} renamed to @ref{nncp-newcfg} -- it is
+shorter and more convenient to use.
+@item @ref{nncp-mincfg} command appeared: helper allowing to create
+minimalistic stripped down configuration files without private keys,
+that is useful during @ref{nncp-xfer} usage.
+@end itemize

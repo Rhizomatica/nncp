@@ -58,6 +58,7 @@ func TestTx(t *testing.T) {
 			LogPath: path.Join(spool, "log.log"),
 			Debug:   true,
 			Self:    nodeOur,
+			SelfId:  nodeOur.Id,
 			Neigh:   make(map[NodeId]*Node, hops),
 			Alias:   make(map[string]*NodeId),
 		}

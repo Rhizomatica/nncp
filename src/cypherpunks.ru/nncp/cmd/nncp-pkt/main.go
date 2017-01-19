@@ -122,6 +122,9 @@ func main() {
 			if err != nil {
 				log.Fatalln("Can not parse config:", err)
 			}
+			if ctx.Self == nil {
+				log.Fatalln("Config lacks private keys")
+			}
 			bufW := bufio.NewWriter(os.Stdout)
 			if _, _, err = nncp.PktEncRead(
 				ctx.Self,
