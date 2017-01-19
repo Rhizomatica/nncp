@@ -26,7 +26,7 @@ ALL = \
 	nncp-freq \
 	nncp-log \
 	nncp-mincfg \
-	nncp-newnode \
+	nncp-newcfg \
 	nncp-pkt \
 	nncp-stat \
 	nncp-toss \
@@ -61,8 +61,8 @@ nncp-mail:
 nncp-mincfg:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-mincfg
 
-nncp-newnode:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-newnode
+nncp-newcfg:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-newcfg
 
 nncp-pkt:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-pkt
