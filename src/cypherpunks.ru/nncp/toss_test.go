@@ -68,6 +68,7 @@ func TestTossEmail(t *testing.T) {
 		ctx := Ctx{
 			Spool:   spool,
 			Self:    nodeOur,
+			SelfId:  nodeOur.Id,
 			Neigh:   make(map[NodeId]*Node),
 			Alias:   make(map[string]*NodeId),
 			LogPath: filepath.Join(spool, "log.log"),
@@ -162,6 +163,7 @@ func TestTossFile(t *testing.T) {
 		ctx := Ctx{
 			Spool:   spool,
 			Self:    nodeOur,
+			SelfId:  nodeOur.Id,
 			Neigh:   make(map[NodeId]*Node),
 			Alias:   make(map[string]*NodeId),
 			LogPath: filepath.Join(spool, "log.log"),
@@ -230,6 +232,7 @@ func TestTossFileSameName(t *testing.T) {
 		ctx := Ctx{
 			Spool:   spool,
 			Self:    nodeOur,
+			SelfId:  nodeOur.Id,
 			Neigh:   make(map[NodeId]*Node),
 			Alias:   make(map[string]*NodeId),
 			LogPath: filepath.Join(spool, "log.log"),
@@ -298,6 +301,7 @@ func TestTossFreq(t *testing.T) {
 		ctx := Ctx{
 			Spool:   spool,
 			Self:    nodeOur,
+			SelfId:  nodeOur.Id,
 			Neigh:   make(map[NodeId]*Node),
 			Alias:   make(map[string]*NodeId),
 			LogPath: filepath.Join(spool, "log.log"),
@@ -396,6 +400,7 @@ func TestTossTrns(t *testing.T) {
 		ctx := Ctx{
 			Spool:   spool,
 			Self:    nodeOur,
+			SelfId:  nodeOur.Id,
 			Neigh:   make(map[NodeId]*Node),
 			Alias:   make(map[string]*NodeId),
 			LogPath: filepath.Join(spool, "log.log"),

@@ -96,7 +96,7 @@ func main() {
 		}
 	}
 
-	selfPath := filepath.Join(flag.Arg(0), ctx.Self.Id.String())
+	selfPath := filepath.Join(flag.Arg(0), ctx.SelfId.String())
 	isBad := false
 	var dir *os.File
 	var fis []os.FileInfo
@@ -258,7 +258,7 @@ Tx:
 				continue
 			}
 		}
-		dstPath := filepath.Join(nodePath, ctx.Self.Id.String())
+		dstPath := filepath.Join(nodePath, ctx.SelfId.String())
 		sds["dir"] = dstPath
 		_, err = os.Stat(dstPath)
 		if err != nil {
