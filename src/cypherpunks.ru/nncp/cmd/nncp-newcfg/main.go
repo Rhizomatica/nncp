@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Generate new NNCP node keys
+// Generate new NNCP node keys and configuration file
 package main
 
 import (
@@ -30,7 +30,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-newnode -- generate new node keys\nOptions:")
+	fmt.Fprintln(os.Stderr, "nncp-newcfg -- generate new configuration and keys\nOptions:")
 	flag.PrintDefaults()
 }
 

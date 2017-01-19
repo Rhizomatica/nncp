@@ -178,15 +178,16 @@ spool}, path to log file, neighbours public keys are stayed. This is
 useful mainly for usage with @ref{nncp-xfer} that has to know only
 neighbours, without private keys involving.
 
-@node nncp-newnode
-@section nncp-newnode
+@node nncp-newcfg
+@section nncp-newcfg
 
 @verbatim
-% nncp-newnode [options] > mynewnode.yaml
+% nncp-newcfg [options] > new.yaml
 @end verbatim
 
-Generate new node: private keys, example configuration file and print it
-to stdout. You must use this command when you setup the new node.
+Generate new node configuration: private keys, example configuration
+file and print it to stdout. You must use this command when you setup
+the new node.
 
 Pay attention that private keys generation consumes an entropy from your
 operating system.
