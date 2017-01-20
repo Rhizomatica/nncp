@@ -71,7 +71,8 @@ You can obtain releases source code prepared tarballs on
 @url{http://www.nncpgo.org/}.
 EOF
 make -C doc
-rm -r doc/.well-known doc/nncp.html/.well-known
+./news.sh
+rm -r doc/.well-known doc/nncp.html/.well-known news.sh
 
 find . -name .git -type d | xargs rm -fr
 find . -name .gitignore -delete
