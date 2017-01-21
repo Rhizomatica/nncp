@@ -163,6 +163,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 		case PktTypeFile:
 			dst := string(pkt.Path[:int(pkt.PathLen)])
 			sds := SdsAdd(sds, SDS{"type": "file", "dst": dst})
+			if filepath.IsAbs(dst) {
+				ctx.LogE("rx", sds, "non-relative destination path")
+				isBad = true
+				goto Closing
+			}
 			incoming := ctx.Neigh[*job.PktEnc.Sender].Incoming
 			if incoming == nil {
 				ctx.LogE("rx", sds, "incoming is not allowed")
@@ -237,6 +242,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 			}
 		case PktTypeFreq:
 			src := string(pkt.Path[:int(pkt.PathLen)])
+			if filepath.IsAbs(src) {
+				ctx.LogE("rx", sds, "non-relative source path")
+				isBad = true
+				goto Closing
+			}
 			sds := SdsAdd(sds, SDS{"type": "freq", "src": src})
 			dstRaw, err := ioutil.ReadAll(pipeR)
 			if err != nil {
