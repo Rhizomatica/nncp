@@ -118,10 +118,10 @@ forced address specifying.
 Online connection deadline of node inactivity in seconds. It is the time
 connection considered dead after not receiving/sending any packets and
 node must disconnect. By default it is set to 10 seconds -- that means
-that disconnecting after 10 seconds when no packets received and
-transmitted. This can be set to rather high values to keep connection
-alive (to reduce handshake overhead and delays), wait for appearing
-packets ready to send and notifying remote side about their appearance.
+disconnecting after 10 seconds when no packets received and transmitted.
+This can be set to rather high values to keep connection alive (to
+reduce handshake overhead and delays), wait for appearing packets ready
+to send and notifying remote side about their appearance.
 
 @anchor{CfgMaxOnlineTime}
 @item maxonlinetime
