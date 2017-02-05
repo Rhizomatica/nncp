@@ -1,6 +1,13 @@
 @node News
 @unnumbered News
 
+@node Release 0.5
+@section Release 0.5
+@itemize
+@item Trivial small fix in default niceness level of @command{nncp-file}
+and @command{nncp-freq} commands.
+@end itemize
+
 @node Release 0.4
 @section Release 0.4
 @itemize
