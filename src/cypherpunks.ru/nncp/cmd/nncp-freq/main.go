@@ -40,7 +40,7 @@ func usage() {
 func main() {
 	var (
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw  = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
+		niceRaw  = flag.Int("nice", nncp.DefaultNiceFreq, "Outbound packet niceness")
 		minSize  = flag.Uint64("minsize", 0, "Minimal required resulting packet size")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")

@@ -18,9 +18,6 @@ uid   NNCP releases <releases at nncpgo dot org>
 
 @itemize
 
-@item This website @ref{Contacts, alternates} and maillist containing
-public key fingerprint.
-
 @item
 @verbatim
 % gpg --keyserver hkp://keys.gnupg.net/ --recv-keys 0x2B25868E75A1A953

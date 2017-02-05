@@ -47,7 +47,7 @@ const (
 	MaxPathSize = 1<<8 - 1
 
 	DefaultNiceMail = 64
-	DefaultNiceFreq = 196
+	DefaultNiceFreq = 64
 	DefaultNiceFile = 196
 )
 

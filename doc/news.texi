@@ -1,6 +1,30 @@
 @node News
 @unnumbered News
 
+@node Release 0.5
+@section Release 0.5
+@itemize
+@item Trivial small fix in default niceness level of @command{nncp-file}
+and @command{nncp-freq} commands.
+@end itemize
+
+@node Release 0.4
+@section Release 0.4
+@itemize
+@item Small fix in @command{nncp-call}, @command{nncp-caller},
+@command{nncp-daemon}: they can segmentation fail sometimes (no data is
+lost).
+@item @command{nncp-newnode} renamed to @command{nncp-newcfg} -- it is
+shorter and more convenient to use.
+@item @command{nncp-mincfg} command appeared: helper allowing to create
+minimalistic stripped down configuration files without private keys,
+that is useful during @command{nncp-xfer} usage.
+@end itemize
+
+@node Release 0.3
+@section Release 0.3
+Fixed compatibility with Go 1.6.
+
 @node Release 0.2
 @section Release 0.2
 @itemize
@@ -9,30 +33,15 @@ changed too): size field is encrypted and is not send in plaintext
 anymore.
 @item @option{-minsize} option gives ability to automatically pad
 outgoing packets to specified minimal size.
-@item @ref{nncp-daemon} and @ref{nncp-call}/@ref{nncp-caller} always
-check new @emph{tx} packets appearance in the background while
-connected. Remote side is immediately notified.
+@item @command{nncp-daemon} and
+@command{nncp-call}/@command{nncp-caller} always check new @emph{tx}
+packets appearance in the background while connected. Remote side is
+immediately notified.
 @item @option{-onlinedeadline} option gives ability to configure timeout
 of inactivity of online connection, when it could be disconnected. It
 could be used to keep connection alive for a long time.
 @item @option{-maxonlinetime} option gives ability to set maximal
 allowable online connection aliveness time.
-@item @ref{nncp-caller} command appeared: cron-ed TCP daemon caller.
-@item @ref{nncp-pkt} command can decompress the data.
-@end itemize
-
-@node Release 0.3
-@section Release 0.3
-Fixed compatibility with Go 1.6.
-
-@node Release 0.4
-@section Release 0.4
-@itemize
-@item Small fix in @ref{nncp-call}, @ref{nncp-caller},
-@ref{nncp-daemon}: they can segmentation fail sometimes (no data is lost).
-@item @command{nncp-newnode} renamed to @ref{nncp-newcfg} -- it is
-shorter and more convenient to use.
-@item @ref{nncp-mincfg} command appeared: helper allowing to create
-minimalistic stripped down configuration files without private keys,
-that is useful during @ref{nncp-xfer} usage.
+@item @command{nncp-caller} command appeared: cron-ed TCP daemon caller.
+@item @command{nncp-pkt} command can decompress the data.
 @end itemize

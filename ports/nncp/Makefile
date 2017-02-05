@@ -1,7 +1,7 @@
 # $FreeBSD$
 
 PORTNAME=	nncp
-PORTVERSION=	0.4
+PORTVERSION=	0.5
 CATEGORIES=	net
 MASTER_SITES=	http://www.nncpgo.org/download/ \
 		http://sourceforge.net/projects/nncp/files/
