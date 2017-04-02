@@ -17,7 +17,6 @@ LDFLAGS = \
 	-X cypherpunks.ru/nncp.DefaultLogPath=$(LOGPATH)
 
 ALL = \
-	nncp-mail \
 	nncp-call \
 	nncp-caller \
 	nncp-check \
@@ -25,9 +24,11 @@ ALL = \
 	nncp-file \
 	nncp-freq \
 	nncp-log \
+	nncp-mail \
 	nncp-mincfg \
 	nncp-newcfg \
 	nncp-pkt \
+	nncp-rm \
 	nncp-stat \
 	nncp-toss \
 	nncp-xfer
@@ -66,6 +67,9 @@ nncp-newcfg:
 
 nncp-pkt:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-pkt
+
+nncp-rm:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-rm
 
 nncp-stat:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-stat
