@@ -289,3 +289,14 @@ configuration file version without any private keys.
 @file{DIR} directory has the following structure:
 @file{RECIPIENT/SENDER/PACKET}, where @file{RECIPIENT} is Base32 encoded
 destination node, @file{SENDER} is Base32 encoded sender node.
+
+@node nncp-rm
+@section nncp-rm
+
+@verbatim
+% nncp-rm [options] NODE PKT
+@end verbatim
+
+Remove specified packet (Base32 name) in @option{NODE}'s queues. This
+command is useful when you want to remove the packet that is failing to
+be processed.
