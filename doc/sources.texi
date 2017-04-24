@@ -16,5 +16,3 @@ and fetching dependent libraries source code as git submodules:
 % git checkout develop
 % git submodule update --init
 @end verbatim
-
-Github.com mirror exists: @url{https://github.com/stargrave/nncp}.
