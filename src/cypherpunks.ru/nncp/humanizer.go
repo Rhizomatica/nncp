@@ -218,6 +218,22 @@ func (ctx *Ctx) Humanize(s string) string {
 		default:
 			return s
 		}
+	case "nncp-reass":
+		chunkNum, exists := sds["chunk"]
+		if exists {
+			msg = fmt.Sprintf(
+				"Reassembling chunked file \"%s\" (chunk %s): %s",
+				sds["path"],
+				chunkNum,
+				rem,
+			)
+		} else {
+			msg = fmt.Sprintf(
+				"Reassembling chunked file \"%s\": %s",
+				sds["path"],
+				rem,
+			)
+		}
 	default:
 		return s
 	}
