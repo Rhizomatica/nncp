@@ -28,6 +28,7 @@ ALL = \
 	nncp-mincfg \
 	nncp-newcfg \
 	nncp-pkt \
+	nncp-reass \
 	nncp-rm \
 	nncp-stat \
 	nncp-toss \
@@ -67,6 +68,9 @@ nncp-newcfg:
 
 nncp-pkt:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-pkt
+
+nncp-reass:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-reass
 
 nncp-rm:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-rm
