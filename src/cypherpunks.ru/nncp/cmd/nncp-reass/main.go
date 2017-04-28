@@ -117,7 +117,13 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			allChunksExist = false
 			continue
 		}
-		if chunkNum+1 != len(chunksPaths) && uint64(fi.Size()) != metaPkt.ChunkSize {
+		var badSize bool
+		if chunkNum+1 == len(chunksPaths) {
+			badSize = uint64(fi.Size()) != metaPkt.FileSize%metaPkt.ChunkSize
+		} else {
+			badSize = uint64(fi.Size()) != metaPkt.ChunkSize
+		}
+		if badSize {
 			ctx.LogE("nncp-reass", nncp.SDS{
 				"path":  path,
 				"chunk": strconv.Itoa(chunkNum),
