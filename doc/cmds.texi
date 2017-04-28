@@ -125,6 +125,12 @@ This command queues file in @ref{Spool, spool} directory immediately
 (through the temporary file of course) -- so pay attention that sending
 2 GiB file will create 2 GiB outbound encrypted packet.
 
+If @file{SRC} equals to @file{-}, then create an encrypted temporary
+file and copy everything taken from stdin to it and use for outbound
+packet creation. Pay attention that if you want to send 1 GiB of data
+taken from stdin, then you have to have 2 GiB of disk space for that
+temporary file and resulting encrypted packet.
+
 If @ref{CfgNotify, notification} is enabled on the remote side for
 file transmissions, then it will sent simple letter after successful
 file receiving.
