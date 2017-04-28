@@ -152,7 +152,7 @@ peer-to-peer networking is dangerous thing to do.
 
 The most popular cryptographic protocol in Internet is
 @url{https://en.wikipedia.org/wiki/Transport_Layer_Security, TLS} that
-is very hard to implement right and hard to configure for mutual
+is very hard to implement correctly and hard to configure for mutual
 participants authentication. Not all TLS configurations and related
 protocols provide @url{https://en.wikipedia.org/wiki/Forward_secrecy,
 forward secrecy} property -- all previously intercepted packets could be

@@ -90,7 +90,7 @@ notification.
 
 Perform @ref{Spool, spool} directory integrity check. Read all files
 that has Base32-encoded filenames and compare it with recalculated
-BLAKE2b hash output of their contents. This supplementary command is
+BLAKE2b hash output of their contents. That supplementary command is
 not used often in practice, if ever.
 
 @node nncp-daemon
@@ -274,7 +274,7 @@ likely lead to filesystem fragmentation. Reassembly process on
 filesystems with deduplication capability should be rather lightweight.
 
 If @option{-dryrun} option is specified, then only existence and
-integrity checking is performed.
+integrity checking are performed.
 
 If @option{-keep} option is specified, then no
 @file{.nncp.meta}/@file{.nncp.chunkXXX} files are deleted during
