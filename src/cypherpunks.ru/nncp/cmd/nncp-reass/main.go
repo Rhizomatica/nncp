@@ -22,6 +22,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"hash"
@@ -35,6 +36,7 @@ import (
 
 	"cypherpunks.ru/nncp"
 	"github.com/davecgh/go-xdr/xdr2"
+	"github.com/dustin/go-humanize"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -49,7 +51,7 @@ but at least one of them must be specified.
 `)
 }
 
-func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout bool) bool {
+func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bool {
 	fd, err := os.Open(path)
 	defer fd.Close()
 	if err != nil {
@@ -65,6 +67,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout bool) bool {
 		ctx.LogE("nncp-reass", nncp.SDS{"path": path, "err": nncp.BadMagic}, "")
 		return false
 	}
+
 	metaName := filepath.Base(path)
 	if !strings.HasSuffix(metaName, nncp.ChunkedSuffixMeta) {
 		ctx.LogE("nncp-reass", nncp.SDS{
@@ -74,6 +77,25 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout bool) bool {
 		return false
 	}
 	mainName := strings.TrimSuffix(metaName, nncp.ChunkedSuffixMeta)
+	if dumpMeta {
+		fmt.Printf("Original filename: %s\n", mainName)
+		fmt.Printf(
+			"File size: %s (%d bytes)\n",
+			humanize.IBytes(metaPkt.FileSize),
+			metaPkt.FileSize,
+		)
+		fmt.Printf(
+			"Chunk size: %s (%d bytes)\n",
+			humanize.IBytes(metaPkt.ChunkSize),
+			metaPkt.ChunkSize,
+		)
+		fmt.Printf("Number of chunks: %d\n", len(metaPkt.Checksums))
+		fmt.Println("Checksums:")
+		for chunkNum, checksum := range metaPkt.Checksums {
+			fmt.Printf("\t%d: %s\n", chunkNum, hex.EncodeToString(checksum[:]))
+		}
+		return true
+	}
 	mainDir := filepath.Dir(path)
 
 	chunksPaths := make([]string, 0, len(metaPkt.Checksums))
@@ -242,6 +264,7 @@ func main() {
 		nodeRaw  = flag.String("node", "", "Process all found chunked files for that node")
 		keep     = flag.Bool("keep", false, "Do not remove chunks while assembling")
 		dryRun   = flag.Bool("dryrun", false, "Do not assemble whole file")
+		dumpMeta = flag.Bool("dump", false, "Print decoded human-readable meta FILE")
 		stdout   = flag.Bool("stdout", false, "Output reassembled FILE to stdout")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
@@ -292,7 +315,7 @@ func main() {
 	}
 
 	if flag.NArg() > 0 {
-		if !process(ctx, flag.Arg(0), *keep, *dryRun, *stdout) {
+		if !process(ctx, flag.Arg(0), *keep, *dryRun, *stdout, *dumpMeta) {
 			os.Exit(1)
 		}
 		return
@@ -309,7 +332,7 @@ func main() {
 				if _, seen := seenMetaPaths[metaPath]; seen {
 					continue
 				}
-				hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false)
+				hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false, false)
 				seenMetaPaths[metaPath] = struct{}{}
 			}
 		}
@@ -318,7 +341,7 @@ func main() {
 			log.Fatalln("Specified -node does not allow incoming")
 		}
 		for _, metaPath := range findMetas(ctx, *nodeOnly.Incoming) {
-			hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false)
+			hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false, false)
 		}
 	}
 	if hasErrors {
