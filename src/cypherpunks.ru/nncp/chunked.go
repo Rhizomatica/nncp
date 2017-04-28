@@ -22,7 +22,7 @@ var (
 	MagicNNCPMv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'M', 0, 0, 1}
 
 	ChunkedSuffixMeta = ".nncp.meta"
-	ChunkedSuffixPart = ".nncp.part"
+	ChunkedSuffixPart = ".nncp.chunk"
 )
 
 type ChunkedMeta struct {
