@@ -234,6 +234,9 @@ func (ctx *Ctx) Humanize(s string) string {
 				rem,
 			)
 		}
+		if err, exists := sds["err"]; exists {
+			msg += ": " + err
+		}
 	default:
 		return s
 	}

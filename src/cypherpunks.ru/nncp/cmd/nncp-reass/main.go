@@ -154,8 +154,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			ctx.LogE("nncp-reass", nncp.SDS{
 				"path":  path,
 				"chunk": strconv.Itoa(chunkNum),
-				"err":   "checksum is bad",
-			}, "")
+			}, "checksum is bad")
 			allChecksumsGood = false
 		}
 	}
