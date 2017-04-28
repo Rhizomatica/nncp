@@ -35,6 +35,9 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "nncp-file -- send file\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] SRC NODE:[DST]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
+	fmt.Fprint(os.Stderr, `
+If SRC equals to -, then read data from stdin to temporary file.
+`)
 }
 
 func main() {
