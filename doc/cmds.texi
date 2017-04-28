@@ -129,7 +129,8 @@ If @file{SRC} equals to @file{-}, then create an encrypted temporary
 file and copy everything taken from stdin to it and use for outbound
 packet creation. Pay attention that if you want to send 1 GiB of data
 taken from stdin, then you have to have 2 GiB of disk space for that
-temporary file and resulting encrypted packet.
+temporary file and resulting encrypted packet. You can control where
+temporary file will be stored using @env{TMPDIR} environment variable.
 
 If @option{-chunk} is specified, then source file will be split
 @ref{Chunked, on chunks}. @option{INT} is the desired chunk size in
