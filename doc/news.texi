@@ -1,6 +1,17 @@
 @node News
 @unnumbered News
 
+@node Release 0.7
+@section Release 0.7
+@itemize
+@item Ability to feed @command{nncp-file} from stdin, that uses an
+encrypted temporary file for that.
+@item Chunked files transmission appeared with corresponding
+@command{nncp-reass} command. Useful for transferring big files over
+small storage devices.
+@item Cryptographic libraries (dependecies) are updated.
+@end itemize
+
 @node Release 0.6
 @section Release 0.6
 @itemize
