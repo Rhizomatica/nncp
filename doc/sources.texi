@@ -7,7 +7,7 @@ libraries source code. Because of that, it is recommended for porters
 to use @ref{Tarballs, tarballs} instead.
 
 You can obtain it by cloning @url{http://git-scm.com/, Git}
-@url{http://git.cypherpunks.ru/cgit.cgi/nncp.git/log/, repository}
+@url{https://git.cypherpunks.ru/cgit.cgi/nncp.git/log/, repository}
 and fetching dependent libraries source code as git submodules:
 
 @verbatim
