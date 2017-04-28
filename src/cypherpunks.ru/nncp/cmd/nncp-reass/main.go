@@ -49,7 +49,7 @@ but at least one of them must be specified.
 `)
 }
 
-func process(ctx *nncp.Ctx, path string, keep, dryRun bool) bool {
+func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout bool) bool {
 	fd, err := os.Open(path)
 	defer fd.Close()
 	if err != nil {
@@ -139,13 +139,22 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun bool) bool {
 		return true
 	}
 
-	tmp, err := ioutil.TempFile(mainDir, "nncp-reass")
-	if err != nil {
-		log.Fatalln(err)
+	var dst io.Writer
+	var tmp *os.File
+	var sds nncp.SDS
+	if stdout {
+		dst = os.Stdout
+		sds = nncp.SDS{"path": path}
+	} else {
+		tmp, err = ioutil.TempFile(mainDir, "nncp-reass")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		sds = nncp.SDS{"path": path, "tmp": tmp.Name()}
+		ctx.LogD("nncp-reass", sds, "created")
+		dst = tmp
 	}
-	sds := nncp.SDS{"path": path, "tmp": tmp.Name()}
-	ctx.LogD("nncp-reass", sds, "created")
-	tmpW := bufio.NewWriter(tmp)
+	dstW := bufio.NewWriter(dst)
 
 	hasErrors := false
 	for chunkNum, chunkPath := range chunksPaths {
@@ -153,7 +162,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun bool) bool {
 		if err != nil {
 			log.Fatalln("Can not open file:", err)
 		}
-		if _, err = io.Copy(tmpW, bufio.NewReader(fd)); err != nil {
+		if _, err = io.Copy(dstW, bufio.NewReader(fd)); err != nil {
 			log.Fatalln(err)
 		}
 		fd.Close()
@@ -167,15 +176,21 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun bool) bool {
 			}
 		}
 	}
-	tmpW.Flush()
-	tmp.Sync()
-	tmp.Close()
+	dstW.Flush()
+	if tmp != nil {
+		tmp.Sync()
+		tmp.Close()
+	}
 	ctx.LogD("nncp-reass", sds, "written")
 	if !keep {
 		if err = os.Remove(path); err != nil {
 			ctx.LogE("nncp-reass", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "")
 			hasErrors = true
 		}
+	}
+	if stdout {
+		ctx.LogI("nncp-reass", nncp.SDS{"path": path}, "done")
+		return !hasErrors
 	}
 
 	dstPathOrig := filepath.Join(mainDir, mainName)
@@ -227,6 +242,7 @@ func main() {
 		nodeRaw  = flag.String("node", "", "Process all found chunked files for that node")
 		keep     = flag.Bool("keep", false, "Do not remove chunks while assembling")
 		dryRun   = flag.Bool("dryrun", false, "Do not assemble whole file")
+		stdout   = flag.Bool("stdout", false, "Output reassembled FILE to stdout")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
@@ -276,7 +292,7 @@ func main() {
 	}
 
 	if flag.NArg() > 0 {
-		if !process(ctx, flag.Arg(0), *keep, *dryRun) {
+		if !process(ctx, flag.Arg(0), *keep, *dryRun, *stdout) {
 			os.Exit(1)
 		}
 		return
@@ -293,7 +309,7 @@ func main() {
 				if _, seen := seenMetaPaths[metaPath]; seen {
 					continue
 				}
-				hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun)
+				hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false)
 				seenMetaPaths[metaPath] = struct{}{}
 			}
 		}
@@ -302,7 +318,7 @@ func main() {
 			log.Fatalln("Specified -node does not allow incoming")
 		}
 		for _, metaPath := range findMetas(ctx, *nodeOnly.Incoming) {
-			hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun)
+			hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false)
 		}
 	}
 	if hasErrors {
