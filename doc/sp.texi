@@ -15,7 +15,7 @@ unacceptable performance degradation.
 SP works on top of
 @url{http://noiseprotocol.org/noise.html#interactive-patterns,
 @code{Noise_IK_25519_ChaChaPoly_BLAKE2b}} protocol. Each Noise packet
-are sent inside @url{https://tools.ietf.org/html/rfc4506, XDR} envelope:
+is sent inside an @url{https://tools.ietf.org/html/rfc4506, XDR} envelope:
 
 @verbatim
 +-----------------+
@@ -134,7 +134,7 @@ just an unsigned integer telling what body structure follows.
 
 @end table
 
-Typical peers behaviour is following:
+Typical peer's behaviour is following:
 
 @enumerate
 @item Perform Noise-IK handshake.
@@ -163,7 +163,7 @@ delete @file{.part} suffix from file's name and send @emph{DONE} packet.
 @item When @emph{HALT} packet received, empty file sending queue.
 @item @emph{FILE} sending is performed only if no other outgoing packets
 are queued.
-@item Each second node check are there any new @emph{tx} packets
+@item Each second, node checks: are there any new @emph{tx} packets
 appeared and queues corresponding @emph{INFO} packets.
 @item If no packets are sent and received during @ref{CfgOnlineDeadline,
 onlinedeadline} duration, then close the connection. There is no
