@@ -43,7 +43,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-reass -- reassemble chunked files\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] [FILE]\nOptions:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] [FILE.nncp.meta]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 	fmt.Fprint(os.Stderr, `
 Neither FILE, nor -node nor -all can be set simultaneously,
@@ -269,7 +269,7 @@ func main() {
 		nodeRaw  = flag.String("node", "", "Process all found chunked files for that node")
 		keep     = flag.Bool("keep", false, "Do not remove chunks while assembling")
 		dryRun   = flag.Bool("dryrun", false, "Do not assemble whole file")
-		dumpMeta = flag.Bool("dump", false, "Print decoded human-readable meta FILE")
+		dumpMeta = flag.Bool("dump", false, "Print decoded human-readable FILE.nncp.meta")
 		stdout   = flag.Bool("stdout", false, "Output reassembled FILE to stdout")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")

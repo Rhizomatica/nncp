@@ -67,6 +67,7 @@ integration with current SMTP servers are the reasons.
 * Integration with Postfix: Postfix.
 * Commands::
 * Niceness::
+* Chunked files: Chunked.
 * Spool directory: Spool.
 * Log format: Log.
 * Packet format: Packet.
@@ -86,6 +87,7 @@ integration with current SMTP servers are the reasons.
 @include postfix.texi
 @include cmds.texi
 @include niceness.texi
+@include chunked.texi
 @include spool.texi
 @include log.texi
 @include pkt.texi
