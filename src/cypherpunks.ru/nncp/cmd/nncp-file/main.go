@@ -103,7 +103,7 @@ func main() {
 			flag.Arg(0),
 			splitted[1],
 			int64(*minSize),
-			int64(*chunkSize) * 1024,
+			int64(*chunkSize)*1024,
 		)
 	}
 	if err != nil {
