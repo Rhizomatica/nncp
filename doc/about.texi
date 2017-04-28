@@ -1,0 +1,35 @@
+NNCP (Node to Node copy) is a collection of utilities simplifying
+secure store-and-forward files and mail exchanging.
+
+See also this page @ref{Об утилитах, on russian}.
+
+This utilities are intended to help build up small size (dozens of
+nodes) ad-hoc @url{https://en.wikipedia.org/wiki/Friend-to-friend,
+friend-to-friend} (F2F) statically routed
+@url{https://en.wikipedia.org/wiki/Darknet, darknet} networks for
+fire-and-forget secure reliable files, file requests and Internet mail
+transmission. All packets are integrity checked,
+@url{https://en.wikipedia.org/wiki/End-to-end_encryption, end-to-end}
+encrypted, explicitly authenticated by known participants public keys.
+@url{https://en.wikipedia.org/wiki/Onion_routing, Onion encryption} is
+applied to relayed packets. Each node acts both as a client and server,
+can use push and poll behaviour model.
+
+Out-of-box offline @url{https://en.wikipedia.org/wiki/Sneakernet,
+sneakernet/floppynet}, @url{https://en.wikipedia.org/wiki/Dead_drop,
+dead drops} and @url{https://en.wikipedia.org/wiki/Air_gap_(networking),
+air-gapped} computers support. But online TCP daemon with full-duplex
+resumable data transmission exists.
+
+NNCP is @url{https://www.gnu.org/philosophy/pragmatic.html, copylefted}
+@url{https://www.gnu.org/philosophy/free-sw.html, free software}
+licenced under @url{https://www.gnu.org/licenses/gpl-3.0.html, GNU GPLv3+}.
+It should work on all @url{https://en.wikipedia.org/wiki/POSIX,
+POSIX}-compatible systems. Easy integration with existing
+@url{https://en.wikipedia.org/wiki/SMTP, SMTP} servers. Single
+@url{http://yaml.org/, YAML} configuration file.
+
+Why create yet another store-and-forward solution when UUCP, FTN and
+even SMTP exists? Look in @ref{Comparison, comparison} section!
+Simplicity, cryptographic security, sneakernet compatibility and easy
+integration with current SMTP servers are the reasons.
