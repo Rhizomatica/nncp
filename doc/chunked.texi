@@ -16,8 +16,11 @@ reassembling with @ref{nncp-reass} command.
 Chunked @file{FILE} produces @file{FILE.nncp.meta},
 @file{FILE.nncp.chunk0}, @file{FILE.nncp.chunk1}, ... files. All
 @file{.nncp.chunkXXX} can be concatenated together to produce original
-@file{FILE}. @file{.nncp.meta} contains information about file/chunk
-size and their hash checksums:
+@file{FILE}.
+
+@file{.nncp.meta} contains information about file/chunk
+size and their hash checksums. It is
+@url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structure:
 
 @verbatim
 +------------------------------+---------------------+

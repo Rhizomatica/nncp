@@ -15,7 +15,7 @@ unacceptable performance degradation.
 SP works on top of
 @url{http://noiseprotocol.org/noise.html#interactive-patterns,
 @code{Noise_IK_25519_ChaChaPoly_BLAKE2b}} protocol. Each Noise packet
-are sent inside XDR envelope:
+are sent inside @url{https://tools.ietf.org/html/rfc4506, XDR} envelope:
 
 @verbatim
 +-----------------+
