@@ -2,8 +2,7 @@
 @unnumbered Packet format
 
 All packets are
-@url{https://en.wikipedia.org/wiki/External_Data_Representation,
-XDR}-encoded structures.
+@url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structures.
 
 @menu
 * Plain packet: Plain.
