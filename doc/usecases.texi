@@ -7,7 +7,7 @@
 * Unreliable/expensive communication link: UsecaseUnreliable.
 * Slow/expensive link for high-volume data, bad QoS: UsecaseQoS.
 * Extreme terrestrial environments, no link: UsecaseNoLink.
-* Private, isolated MitM-resistant networks: UsecaseF2F.
+* Private, isolated MitM/Sybil-resistant networks: UsecaseF2F.
 * Highly secure isolated air-gap computers: UsecaseAirgap.
 * Network censorship bypassing: UsecaseCensor.
 * Reconnaissance, spying, intelligence, covert agents: UsecaseSpy.
@@ -140,7 +140,7 @@ further processing. nncp-xfer is the only command used with removable
 devices.
 
 @node UsecaseF2F
-@section Private, isolated MitM-resistant networks
+@section Private, isolated MitM/Sybil-resistant networks
 
 All Internet connections can be eavesdropped and forged. You
 @strong{have to} to use encryption and authentication for securing them.

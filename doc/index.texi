@@ -28,8 +28,8 @@ A copy of the license is included in the section entitled "Copying conditions".
 * Comparison::
 * Use cases::
 * Workflow::
-* Об утилитах::
 * News::
+* Информация на русском: Русский.
 * Installation::
 * Configuration::
 * Call configuration: Call.
@@ -49,8 +49,8 @@ A copy of the license is included in the section entitled "Copying conditions".
 @include comparison.texi
 @include usecases.texi
 @include workflow.texi
-@include about.ru.texi
 @include news.texi
+@include russian.texi
 @include install.texi
 @include cfg.texi
 @include call.texi
