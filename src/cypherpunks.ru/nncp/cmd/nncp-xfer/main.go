@@ -316,6 +316,7 @@ Tx:
 				isBad = true
 				continue
 			}
+			os.Remove(filepath.Join(dstPath, pktName+".part"))
 			delete(sds, "tmp")
 			ctx.LogI("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{
 				"size": strconv.FormatInt(copied, 10),
