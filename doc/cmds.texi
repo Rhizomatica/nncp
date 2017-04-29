@@ -137,6 +137,7 @@ If @option{-chunked} is specified, then source file will be split
 @ref{Chunked, on chunks}. @option{INT} is the desired chunk size in
 KiBs. This mode is more CPU hungry. Pay attention that chunk is saved in
 spool directory immediately and it is not deleted if any error occurs.
+@option{-minsize} option is applied per each chunk.
 
 If @ref{CfgNotify, notification} is enabled on the remote side for
 file transmissions, then it will sent simple letter after successful
