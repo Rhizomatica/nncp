@@ -172,6 +172,7 @@ $(git cat-file -p $release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 ------------------------ >8 ------------------------
 
 Домашняя страница NNCP: http://www.nncpgo.org/
+Коротко об утилитах: http://www.nncpgo.org/Ob-utilitakh.html
 
 Исходный код и его подпись для этой версии находятся здесь:
 
