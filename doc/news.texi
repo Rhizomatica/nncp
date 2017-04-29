@@ -1,6 +1,8 @@
 @node News
 @unnumbered News
 
+See also this page @ref{Новости, on russian}.
+
 @node Release 0.7
 @section Release 0.7
 @itemize
@@ -39,7 +41,7 @@ lost).
 @item @command{nncp-newnode} renamed to @command{nncp-newcfg} -- it is
 shorter and more convenient to use.
 @item @command{nncp-mincfg} command appeared: helper allowing to create
-minimalistic stripped down configuration files without private keys,
+minimalistic stripped down configuration file without private keys,
 that is useful during @command{nncp-xfer} usage.
 @end itemize
 

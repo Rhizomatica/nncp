@@ -103,7 +103,7 @@ install: all doc
 	cp -f doc/nncp.info $(INFODIR)
 	chmod 644 $(INFODIR)/nncp.info
 	mkdir -p $(DOCDIR)
-	cp -f -L AUTHORS NEWS README README.RU THANKS $(DOCDIR)
+	cp -f -L AUTHORS NEWS NEWS.RU README README.RU THANKS $(DOCDIR)
 	chmod 644 $(DOCDIR)/*
 
 install-strip: install
