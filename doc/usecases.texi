@@ -102,6 +102,10 @@ later than the other ones. Nearly all commands has corresponding option:
 [...]
 @end verbatim
 
+Huge files could be split on smaller @ref{Chunked, chunks}, giving
+possibility to transfer virtually any volumes using small capacity
+storages.
+
 @node UsecaseNoLink
 @section Extreme terrestrial environments, no link
 
