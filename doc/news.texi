@@ -7,8 +7,10 @@
 @item Ability to feed @command{nncp-file} from stdin, that uses an
 encrypted temporary file for that.
 @item Chunked files transmission appeared with corresponding
-@command{nncp-reass} command. Useful for transferring big files over
-small storage devices.
+@command{nncp-reass} command and @option{freqchunked} configuration file
+entry. Useful for transferring big files over small storage devices.
+@item @option{freqminsize} configuration file option, analogue to
+@option{-minsize} one.
 @item Cryptographic libraries (dependecies) are updated.
 @end itemize
 

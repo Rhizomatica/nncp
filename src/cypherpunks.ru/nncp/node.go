@@ -45,6 +45,8 @@ type Node struct {
 	Sendmail       []string
 	Incoming       *string
 	Freq           *string
+	FreqChunked    int64
+	FreqMinSize    int64
 	Via            []*NodeId
 	Addrs          map[string]string
 	OnlineDeadline uint

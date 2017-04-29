@@ -49,6 +49,8 @@ neigh:
     signpub: GTGXG...IE3OA
     sendmail: [/usr/sbin/sendmail]
     freq: /home/bob/pub
+    freqchunked: 1024
+    freqminsize: 2097152
     via: [alice]
 @end verbatim
 
@@ -98,6 +100,14 @@ omitted to forbid file uploading on that node.
 @item freq
 Full path to directory from where file requests will queue files for
 transmission. May be omitted to forbid freqing from that node.
+
+@item freqchunked
+If set, then enable @ref{Chunked, chunked} file transmission during
+freqing. This is the desired chunk size in KiBs.
+
+@item freqminsize
+If set, then apply @ref{OptMinSize, -minsize} option during file
+transmission.
 
 @item via
 An array of node identifiers that will be used as a relay to that node.

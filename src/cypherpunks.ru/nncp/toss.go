@@ -264,7 +264,25 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 				goto Closing
 			}
 			if !dryRun {
-				if err = ctx.TxFile(sender, job.PktEnc.Nice, filepath.Join(*freq, src), dst, 0); err != nil {
+				if sender.FreqChunked == 0 {
+					err = ctx.TxFile(
+						sender,
+						job.PktEnc.Nice,
+						filepath.Join(*freq, src),
+						dst,
+						sender.FreqMinSize,
+					)
+				} else {
+					err = ctx.TxFileChunked(
+						sender,
+						job.PktEnc.Nice,
+						filepath.Join(*freq, src),
+						dst,
+						sender.FreqMinSize,
+						sender.FreqChunked,
+					)
+				}
+				if err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "tx file")
 					isBad = true
 					goto Closing
