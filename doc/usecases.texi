@@ -115,10 +115,9 @@ device, mount it and run @ref{nncp-xfer}:
 % nncp-xfer -node bob /media/usbstick
 @end verbatim
 
-to copy all outbound packets related to @emph{bob}'s node. Use
-@option{-force} option to forcefully create related directory on USB
-storage if they are missing (for example when running for the first
-time).
+to copy all outbound packets related to @emph{bob}. Use @option{-mkdir}
+option to create related directory on USB storage if they are missing
+(for example when running for the first time).
 
 If you use single storage device to transfer data both to @emph{bob} and
 @emph{alice}, then just omit @option{-node} option to copy all existing
