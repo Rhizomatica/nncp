@@ -258,7 +258,7 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 			io.TeeReader(reader, hsh),
 		)
 		if err == nil {
-			ctx.LogD("tx", SDS{
+			ctx.LogI("tx", SDS{
 				"type": "file",
 				"node": node.Id,
 				"nice": strconv.Itoa(int(nice)),
@@ -298,21 +298,13 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 	metaPktSize := int64(metaBuf.Len())
 	_, err = ctx.Tx(node, pkt, nice, metaPktSize, minSize, &metaBuf)
 	if err == nil {
-		ctx.LogD("tx", SDS{
+		ctx.LogI("tx", SDS{
 			"type": "file",
 			"node": node.Id,
 			"nice": strconv.Itoa(int(nice)),
 			"src":  srcPath,
 			"dst":  path,
 			"size": strconv.FormatInt(metaPktSize, 10),
-		}, "sent")
-		ctx.LogI("tx", SDS{
-			"type": "file",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"src":  srcPath,
-			"dst":  dstPath,
-			"size": strconv.FormatInt(fileSize, 10),
 		}, "sent")
 	} else {
 		ctx.LogE("tx", SDS{
