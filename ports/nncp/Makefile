@@ -22,7 +22,7 @@ REQUIRE=	DAEMON
 
 SUB_FILES=	pkg-message pkg-install pkg-deinstall nncp.newsyslog.conf.sample
 
-PORTDOCS=	AUTHORS NEWS README README.RU THANKS
+PORTDOCS=	AUTHORS NEWS NEWS.RU README README.RU THANKS
 INFO=		nncp
 INSTALL_TARGET=	install-strip
 
