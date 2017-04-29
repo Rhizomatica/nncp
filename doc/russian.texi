@@ -1,0 +1,10 @@
+@node Русский
+@unnumbered Информация на русском
+
+@menu
+* Подробнее об утилитах NNCP: Об утилитах.
+* Сравнение с существующими решениями: Сравнение.
+@end menu
+
+@include about.ru.texi
+@include comparison.ru.texi
