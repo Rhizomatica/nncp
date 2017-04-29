@@ -21,6 +21,8 @@ dead drops} and @url{https://en.wikipedia.org/wiki/Air_gap_(networking),
 air-gapped} computers support. But online TCP daemon with full-duplex
 resumable data transmission exists.
 
+Look for possible @ref{Use cases, use cases}!
+
 NNCP is @url{https://www.gnu.org/philosophy/pragmatic.html, copylefted}
 @url{https://www.gnu.org/philosophy/free-sw.html, free software}
 licenced under @url{https://www.gnu.org/licenses/gpl-3.0.html, GNU GPLv3+}.

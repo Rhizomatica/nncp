@@ -4,7 +4,9 @@
 @menu
 * Подробнее об утилитах NNCP: Об утилитах.
 * Сравнение с существующими решениями: Сравнение.
+* Сценарии использования::
 @end menu
 
 @include about.ru.texi
 @include comparison.ru.texi
+@include usecases.ru.texi
