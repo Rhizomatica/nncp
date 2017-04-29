@@ -45,7 +45,7 @@ func main() {
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw   = flag.Int("nice", nncp.DefaultNiceFile, "Outbound packet niceness")
 		minSize   = flag.Uint64("minsize", 0, "Minimal required resulting packet size")
-		chunkSize = flag.Uint64("chunk", 0, "Split file on specified size chunks, in KiB")
+		chunkSize = flag.Uint64("chunked", 0, "Split file on specified size chunks, in KiB")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
 		debug     = flag.Bool("debug", false, "Print debug messages")
 		version   = flag.Bool("version", false, "Print version information")

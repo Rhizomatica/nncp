@@ -10,7 +10,7 @@ than huge file's size. You can transfer those chunks on different
 storage devices, and/or at different time, reassembling the whole packet
 on the destination node.
 
-Splitting is done with @ref{nncp-file, nncp-file -chunk} command and
+Splitting is done with @ref{nncp-file, nncp-file -chunked} command and
 reassembling with @ref{nncp-reass} command.
 
 Chunked @file{FILE} produces @file{FILE.nncp.meta},
