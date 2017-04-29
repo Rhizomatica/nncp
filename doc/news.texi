@@ -11,6 +11,8 @@ encrypted temporary file for that.
 entry. Useful for transferring big files over small storage devices.
 @item @option{freqminsize} configuration file option, analogue to
 @option{-minsize} one.
+@item @command{nncp-xfer}'s @option{-force} option is renamed to
+@option{-mkdir} for clarity.
 @item Cryptographic libraries (dependecies) are updated.
 @end itemize
 

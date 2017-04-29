@@ -347,7 +347,7 @@ running this command as a daemon.
 @section nncp-xfer
 
 @verbatim
-% nncp-xfer [options] [-force] [-keep] [-rx|-tx] DIR
+% nncp-xfer [options] [-mkdir] [-keep] [-rx|-tx] DIR
 @end verbatim
 
 Search for directory in @file{DIR} containing inbound packets for us and
@@ -355,7 +355,7 @@ move them to local @ref{Spool, spool} directory. Also search for known
 neighbours directories and move locally queued outbound packets to them.
 This command is used for offline packets transmission.
 
-If @option{-force} option is specified, then outbound neighbour(s)
+If @option{-mkdir} option is specified, then outbound neighbour(s)
 directories will be created. This is useful for the first time usage,
 when storage device does not have any directories tree.
 
