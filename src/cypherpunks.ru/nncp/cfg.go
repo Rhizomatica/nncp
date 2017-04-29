@@ -40,15 +40,17 @@ var (
 )
 
 type NodeYAML struct {
-	Id       string
-	ExchPub  string
-	SignPub  string
-	NoisePub *string    `noisepub,omitempty`
-	Sendmail []string   `sendmail,omitempty`
-	Incoming *string    `incoming,omitempty`
-	Freq     *string    `freq,omitempty`
-	Via      []string   `via,omitempty`
-	Calls    []CallYAML `calls,omitempty`
+	Id          string
+	ExchPub     string
+	SignPub     string
+	NoisePub    *string    `noisepub,omitempty`
+	Sendmail    []string   `sendmail,omitempty`
+	Incoming    *string    `incoming,omitempty`
+	Freq        *string    `freq,omitempty`
+	FreqChunked *uint64    `freqchunked,omitempty`
+	FreqMinSize *uint64    `freqminsize,omitempty`
+	Via         []string   `via,omitempty`
+	Calls       []CallYAML `calls,omitempty`
 
 	Addrs map[string]string `addrs,omitempty`
 
@@ -144,6 +146,17 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		}
 		freq = &fr
 	}
+	var freqChunked int64
+	if yml.FreqChunked != nil {
+		if *yml.FreqChunked == 0 {
+			return nil, errors.New("freqchunked value must be greater than zero")
+		}
+		freqChunked = int64(*yml.FreqChunked)
+	}
+	var freqMinSize int64
+	if yml.FreqMinSize != nil {
+		freqMinSize = int64(*yml.FreqMinSize)
+	}
 
 	defOnlineDeadline := uint(DefaultDeadline)
 	if yml.OnlineDeadline != nil {
@@ -218,6 +231,8 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		Sendmail:       yml.Sendmail,
 		Incoming:       incoming,
 		Freq:           freq,
+		FreqChunked:    freqChunked,
+		FreqMinSize:    freqMinSize,
 		Calls:          calls,
 		Addrs:          yml.Addrs,
 		OnlineDeadline: defOnlineDeadline,
