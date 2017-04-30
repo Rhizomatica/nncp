@@ -42,7 +42,7 @@ func main() {
 	var (
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw  = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
-		minSize  = flag.Uint64("minsize", 0, "Minimal required resulting packet size")
+		minSize  = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
@@ -91,7 +91,7 @@ func main() {
 		log.Fatalln("Can not read mail body from stdin:", err)
 	}
 
-	if err = ctx.TxMail(node, nice, strings.Join(flag.Args()[1:], " "), body, int64(*minSize)); err != nil {
+	if err = ctx.TxMail(node, nice, strings.Join(flag.Args()[1:], " "), body, int64(*minSize)*1024); err != nil {
 		log.Fatalln(err)
 	}
 }

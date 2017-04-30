@@ -22,14 +22,20 @@ import (
 	"bufio"
 	"bytes"
 	"compress/zlib"
+	"crypto/cipher"
+	"crypto/rand"
 	"errors"
+	"hash"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
+	"github.com/davecgh/go-xdr/xdr2"
 	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/twofish"
 )
 
 func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io.Reader) (*Node, error) {
@@ -101,8 +107,57 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io
 	return lastNode, err
 }
 
+func prepareTxFile(srcPath string) (io.Reader, *os.File, int64, error) {
+	var reader io.Reader
+	var src *os.File
+	var fileSize int64
+	var err error
+	if srcPath == "-" {
+		src, err = ioutil.TempFile("", "nncp-file")
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		os.Remove(src.Name())
+		tmpW := bufio.NewWriter(src)
+
+		tmpKey := make([]byte, 32)
+		if _, err = rand.Read(tmpKey); err != nil {
+			return nil, nil, 0, err
+		}
+		ciph, err := twofish.NewCipher(tmpKey)
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		ctr := cipher.NewCTR(ciph, make([]byte, twofish.BlockSize))
+		encrypter := &cipher.StreamWriter{S: ctr, W: tmpW}
+		fileSize, err = io.Copy(encrypter, bufio.NewReader(os.Stdin))
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		tmpW.Flush()
+		src.Seek(0, 0)
+		ctr = cipher.NewCTR(ciph, make([]byte, twofish.BlockSize))
+		reader = &cipher.StreamReader{S: ctr, R: bufio.NewReader(src)}
+	} else {
+		src, err = os.Open(srcPath)
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		srcStat, err := src.Stat()
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		fileSize = srcStat.Size()
+		reader = bufio.NewReader(src)
+	}
+	return reader, src, fileSize, nil
+}
+
 func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize int64) error {
 	if dstPath == "" {
+		if srcPath == "-" {
+			return errors.New("Must provide destination filename")
+		}
 		dstPath = filepath.Base(srcPath)
 	}
 	dstPath = filepath.Clean(dstPath)
@@ -113,16 +168,14 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize 
 	if err != nil {
 		return err
 	}
-	src, err := os.Open(srcPath)
+	reader, src, fileSize, err := prepareTxFile(srcPath)
+	if src != nil {
+		defer src.Close()
+	}
 	if err != nil {
 		return err
 	}
-	defer src.Close()
-	srcStat, err := src.Stat()
-	if err != nil {
-		return err
-	}
-	_, err = ctx.Tx(node, pkt, nice, srcStat.Size(), minSize, bufio.NewReader(src))
+	_, err = ctx.Tx(node, pkt, nice, fileSize, minSize, reader)
 	if err == nil {
 		ctx.LogI("tx", SDS{
 			"type": "file",
@@ -130,7 +183,7 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize 
 			"nice": strconv.Itoa(int(nice)),
 			"src":  srcPath,
 			"dst":  dstPath,
-			"size": strconv.FormatInt(srcStat.Size(), 10),
+			"size": strconv.FormatInt(fileSize, 10),
 		}, "sent")
 	} else {
 		ctx.LogE("tx", SDS{
@@ -139,7 +192,128 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize 
 			"nice": strconv.Itoa(int(nice)),
 			"src":  srcPath,
 			"dst":  dstPath,
-			"size": strconv.FormatInt(srcStat.Size(), 10),
+			"size": strconv.FormatInt(fileSize, 10),
+			"err":  err,
+		}, "sent")
+	}
+	return err
+}
+
+func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, minSize int64, chunkSize int64) error {
+	if dstPath == "" {
+		if srcPath == "-" {
+			return errors.New("Must provide destination filename")
+		}
+		dstPath = filepath.Base(srcPath)
+	}
+	dstPath = filepath.Clean(dstPath)
+	if filepath.IsAbs(dstPath) {
+		return errors.New("Relative destination path required")
+	}
+	reader, src, fileSize, err := prepareTxFile(srcPath)
+	if src != nil {
+		defer src.Close()
+	}
+	if err != nil {
+		return err
+	}
+
+	leftSize := fileSize
+	metaPkt := ChunkedMeta{
+		Magic:     MagicNNCPMv1,
+		FileSize:  uint64(fileSize),
+		ChunkSize: uint64(chunkSize),
+		Checksums: make([][32]byte, 0, (fileSize/chunkSize)+1),
+	}
+	for i := int64(0); i < (fileSize/chunkSize)+1; i++ {
+		hsh := new([32]byte)
+		metaPkt.Checksums = append(metaPkt.Checksums, *hsh)
+	}
+	var sizeToSend int64
+	var hsh hash.Hash
+	var pkt *Pkt
+	var chunkNum int
+	var path string
+	for {
+		if leftSize <= chunkSize {
+			sizeToSend = leftSize
+		} else {
+			sizeToSend = chunkSize
+		}
+		path = dstPath + ChunkedSuffixPart + strconv.Itoa(chunkNum)
+		pkt, err = NewPkt(PktTypeFile, path)
+		if err != nil {
+			return err
+		}
+		hsh, err = blake2b.New256(nil)
+		if err != nil {
+			return err
+		}
+		_, err = ctx.Tx(
+			node,
+			pkt,
+			nice,
+			sizeToSend,
+			minSize,
+			io.TeeReader(reader, hsh),
+		)
+		if err == nil {
+			ctx.LogI("tx", SDS{
+				"type": "file",
+				"node": node.Id,
+				"nice": strconv.Itoa(int(nice)),
+				"src":  srcPath,
+				"dst":  path,
+				"size": strconv.FormatInt(sizeToSend, 10),
+			}, "sent")
+		} else {
+			ctx.LogE("tx", SDS{
+				"type": "file",
+				"node": node.Id,
+				"nice": strconv.Itoa(int(nice)),
+				"src":  srcPath,
+				"dst":  path,
+				"size": strconv.FormatInt(sizeToSend, 10),
+				"err":  err,
+			}, "sent")
+			return err
+		}
+		hsh.Sum(metaPkt.Checksums[chunkNum][:0])
+		leftSize -= sizeToSend
+		chunkNum++
+		if leftSize == 0 {
+			break
+		}
+	}
+	var metaBuf bytes.Buffer
+	_, err = xdr.Marshal(&metaBuf, metaPkt)
+	if err != nil {
+		return err
+	}
+	path = dstPath + ChunkedSuffixMeta
+	pkt, err = NewPkt(PktTypeFile, path)
+	if err != nil {
+		return err
+	}
+	metaPktSize := int64(metaBuf.Len())
+	_, err = ctx.Tx(node, pkt, nice, metaPktSize, minSize, &metaBuf)
+	if err == nil {
+		ctx.LogI("tx", SDS{
+			"type": "file",
+			"node": node.Id,
+			"nice": strconv.Itoa(int(nice)),
+			"src":  srcPath,
+			"dst":  path,
+			"size": strconv.FormatInt(metaPktSize, 10),
+		}, "sent")
+	} else {
+		ctx.LogE("tx", SDS{
+			"type": "file",
+			"node": node.Id,
+			"nice": strconv.Itoa(int(nice)),
+			"src":  srcPath,
+			"dst":  path,
+			"size": strconv.FormatInt(metaPktSize, 10),
 			"err":  err,
 		}, "sent")
 	}

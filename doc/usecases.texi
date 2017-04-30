@@ -7,9 +7,9 @@
 * Unreliable/expensive communication link: UsecaseUnreliable.
 * Slow/expensive link for high-volume data, bad QoS: UsecaseQoS.
 * Extreme terrestrial environments, no link: UsecaseNoLink.
-* Private, isolated MitM-resistant networks: UsecaseF2F.
+* Private, isolated MitM/Sybil-resistant networks: UsecaseF2F.
 * Highly secure isolated air-gap computers: UsecaseAirgap.
-* Network censorship bypassing: UsecaseCensor.
+* Network censorship bypassing, health: UsecaseCensor.
 * Reconnaissance, spying, intelligence, covert agents: UsecaseSpy.
 @end menu
 
@@ -27,7 +27,8 @@ receive notification emails that his messages still are not delivered
 yet. Also you must have secure link (SSH, VPN, etc).
 
 Another possibility is to use POP3/IMAP4 servers, but this is too
-overcomplicated and bloated for the simple task. Not an option. KISS!
+overcomplicated and bloated for the simple task. Not an option.
+@url{https://en.wikipedia.org/wiki/KISS_principle, KISS}!
 
 Just tell both of your Postfixes (on the server and notebook) to drop
 email as a mail via NNCP (@ref{nncp-mail}) to specified node. This is
@@ -76,9 +77,9 @@ The command:
 % nncp-file another_file bob:movie.avi
 @end verbatim
 
-will queue two files for sending to @code{emph} node. Fire and forget!
-Now this is daemon's job (or offline transfer) to send this file part by
-part to remote system when it is available.
+will queue two files for sending to @emph{bob} node. Fire and forget!
+Now this is daemon's job (or offline transfer) to send this files part
+by part to remote system when it is available.
 
 @node UsecaseQoS
 @section Slow/expensive link for high-volume data, bad QoS
@@ -101,6 +102,10 @@ later than the other ones. Nearly all commands has corresponding option:
 [...]
 @end verbatim
 
+Huge files could be split on smaller @ref{Chunked, chunks}, giving
+possibility to transfer virtually any volumes using small capacity
+storages.
+
 @node UsecaseNoLink
 @section Extreme terrestrial environments, no link
 
@@ -115,20 +120,19 @@ device, mount it and run @ref{nncp-xfer}:
 % nncp-xfer -node bob /media/usbstick
 @end verbatim
 
-to copy all outbound packets related to @emph{bob}'s node. Use
-@option{-force} option to forcefully create related directory on USB
-storage if they are missing (for example when running for the first
-time).
+to copy all outbound packets related to @emph{bob}. Use @option{-mkdir}
+option to create related directory on USB storage if they are missing
+(for example when running for the first time).
 
 If you use single storage device to transfer data both to @emph{bob} and
-@emph{alice}, then just omit @option{-node} option to copy all existing
-outgoing packets to that storage device.
+@emph{alice}, then just omit @option{-node} option to copy all available
+outgoing packets.
 
 @verbatim
 % nncp-xfer /media/usbstick
 @end verbatim
 
-Unmount it and transfer somehow to Bob and Alice. When they will insert
+Unmount it and transfer storage to Bob and Alice. When they will insert
 it in their computers, they will use exactly the same command:
 
 @verbatim
@@ -136,11 +140,11 @@ it in their computers, they will use exactly the same command:
 @end verbatim
 
 to find all packets related to their node and copy them locally for
-further processing. nncp-xfer is the only command used with removable
-devices.
+further processing. @command{nncp-xfer} is the only command used with
+removable devices.
 
 @node UsecaseF2F
-@section Private, isolated MitM-resistant networks
+@section Private, isolated MitM/Sybil-resistant networks
 
 All Internet connections can be eavesdropped and forged. You
 @strong{have to} to use encryption and authentication for securing them.
@@ -152,7 +156,7 @@ peer-to-peer networking is dangerous thing to do.
 
 The most popular cryptographic protocol in Internet is
 @url{https://en.wikipedia.org/wiki/Transport_Layer_Security, TLS} that
-is very hard to implement right and hard to configure for mutual
+is very hard to implement correctly and hard to configure for mutual
 participants authentication. Not all TLS configurations and related
 protocols provide @url{https://en.wikipedia.org/wiki/Forward_secrecy,
 forward secrecy} property -- all previously intercepted packets could be
@@ -220,18 +224,20 @@ automatically create an encapsulated packet: one for the destination
 endpoint, and other carrying it for intermediate relaying node.
 
 Pay attention that relaying node knows nothing about the packet inside,
-but just its size and priority. Transition packets are encrypted too.
-@emph{bob} can not read @emph{bob-airgap}'s packets.
+but just its size and priority. Transition packets are encrypted too:
+using well-known @url{https://en.wikipedia.org/wiki/Onion_routing, onion
+routing} technology. @emph{bob} can not read @emph{bob-airgap}'s packets.
 
 @node UsecaseCensor
-@section Network censorship bypassing
+@section Network censorship bypassing, health
 
 This is some kind of bad link too. Some governments tend to forbid
 @strong{any} kind of private communication between people, allowing only
 entertainment content delivering and popular social networks access
 (that are already bloated with advertisements, locally executed
-proprietary JavaScript code (for spying on user activities, collect data
-on them), shamelessly exploiting the very basic human need of communication).
+@url{https://www.gnu.org/philosophy/free-sw.html, proprietary}
+JavaScript code (for spying on user activities, collect data on them),
+shamelessly exploiting the very basic human need of communication).
 
 This is their natural wish. But nobody forces you to obey huge
 corporations like Apple, Google or Microsoft. It is your choice to
@@ -246,9 +252,9 @@ feeling that you are the victim that has already done something wrong.
 Those guys know how Internet is a dangerous place incompatible with
 privacy. They require quick, fast dropping and picking of data. No
 possibility of many round-trips -- just drop the data, fire-and-forget.
-It could be either removable media again, or
-@url{https://en.wikipedia.org/wiki/USB_dead_drop, USB dead drops}, or
-@url{https://en.wikipedia.org/wiki/PirateBox, PirateBox}es, or
+It could be either removable media again and/or
+@url{https://en.wikipedia.org/wiki/USB_dead_drop, USB dead drops},
+@url{https://en.wikipedia.org/wiki/PirateBox, PirateBox}es,
 @url{https://en.wikipedia.org/wiki/Short-range_agent_communications, SRAC}.
 Short lived short range networks like Bluetooth and WiFi can also
 be pretty fast, allowing to quickly fire chunks of queued packets.
@@ -259,7 +265,7 @@ the network and exchanged via those devices are end-to-end
 @ref{Encrypted, encrypted} (but unfortunately lacking forward secrecy).
 No filenames, mail recipients are seen.
 
-All communications are done with so-called @ref{Spool, spool} area:
+All node communications are done with so-called @ref{Spool, spool} area:
 directory containing only those unprocessed encrypted packets. After
 packet transfer you still can not read any of them: you have to run
 another stage: @ref{nncp-toss, tossing}, that involves your private
@@ -268,4 +274,5 @@ and so on -- it is not so bad, because you are not carrying private keys
 with it (don't you?), you do not "toss" those packets immediately on the
 same device. Tossing (reading those encrypted packets and extracting
 transferred files and mail messages) could and should be done on a
-separate computer.
+separate computer (@ref{nncp-cfgmin} command could help creating
+configuration file without private keys for that purpose).

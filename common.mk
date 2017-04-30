@@ -19,15 +19,17 @@ LDFLAGS = \
 ALL = \
 	nncp-call \
 	nncp-caller \
+	nncp-cfgenc \
+	nncp-cfgmin \
+	nncp-cfgnew \
 	nncp-check \
 	nncp-daemon \
 	nncp-file \
 	nncp-freq \
 	nncp-log \
 	nncp-mail \
-	nncp-mincfg \
-	nncp-newcfg \
 	nncp-pkt \
+	nncp-reass \
 	nncp-rm \
 	nncp-stat \
 	nncp-toss \
@@ -40,6 +42,15 @@ nncp-call:
 
 nncp-caller:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-caller
+
+nncp-cfgenc:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgenc
+
+nncp-cfgmin:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgmin
+
+nncp-cfgnew:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgnew
 
 nncp-check:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-check
@@ -59,14 +70,11 @@ nncp-log:
 nncp-mail:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-mail
 
-nncp-mincfg:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-mincfg
-
-nncp-newcfg:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-newcfg
-
 nncp-pkt:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-pkt
+
+nncp-reass:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-reass
 
 nncp-rm:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-rm
@@ -99,7 +107,7 @@ install: all doc
 	cp -f doc/nncp.info $(INFODIR)
 	chmod 644 $(INFODIR)/nncp.info
 	mkdir -p $(DOCDIR)
-	cp -f -L AUTHORS NEWS README THANKS $(DOCDIR)
+	cp -f -L AUTHORS NEWS NEWS.RU README README.RU THANKS $(DOCDIR)
 	chmod 644 $(DOCDIR)/*
 
 install-strip: install

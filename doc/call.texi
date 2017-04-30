@@ -8,16 +8,16 @@ Example list of call structures:
 @verbatim
 calls:
   -
-    cron: "*/1 * * * 0-4"
+    cron: "*/1 * * * MON-FRI"
     onlinedeadline: 3600
     nice: 64
   -
-    cron: "30 * * * 5-6"
+    cron: "30 * * * SAT,SUN"
     onlinedeadline: 1800
     maxonlinetime: 1750
     nice: 64
   -
-    cron: "0 * * * 5-6"
+    cron: "0 * * * SAT,SUN"
     xx: rx
     addr: lan
 @end verbatim
