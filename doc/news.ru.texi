@@ -14,6 +14,7 @@
 @option{-minsize}.
 @item Опция @option{-force} команды @command{nncp-xfer} переименована в
 @option{-mkdir} для ясности.
+@item Опция @option{-minsize} задётся в KiB, а не байтах, для удобства.
 @item Обновлены зависимые криптографические библиотеки.
 @end itemize
 

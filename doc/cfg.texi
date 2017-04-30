@@ -50,7 +50,7 @@ neigh:
     sendmail: [/usr/sbin/sendmail]
     freq: /home/bob/pub
     freqchunked: 1024
-    freqminsize: 2097152
+    freqminsize: 2048
     via: [alice]
 @end verbatim
 

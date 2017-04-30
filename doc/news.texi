@@ -15,6 +15,8 @@ entry. Useful for transferring big files over small storage devices.
 @option{-minsize} one.
 @item @command{nncp-xfer}'s @option{-force} option is renamed to
 @option{-mkdir} for clarity.
+@item @option{-minsize} option is specified in KiBs, not bytes, for
+convenience.
 @item Cryptographic libraries (dependecies) are updated.
 @end itemize
 
