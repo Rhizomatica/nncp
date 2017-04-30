@@ -28,6 +28,11 @@ entry. Useful for transferring big files over small storage devices.
 convenience.
 
 @item
+@command{nncp-newcfg} command is renamed to @command{nncp-cfgnew},
+and @command{nncp-mincfg} to @command{nncp-cfgmin} -- now they have
+common prefix and are grouped together for convenience.
+
+@item
 Cryptographic libraries (dependecies) are updated.
 @end itemize
 

@@ -19,14 +19,14 @@ LDFLAGS = \
 ALL = \
 	nncp-call \
 	nncp-caller \
+	nncp-cfgmin \
+	nncp-cfgnew \
 	nncp-check \
 	nncp-daemon \
 	nncp-file \
 	nncp-freq \
 	nncp-log \
 	nncp-mail \
-	nncp-mincfg \
-	nncp-newcfg \
 	nncp-pkt \
 	nncp-reass \
 	nncp-rm \
@@ -41,6 +41,12 @@ nncp-call:
 
 nncp-caller:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-caller
+
+nncp-cfgmin:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgmin
+
+nncp-cfgnew:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgnew
 
 nncp-check:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-check
@@ -59,12 +65,6 @@ nncp-log:
 
 nncp-mail:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-mail
-
-nncp-mincfg:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-mincfg
-
-nncp-newcfg:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-newcfg
 
 nncp-pkt:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-pkt

@@ -274,5 +274,5 @@ and so on -- it is not so bad, because you are not carrying private keys
 with it (don't you?), you do not "toss" those packets immediately on the
 same device. Tossing (reading those encrypted packets and extracting
 transferred files and mail messages) could and should be done on a
-separate computer (@ref{nncp-mincfg} command could help creating
+separate computer (@ref{nncp-cfgmin} command could help creating
 configuration file without private keys for that purpose).
