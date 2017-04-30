@@ -19,12 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"bytes"
 	"errors"
+	"log"
 	"os"
 	"path"
 
 	"github.com/gorhill/cronexpr"
 	"golang.org/x/crypto/ed25519"
+	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/yaml.v2"
 )
 
@@ -334,9 +337,21 @@ func (nodeOur *NodeOur) ToYAML() string {
 }
 
 func CfgParse(data []byte) (*Ctx, error) {
+	var err error
+	if bytes.Compare(data[:8], MagicNNCPBv1[:]) == 0 {
+		os.Stderr.WriteString("Passphrase:")
+		password, err := terminal.ReadPassword(0)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		os.Stderr.WriteString("\n")
+		data, err = DeEBlob(data, password)
+		if err != nil {
+			return nil, err
+		}
+	}
 	var cfgYAML CfgYAML
-	err := yaml.Unmarshal(data, &cfgYAML)
-	if err != nil {
+	if err = yaml.Unmarshal(data, &cfgYAML); err != nil {
 		return nil, err
 	}
 	if _, exists := cfgYAML.Neigh["self"]; !exists {

@@ -5,8 +5,9 @@ Nearly all commands have the following common options:
 
 @table @option
 @item -cfg
-    Path to configuration file. May be overrided by @env{NNCPCFG}
-    environment variable.
+    Path to configuration file. May be overridden by @env{NNCPCFG}
+    environment variable. If file file is an encrypted @ref{EBlob,
+    eblob}, then ask for passphrase to decrypt it first.
 @item -debug
     Print debug messages. Normally this option should not be used.
 @item -minsize
@@ -81,6 +82,46 @@ notified that file is done. But after successful integrity check that
 file is renamed from @file{.part} one and when you rerun
 @command{nncp-call} again, remote node will receive completion
 notification.
+
+@node nncp-cfgenc
+@section nncp-cfgenc
+
+@verbatim
+% nncp-cfgmin [options] [-s INT] [-t INT] [-p INT] cfg.yaml > cfg.yaml.eblob
+% nncp-cfgmin [options] -d cfg.yaml.eblob > cfg.yaml
+@end verbatim
+
+This command allows you to encrypt provided @file{cfg.yaml} file with
+the passphrase, producing @ref{EBlob, eblob}, to safely keep your
+configuration file with private keys. This utility was written for users
+who do not want (or can not) to use either @url{https://gnupg.org/,
+GnuPG} or similar tools. That @file{eblob} file can be used directly in
+@option{-cfg} option of nearly all commands.
+
+@option{-s}, @option{-t}, @option{-p} are used to tune @file{eblob}'s
+password strengthening function. Space memory cost (@option{-s}),
+specified in number of BLAKE2b-256 blocks (32 bytes), tells how many
+memory must be used for hashing -- bigger values are better, but slower.
+Time cost (@option{-t}) tells how many rounds/iterations must be
+performed -- bigger is better, but slower. Number of parallel jobs
+(@option{-p}) tells how many computation processes will be run: this is
+the same as running that number of independent hashers and then joining
+their result together.
+
+When invoked for encryption, passphrase is entered manually twice. When
+invoked for decryption (@option{-d} option), it is asked once and exits
+if passphrase can not decrypt @file{eblob}.
+
+@option{-dump} options parses @file{eblob} and prints parameters used
+during its creation. For example:
+@verbatim
+% nncp-cfgenc -dump /usr/local/etc/nncp.yaml.eblob
+Strengthening function: Balloon with BLAKE2b-256
+Memory space cost: 1048576 bytes
+Number of rounds: 16
+Number of parallel jobs: 2
+Blob size: 2494
+@end verbatim
 
 @node nncp-cfgmin
 @section nncp-cfgmin

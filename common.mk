@@ -19,6 +19,7 @@ LDFLAGS = \
 ALL = \
 	nncp-call \
 	nncp-caller \
+	nncp-cfgenc \
 	nncp-cfgmin \
 	nncp-cfgnew \
 	nncp-check \
@@ -41,6 +42,9 @@ nncp-call:
 
 nncp-caller:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-caller
+
+nncp-cfgenc:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgenc
 
 nncp-cfgmin:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgmin
