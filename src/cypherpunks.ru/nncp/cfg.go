@@ -19,12 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"bytes"
 	"errors"
+	"log"
 	"os"
 	"path"
 
 	"github.com/gorhill/cronexpr"
 	"golang.org/x/crypto/ed25519"
+	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/yaml.v2"
 )
 
@@ -40,15 +43,17 @@ var (
 )
 
 type NodeYAML struct {
-	Id       string
-	ExchPub  string
-	SignPub  string
-	NoisePub *string    `noisepub,omitempty`
-	Sendmail []string   `sendmail,omitempty`
-	Incoming *string    `incoming,omitempty`
-	Freq     *string    `freq,omitempty`
-	Via      []string   `via,omitempty`
-	Calls    []CallYAML `calls,omitempty`
+	Id          string
+	ExchPub     string
+	SignPub     string
+	NoisePub    *string    `noisepub,omitempty`
+	Sendmail    []string   `sendmail,omitempty`
+	Incoming    *string    `incoming,omitempty`
+	Freq        *string    `freq,omitempty`
+	FreqChunked *uint64    `freqchunked,omitempty`
+	FreqMinSize *uint64    `freqminsize,omitempty`
+	Via         []string   `via,omitempty`
+	Calls       []CallYAML `calls,omitempty`
 
 	Addrs map[string]string `addrs,omitempty`
 
@@ -144,6 +149,17 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		}
 		freq = &fr
 	}
+	var freqChunked int64
+	if yml.FreqChunked != nil {
+		if *yml.FreqChunked == 0 {
+			return nil, errors.New("freqchunked value must be greater than zero")
+		}
+		freqChunked = int64(*yml.FreqChunked) * 1024
+	}
+	var freqMinSize int64
+	if yml.FreqMinSize != nil {
+		freqMinSize = int64(*yml.FreqMinSize) * 1024
+	}
 
 	defOnlineDeadline := uint(DefaultDeadline)
 	if yml.OnlineDeadline != nil {
@@ -218,6 +234,8 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		Sendmail:       yml.Sendmail,
 		Incoming:       incoming,
 		Freq:           freq,
+		FreqChunked:    freqChunked,
+		FreqMinSize:    freqMinSize,
 		Calls:          calls,
 		Addrs:          yml.Addrs,
 		OnlineDeadline: defOnlineDeadline,
@@ -319,9 +337,21 @@ func (nodeOur *NodeOur) ToYAML() string {
 }
 
 func CfgParse(data []byte) (*Ctx, error) {
+	var err error
+	if bytes.Compare(data[:8], MagicNNCPBv1[:]) == 0 {
+		os.Stderr.WriteString("Passphrase:")
+		password, err := terminal.ReadPassword(0)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		os.Stderr.WriteString("\n")
+		data, err = DeEBlob(data, password)
+		if err != nil {
+			return nil, err
+		}
+	}
 	var cfgYAML CfgYAML
-	err := yaml.Unmarshal(data, &cfgYAML)
-	if err != nil {
+	if err = yaml.Unmarshal(data, &cfgYAML); err != nil {
 		return nil, err
 	}
 	if _, exists := cfgYAML.Neigh["self"]; !exists {

@@ -7,19 +7,20 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 (because it is also store-and-forward solution).
 
 @multitable @columnfractions 0.40 0.15 0.15 0.15 0.15
-@headitem  @tab UUCP @tab FTN @tab NNCP @tab SMTP
+@headitem @tab UUCP @tab FTN @tab NNCP @tab SMTP
 
 @item Ease of setup @tab Medium @tab Hard @tab Easy @tab Hard
 @item Mail transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes}
 @item News transmission @tab @strong{Yes} @tab @strong{Yes} @tab No @tab No
 @item File transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
+@item Chunked files @tab No @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Remote command execution @tab @strong{Yes} @tab No @tab No @tab No
 @item Resumable downloads @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Packets prioritizing @tab @strong{Yes} @tab No @tab @strong{Yes} @tab No
 @item Mail compression @tab No @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item SMTP integration @tab @strong{Yes} @tab No @tab @strong{Yes} @tab N/A
 @item Push/poll @tab @strong{Both} @tab @strong{Both} @tab @strong{Both} @tab Push
-@item Delay tolerant @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
+@item DTN @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Intended network size @tab Dozens @tab Global @tab Dozens @tab Global
 @item Routing @tab Manual/static @tab Federated @tab Manual/static @tab Federated
 @item PSTN support @tab @strong{Yes} @tab @strong{Yes} @tab Possible @tab No
@@ -44,7 +45,8 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     like GoldEd, not an ordinary email client. Moreover, there is no
     out-of-box encryption and strong authentication involved.
 
-    NNCP requires single YAML file editing and nothing more.
+    NNCP requires editing of single YAML @ref{Configuration,
+    configuration file}.
 
 @item News transmission
     SMTP does not know anything about news, NNTP and so forth. Neither
@@ -53,6 +55,12 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 @item File transmission
     SMTP could transfer files only Base64-encoding them -- this is very
     inefficient.
+
+@item Chunked files
+    FTN software can automatically split huge files on smaller chunks,
+    to reassemble it on the destination node. NNCP also supports
+    @ref{Chunked, that feature}, especially important when dealing with
+    small capacity removable storage devices.
 
 @item Packets prioritizing
     UUCP and NNCP will push higher priority ("grade" in UUCP
@@ -74,11 +82,9 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     to be independent from specified model and be able to exchange the
     data with possibility you have.
 
-@item Delay tolerant
+@item @url{https://en.wikipedia.org/wiki/Delay-tolerant_networking, DTN} (delay tolerant networking)
     SMTP will drop messages that can not be delivered for a long time
-    (several days). Others are
-    @url{https://en.wikipedia.org/wiki/Delay-tolerant_networking,
-    tolerant} for the long delays.
+    (several days). Others are tolerant for the long delays.
 
 @item Routing
     UUCP and NNCP does not known nothing about routing. You have to
@@ -93,13 +99,14 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 
 @item Anonymous peers
     NNCP and FTN are friend-to-friend networks exclusively. This is very
-    secure and mitigates many possible man-in-the-middle attacks.
+    secure and mitigates many possible man-in-the-middle (MitM) and
+    @url{https://en.wikipedia.org/wiki/Sybil_attack, Sybil} attacks.
 
 @item Sneakernet friendliness
     No one, except NNCP, supports data exchanging via removable storages
-    likes flash drives, CD-ROMs, tapes and hard drives. It can be
-    emulated for many FTN software, by manually copying files in its
-    inbound/outbound directories. But UUCP and SMTP software requires
-    more manual work to do so.
+    likes flash drives, CD-ROMs, tapes and hard drives out-of-box. It
+    can be emulated for many FTN software, by manually copying files in
+    its inbound/outbound directories. But UUCP and SMTP software
+    requires more manual work to do so.
 
 @end table

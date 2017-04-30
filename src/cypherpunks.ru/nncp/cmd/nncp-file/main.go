@@ -35,17 +35,21 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "nncp-file -- send file\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] SRC NODE:[DST]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
+	fmt.Fprint(os.Stderr, `
+If SRC equals to -, then read data from stdin to temporary file.
+`)
 }
 
 func main() {
 	var (
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw  = flag.Int("nice", nncp.DefaultNiceFile, "Outbound packet niceness")
-		minSize  = flag.Uint64("minsize", 0, "Minimal required resulting packet size")
-		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Print debug messages")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw   = flag.Int("nice", nncp.DefaultNiceFile, "Outbound packet niceness")
+		minSize   = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
+		chunkSize = flag.Uint64("chunked", 0, "Split file on specified size chunks, in KiB")
+		quiet     = flag.Bool("quiet", false, "Print only errors")
+		debug     = flag.Bool("debug", false, "Print debug messages")
+		version   = flag.Bool("version", false, "Print version information")
+		warranty  = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -90,7 +94,19 @@ func main() {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
 
-	if err = ctx.TxFile(node, nice, flag.Arg(0), splitted[1], int64(*minSize)); err != nil {
+	if *chunkSize == 0 {
+		err = ctx.TxFile(node, nice, flag.Arg(0), splitted[1], int64(*minSize))
+	} else {
+		err = ctx.TxFileChunked(
+			node,
+			nice,
+			flag.Arg(0),
+			splitted[1],
+			int64(*minSize)*1024,
+			int64(*chunkSize)*1024,
+		)
+	}
+	if err != nil {
 		log.Fatalln(err)
 	}
 }

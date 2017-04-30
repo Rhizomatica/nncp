@@ -48,7 +48,7 @@ func main() {
 		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
 		rxOnly   = flag.Bool("rx", false, "Only receive packets")
 		txOnly   = flag.Bool("tx", false, "Only transfer packets")
-		force    = flag.Bool("force", false, "Force outbound directories creation")
+		mkdir    = flag.Bool("mkdir", false, "Create necessary outbound directories")
 		keep     = flag.Bool("keep", false, "Do not delete transferred packets")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
@@ -241,7 +241,7 @@ Tx:
 		if err != nil {
 			if os.IsNotExist(err) {
 				ctx.LogD("nncp-xfer", sds, "does not exist")
-				if !*force {
+				if !*mkdir {
 					ctx.UnlockDir(dirLock)
 					continue
 				}
@@ -316,6 +316,7 @@ Tx:
 				isBad = true
 				continue
 			}
+			os.Remove(filepath.Join(dstPath, pktName+".part"))
 			delete(sds, "tmp")
 			ctx.LogI("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{
 				"size": strconv.FormatInt(copied, 10),

@@ -39,6 +39,7 @@ golang.org/x/crypto/hkdf
 golang.org/x/crypto/nacl
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/salsa20
+golang.org/x/crypto/ssh/terminal
 golang.org/x/crypto/twofish
 golang.org/x/net/AUTHORS
 golang.org/x/net/CONTRIBUTORS
@@ -71,8 +72,8 @@ You can obtain releases source code prepared tarballs on
 @url{http://www.nncpgo.org/}.
 EOF
 make -C doc
-./news_and_install.sh
-rm -r doc/.well-known doc/nncp.html/.well-known news_and_install.sh
+./supplementary_files.sh
+rm -r doc/.well-known doc/nncp.html/.well-known supplementary_files.sh
 
 find . -name .git -type d | xargs rm -fr
 find . -name .gitignore -delete
@@ -97,7 +98,7 @@ EOF
 cd $cur
 
 cat <<EOF
-Subject: NNCP $release release announcement
+Subject: [EN] NNCP $release release announcement
 
 I am pleased to announce NNCP $release release availability!
 
@@ -137,4 +138,53 @@ Fingerprint: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
 
 Please send questions regarding the use of NNCP, bug reports and patches
 to mailing list: https://lists.cypherpunks.ru/pipermail/nncp-devel/
+EOF
+
+cat <<EOF
+Subject: [RU] Состоялся релиз NNCP $release
+
+Я рад сообщить о выходе релиза NNCP $release!
+
+NNCP (Node to Node copy) это набор утилит упрощающий безопасный обмен
+файлами и почтой в режиме сохранить-и-переслать.
+
+Эти утилиты предназначены помочь с построением одноранговых сетей
+небольшого размера (дюжины узлов), в режиме друг-к-другу (F2F) со
+статической маршрутизацией для безопасной надёжной передачи файлов,
+запросов на передачу файлов и Интернет почты по принципу
+выстрелил-и-забыл. Все пакеты проверяются на целостность, шифруются по
+принципу точка-точка (E2EE), аутентифицируются известными публичными
+ключами участников. Луковичное (onion) шифрование применяется ко всем
+ретранслируемым пакетам. Каждый узел выступает одновременно в роли
+клиента и сервера, может использовать как push, так и poll модель
+поведения.
+
+Поддержка из коробки offline флоппинета, тайников для сброса информации
+(dead drop) и компьютеров с "воздушным зазором" (air-gap). Но также
+существует и online TCP демон с полнодуплексной возобновляемой передачей
+данных.
+
+------------------------ >8 ------------------------
+
+Основные усовершенствования в этом релизе:
+
+$(git cat-file -p $release | sed -n '6,/^.*BEGIN/p' | sed '$d')
+
+------------------------ >8 ------------------------
+
+Домашняя страница NNCP: http://www.nncpgo.org/
+Коротко об утилитах: http://www.nncpgo.org/Ob-utilitakh.html
+
+Исходный код и его подпись для этой версии находятся здесь:
+
+    http://www.nncpgo.org/download/nncp-${release}.tar.xz ($size KiB)
+    http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
+
+SHA256 хэш: $hash
+Идентификатор GPG ключа: 0x2B25868E75A1A953 NNCP releases <releases@nncpgo.org>
+Отпечаток: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
+
+Пожалуйста, все вопросы касающиеся использования NNCP, отчёты об ошибках
+и патчи отправляйте в nncp-devel почтовую рассылку:
+https://lists.cypherpunks.ru/pipermail/nncp-devel/
 EOF
