@@ -6,18 +6,29 @@ See also this page @ref{Новости, on russian}.
 @node Release 0.7
 @section Release 0.7
 @itemize
-@item Ability to feed @command{nncp-file} from stdin, that uses an
-encrypted temporary file for that.
-@item Chunked files transmission appeared with corresponding
+@item
+Ability to feed @command{nncp-file} from stdin, that uses an encrypted
+temporary file for that.
+
+@item
+Chunked files transmission appeared with corresponding
 @command{nncp-reass} command and @option{freqchunked} configuration file
 entry. Useful for transferring big files over small storage devices.
-@item @option{freqminsize} configuration file option, analogue to
+
+@item
+@option{freqminsize} configuration file option, analogue to
 @option{-minsize} one.
-@item @command{nncp-xfer}'s @option{-force} option is renamed to
+
+@item
+@command{nncp-xfer}'s @option{-force} option is renamed to
 @option{-mkdir} for clarity.
-@item @option{-minsize} option is specified in KiBs, not bytes, for
+
+@item
+@option{-minsize} option is specified in KiBs, not bytes, for
 convenience.
-@item Cryptographic libraries (dependecies) are updated.
+
+@item
+Cryptographic libraries (dependecies) are updated.
 @end itemize
 
 @node Release 0.6
