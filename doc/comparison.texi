@@ -13,6 +13,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 @item Mail transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes}
 @item News transmission @tab @strong{Yes} @tab @strong{Yes} @tab No @tab No
 @item File transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
+@item Chunked files @tab No @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Remote command execution @tab @strong{Yes} @tab No @tab No @tab No
 @item Resumable downloads @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Packets prioritizing @tab @strong{Yes} @tab No @tab @strong{Yes} @tab No
@@ -44,7 +45,8 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     like GoldEd, not an ordinary email client. Moreover, there is no
     out-of-box encryption and strong authentication involved.
 
-    NNCP requires single YAML file editing and nothing more.
+    NNCP requires editing of single YAML @ref{Configuration,
+    configuration file}.
 
 @item News transmission
     SMTP does not know anything about news, NNTP and so forth. Neither
@@ -53,6 +55,12 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 @item File transmission
     SMTP could transfer files only Base64-encoding them -- this is very
     inefficient.
+
+@item Chunked files
+    FTN software can automatically split huge files on smaller chunks,
+    to reassemble it on the destination node. NNCP also supports
+    @ref{Chunked, that feature}, especially important when dealing with
+    small capacity removable storage devices.
 
 @item Packets prioritizing
     UUCP and NNCP will push higher priority ("grade" in UUCP
