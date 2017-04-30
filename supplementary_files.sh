@@ -41,3 +41,17 @@ cat > $texi <<EOF
 EOF
 makeinfo --plaintext -o INSTALL $texi
 rm -f $texi
+
+texi=`mktemp`
+
+cat > $texi <<EOF
+\input texinfo
+@documentencoding UTF-8
+@settitle THANKS
+
+`cat doc/thanks.texi`
+
+@bye
+EOF
+makeinfo --plaintext -o THANKS $texi
+rm -f $texi
