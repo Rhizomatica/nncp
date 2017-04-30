@@ -28,14 +28,14 @@ INSTALL_TARGET=	install-strip
 
 PLIST_FILES=	bin/nncp-call \
 		bin/nncp-caller \
+		bin/nncp-cfgmin \
+		bin/nncp-cfgnew \
 		bin/nncp-check \
 		bin/nncp-daemon \
 		bin/nncp-file \
 		bin/nncp-freq \
 		bin/nncp-log \
 		bin/nncp-mail \
-		bin/nncp-mincfg \
-		bin/nncp-newcfg \
 		bin/nncp-pkt \
 		bin/nncp-reass \
 		bin/nncp-rm \

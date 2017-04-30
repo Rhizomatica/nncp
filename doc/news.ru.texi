@@ -25,6 +25,11 @@
 Опция @option{-minsize} задётся в KiB, а не байтах, для удобства.
 
 @item
+Команда @command{nncp-newcfg} переименована в @command{nncp-cfgnew},
+а @command{nncp-mincfg} в @command{nncp-cfgmin}, для того чтобы они
+имели общий префикс и были сгруппированы для удобства.
+
+@item
 Обновлены зависимые криптографические библиотеки.
 @end itemize
 
