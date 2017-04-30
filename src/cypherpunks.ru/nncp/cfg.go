@@ -155,7 +155,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 	}
 	var freqMinSize int64
 	if yml.FreqMinSize != nil {
-		freqMinSize = int64(*yml.FreqMinSize)
+		freqMinSize = int64(*yml.FreqMinSize) * 1024
 	}
 
 	defOnlineDeadline := uint(DefaultDeadline)
