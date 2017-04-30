@@ -30,3 +30,6 @@
 [submodule "src/github.com/gorhill/cronexpr"]
 	path = src/github.com/gorhill/cronexpr
 	url = https://github.com/gorhill/cronexpr.git
+[submodule "src/cypherpunks.ru/balloon"]
+	path = src/cypherpunks.ru/balloon
+	url = git://git.cypherpunks.ru/balloon.git

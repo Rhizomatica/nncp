@@ -41,6 +41,7 @@ A copy of the license is included in the section entitled "Copying conditions".
 * Log format: Log.
 * Packet format: Packet.
 * Sync protocol: Sync.
+* EBlob format: EBlob.
 * Thanks::
 * Contacts and feedback: Contacts.
 * Copying conditions: Copying.
@@ -62,6 +63,7 @@ A copy of the license is included in the section entitled "Copying conditions".
 @include log.texi
 @include pkt.texi
 @include sp.texi
+@include eblob.texi
 @include thanks.texi
 @include contacts.texi
 

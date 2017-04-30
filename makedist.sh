@@ -39,6 +39,7 @@ golang.org/x/crypto/hkdf
 golang.org/x/crypto/nacl
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/salsa20
+golang.org/x/crypto/ssh/terminal
 golang.org/x/crypto/twofish
 golang.org/x/net/AUTHORS
 golang.org/x/net/CONTRIBUTORS

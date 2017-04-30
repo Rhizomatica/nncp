@@ -33,14 +33,19 @@ and @command{nncp-mincfg} to @command{nncp-cfgmin} -- now they have
 common prefix and are grouped together for convenience.
 
 @item
-Cryptographic libraries (dependecies) are updated.
+@command{nncp-cfgenc} command appeared, allowing configuration file
+encryption/decryption, for keeping it safe without any either OpenPGP or
+similar tools usage.
+
+@item
+Cryptographic libraries (dependencies) are updated.
 @end itemize
 
 @node Release 0.6
 @section Release 0.6
 @itemize
 @item Small @command{nncp-rm} command appeared.
-@item Cryptographic libraries (dependecies) are updated.
+@item Cryptographic libraries (dependencies) are updated.
 @end itemize
 
 @node Release 0.5

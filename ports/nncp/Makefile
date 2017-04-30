@@ -28,6 +28,7 @@ INSTALL_TARGET=	install-strip
 
 PLIST_FILES=	bin/nncp-call \
 		bin/nncp-caller \
+		bin/nncp-cfgenc \
 		bin/nncp-cfgmin \
 		bin/nncp-cfgnew \
 		bin/nncp-check \
