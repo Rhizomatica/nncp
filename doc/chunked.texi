@@ -29,7 +29,7 @@ size and their hash checksums. This is
 @end verbatim
 
 @multitable @columnfractions 0.2 0.3 0.5
-@headitem  @tab XDR type @tab Value
+@headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
     @verb{|N N C P M 0x00 0x00 0x01|}
