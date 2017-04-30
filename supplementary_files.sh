@@ -7,6 +7,9 @@ cat > $texi <<EOF
 @documentencoding UTF-8
 @settitle NEWS
 
+@node News
+@unnumbered News
+
 `sed -n '5,$p' < doc/news.texi`
 
 @bye
