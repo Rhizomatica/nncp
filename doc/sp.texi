@@ -24,7 +24,7 @@ is sent inside an @url{https://tools.ietf.org/html/rfc4506, XDR} envelope:
 @end verbatim
 
 @multitable @columnfractions 0.2 0.3 0.5
-@headitem  @tab XDR type @tab Value
+@headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
     @verb{|N N C P S 0x00 0x00 0x01|}
@@ -68,7 +68,7 @@ just an unsigned integer telling what body structure follows.
 +------+--------------------+
 @end verbatim
     @multitable @columnfractions 0.2 0.3 0.5
-    @headitem  @tab XDR type @tab Value
+    @headitem @tab XDR type @tab Value
     @item Niceness @tab
         unsigned integer @tab
         1-255, file niceness level
@@ -89,7 +89,7 @@ just an unsigned integer telling what body structure follows.
 +------+---------------+
 @end verbatim
     @multitable @columnfractions 0.2 0.3 0.5
-    @headitem  @tab XDR type @tab Value
+    @headitem @tab XDR type @tab Value
     @item Hash @tab
         32-byte, fixed length opaque data @tab
         Unique file identifier, its checksum
@@ -106,7 +106,7 @@ just an unsigned integer telling what body structure follows.
 +------+-------------------------+
 @end verbatim
     @multitable @columnfractions 0.2 0.3 0.5
-    @headitem  @tab XDR type @tab Value
+    @headitem @tab XDR type @tab Value
     @item Hash @tab
         32-byte, fixed length opaque data @tab
         Unique file identifier, its checksum
@@ -126,7 +126,7 @@ just an unsigned integer telling what body structure follows.
 +------+------+
 @end verbatim
     @multitable @columnfractions 0.2 0.3 0.5
-    @headitem  @tab XDR type @tab Value
+    @headitem @tab XDR type @tab Value
     @item Hash @tab
         32-byte, fixed length opaque data @tab
         Unique file identifier, its checksum

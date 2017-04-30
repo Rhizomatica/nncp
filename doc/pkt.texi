@@ -25,7 +25,7 @@ drive.
 @end verbatim
 
 @multitable @columnfractions 0.2 0.3 0.5
-@headitem  @tab XDR type @tab Value
+@headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
     @verb{|N N C P P 0x00 0x00 0x01|}
@@ -80,7 +80,7 @@ Each encrypted packet has the following header:
 @end verbatim
 
 @multitable @columnfractions 0.2 0.3 0.5
-@headitem  @tab XDR type @tab Value
+@headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
     @verb{|N N C P E 0x00 0x00 0x01|}
@@ -119,7 +119,7 @@ BLAKE2b-256} MAC is appended to the ciphertext.
 After the headers comes an encrypted payload size and MAC of that size.
 
 @multitable @columnfractions 0.2 0.3 0.5
-@headitem  @tab XDR type @tab Value
+@headitem @tab XDR type @tab Value
 @item Size @tab
     unsigned hyper integer @tab
     Payload size.
