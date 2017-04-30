@@ -151,7 +151,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		if *yml.FreqChunked == 0 {
 			return nil, errors.New("freqchunked value must be greater than zero")
 		}
-		freqChunked = int64(*yml.FreqChunked)
+		freqChunked = int64(*yml.FreqChunked) * 1024
 	}
 	var freqMinSize int64
 	if yml.FreqMinSize != nil {
