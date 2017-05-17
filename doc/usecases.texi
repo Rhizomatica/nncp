@@ -1,6 +1,8 @@
 @node Use cases
 @unnumbered Use cases
 
+See also this page @ref{Сценарии, on russian}.
+
 @menu
 * Occasional connection to mail server: UsecaseMail.
 * Lightweight fast POP3/IMAP4 replacement: UsecasePOP.

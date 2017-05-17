@@ -90,7 +90,13 @@ func main() {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
 
-	if err = ctx.TxFreq(node, nice, splitted[1], flag.Arg(1), int64(*minSize)*1024); err != nil {
+	if err = ctx.TxFreq(
+		node,
+		nice,
+		splitted[1],
+		flag.Arg(1),
+		int64(*minSize)*1024,
+	); err != nil {
 		log.Fatalln(err)
 	}
 }

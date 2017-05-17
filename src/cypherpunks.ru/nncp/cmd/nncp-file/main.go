@@ -95,7 +95,13 @@ func main() {
 	}
 
 	if *chunkSize == 0 {
-		err = ctx.TxFile(node, nice, flag.Arg(0), splitted[1], int64(*minSize))
+		err = ctx.TxFile(
+			node,
+			nice,
+			flag.Arg(0),
+			splitted[1],
+			int64(*minSize)*1024,
+		)
 	} else {
 		err = ctx.TxFileChunked(
 			node,
