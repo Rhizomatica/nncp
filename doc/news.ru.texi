@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 0.8
+@subsection Релиз 0.8
+@itemize
+@item
+Небольшое исправление ошибки в команде @command{nncp-file}, где опция
+@option{-minsize} для передачи без разбиения на части была в байтах, а
+не KiB-ах.
+@end itemize
+
 @node Релиз 0.7
 @subsection Релиз 0.7
 @itemize
