@@ -91,7 +91,13 @@ func main() {
 		log.Fatalln("Can not read mail body from stdin:", err)
 	}
 
-	if err = ctx.TxMail(node, nice, strings.Join(flag.Args()[1:], " "), body, int64(*minSize)*1024); err != nil {
+	if err = ctx.TxMail(
+		node,
+		nice,
+		strings.Join(flag.Args()[1:], " "),
+		body,
+		int64(*minSize)*1024,
+	); err != nil {
 		log.Fatalln(err)
 	}
 }
