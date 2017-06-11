@@ -237,6 +237,8 @@ func (ctx *Ctx) Humanize(s string) string {
 		if err, exists := sds["err"]; exists {
 			msg += ": " + err
 		}
+	case "lockdir":
+		msg = fmt.Sprintf("Acquire lock for %s: %s", sds["path"], sds["err"])
 	default:
 		return s
 	}
