@@ -180,7 +180,7 @@ type SPState struct {
 	TxSpeed        int64
 	rxLock         *os.File
 	txLock         *os.File
-	xxOnly         *TRxTx
+	xxOnly         TRxTx
 	isDead         bool
 	sync.RWMutex
 }
@@ -264,20 +264,20 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]struct{}
 	return payloadsSplit(payloads)
 }
 
-func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx, onlineDeadline, maxOnlineTime uint) (*SPState, error) {
+func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly TRxTx, onlineDeadline, maxOnlineTime uint) (*SPState, error) {
 	err := ctx.ensureRxDir(nodeId)
 	if err != nil {
 		return nil, err
 	}
 	var rxLock *os.File
-	if xxOnly != nil && *xxOnly == TRx {
+	if xxOnly == "" || xxOnly == TRx {
 		rxLock, err = ctx.LockDir(nodeId, TRx)
 		if err != nil {
 			return nil, err
 		}
 	}
 	var txLock *os.File
-	if xxOnly != nil && *xxOnly == TTx {
+	if xxOnly == "" || xxOnly == TTx {
 		txLock, err = ctx.LockDir(nodeId, TTx)
 		if err != nil {
 			return nil, err
@@ -312,7 +312,7 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx,
 	}
 
 	var infosPayloads [][]byte
-	if xxOnly == nil || *xxOnly != TTx {
+	if xxOnly == "" || xxOnly == TTx {
 		infosPayloads = ctx.infosOur(nodeId, nice, &state.infosOurSeen)
 	}
 	var firstPayload []byte
@@ -358,7 +358,7 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly *TRxTx,
 	return &state, err
 }
 
-func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, error) {
+func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly TRxTx) (*SPState, error) {
 	started := time.Now()
 	conf := noise.Config{
 		CipherSuite: NoiseCipherSuite,
@@ -417,7 +417,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 		return nil, err
 	}
 	var rxLock *os.File
-	if xxOnly != nil && *xxOnly == TRx {
+	if xxOnly == "" || xxOnly == TRx {
 		rxLock, err = ctx.LockDir(node.Id, TRx)
 		if err != nil {
 			return nil, err
@@ -425,7 +425,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 	}
 	state.rxLock = rxLock
 	var txLock *os.File
-	if xxOnly != nil && *xxOnly == TTx {
+	if xxOnly == "" || xxOnly == TTx {
 		txLock, err = ctx.LockDir(node.Id, TTx)
 		if err != nil {
 			return nil, err
@@ -434,7 +434,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly *TRxTx) (*SPState, erro
 	state.txLock = txLock
 
 	var infosPayloads [][]byte
-	if xxOnly == nil || *xxOnly != TTx {
+	if xxOnly == "" || xxOnly == TTx {
 		infosPayloads = ctx.infosOur(node.Id, nice, &state.infosOurSeen)
 	}
 	var firstPayload []byte
@@ -499,22 +499,24 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 		}
 	}()
 
-	go func() {
-		for range time.Tick(time.Second) {
-			for _, payload := range state.ctx.infosOur(
-				state.Node.Id,
-				state.nice,
-				&state.infosOurSeen,
-			) {
-				state.ctx.LogD(
-					"sp-work",
-					SdsAdd(sds, SDS{"size": strconv.Itoa(len(payload))}),
-					"queuing new info",
-				)
-				state.payloads <- payload
+	if state.xxOnly == "" || state.xxOnly == TTx {
+		go func() {
+			for range time.Tick(time.Second) {
+				for _, payload := range state.ctx.infosOur(
+					state.Node.Id,
+					state.nice,
+					&state.infosOurSeen,
+				) {
+					state.ctx.LogD(
+						"sp-work",
+						SdsAdd(sds, SDS{"size": strconv.Itoa(len(payload))}),
+						"queuing new info",
+					)
+					state.payloads <- payload
+				}
 			}
-		}
-	}()
+		}()
+	}
 
 	state.wg.Add(1)
 	go func() {
@@ -737,7 +739,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				continue
 			}
 			state.ctx.LogD("sp-process", sdsp, "received")
-			if state.xxOnly != nil && *state.xxOnly == TTx {
+			if state.xxOnly == TTx {
 				continue
 			}
 			state.Lock()
