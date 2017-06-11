@@ -48,11 +48,6 @@ func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 }
 
 func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
-	dirLock, err := ctx.LockDir(nodeId, TRx)
-	if err != nil {
-		return false
-	}
-	defer ctx.UnlockDir(dirLock)
 	isBad := false
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Fd.Name())
