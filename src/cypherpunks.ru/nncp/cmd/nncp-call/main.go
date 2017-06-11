@@ -126,7 +126,7 @@ func main() {
 		}
 	}
 
-	if !ctx.CallNode(node, addrs, nice, &xxOnly, *onlineDeadline, *maxOnlineTime) {
+	if !ctx.CallNode(node, addrs, nice, xxOnly, *onlineDeadline, *maxOnlineTime) {
 		os.Exit(1)
 	}
 }

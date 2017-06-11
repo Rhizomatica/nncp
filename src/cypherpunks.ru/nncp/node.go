@@ -70,7 +70,7 @@ type NodeOur struct {
 type Call struct {
 	Cron           *cronexpr.Expression
 	Nice           uint8
-	Xx             *TRxTx
+	Xx             TRxTx
 	Addr           *string
 	OnlineDeadline uint
 	MaxOnlineTime  uint

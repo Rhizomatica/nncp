@@ -91,7 +91,7 @@ func main() {
 		}
 		ctx.LogD("daemon", nncp.SDS{"addr": conn.RemoteAddr()}, "accepted")
 		go func(conn net.Conn) {
-			state, err := ctx.StartR(conn, nice, nil)
+			state, err := ctx.StartR(conn, nice, "")
 			if err == nil {
 				ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
 				state.Wait()

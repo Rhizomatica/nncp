@@ -64,7 +64,7 @@ type NodeYAML struct {
 type CallYAML struct {
 	Cron           string
 	Nice           *int    `nice,omitempty`
-	Xx             *string `xx,omitempty`
+	Xx             string  `xx,omitempty`
 	Addr           *string `addr,omitempty`
 	OnlineDeadline *uint   `onlinedeadline,omitempty`
 	MaxOnlineTime  *uint   `maxonlinetime,omitempty`
@@ -187,15 +187,14 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 			nice = uint8(*callYml.Nice)
 		}
 		var xx TRxTx
-		if callYml.Xx != nil {
-			switch *callYml.Xx {
-			case "rx":
-				xx = TRx
-			case "tx":
-				xx = TTx
-			default:
-				return nil, errors.New("xx field must be either \"rx\" or \"tx\"")
-			}
+		switch callYml.Xx {
+		case "rx":
+			xx = TRx
+		case "tx":
+			xx = TTx
+		case "":
+		default:
+			return nil, errors.New("xx field must be either \"rx\" or \"tx\"")
 		}
 		var addr *string
 		if callYml.Addr != nil {
@@ -219,7 +218,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		calls = append(calls, &Call{
 			Cron:           expr,
 			Nice:           nice,
-			Xx:             &xx,
+			Xx:             xx,
 			Addr:           addr,
 			OnlineDeadline: onlineDeadline,
 			MaxOnlineTime:  maxOnlineTime,

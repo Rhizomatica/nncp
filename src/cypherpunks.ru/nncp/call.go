@@ -23,7 +23,7 @@ import (
 	"strconv"
 )
 
-func (ctx *Ctx) CallNode(node *Node, addrs []string, nice uint8, xxOnly *TRxTx, onlineDeadline, maxOnlineTime uint) (isGood bool) {
+func (ctx *Ctx) CallNode(node *Node, addrs []string, nice uint8, xxOnly TRxTx, onlineDeadline, maxOnlineTime uint) (isGood bool) {
 	for _, addr := range addrs {
 		sds := SDS{"node": node.Id, "addr": addr}
 		ctx.LogD("call", sds, "dialing")
