@@ -3,6 +3,14 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 0.9
+@section Release 0.9
+@itemize
+@item
+Fix @option{-rx}/@option{-tx} arguments processing in
+@command{nncp-call} command. They were ignored.
+@end itemize
+
 @node Release 0.8
 @section Release 0.8
 @itemize
