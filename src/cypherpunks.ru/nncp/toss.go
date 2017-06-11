@@ -36,7 +36,6 @@ import (
 	"github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
 	"golang.org/x/crypto/blake2b"
-	"golang.org/x/sys/unix"
 )
 
 func newNotification(fromTo *FromToYAML, subject string) io.Reader {
@@ -46,34 +45,6 @@ func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 		fromTo.To,
 		mime.BEncoding.Encode("UTF-8", subject),
 	))
-}
-
-func (ctx *Ctx) LockDir(nodeId *NodeId, xx TRxTx) (*os.File, error) {
-	ctx.ensureRxDir(nodeId)
-	lockPath := filepath.Join(ctx.Spool, nodeId.String(), string(xx)) + ".lock"
-	dirLock, err := os.OpenFile(
-		lockPath,
-		os.O_CREATE|os.O_WRONLY,
-		os.FileMode(0600),
-	)
-	if err != nil {
-		ctx.LogE("lockdir", SDS{"path": lockPath, "err": err}, "")
-		return nil, err
-	}
-	err = unix.Flock(int(dirLock.Fd()), unix.LOCK_EX|unix.LOCK_NB)
-	if err != nil {
-		ctx.LogE("lockdir", SDS{"path": lockPath, "err": err}, "")
-		dirLock.Close()
-		return nil, err
-	}
-	return dirLock, nil
-}
-
-func (ctx *Ctx) UnlockDir(fd *os.File) {
-	if fd != nil {
-		unix.Flock(int(fd.Fd()), unix.LOCK_UN)
-		fd.Close()
-	}
 }
 
 func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
