@@ -3,6 +3,14 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 0.10
+@section Release 0.10
+@itemize
+@item
+@command{nncp-freq}'s @file{DST} argument is optional now. Last
+@file{SRC} path's element will be used by default.
+@end itemize
+
 @node Release 0.9
 @section Release 0.9
 @itemize

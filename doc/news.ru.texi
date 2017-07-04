@@ -1,6 +1,14 @@
 @node Новости
 @section Новости
 
+@node Релиз 0.10
+@subsection Релиз 0.10
+@itemize
+@item
+@file{DST} аргумент @command{nncp-freq} команды теперь опционален.
+По-умолчанию будет подставлен последний элемент @file{SRC} пути.
+@end itemize
+
 @node Релиз 0.9
 @subsection Релиз 0.9
 @itemize

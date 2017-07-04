@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"cypherpunks.ru/nncp"
@@ -33,7 +34,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-freq -- send file request\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE:SRC DST\nOptions:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE:SRC [DST]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
@@ -57,7 +58,7 @@ func main() {
 		fmt.Println(nncp.VersionGet())
 		return
 	}
-	if flag.NArg() != 2 {
+	if flag.NArg() == 0 {
 		usage()
 		os.Exit(1)
 	}
@@ -90,11 +91,18 @@ func main() {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
 
+	var dst string
+	if flag.NArg() == 2 {
+		dst = flag.Arg(1)
+	} else {
+		dst = filepath.Base(splitted[1])
+	}
+
 	if err = ctx.TxFreq(
 		node,
 		nice,
 		splitted[1],
-		flag.Arg(1),
+		dst,
 		int64(*minSize)*1024,
 	); err != nil {
 		log.Fatalln(err)
