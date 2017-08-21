@@ -1,15 +1,14 @@
 @node Tarballs
 @section Prepared tarballs
 
-You can obtain releases source code prepared tarballs from the links below
-(or use @url{https://sourceforge.net/projects/nncp/files/, Sourceforge mirror}).
+You can obtain releases source code prepared tarballs from the links below.
 Do not forget to check tarball @ref{Integrity, integrity}.
 
 Tarballs include all necessary required libraries:
 
 @multitable @columnfractions .50 .50
 @headitem Library @tab Licence
-@item @code{cypherpunks.ru/balloon} @tab GNU GPLv3+
+@item @code{cypherpunks.ru/balloon} @tab GNU LGPLv3+
 @item @code{github.com/dustin/go-humanize} @tab MIT
 @item @code{github.com/flynn/noise} @tab BSD 3-Clause
 @item @code{github.com/go-check/check} @tab BSD 2-Clause
@@ -23,6 +22,10 @@ Tarballs include all necessary required libraries:
 
 @multitable {XXXXX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Size @tab Tarball @tab SHA256 checksum
+
+@item @ref{Release 0.10, 0.10} @tab 949 KiB
+@tab @url{download/nncp-0.10.tar.xz, link} @url{download/nncp-0.10.tar.xz.sig, sign}
+@tab @code{DCE7C762 2F9281EB 282F1A67 5CA6500E 854F2DEC D60F3264 07872B91 4F4E6FA0}
 
 @item @ref{Release 0.9, 0.9} @tab 942 KiB
 @tab @url{download/nncp-0.9.tar.xz, link} @url{download/nncp-0.9.tar.xz.sig, sign}
@@ -62,3 +65,5 @@ Tarballs include all necessary required libraries:
 @tab @code{8F71D65B 70865EBF FE802CDF A5C14D00 A9FD6559 FD722E60 5D97E82C 5E2412C2}
 
 @end multitable
+
+Also you can try its @ref{Contacts, .i2p} version.

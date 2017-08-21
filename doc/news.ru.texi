@@ -1,6 +1,13 @@
 @node Новости
 @section Новости
 
+@node Релиз 0.11
+@subsection Релиз 0.11
+@itemize
+@item
+Вывод команды @command{nncp-stat} отсортирован по имены ноды.
+@end itemize
+
 @node Релиз 0.10
 @subsection Релиз 0.10
 @itemize

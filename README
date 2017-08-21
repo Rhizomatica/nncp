@@ -18,6 +18,8 @@ conditions. It should work on all POSIX-compatible systems. Easy
 integration with existing SMTP servers. Single YAML configuration file.
 
 Home page: http://www.nncpgo.org/
+Also available as I2P service:
+http://ryeyslcg6oajmyruje3weqayepze5e5oglxndhkavzfatgnxcd7q.b32.i2p/
 
 Please send questions regarding the use of NNCP, bug reports and
 patches to nncp-devel mailing list:
