@@ -75,7 +75,7 @@ make -C doc
 ./supplementary_files.sh
 rm -r doc/.well-known doc/nncp.html/.well-known supplementary_files.sh
 
-find . -name .git -type d | xargs rm -fr
+find . -name .git | xargs rm -fr
 find . -name .gitignore -delete
 rm .gitmodules
 
