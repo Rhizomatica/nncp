@@ -3,6 +3,13 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 0.11
+@section Release 0.11
+@itemize
+@item
+@command{nncp-stat}'s command output is sorted by node name.
+@end itemize
+
 @node Release 0.10
 @section Release 0.10
 @itemize

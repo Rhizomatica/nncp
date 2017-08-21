@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 
 	"cypherpunks.ru/nncp"
 	"github.com/dustin/go-humanize"
@@ -74,20 +75,30 @@ func main() {
 		}
 	}
 
-	for nodeId, node := range ctx.Neigh {
-		if nodeOnly != nil && nodeId != *nodeOnly.Id {
+	nodeNames := make([]string, 0, len(ctx.Neigh))
+	nodeNameToNode := make(map[string]*nncp.Node, len(ctx.Neigh))
+	for _, node := range ctx.Neigh {
+		nodeNames = append(nodeNames, node.Name)
+		nodeNameToNode[node.Name] = node
+	}
+	sort.Strings(nodeNames)
+
+	var node *nncp.Node
+	for _, nodeName := range nodeNames {
+		node = nodeNameToNode[nodeName]
+		if nodeOnly != nil && *node.Id != *nodeOnly.Id {
 			continue
 		}
 		rxNums := make(map[uint8]int)
 		rxBytes := make(map[uint8]int64)
-		for job := range ctx.Jobs(&nodeId, nncp.TRx) {
+		for job := range ctx.Jobs(node.Id, nncp.TRx) {
 			job.Fd.Close()
 			rxNums[job.PktEnc.Nice] = rxNums[job.PktEnc.Nice] + 1
 			rxBytes[job.PktEnc.Nice] = rxBytes[job.PktEnc.Nice] + job.Size
 		}
 		txNums := make(map[uint8]int)
 		txBytes := make(map[uint8]int64)
-		for job := range ctx.Jobs(&nodeId, nncp.TTx) {
+		for job := range ctx.Jobs(node.Id, nncp.TTx) {
 			job.Fd.Close()
 			txNums[job.PktEnc.Nice] = txNums[job.PktEnc.Nice] + 1
 			txBytes[job.PktEnc.Nice] = txBytes[job.PktEnc.Nice] + job.Size
