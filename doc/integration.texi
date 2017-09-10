@@ -250,7 +250,7 @@ You can queue you files after they are completely downloaded:
 @verbatim
 % cat send-downloaded.sh
 #!/bin/sh
-nncp-file "$3" remote.node
+nncp-file -chunked $(( 1024 * 100 )) "$3" remote.node
 
 % aria2c \
     --on-download-complete send-downloaded.sh \
