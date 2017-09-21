@@ -284,8 +284,8 @@ everything you need.
 
 Use it to create bundles containing all required blobs/trees/commits and tags:
 @verbatim
-% git bundle create repo-initial.bundle master
-% git tag -f last-bundle master
+% git bundle create repo-initial.bundle master --tags --branches
+% git tag -f last-bundle
 % nncp-file repo-initial.bundle remote.node:repo-$(date % '+%Y%M%d%H%m%S').bundle
 @end verbatim
 
