@@ -223,8 +223,8 @@ allowing to view that WARC files. However you can extract files from
 that archive using @url{https://pypi.python.org/pypi/Warcat, warcat}
 utility, producing usual directory hierarchy:
 @verbatim
-% python3 -m warcat \
-    extract www.example_com-XXX.warc \
+% python3 -m warcat extract \
+    www.example_com-XXX.warc \
     --output-dir www.example.com-XXX \
     --progress
 @end verbatim
