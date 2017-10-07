@@ -3,6 +3,13 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 0.12
+@section Release 0.12
+@itemize
+@item
+Sendmail command is called with @env{NNCP_SENDER} environment variable.
+@end itemize
+
 @node Release 0.11
 @section Release 0.11
 @itemize
