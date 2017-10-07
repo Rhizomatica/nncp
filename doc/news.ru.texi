@@ -1,6 +1,13 @@
 @node Новости
 @section Новости
 
+@node Релиз 0.12
+@subsection Релиз 0.12
+@itemize
+@item
+Команда sendmail вызывается с @env{NNCP_SENDER} переменной окружения.
+@end itemize
+
 @node Релиз 0.11
 @subsection Релиз 0.11
 @itemize
