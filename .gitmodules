@@ -7,9 +7,6 @@
 [submodule "src/github.com/flynn/noise"]
 	path = src/github.com/flynn/noise
 	url = https://github.com/flynn/noise.git
-[submodule "src/github.com/minio/blake2b-simd"]
-	path = src/github.com/minio/blake2b-simd
-	url = https://github.com/minio/blake2b-simd.git
 [submodule "src/gopkg.in/check.v1"]
 	path = src/gopkg.in/check.v1
 	url = https://github.com/go-check/check.git

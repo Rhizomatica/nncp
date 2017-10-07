@@ -15,7 +15,6 @@ Tarballs include all necessary required libraries:
 @item @code{github.com/go-check/check} @tab BSD 2-Clause
 @item @code{github.com/go-yaml/yaml} @tab Apache License 2.0 and MIT
 @item @code{github.com/gorhill/cronexpr} @tab GNU GPLv3
-@item @code{github.com/minio/blake2b-simd} @tab Apache License 2.0
 @item @code{golang.org/x/crypto} @tab BSD 3-Clause
 @item @code{golang.org/x/net} @tab BSD 3-Clause
 @item @code{golang.org/x/sys} @tab BSD 3-Clause
