@@ -34,9 +34,9 @@ NNCP это @url{https://www.gnu.org/philosophy/pragmatic.ru.html,
 программное обеспечение}: лицензировано под условиями
 @url{https://www.gnu.org/licenses/gpl-3.0.ru.html, GNU GPLv3+}. Оно
 должно работать на всех @url{https://ru.wikipedia.org/wiki/POSIX,
-POSIX}-совместимых системах. Лёгкая интеграция с существующими
-@url{https://ru.wikipedia.org/wiki/SMTP, SMTP} серверами. Единственный
-конфигурационный @url{http://yaml.org/, YAML} файл.
+POSIX}-совместимых системах. Лёгкая @ref{Integration, интеграция} с
+существующими @url{https://ru.wikipedia.org/wiki/SMTP, SMTP} серверами.
+Единственный конфигурационный @url{http://yaml.org/, YAML} файл.
 
 Зачем создавать ещё одно решение с принципом сохранить-и-переслать когда
 уже существуют UUCP, FTN и даже SMTP? Посмотрите @ref{Сравнение, сравнение}!
