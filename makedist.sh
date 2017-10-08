@@ -10,7 +10,6 @@ repos="
     src/github.com/davecgh/go-xdr
     src/github.com/dustin/go-humanize
     src/github.com/flynn/noise
-    src/github.com/minio/blake2b-simd
     src/golang.org/x/crypto
     src/golang.org/x/net
     src/golang.org/x/sys
@@ -75,7 +74,7 @@ make -C doc
 ./supplementary_files.sh
 rm -r doc/.well-known doc/nncp.html/.well-known supplementary_files.sh
 
-find . -name .git -type d | xargs rm -fr
+find . -name .git | xargs rm -fr
 find . -name .gitignore -delete
 rm .gitmodules
 

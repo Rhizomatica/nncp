@@ -116,14 +116,14 @@ choice. Just send files as shown in previous section, but use removable
 media for transferring packets to other nodes.
 
 Assume that you send two files to @emph{bob} node. Insert USB storage
-device, mount it and run @ref{nncp-xfer}:
+device (SD is preferable!), mount it and run @ref{nncp-xfer}:
 
 @verbatim
 % nncp-xfer -node bob /media/usbstick
 @end verbatim
 
 to copy all outbound packets related to @emph{bob}. Use @option{-mkdir}
-option to create related directory on USB storage if they are missing
+option to create related directory on USB/SD storage if they are missing
 (for example when running for the first time).
 
 If you use single storage device to transfer data both to @emph{bob} and
@@ -195,8 +195,8 @@ If you worry much about security, then air-gapped computer could be the
 only choice you can afford. Computer without any modems, wired and
 wireless networks. Obviously the only possibility to exchange mail and
 files is to use physically removable storage devices like CD-ROM, hard
-drive, tape and USB flash drives (worst choice, due to those devices
-complexity).
+drive, SD, tape and USB flash drives (@strong{worst} choice, due to
+those devices complexity).
 
 Presumably you have got another own hop before that computer: another
 intermediate node which performs basic verification of retrieved storage

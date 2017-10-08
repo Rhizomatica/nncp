@@ -98,7 +98,8 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 			if err != nil {
 				log.Fatalln(err)
 			}
-			sendmail := ctx.Neigh[*job.PktEnc.Sender].Sendmail
+			sender := ctx.Neigh[*job.PktEnc.Sender]
+			sendmail := sender.Sendmail
 			if len(sendmail) == 0 {
 				ctx.LogE("rx", SdsAdd(sds, SDS{"err": "No sendmail configured"}), "")
 				isBad = true
@@ -112,6 +113,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 						strings.Split(recipients, " ")...,
 					)...,
 				)
+				cmd.Env = append(cmd.Env, "NNCP_SENDER=" + sender.Id.String())
 				cmd.Stdin = decompressor
 				if err = cmd.Run(); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "sendmail")
