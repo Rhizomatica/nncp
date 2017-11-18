@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 0.13
+@section Release 0.13
+@itemize
+@item
+Single background checksum verifier worker is allowed in
+@command{nncp-call}. This is helpful when thousands of small inbound
+packets could create many goroutines.
+@end itemize
+
 @node Release 0.12
 @section Release 0.12
 @itemize
