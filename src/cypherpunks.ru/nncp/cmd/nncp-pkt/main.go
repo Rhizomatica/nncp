@@ -112,7 +112,7 @@ func main() {
 	}
 	var pktEnc nncp.PktEnc
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc)
-	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv1 {
+	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv2 {
 		if *dump {
 			cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
 			if err != nil {
@@ -143,8 +143,8 @@ func main() {
 			return
 		}
 		fmt.Printf(
-			"Packet type: encrypted\nNiceness: %d\nSender: %s\n",
-			pktEnc.Nice, pktEnc.Sender,
+			"Packet type: encrypted\nNiceness: %d\nSender: %s\nRecipient: %s\n",
+			pktEnc.Nice, pktEnc.Sender, pktEnc.Recipient,
 		)
 		return
 	}

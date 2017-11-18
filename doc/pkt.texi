@@ -70,13 +70,13 @@ Each encrypted packet has the following header:
 @verbatim
   +------------ HEADER -------------+   +-------- ENCRYPTED --------+
  /                                   \ /                             \
-+-------------------------------------+------------+----...-----------+------+
-| MAGIC | NICE | SENDER | EPUB | SIGN | SIZE | MAC | CIPHERTEXT | MAC | JUNK |
-+------------------------------/------\------------+----...-----------+------+
-                              /        \
-               +-------------------------------------+
-               | MAGIC | NICE | RCPT | SENDER | EPUB |
-               +-------------------------------------+
++--------------------------------------------+------------+----...-----------+------+
+| MAGIC | NICE | SENDER | RCPT | EPUB | SIGN | SIZE | MAC | CIPHERTEXT | MAC | JUNK |
++-------------------------------------/------\------------+----...-----------+------+
+                                     /        \
+                      +-------------------------------------+
+                      | MAGIC | NICE | SENDER | RCPT | EPUB |
+                      +-------------------------------------+
 @end verbatim
 
 @multitable @columnfractions 0.2 0.3 0.5
@@ -90,6 +90,9 @@ Each encrypted packet has the following header:
 @item Sender @tab
     32-byte, fixed length opaque data @tab
     Sender node's id
+@item Recipient @tab
+    32-byte, fixed length opaque data @tab
+    Recipient node's id
 @item Exchange public key @tab
     32-byte, fixed length opaque data @tab
     Ephemeral curve25519 public key
@@ -98,15 +101,7 @@ Each encrypted packet has the following header:
     ed25519 signature for that packet's header
 @end multitable
 
-Signature is calculated over the following structure:
-
-@itemize
-@item Magic number
-@item Niceness
-@item Recipient (32-byte recipient node's id)
-@item Sender
-@item Exchange public key
-@end itemize
+Signature is calculated over all previous fields.
 
 All following encryption is done using
 @url{https://www.schneier.com/academic/twofish/, Twofish} algorithm with
