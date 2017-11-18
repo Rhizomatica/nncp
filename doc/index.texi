@@ -37,6 +37,7 @@ A copy of the license is included in the section entitled "Copying conditions".
 * Commands::
 * Niceness::
 * Chunked files: Chunked.
+* Bundles::
 * Spool directory: Spool.
 * Log format: Log.
 * Packet format: Packet.
@@ -59,6 +60,7 @@ A copy of the license is included in the section entitled "Copying conditions".
 @include cmds.texi
 @include niceness.texi
 @include chunked.texi
+@include bundles.texi
 @include spool.texi
 @include log.texi
 @include pkt.texi

@@ -45,7 +45,7 @@ func (ctx *Ctx) NewTmpFile() (*os.File, error) {
 type TmpFileWHash struct {
 	W   *bufio.Writer
 	Fd  *os.File
-	hsh hash.Hash
+	Hsh hash.Hash
 	ctx *Ctx
 }
 
@@ -61,7 +61,7 @@ func (ctx *Ctx) NewTmpFileWHash() (*TmpFileWHash, error) {
 	return &TmpFileWHash{
 		W:   bufio.NewWriter(io.MultiWriter(hsh, tmp)),
 		Fd:  tmp,
-		hsh: hsh,
+		Hsh: hsh,
 		ctx: ctx,
 	}, nil
 }
@@ -81,9 +81,12 @@ func (tmp *TmpFileWHash) Commit(dir string) error {
 		tmp.Fd.Close()
 		return err
 	}
-	tmp.Fd.Sync()
+	if err = tmp.Fd.Sync(); err != nil {
+		tmp.Fd.Close()
+		return err
+	}
 	tmp.Fd.Close()
-	checksum := ToBase32(tmp.hsh.Sum(nil))
+	checksum := ToBase32(tmp.Hsh.Sum(nil))
 	tmp.ctx.LogD("tmp", SDS{"src": tmp.Fd.Name(), "dst": checksum}, "commit")
 	return os.Rename(tmp.Fd.Name(), filepath.Join(dir, checksum))
 }

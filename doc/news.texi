@@ -10,6 +10,11 @@ See also this page @ref{Новости, on russian}.
 @strong{Incompatible} encrypted packet format changes. Older versions
 are not supported.
 @item
+@command{nncp-bundle} command can either create stream of encrypted
+packets, or digest it. It is useful when dealing with stdin/stdout based
+transmission methods (like writing to CD-ROM without intermediate
+prepared ISO image and working with tape drives).
+@item
 Single background checksum verifier worker is allowed in
 @command{nncp-call}. This is helpful when thousands of small inbound
 packets could create many goroutines.
