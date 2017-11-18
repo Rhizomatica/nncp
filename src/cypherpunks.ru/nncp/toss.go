@@ -113,7 +113,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 						strings.Split(recipients, " ")...,
 					)...,
 				)
-				cmd.Env = append(cmd.Env, "NNCP_SENDER=" + sender.Id.String())
+				cmd.Env = append(cmd.Env, "NNCP_SENDER="+sender.Id.String())
 				cmd.Stdin = decompressor
 				if err = cmd.Run(); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "sendmail")
