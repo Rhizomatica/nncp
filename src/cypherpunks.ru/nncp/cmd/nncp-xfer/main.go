@@ -174,7 +174,7 @@ func main() {
 			}
 			var pktEnc nncp.PktEnc
 			_, err = xdr.Unmarshal(fd, &pktEnc)
-			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv1 {
+			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv2 {
 				ctx.LogD("nncp-xfer", sds, "is not a packet")
 				fd.Close()
 				continue
