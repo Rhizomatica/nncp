@@ -17,6 +17,7 @@ LDFLAGS = \
 	-X cypherpunks.ru/nncp.DefaultLogPath=$(LOGPATH)
 
 ALL = \
+	nncp-bundle \
 	nncp-call \
 	nncp-caller \
 	nncp-cfgenc \
@@ -36,6 +37,9 @@ ALL = \
 	nncp-xfer
 
 all: $(ALL)
+
+nncp-bundle:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-bundle
 
 nncp-call:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-call

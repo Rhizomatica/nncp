@@ -25,7 +25,8 @@ PORTDOCS=	AUTHORS NEWS NEWS.RU README README.RU THANKS
 INFO=		nncp
 INSTALL_TARGET=	install-strip
 
-PLIST_FILES=	bin/nncp-call \
+PLIST_FILES=	bin/nncp-bundle \
+		bin/nncp-call \
 		bin/nncp-caller \
 		bin/nncp-cfgenc \
 		bin/nncp-cfgmin \
