@@ -15,6 +15,9 @@ packets, or digest it. It is useful when dealing with stdin/stdout based
 transmission methods (like writing to CD-ROM without intermediate
 prepared ISO image and working with tape drives).
 @item
+@command{nncp-toss} is able to create @file{.seen} files preventing
+duplicate packets receiving.
+@item
 Single background checksum verifier worker is allowed in
 @command{nncp-call}. This is helpful when thousands of small inbound
 packets could create many goroutines.
