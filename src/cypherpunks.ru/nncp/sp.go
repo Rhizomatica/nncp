@@ -55,6 +55,8 @@ var (
 		noise.CipherChaChaPoly,
 		noise.HashBLAKE2b,
 	)
+
+	spWorkersGroup sync.WaitGroup
 )
 
 type SPType uint8
@@ -838,6 +840,8 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				continue
 			}
 			state.RUnlock()
+			spWorkersGroup.Wait()
+			spWorkersGroup.Add(1)
 			go func() {
 				if err := fd.Sync(); err != nil {
 					state.ctx.LogE("sp-file", SdsAdd(sdsp, SDS{"err": err}), "sync")
@@ -859,6 +863,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				state.Lock()
 				delete(state.infosTheir, *file.Hash)
 				state.Unlock()
+				spWorkersGroup.Done()
 				go func() {
 					state.payloads <- MarshalSP(SPTypeDone, SPDone{file.Hash})
 				}()
