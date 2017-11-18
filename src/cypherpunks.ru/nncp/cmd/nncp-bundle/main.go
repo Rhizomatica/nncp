@@ -264,6 +264,10 @@ func main() {
 				ctx.LogD("nncp-bundle", sds, "Packet already exists")
 				continue
 			}
+			if _, err = os.Stat(dstPath + nncp.SeenPostfix); err == nil || !os.IsNotExist(err) {
+				ctx.LogD("nncp-bundle", sds, "Packet already exists")
+				continue
+			}
 			if *doCheck {
 				tmp, err := ctx.NewTmpFileWHash()
 				if err != nil {

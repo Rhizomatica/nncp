@@ -43,6 +43,7 @@ func main() {
 		nodeRaw  = flag.String("node", "", "Process only that node")
 		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
 		dryRun   = flag.Bool("dryrun", false, "Do not actually write any tossed data")
+		doSeen   = flag.Bool("seen", false, "Create .seen files")
 		cycle    = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
@@ -92,7 +93,7 @@ Cycle:
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		isBad = ctx.Toss(node.Id, nice, *dryRun)
+		isBad = ctx.Toss(node.Id, nice, *dryRun, *doSeen)
 	}
 	if *cycle > 0 {
 		time.Sleep(time.Duration(*cycle) * time.Second)

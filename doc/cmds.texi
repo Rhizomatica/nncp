@@ -418,7 +418,7 @@ queues.
 @section nncp-toss
 
 @verbatim
-% nncp-toss [options] [-dryrun] [-cycle INT]
+% nncp-toss [options] [-dryrun] [-cycle INT] [-seen]
 @end verbatim
 
 Perform "tossing" operation on all inbound packets. This is the tool
@@ -432,6 +432,11 @@ tells what it will do.
 @option{-cycle} option tells not to quit, but to repeat tossing every
 @option{INT} seconds in an infinite loop. That can be useful when
 running this command as a daemon.
+
+@option{-seen} option creates empty @file{XXX.seen} file after
+successful tossing of @file{XXX} packet. @ref{nncp-xfer} and
+@ref{nncp-bundle} commands skip inbound packets that has been already
+seen, processed and tossed. This is helpful to defeat duplicates.
 
 @node nncp-xfer
 @section nncp-xfer

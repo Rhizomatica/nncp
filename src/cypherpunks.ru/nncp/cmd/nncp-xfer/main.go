@@ -285,6 +285,16 @@ Tx:
 				job.Fd.Close()
 				continue
 			}
+			if _, err = os.Stat(filepath.Join(dstPath, pktName)); err == nil || !os.IsNotExist(err) {
+				ctx.LogD("nncp-xfer", sds, "already exists")
+				job.Fd.Close()
+				continue
+			}
+			if _, err = os.Stat(filepath.Join(dstPath, pktName+nncp.SeenPostfix)); err == nil || !os.IsNotExist(err) {
+				ctx.LogD("nncp-xfer", sds, "already exists")
+				job.Fd.Close()
+				continue
+			}
 			tmp, err := ioutil.TempFile(dstPath, "nncp-xfer")
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "mktemp")
