@@ -34,7 +34,7 @@ can not contain partly written files -- they are moved atomically from
 
 When @ref{nncp-toss} utility is called with @option{-seen} option, it
 will create empty @file{XXX.seen} files, telling that some kind of
-packet already was tossed sometime.
+packet was already tossed sometime.
 
 Only one process can work with @file{rx}/@file{tx} directories at once,
 so there are corresponding lock files.
