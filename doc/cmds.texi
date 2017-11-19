@@ -48,9 +48,9 @@ copies all found packets for our node to the spool directory. Pay
 attention that @strong{no} integrity checking is done by default. Modern
 tape drives could easily provide too much throughput your CPU won't be
 able to verify on the fly. So if you won't @ref{nncp-toss, toss}
-received packets at the place, it is advised to run @ref{nncp-check}
-utility for packets integrity verification, or use @option{-check}
-option to enable on the fly integrity check.
+received packets at the place, it is advisable either to run
+@ref{nncp-check} utility for packets integrity verification, or to use
+@option{-check} option to enable on the fly integrity check.
 
 You can specify multiple @option{NODE} arguments, telling for what nodes
 you want to create the stream, or take it from. If no nodes are

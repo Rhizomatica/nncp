@@ -5,8 +5,8 @@ Usual @ref{nncp-xfer} command requires filesystem it can operate on.
 That presumes random access media storage usage, like hard drives, USB
 flash drives and similar. But media like CD-ROM and especially tape
 drives are sequential by nature. You can prepare intermediate directory
-for recording to CD-ROM disc, but that requires additional storage and
-is inconvenient. Tape drive will require intermediate extract step too.
+for recording to CD-ROM disc/tape, but that requires additional storage
+and is inconvenient.
 
 Bundles, created with @ref{nncp-bundle} command are convenient
 alternative to ordinary @command{nncp-xfer}. Bundle is just a collection
@@ -39,8 +39,8 @@ import}/@command{zpool export} and struggling with file permissions.
 transmission -- sequential write is always faster, when no
 metainformation needs to be updated.
 
-@item This is convenient to use with write-only/append-only storages,
-just sending/appending new bundles.
+@item This is convenient to use with append-only storages, just
+sending/appending new bundles.
 
 @item Bundles could be repeatedly broadcasted in one-way transmission.
 @ref{Sync, Sync protocol} requires interactive connection, but bundles
@@ -51,5 +51,5 @@ can contain mix of various recipients.
 Technically bundle is valid POSIX.1
 @url{http://www.freebsd.org/cgi/man.cgi?query=tar&sektion=5, tar archive},
 with directory/files hierarchy identical to that is used in
-@ref{nncp-xfer}. So bundle can be created by manual tar-ing of
-@command{nncp-xfer} resulting directory too.
+@ref{nncp-xfer}. So bundle can also be created by manual tar-ing of
+@command{nncp-xfer} resulting directory.

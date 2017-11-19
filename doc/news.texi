@@ -3,8 +3,8 @@
 
 See also this page @ref{Новости, on russian}.
 
-@node Release 0.13
-@section Release 0.13
+@node Release 1.0
+@section Release 1.0
 @itemize
 @item
 @strong{Incompatible} encrypted packet format changes. Older versions
