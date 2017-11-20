@@ -46,8 +46,8 @@ func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-bundle -- Create/digest stream of NNCP encrypted packets\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] -tx [-delete] NODE [NODE ...] > ...\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] -rx -delete [NODE ...] < ...\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] -rx [-check] [NODE ...] < ...\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -rx -delete [-dryrun] [NODE ...] < ...\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -rx [-check] [-dryrun] [NODE ...] < ...\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }
@@ -60,6 +60,7 @@ func main() {
 		doTx     = flag.Bool("tx", false, "Transfer packets")
 		doDelete = flag.Bool("delete", false, "Delete transferred packets")
 		doCheck  = flag.Bool("check", false, "Check integrity while receiving")
+		dryRun   = flag.Bool("dryrun", false, "Do not writings")
 		quiet    = flag.Bool("quiet", false, "Print only errors")
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
@@ -256,7 +257,9 @@ func main() {
 				}
 				if nncp.ToBase32(hsh.Sum(nil)) == pktName {
 					ctx.LogI("nncp-bundle", sds, "removed")
-					os.Remove(dstPath)
+					if !*dryRun {
+						os.Remove(dstPath)
+					}
 				} else {
 					ctx.LogE("nncp-bundle", sds, "bad checksum")
 				}
@@ -285,50 +288,73 @@ func main() {
 				continue
 			}
 			if *doCheck {
-				tmp, err := ctx.NewTmpFileWHash()
-				if err != nil {
-					log.Fatalln("Error during temporary file creation:", err)
-				}
-				if _, err = tmp.W.Write(pktEncBuf); err != nil {
-					log.Fatalln("Error during writing:", err)
-				}
-				if _, err = io.Copy(tmp.W, tarR); err != nil {
-					log.Fatalln("Error during copying:", err)
-				}
-				if err = tmp.W.Flush(); err != nil {
-					log.Fatalln("Error during flusing:", err)
-				}
-				if nncp.ToBase32(tmp.Hsh.Sum(nil)) == pktName {
-					if err = tmp.Commit(selfPath); err != nil {
-						log.Fatalln("Error during commiting:", err)
+				if *dryRun {
+					hsh, err := blake2b.New256(nil)
+					if err != nil {
+						log.Fatalln("Error during hasher creation:", err)
+					}
+					if _, err = hsh.Write(pktEncBuf); err != nil {
+						log.Fatalln("Error during writing:", err)
+					}
+					if _, err = io.Copy(hsh, tarR); err != nil {
+						log.Fatalln("Error during copying:", err)
+					}
+					if nncp.ToBase32(hsh.Sum(nil)) != pktName {
+						ctx.LogE("nncp-bundle", sds, "bad checksum")
+						continue
 					}
 				} else {
-					ctx.LogE("nncp-bundle", sds, "bad checksum")
-					tmp.Cancel()
-					continue
+					tmp, err := ctx.NewTmpFileWHash()
+					if err != nil {
+						log.Fatalln("Error during temporary file creation:", err)
+					}
+					if _, err = tmp.W.Write(pktEncBuf); err != nil {
+						log.Fatalln("Error during writing:", err)
+					}
+					if _, err = io.Copy(tmp.W, tarR); err != nil {
+						log.Fatalln("Error during copying:", err)
+					}
+					if err = tmp.W.Flush(); err != nil {
+						log.Fatalln("Error during flusing:", err)
+					}
+					if nncp.ToBase32(tmp.Hsh.Sum(nil)) == pktName {
+						if err = tmp.Commit(selfPath); err != nil {
+							log.Fatalln("Error during commiting:", err)
+						}
+					} else {
+						ctx.LogE("nncp-bundle", sds, "bad checksum")
+						tmp.Cancel()
+						continue
+					}
 				}
 			} else {
-				tmp, err := ctx.NewTmpFile()
-				if err != nil {
-					log.Fatalln("Error during temporary file creation:", err)
-				}
-				bufTmp := bufio.NewWriterSize(tmp, CopyBufSize)
-				if _, err = bufTmp.Write(pktEncBuf); err != nil {
-					log.Fatalln("Error during writing:", err)
-				}
-				if _, err = io.Copy(bufTmp, tarR); err != nil {
-					log.Fatalln("Error during copying:", err)
-				}
-				if err = bufTmp.Flush(); err != nil {
-					log.Fatalln("Error during flushing:", err)
-				}
-				tmp.Sync()
-				tmp.Close()
-				if err = os.MkdirAll(selfPath, os.FileMode(0700)); err != nil {
-					log.Fatalln("Error during mkdir:", err)
-				}
-				if err = os.Rename(tmp.Name(), dstPath); err != nil {
-					log.Fatalln("Error during renaming:", err)
+				if *dryRun {
+					if _, err = io.Copy(ioutil.Discard, tarR); err != nil {
+						log.Fatalln("Error during copying:", err)
+					}
+				} else {
+					tmp, err := ctx.NewTmpFile()
+					if err != nil {
+						log.Fatalln("Error during temporary file creation:", err)
+					}
+					bufTmp := bufio.NewWriterSize(tmp, CopyBufSize)
+					if _, err = bufTmp.Write(pktEncBuf); err != nil {
+						log.Fatalln("Error during writing:", err)
+					}
+					if _, err = io.Copy(bufTmp, tarR); err != nil {
+						log.Fatalln("Error during copying:", err)
+					}
+					if err = bufTmp.Flush(); err != nil {
+						log.Fatalln("Error during flushing:", err)
+					}
+					tmp.Sync()
+					tmp.Close()
+					if err = os.MkdirAll(selfPath, os.FileMode(0700)); err != nil {
+						log.Fatalln("Error during mkdir:", err)
+					}
+					if err = os.Rename(tmp.Name(), dstPath); err != nil {
+						log.Fatalln("Error during renaming:", err)
+					}
 				}
 			}
 			ctx.LogI("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{

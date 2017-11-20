@@ -35,8 +35,8 @@ Nearly all commands have the following common options:
 
 @verbatim
 % nncp-bundle [options] -tx [-delete] NODE [NODE ...] > ...
-% nncp-bundle [options] -rx -delete [NODE ...] < ...
-% nncp-bundle [options] -rx [-check] [NODE ...] < ...
+% nncp-bundle [options] -rx -delete [-dryrun] [NODE ...] < ...
+% nncp-bundle [options] -rx [-check] [-dryrun] [NODE ...] < ...
 @end verbatim
 
 With @option{-tx} option, this command creates @ref{Bundles, bundle} of
@@ -72,6 +72,10 @@ spool if everything is good. So it is advisable to recheck your streams:
 % nncp-bundle -tx ALICE BOB WHATEVER | cdrecord -tao -
 % dd if=/dev/cd0 bs=2048 | nncp-bundle -rx -delete
 @end verbatim
+
+@option{-dryrun} option prevents any writing to the spool. This is
+useful when you need to see what packets will pass by and possibly check
+their integrity.
 
 @node nncp-call
 @section nncp-call
