@@ -51,5 +51,5 @@ can contain mix of various recipients.
 Technically bundle is valid POSIX.1
 @url{http://www.freebsd.org/cgi/man.cgi?query=tar&sektion=5, tar archive},
 with directory/files hierarchy identical to that is used in
-@ref{nncp-xfer}. So bundle can also be created by manual tar-ing of
-@command{nncp-xfer} resulting directory.
+@ref{nncp-xfer}: @file{NNCP/RECIPIENT/SENDER/PACKET}. So bundle can also
+be created by manual tar-ing of @command{nncp-xfer} resulting directory.

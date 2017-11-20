@@ -124,6 +124,7 @@ func main() {
 				}
 				if err = tarWr.WriteHeader(&tar.Header{
 					Name: strings.Join([]string{
+						nncp.NNCPBundlePrefix,
 						nodeId.String(),
 						ctx.SelfId.String(),
 						pktName,
@@ -158,9 +159,11 @@ func main() {
 			log.Fatalln("Error during tar closing:", err)
 		}
 	} else {
-		tarR := tar.NewReader(bufio.NewReaderSize(os.Stdin, CopyBufSize))
+		bufStdin := bufio.NewReaderSize(os.Stdin, CopyBufSize*2)
+		var peeked []byte
+		var prefixIdx int
+		var tarR *tar.Reader
 		var entry *tar.Header
-		var sepIndex int
 		var exists bool
 		pktEncBuf := make([]byte, nncp.PktEncOverhead)
 		var pktEnc *nncp.PktEnc
@@ -168,25 +171,38 @@ func main() {
 		var selfPath string
 		var dstPath string
 		for {
-			sds["xx"] = string(nncp.TRx)
-			entry, err = tarR.Next()
-			if err != nil {
+			peeked, err = bufStdin.Peek(CopyBufSize)
+			if err != nil && err != io.EOF {
+				log.Fatalln("Error during reading:", err)
+			}
+			prefixIdx = bytes.Index(peeked, []byte(nncp.NNCPBundlePrefix))
+			if prefixIdx == -1 {
 				if err == io.EOF {
 					break
 				}
-				log.Fatalln("Error during tar reading:", err)
+				bufStdin.Discard(bufStdin.Buffered() - (len(nncp.NNCPBundlePrefix) - 1))
+				continue
+			}
+			bufStdin.Discard(prefixIdx)
+			tarR = tar.NewReader(bufStdin)
+			sds["xx"] = string(nncp.TRx)
+			entry, err = tarR.Next()
+			if err != nil {
+				if err != io.EOF {
+					ctx.LogD(
+						"nncp-bundle",
+						nncp.SdsAdd(sds, nncp.SDS{"err": err}),
+						"error reading tar",
+					)
+				}
+				continue
 			}
 			sds["pkt"] = entry.Name
 			if entry.Size < nncp.PktEncOverhead {
 				ctx.LogD("nncp-bundle", sds, "Too small packet")
 				continue
 			}
-			sepIndex = strings.LastIndex(entry.Name, "/")
-			if sepIndex == -1 {
-				ctx.LogD("nncp-bundle", sds, "Bad packet name")
-				continue
-			}
-			pktName = entry.Name[sepIndex+1:]
+			pktName = filepath.Base(entry.Name)
 			if _, err = nncp.FromBase32(pktName); err != nil {
 				ctx.LogD("nncp-bundle", sds, "Bad packet name")
 				continue
@@ -195,7 +211,7 @@ func main() {
 				ctx.LogD("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "read")
 				continue
 			}
-			if _, err = xdr.Unmarshal(bytes.NewBuffer(pktEncBuf), &pktEnc); err != nil {
+			if _, err = xdr.Unmarshal(bytes.NewReader(pktEncBuf), &pktEnc); err != nil {
 				ctx.LogD("nncp-bundle", sds, "Bad packet structure")
 				continue
 			}

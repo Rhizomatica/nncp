@@ -49,6 +49,8 @@ const (
 	DefaultNiceMail = 64
 	DefaultNiceFreq = 64
 	DefaultNiceFile = 196
+
+	NNCPBundlePrefix = "NNCP/"
 )
 
 var (
