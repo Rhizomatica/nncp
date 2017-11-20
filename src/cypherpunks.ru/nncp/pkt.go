@@ -50,7 +50,7 @@ const (
 	DefaultNiceFreq = 64
 	DefaultNiceFile = 196
 
-	NNCPBundlePrefix = "NNCP/"
+	NNCPBundlePrefix = "NNCP"
 )
 
 var (
