@@ -470,3 +470,6 @@ configuration file version without any private keys.
 @file{DIR} directory has the following structure:
 @file{RECIPIENT/SENDER/PACKET}, where @file{RECIPIENT} is Base32 encoded
 destination node, @file{SENDER} is Base32 encoded sender node.
+
+Also look for @ref{nncp-bundle}, especially if you deal with CD-ROM and
+tape drives.

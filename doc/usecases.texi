@@ -9,6 +9,7 @@ See also this page @ref{Сценарии, on russian}.
 * Unreliable/expensive communication link: UsecaseUnreliable.
 * Slow/expensive link for high-volume data, bad QoS: UsecaseQoS.
 * Extreme terrestrial environments, no link: UsecaseNoLink.
+* One-way broadcasting communications: UsecaseBroadcast.
 * Private, isolated MitM/Sybil-resistant networks: UsecaseF2F.
 * Highly secure isolated air-gap computers: UsecaseAirgap.
 * Network censorship bypassing, health: UsecaseCensor.
@@ -108,6 +109,13 @@ Huge files could be split on smaller @ref{Chunked, chunks}, giving
 possibility to transfer virtually any volumes using small capacity
 storages.
 
+You can also use CD-ROM and tape drives:
+
+@verbatim
+% nncp-bundle -tx bob | cdrecord -tao -
+% nncp-bundle -tx bob | dd of=/dev/sa0 bs=10240
+@end verbatim
+
 @node UsecaseNoLink
 @section Extreme terrestrial environments, no link
 
@@ -144,6 +152,25 @@ it in their computers, they will use exactly the same command:
 to find all packets related to their node and copy them locally for
 further processing. @command{nncp-xfer} is the only command used with
 removable devices.
+
+@node UsecaseBroadcast
+@section One-way broadcasting communications
+
+Sometimes you have got high-bandwidth but unidirectional link, for
+example, satellite's broadcasting signal. You are not able to use online
+@ref{Sync, synchronization protocol} because it requires mutual interaction.
+
+You can use @ref{Bundles, bundles} and stream them above. They are just
+a sequence of @ref{Encrypted, encrypted packets} you can catch on.
+
+@verbatim
+% nncp-bundle -tx alice bob eve ... | command to send broadcast
+% command to receive broadcast | nncp-bundle -rx
+@end verbatim
+
+With built-in packet duplicates detection ability, you can retransmit
+your broadcasts from time to time, to increase chances the recipient
+will catch them by regular stream listening.
 
 @node UsecaseF2F
 @section Private, isolated MitM/Sybil-resistant networks
