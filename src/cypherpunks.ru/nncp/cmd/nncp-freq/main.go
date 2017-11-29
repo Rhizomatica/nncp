@@ -22,7 +22,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -40,13 +39,15 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw  = flag.Int("nice", nncp.DefaultNiceFreq, "Outbound packet niceness")
-		minSize  = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
-		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Print debug messages")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw   = flag.Int("nice", nncp.DefaultNiceFreq, "Outbound packet niceness")
+		minSize   = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
+		spoolPath = flag.String("spool", "", "Override path to spool")
+		logPath   = flag.String("log", "", "Override path to logfile")
+		quiet     = flag.Bool("quiet", false, "Print only errors")
+		debug     = flag.Bool("debug", false, "Print debug messages")
+		version   = flag.Bool("version", false, "Print version information")
+		warranty  = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -67,19 +68,13 @@ func main() {
 	}
 	nice := uint8(*niceRaw)
 
-	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {
-		log.Fatalln("Can not read config:", err)
-	}
-	ctx, err := nncp.CfgParse(cfgRaw)
-	if err != nil {
-		log.Fatalln("Can not parse config:", err)
+		log.Fatalln("Error during initialization:", err)
 	}
 	if ctx.Self == nil {
 		log.Fatalln("Config lacks private keys")
 	}
-	ctx.Quiet = *quiet
-	ctx.Debug = *debug
 
 	splitted := strings.SplitN(flag.Arg(0), ":", 2)
 	if len(splitted) != 2 {
