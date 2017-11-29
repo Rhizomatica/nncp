@@ -25,6 +25,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"cypherpunks.ru/nncp"
 )
@@ -32,15 +33,26 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-rm -- remove packet\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE PKT\nOptions:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] -tmp\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -lock\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE [-rx] [-tx] [-part] [-seen]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE -pkt PKT\n", os.Args[0])
+	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }
 
 func main() {
 	var (
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		doTmp     = flag.Bool("tmp", false, "Remove all temporary files")
+		doLock    = flag.Bool("lock", false, "Remove all lock files")
+		nodeRaw   = flag.String("node", "", "Node to remove files in")
+		doRx      = flag.Bool("rx", false, "Process received packets")
+		doTx      = flag.Bool("tx", false, "Process transfered packets")
+		doPart    = flag.Bool("part", false, "Remove only .part files")
+		doSeen    = flag.Bool("seen", false, "Remove only .seen files")
+		pktRaw    = flag.String("pkt", "", "Packet to remove")
 		spoolPath = flag.String("spool", "", "Override path to spool")
-		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
 		debug     = flag.Bool("debug", false, "Print debug messages")
 		version   = flag.Bool("version", false, "Print version information")
@@ -56,36 +68,72 @@ func main() {
 		fmt.Println(nncp.VersionGet())
 		return
 	}
-	if flag.NArg() != 2 {
-		usage()
-		os.Exit(1)
-	}
 
-	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, "", *quiet, *debug)
 	if err != nil {
 		log.Fatalln("Error during initialization:", err)
 	}
 
-	node, err := ctx.FindNode(flag.Arg(0))
-	if err != nil {
-		log.Fatalln("Invalid NODE specified:", err)
-	}
-
-	pktName := flag.Arg(1)
-	remove := func(xx nncp.TRxTx) bool {
-		for job := range ctx.Jobs(node.Id, xx) {
-			job.Fd.Close()
-			if filepath.Base(job.Fd.Name()) == pktName {
-				if err = os.Remove(job.Fd.Name()); err != nil {
-					log.Fatalln("Can not remove packet:", err)
-				}
-				return true
+	if *doTmp {
+		err = filepath.Walk(filepath.Join(ctx.Spool, "tmp"), func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
 			}
+			return os.Remove(info.Name())
+		})
+		if err != nil {
+			log.Fatalln("Error during walking:", err)
 		}
-		return false
+		return
 	}
-
-	if !(remove(nncp.TRx) || remove(nncp.TTx)) {
-		log.Fatalln("Have not found specified packet")
+	if *doLock {
+		err = filepath.Walk(ctx.Spool, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if strings.HasSuffix(info.Name(), ".lock") {
+				return os.Remove(info.Name())
+			}
+			return nil
+		})
+		if err != nil {
+			log.Fatalln("Error during walking:", err)
+		}
+		return
+	}
+	if *nodeRaw == "" {
+		usage()
+		os.Exit(1)
+	}
+	node, err := ctx.FindNode(*nodeRaw)
+	if err != nil {
+		log.Fatalln("Invalid -node specified:", err)
+	}
+	remove := func(xx nncp.TRxTx) error {
+		return filepath.Walk(filepath.Join(ctx.Spool, node.Id.String(), string(xx)), func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if *doSeen && strings.HasSuffix(info.Name(), nncp.SeenSuffix) {
+				return os.Remove(info.Name())
+			}
+			if *doPart && strings.HasSuffix(info.Name(), nncp.PartSuffix) {
+				return os.Remove(info.Name())
+			}
+			if *pktRaw == "" || filepath.Base(info.Name()) == *pktRaw {
+				return os.Remove(info.Name())
+			}
+			return nil
+		})
+	}
+	if *pktRaw != "" || *doRx {
+		if err = remove(nncp.TRx); err != nil {
+			log.Fatalln("Can not remove:", err)
+		}
+	}
+	if *pktRaw != "" || *doTx {
+		if err = remove(nncp.TTx); err != nil {
+			log.Fatalln("Can not remove:", err)
+		}
 	}
 }

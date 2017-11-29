@@ -405,12 +405,29 @@ Checksums:
 @section nncp-rm
 
 @verbatim
-% nncp-rm [options] NODE PKT
+% nncp-rm [options] -tmp
+% nncp-rm [options] -lock
+% nncp-rm [options] -node NODE [-rx] [-tx] [-part] [-seen]
+% nncp-rm [options] -node NODE -pkt PKT
 @end verbatim
 
-Remove specified packet (Base32 name) in @option{NODE}'s queues. This
-command is useful when you want to remove the packet that is failing to
-be processed.
+This command is aimed to delete various files from your spool directory:
+
+@itemize
+@item If @option{-tmp} option is specified, then it will delete all
+temporary files in @file{spool/tmp} directory. Files may stay in it when
+commands like @ref{nncp-file} fail for some reason.
+@item If @option{-lock} option is specified, then all @file{.lock} files
+will be deleted in your spool directory.
+@item If @option{-pkt} option is specified, then @file{PKT} packet (its
+Base32 name) will be deleted. This is useful when you see some packet
+failing to be processed.
+@item When either @option{-rx} or @option{-tx} options are specified
+(maybe both of them), then delete all packets from that given queues. If
+@option{-part} is given, then delete only @file{.part}ly downloaded
+ones. If @option{-seen} option is specified, then delete only
+@file{.seen} files.
+@end itemize
 
 @node nncp-stat
 @section nncp-stat
