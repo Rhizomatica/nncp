@@ -286,7 +286,7 @@ Tx:
 				job.Fd.Close()
 				continue
 			}
-			if _, err = os.Stat(filepath.Join(dstPath, pktName+nncp.SeenPostfix)); err == nil || !os.IsNotExist(err) {
+			if _, err = os.Stat(filepath.Join(dstPath, pktName+nncp.SeenSuffix)); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("nncp-xfer", sds, "already exists")
 				job.Fd.Close()
 				continue

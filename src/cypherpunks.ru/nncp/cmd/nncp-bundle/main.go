@@ -279,7 +279,7 @@ func main() {
 				ctx.LogD("nncp-bundle", sds, "Packet already exists")
 				continue
 			}
-			if _, err = os.Stat(dstPath + nncp.SeenPostfix); err == nil || !os.IsNotExist(err) {
+			if _, err = os.Stat(dstPath + nncp.SeenSuffix); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("nncp-bundle", sds, "Packet already exists")
 				continue
 			}
