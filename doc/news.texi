@@ -24,6 +24,9 @@ packets could create many goroutines.
 @item
 Ability to override path to spool directory and logfile through either
 command line argument, or environment variable.
+@item
+@command{nncp-rm} is able to delete outbound/inbound, @file{.seen},
+@file{.part}, @file{.lock} and temporary files.
 @end itemize
 
 @node Release 0.12
