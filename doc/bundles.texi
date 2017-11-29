@@ -48,7 +48,7 @@ can contain mix of various recipients.
 
 @end itemize
 
-Technically bundle is valid POSIX.1
+Technically bundle is valid POSIX.1-2001 (pax)
 @url{http://www.freebsd.org/cgi/man.cgi?query=tar&sektion=5, tar archive},
 with directory/files hierarchy identical to that is used in
 @ref{nncp-xfer}: @file{NNCP/RECIPIENT/SENDER/PACKET}. So bundle can also
