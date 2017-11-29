@@ -39,7 +39,7 @@ import (
 )
 
 const (
-	SeenPostfix = ".seen"
+	SeenSuffix = ".seen"
 )
 
 func newNotification(fromTo *FromToYAML, subject string) io.Reader {
@@ -128,7 +128,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 			ctx.LogI("rx", sds, "")
 			if !dryRun {
 				if doSeen {
-					if fd, err := os.Create(job.Fd.Name() + SeenPostfix); err == nil {
+					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
 						fd.Close()
 					}
 				}
@@ -199,7 +199,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 			ctx.LogI("rx", sds, "")
 			if !dryRun {
 				if doSeen {
-					if fd, err := os.Create(job.Fd.Name() + SeenPostfix); err == nil {
+					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
 						fd.Close()
 					}
 				}
@@ -273,7 +273,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 			ctx.LogI("rx", sds, "")
 			if !dryRun {
 				if doSeen {
-					if fd, err := os.Create(job.Fd.Name() + SeenPostfix); err == nil {
+					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
 						fd.Close()
 					}
 				}
@@ -317,7 +317,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 			ctx.LogI("rx", sds, "")
 			if !dryRun {
 				if doSeen {
-					if fd, err := os.Create(job.Fd.Name() + SeenPostfix); err == nil {
+					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
 						fd.Close()
 					}
 				}
