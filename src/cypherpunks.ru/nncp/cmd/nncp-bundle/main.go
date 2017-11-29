@@ -54,17 +54,19 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
-		doRx     = flag.Bool("rx", false, "Receive packets")
-		doTx     = flag.Bool("tx", false, "Transfer packets")
-		doDelete = flag.Bool("delete", false, "Delete transferred packets")
-		doCheck  = flag.Bool("check", false, "Check integrity while receiving")
-		dryRun   = flag.Bool("dryrun", false, "Do not writings")
-		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Print debug messages")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw   = flag.Int("nice", 255, "Minimal required niceness")
+		doRx      = flag.Bool("rx", false, "Receive packets")
+		doTx      = flag.Bool("tx", false, "Transfer packets")
+		doDelete  = flag.Bool("delete", false, "Delete transferred packets")
+		doCheck   = flag.Bool("check", false, "Check integrity while receiving")
+		dryRun    = flag.Bool("dryrun", false, "Do not writings")
+		spoolPath = flag.String("spool", "", "Override path to spool")
+		logPath   = flag.String("log", "", "Override path to logfile")
+		quiet     = flag.Bool("quiet", false, "Print only errors")
+		debug     = flag.Bool("debug", false, "Print debug messages")
+		version   = flag.Bool("version", false, "Print version information")
+		warranty  = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -87,16 +89,10 @@ func main() {
 		log.Fatalln("At least one of -rx and -tx must be specified")
 	}
 
-	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {
-		log.Fatalln("Can not read config:", err)
+		log.Fatalln("Error during initialization:", err)
 	}
-	ctx, err := nncp.CfgParse(cfgRaw)
-	if err != nil {
-		log.Fatalln("Can not parse config:", err)
-	}
-	ctx.Quiet = *quiet
-	ctx.Debug = *debug
 
 	nodeIds := make(map[nncp.NodeId]struct{}, flag.NArg())
 	for i := 0; i < flag.NArg(); i++ {

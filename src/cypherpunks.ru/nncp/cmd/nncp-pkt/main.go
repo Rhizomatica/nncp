@@ -26,7 +26,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -114,13 +113,9 @@ func main() {
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc)
 	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv2 {
 		if *dump {
-			cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+			ctx, err := nncp.CtxFromCmdline(*cfgPath, "", "", false, false)
 			if err != nil {
-				log.Fatalln("Can not read config:", err)
-			}
-			ctx, err := nncp.CfgParse(cfgRaw)
-			if err != nil {
-				log.Fatalln("Can not parse config:", err)
+				log.Fatalln("Error during initialization:", err)
 			}
 			if ctx.Self == nil {
 				log.Fatalln("Config lacks private keys")
