@@ -35,7 +35,9 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "nncp-rm -- remove packet\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] -tmp\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -lock\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE [-rx] [-tx] [-part] [-seen]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE -part\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE -seen\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE {-rx|-tx}\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE -pkt PKT\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
@@ -79,7 +81,11 @@ func main() {
 			if err != nil {
 				return err
 			}
-			return os.Remove(info.Name())
+			if info.IsDir() {
+				return nil
+			}
+			ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+			return os.Remove(path)
 		})
 		if err != nil {
 			log.Fatalln("Error during walking:", err)
@@ -91,8 +97,12 @@ func main() {
 			if err != nil {
 				return err
 			}
+			if info.IsDir() {
+				return nil
+			}
 			if strings.HasSuffix(info.Name(), ".lock") {
-				return os.Remove(info.Name())
+				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				return os.Remove(path)
 			}
 			return nil
 		})
@@ -114,19 +124,32 @@ func main() {
 			if err != nil {
 				return err
 			}
+			if info.IsDir() {
+				return nil
+			}
 			if *doSeen && strings.HasSuffix(info.Name(), nncp.SeenSuffix) {
-				return os.Remove(info.Name())
+				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				return os.Remove(path)
 			}
 			if *doPart && strings.HasSuffix(info.Name(), nncp.PartSuffix) {
-				return os.Remove(info.Name())
+				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				return os.Remove(path)
 			}
-			if *pktRaw == "" || filepath.Base(info.Name()) == *pktRaw {
-				return os.Remove(info.Name())
+			if *pktRaw != "" && filepath.Base(info.Name()) == *pktRaw {
+				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				return os.Remove(path)
+			}
+			if !*doSeen &&
+				!*doPart &&
+				(*doRx || *doTx) &&
+				((*doRx && xx == nncp.TRx) || (*doTx && xx == nncp.TTx)) {
+				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				return os.Remove(path)
 			}
 			return nil
 		})
 	}
-	if *pktRaw != "" || *doRx {
+	if *pktRaw != "" || *doRx || *doSeen || *doPart {
 		if err = remove(nncp.TRx); err != nil {
 			log.Fatalln("Can not remove:", err)
 		}
