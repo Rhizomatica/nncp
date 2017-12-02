@@ -49,11 +49,13 @@ const (
 	DefaultNiceMail = 64
 	DefaultNiceFreq = 64
 	DefaultNiceFile = 196
+
+	NNCPBundlePrefix = "NNCP"
 )
 
 var (
 	MagicNNCPPv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 1}
-	MagicNNCPEv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 1}
+	MagicNNCPEv2 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 2}
 	BadMagic     error   = errors.New("Unknown magic number")
 	BadPktType   error   = errors.New("Unknown packet type")
 
@@ -71,17 +73,18 @@ type Pkt struct {
 type PktTbs struct {
 	Magic     [8]byte
 	Nice      uint8
-	Recipient *NodeId
 	Sender    *NodeId
+	Recipient *NodeId
 	ExchPub   *[32]byte
 }
 
 type PktEnc struct {
-	Magic   [8]byte
-	Nice    uint8
-	Sender  *NodeId
-	ExchPub *[32]byte
-	Sign    *[ed25519.SignatureSize]byte
+	Magic     [8]byte
+	Nice      uint8
+	Sender    *NodeId
+	Recipient *NodeId
+	ExchPub   *[32]byte
+	Sign      *[ed25519.SignatureSize]byte
 }
 
 func init() {
@@ -102,11 +105,12 @@ func init() {
 		panic(err)
 	}
 	pktEnc := PktEnc{
-		Magic:   MagicNNCPEv1,
-		Nice:    123,
-		Sender:  dummyId,
-		ExchPub: new([32]byte),
-		Sign:    new([ed25519.SignatureSize]byte),
+		Magic:     MagicNNCPEv2,
+		Nice:      123,
+		Sender:    dummyId,
+		Recipient: dummyId,
+		ExchPub:   new([32]byte),
+		Sign:      new([ed25519.SignatureSize]byte),
 	}
 	n, err = xdr.Marshal(&buf, pktEnc)
 	if err != nil {
@@ -157,10 +161,10 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize 
 		return err
 	}
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv1,
+		Magic:     MagicNNCPEv2,
 		Nice:      nice,
-		Recipient: their.Id,
 		Sender:    our.Id,
+		Recipient: their.Id,
 		ExchPub:   pubEph,
 	}
 	var tbsBuf bytes.Buffer
@@ -170,18 +174,19 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize 
 	signature := new([ed25519.SignatureSize]byte)
 	copy(signature[:], ed25519.Sign(our.SignPrv, tbsBuf.Bytes()))
 	pktEnc := PktEnc{
-		Magic:   MagicNNCPEv1,
-		Nice:    nice,
-		Sender:  our.Id,
-		ExchPub: pubEph,
-		Sign:    signature,
+		Magic:     MagicNNCPEv2,
+		Nice:      nice,
+		Sender:    our.Id,
+		Recipient: their.Id,
+		ExchPub:   pubEph,
+		Sign:      signature,
 	}
 	if _, err = xdr.Marshal(out, &pktEnc); err != nil {
 		return err
 	}
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, prvEph, their.ExchPub)
-	kdf := hkdf.New(blake256, sharedKey[:], nil, MagicNNCPEv1[:])
+	kdf := hkdf.New(blake256, sharedKey[:], nil, MagicNNCPEv2[:])
 
 	keyEnc := make([]byte, 32)
 	if _, err = io.ReadFull(kdf, keyEnc); err != nil {
@@ -257,10 +262,10 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize 
 
 func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv1,
+		Magic:     MagicNNCPEv2,
 		Nice:      pktEnc.Nice,
-		Recipient: our.Id,
 		Sender:    their.Id,
+		Recipient: our.Id,
 		ExchPub:   pktEnc.ExchPub,
 	}
 	var tbsBuf bytes.Buffer
@@ -276,12 +281,15 @@ func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Wri
 	if err != nil {
 		return nil, 0, err
 	}
-	if pktEnc.Magic != MagicNNCPEv1 {
+	if pktEnc.Magic != MagicNNCPEv2 {
 		return nil, 0, BadMagic
 	}
 	their, known := nodes[*pktEnc.Sender]
 	if !known {
 		return nil, 0, errors.New("Unknown sender")
+	}
+	if *pktEnc.Recipient != *our.Id {
+		return nil, 0, errors.New("Invalid recipient")
 	}
 	verified, err := TbsVerify(our, their, &pktEnc)
 	if err != nil {
@@ -292,7 +300,7 @@ func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Wri
 	}
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, our.ExchPrv, pktEnc.ExchPub)
-	kdf := hkdf.New(blake256, sharedKey[:], nil, MagicNNCPEv1[:])
+	kdf := hkdf.New(blake256, sharedKey[:], nil, MagicNNCPEv2[:])
 
 	keyEnc := make([]byte, 32)
 	if _, err = io.ReadFull(kdf, keyEnc); err != nil {

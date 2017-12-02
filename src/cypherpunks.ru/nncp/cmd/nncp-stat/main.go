@@ -22,7 +22,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"sort"
@@ -40,11 +39,12 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		nodeRaw  = flag.String("node", "", "Process only that node")
-		debug    = flag.Bool("debug", false, "Print debug messages")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		nodeRaw   = flag.String("node", "", "Process only that node")
+		spoolPath = flag.String("spool", "", "Override path to spool")
+		debug     = flag.Bool("debug", false, "Print debug messages")
+		version   = flag.Bool("version", false, "Print version information")
+		warranty  = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -57,15 +57,10 @@ func main() {
 		return
 	}
 
-	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, "", false, *debug)
 	if err != nil {
-		log.Fatalln("Can not read config:", err)
+		log.Fatalln("Error during initialization:", err)
 	}
-	ctx, err := nncp.CfgParse(cfgRaw)
-	if err != nil {
-		log.Fatalln("Can not parse config:", err)
-	}
-	ctx.Debug = *debug
 
 	var nodeOnly *nncp.Node
 	if *nodeRaw != "" {

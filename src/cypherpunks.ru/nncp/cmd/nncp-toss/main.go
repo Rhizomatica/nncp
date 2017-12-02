@@ -22,7 +22,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -39,15 +38,18 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		nodeRaw  = flag.String("node", "", "Process only that node")
-		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
-		dryRun   = flag.Bool("dryrun", false, "Do not actually write any tossed data")
-		cycle    = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
-		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Print debug messages")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		nodeRaw   = flag.String("node", "", "Process only that node")
+		niceRaw   = flag.Int("nice", 255, "Minimal required niceness")
+		dryRun    = flag.Bool("dryrun", false, "Do not actually write any tossed data")
+		doSeen    = flag.Bool("seen", false, "Create .seen files")
+		cycle     = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
+		spoolPath = flag.String("spool", "", "Override path to spool")
+		logPath   = flag.String("log", "", "Override path to logfile")
+		quiet     = flag.Bool("quiet", false, "Print only errors")
+		debug     = flag.Bool("debug", false, "Print debug messages")
+		version   = flag.Bool("version", false, "Print version information")
+		warranty  = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -64,19 +66,13 @@ func main() {
 	}
 	nice := uint8(*niceRaw)
 
-	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {
-		log.Fatalln("Can not read config:", err)
-	}
-	ctx, err := nncp.CfgParse(cfgRaw)
-	if err != nil {
-		log.Fatalln("Can not parse config:", err)
+		log.Fatalln("Error during initialization:", err)
 	}
 	if ctx.Self == nil {
 		log.Fatalln("Config lacks private keys")
 	}
-	ctx.Quiet = *quiet
-	ctx.Debug = *debug
 
 	var nodeOnly *nncp.Node
 	if *nodeRaw != "" {
@@ -92,7 +88,7 @@ Cycle:
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		isBad = ctx.Toss(node.Id, nice, *dryRun)
+		isBad = ctx.Toss(node.Id, nice, *dryRun, *doSeen)
 	}
 	if *cycle > 0 {
 		time.Sleep(time.Duration(*cycle) * time.Second)

@@ -32,7 +32,9 @@ import (
 )
 
 const (
-	CfgPathEnv = "NNCPCFG"
+	CfgPathEnv  = "NNCPCFG"
+	CfgSpoolEnv = "NNCPSPOOL"
+	CfgLogEnv   = "NNCPLOG"
 )
 
 var (
@@ -413,12 +415,4 @@ func CfgParse(data []byte) (*Ctx, error) {
 		}
 	}
 	return &ctx, nil
-}
-
-func CfgPathFromEnv(cmdlineFlag *string) (p string) {
-	p = os.Getenv(CfgPathEnv)
-	if p == "" {
-		p = *cmdlineFlag
-	}
-	return
 }
