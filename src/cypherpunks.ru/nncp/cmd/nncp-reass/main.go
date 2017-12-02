@@ -264,17 +264,19 @@ func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 
 func main() {
 	var (
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		allNodes = flag.Bool("all", false, "Process all found chunked files for all nodes")
-		nodeRaw  = flag.String("node", "", "Process all found chunked files for that node")
-		keep     = flag.Bool("keep", false, "Do not remove chunks while assembling")
-		dryRun   = flag.Bool("dryrun", false, "Do not assemble whole file")
-		dumpMeta = flag.Bool("dump", false, "Print decoded human-readable FILE.nncp.meta")
-		stdout   = flag.Bool("stdout", false, "Output reassembled FILE to stdout")
-		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Print debug messages")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		allNodes  = flag.Bool("all", false, "Process all found chunked files for all nodes")
+		nodeRaw   = flag.String("node", "", "Process all found chunked files for that node")
+		keep      = flag.Bool("keep", false, "Do not remove chunks while assembling")
+		dryRun    = flag.Bool("dryrun", false, "Do not assemble whole file")
+		dumpMeta  = flag.Bool("dump", false, "Print decoded human-readable FILE.nncp.meta")
+		stdout    = flag.Bool("stdout", false, "Output reassembled FILE to stdout")
+		spoolPath = flag.String("spool", "", "Override path to spool")
+		logPath   = flag.String("log", "", "Override path to logfile")
+		quiet     = flag.Bool("quiet", false, "Print only errors")
+		debug     = flag.Bool("debug", false, "Print debug messages")
+		version   = flag.Bool("version", false, "Print version information")
+		warranty  = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -287,16 +289,10 @@ func main() {
 		return
 	}
 
-	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {
-		log.Fatalln("Can not read config:", err)
+		log.Fatalln("Error during initialization:", err)
 	}
-	ctx, err := nncp.CfgParse(cfgRaw)
-	if err != nil {
-		log.Fatalln("Can not parse config:", err)
-	}
-	ctx.Quiet = *quiet
-	ctx.Debug = *debug
 
 	var nodeOnly *nncp.Node
 	if *nodeRaw != "" {

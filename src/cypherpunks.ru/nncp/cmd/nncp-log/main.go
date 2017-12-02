@@ -23,7 +23,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -40,6 +39,7 @@ func usage() {
 func main() {
 	var (
 		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		logPath  = flag.String("log", "", "Override path to logfile")
 		debug    = flag.Bool("debug", false, "Print debug messages")
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
@@ -55,13 +55,9 @@ func main() {
 		return
 	}
 
-	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, "", *logPath, false, *debug)
 	if err != nil {
-		log.Fatalln("Can not read config:", err)
-	}
-	ctx, err := nncp.CfgParse(cfgRaw)
-	if err != nil {
-		log.Fatalln("Can not parse config:", err)
+		log.Fatalln("Error during initialization:", err)
 	}
 
 	fd, err := os.Open(ctx.LogPath)

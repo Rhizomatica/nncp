@@ -20,6 +20,12 @@ Nearly all commands have the following common options:
     1-255 values are allowed.
 @item -node
     Process only single specified node.
+@item -spool
+    Override path to spool directory. May be specified by
+    @env{NNCPSPOOL} environment variable.
+@item -log
+    Override path to logfile. May be specified by @env{NNCPLOG}
+    environment variable.
 @item -quiet
     Print only errors, omit simple informational messages. In any case
     those messages are logged, so you can reread them using
@@ -29,6 +35,53 @@ Nearly all commands have the following common options:
 @item -warranty
     Print warranty information (no warranty).
 @end table
+
+@node nncp-bundle
+@section nncp-bundle
+
+@verbatim
+% nncp-bundle [options] -tx [-delete] NODE [NODE ...] > ...
+% nncp-bundle [options] -rx -delete [-dryrun] [NODE ...] < ...
+% nncp-bundle [options] -rx [-check] [-dryrun] [NODE ...] < ...
+@end verbatim
+
+With @option{-tx} option, this command creates @ref{Bundles, bundle} of
+@ref{Encrypted, encrypted packets} from the spool directory and writes
+it to stdout.
+
+With @option{-rx} option, this command takes bundle from stdin and
+copies all found packets for our node to the spool directory. Pay
+attention that @strong{no} integrity checking is done by default. Modern
+tape drives could easily provide too much throughput your CPU won't be
+able to verify on the fly. So if you won't @ref{nncp-toss, toss}
+received packets at the place, it is advisable either to run
+@ref{nncp-check} utility for packets integrity verification, or to use
+@option{-check} option to enable on the fly integrity check.
+
+You can specify multiple @option{NODE} arguments, telling for what nodes
+you want to create the stream, or take it from. If no nodes are
+specified for @option{-rx} mode, then all packets aimed at us will be
+processed.
+
+When packets are sent through the stream, they are still kept in the
+spool directory, because there is no assurance that they are transferred
+to the media (media (CD-ROM, tape drive, raw hard drive) can end). If
+you want to forcefully delete them (after they are successfully flushed
+to stdout) anyway, use @option{-delete} option.
+
+But you can verify produced stream after, by digesting it by yourself
+with @option{-rx} and @option{-delete} options -- in that mode, stream
+packets integrity will be checked and they will be deleted from the
+spool if everything is good. So it is advisable to recheck your streams:
+
+@verbatim
+% nncp-bundle -tx ALICE BOB WHATEVER | cdrecord -tao -
+% dd if=/dev/cd0 bs=2048 | nncp-bundle -rx -delete
+@end verbatim
+
+@option{-dryrun} option prevents any writing to the spool. This is
+useful when you need to see what packets will pass by and possibly check
+their integrity.
 
 @node nncp-call
 @section nncp-call
@@ -352,12 +405,31 @@ Checksums:
 @section nncp-rm
 
 @verbatim
-% nncp-rm [options] NODE PKT
+% nncp-rm [options] -tmp
+% nncp-rm [options] -lock
+% nncp-rm [options] -node NODE -part
+% nncp-rm [options] -node NODE -seen
+% nncp-rm [options] -node NODE [-rx] [-tx]
+% nncp-rm [options] -node NODE -pkt PKT
 @end verbatim
 
-Remove specified packet (Base32 name) in @option{NODE}'s queues. This
-command is useful when you want to remove the packet that is failing to
-be processed.
+This command is aimed to delete various files from your spool directory:
+
+@itemize
+@item If @option{-tmp} option is specified, then it will delete all
+temporary files in @file{spool/tmp} directory. Files may stay in it when
+commands like @ref{nncp-file} fail for some reason.
+@item If @option{-lock} option is specified, then all @file{.lock} files
+will be deleted in your spool directory.
+@item If @option{-pkt} option is specified, then @file{PKT} packet (its
+Base32 name) will be deleted. This is useful when you see some packet
+failing to be processed.
+@item When either @option{-rx} or @option{-tx} options are specified
+(maybe both of them), then delete all packets from that given queues. If
+@option{-part} is given, then delete only @file{.part}ly downloaded
+ones. If @option{-seen} option is specified, then delete only
+@file{.seen} files.
+@end itemize
 
 @node nncp-stat
 @section nncp-stat
@@ -375,7 +447,7 @@ queues.
 @section nncp-toss
 
 @verbatim
-% nncp-toss [options] [-dryrun] [-cycle INT]
+% nncp-toss [options] [-dryrun] [-cycle INT] [-seen]
 @end verbatim
 
 Perform "tossing" operation on all inbound packets. This is the tool
@@ -389,6 +461,11 @@ tells what it will do.
 @option{-cycle} option tells not to quit, but to repeat tossing every
 @option{INT} seconds in an infinite loop. That can be useful when
 running this command as a daemon.
+
+@option{-seen} option creates empty @file{XXX.seen} file after
+successful tossing of @file{XXX} packet. @ref{nncp-xfer} and
+@ref{nncp-bundle} commands skip inbound packets that has been already
+seen, processed and tossed. This is helpful to defeat duplicates.
 
 @node nncp-xfer
 @section nncp-xfer
@@ -418,3 +495,6 @@ configuration file version without any private keys.
 @file{DIR} directory has the following structure:
 @file{RECIPIENT/SENDER/PACKET}, where @file{RECIPIENT} is Base32 encoded
 destination node, @file{SENDER} is Base32 encoded sender node.
+
+Also look for @ref{nncp-bundle}, especially if you deal with CD-ROM and
+tape drives.

@@ -17,9 +17,12 @@ can use push and poll behaviour model.
 
 Out-of-box offline @url{https://en.wikipedia.org/wiki/Sneakernet,
 sneakernet/floppynet}, @url{https://en.wikipedia.org/wiki/Dead_drop,
-dead drops} and @url{https://en.wikipedia.org/wiki/Air_gap_(networking),
-air-gapped} computers support. But online TCP daemon with full-duplex
-resumable data transmission exists.
+dead drops}, sequential and append-only
+@url{https://en.wikipedia.org/wiki/CD-ROM,
+CD-ROM}/@url{https://en.wikipedia.org/wiki/Tape_drive, tape} storages,
+@url{https://en.wikipedia.org/wiki/Air_gap_(networking), air-gapped}
+computers support. But online TCP daemon with full-duplex resumable data
+transmission exists.
 
 Look for possible @ref{Use cases, use cases}!
 

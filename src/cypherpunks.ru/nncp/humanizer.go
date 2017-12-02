@@ -150,6 +150,27 @@ func (ctx *Ctx) Humanize(s string) string {
 		if err, exists := sds["err"]; exists {
 			msg += ": " + err
 		}
+	case "nncp-bundle":
+		switch sds["xx"] {
+		case "rx":
+			msg = "Bundle transfer, received from"
+		case "tx":
+			msg = "Bundle transfer, sent to"
+		default:
+			return s
+		}
+		if nodeS != "" {
+			msg += " node " + nodeS
+		}
+		msg += " " + sds["pkt"]
+		if size != "" {
+			msg += fmt.Sprintf(" (%s)", size)
+		}
+		if err, exists := sds["err"]; exists {
+			msg += ": " + err
+		}
+	case "nncp-rm":
+		msg += "removing " + sds["file"]
 	case "call-start":
 		msg = fmt.Sprintf("Connected to %s", nodeS)
 	case "call-finish":

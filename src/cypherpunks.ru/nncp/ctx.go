@@ -20,6 +20,7 @@ package nncp
 
 import (
 	"errors"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -67,4 +68,38 @@ func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
 	}
 	fd.Close()
 	return nil
+}
+
+func CtxFromCmdline(cfgPath, spoolPath, logPath string, quiet, debug bool) (*Ctx, error) {
+	env := os.Getenv(CfgPathEnv)
+	if env != "" {
+		cfgPath = env
+	}
+	cfgRaw, err := ioutil.ReadFile(cfgPath)
+	if err != nil {
+		return nil, err
+	}
+	ctx, err := CfgParse(cfgRaw)
+	if err != nil {
+		return nil, err
+	}
+	if spoolPath == "" {
+		env = os.Getenv(CfgSpoolEnv)
+		if env != "" {
+			ctx.Spool = env
+		}
+	} else {
+		ctx.Spool = spoolPath
+	}
+	if logPath == "" {
+		env = os.Getenv(CfgLogEnv)
+		if env != "" {
+			ctx.LogPath = env
+		}
+	} else {
+		ctx.LogPath = logPath
+	}
+	ctx.Quiet = quiet
+	ctx.Debug = debug
+	return ctx, nil
 }

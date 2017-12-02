@@ -22,7 +22,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -46,6 +45,8 @@ func main() {
 		niceRaw   = flag.Int("nice", nncp.DefaultNiceFile, "Outbound packet niceness")
 		minSize   = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
 		chunkSize = flag.Uint64("chunked", 0, "Split file on specified size chunks, in KiB")
+		spoolPath = flag.String("spool", "", "Override path to spool")
+		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
 		debug     = flag.Bool("debug", false, "Print debug messages")
 		version   = flag.Bool("version", false, "Print version information")
@@ -70,19 +71,13 @@ func main() {
 	}
 	nice := uint8(*niceRaw)
 
-	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {
-		log.Fatalln("Can not read config:", err)
-	}
-	ctx, err := nncp.CfgParse(cfgRaw)
-	if err != nil {
-		log.Fatalln("Can not parse config:", err)
+		log.Fatalln("Error during initialization:", err)
 	}
 	if ctx.Self == nil {
 		log.Fatalln("Config lacks private keys")
 	}
-	ctx.Quiet = *quiet
-	ctx.Debug = *debug
 
 	splitted := strings.SplitN(flag.Arg(1), ":", 2)
 	if len(splitted) != 2 {

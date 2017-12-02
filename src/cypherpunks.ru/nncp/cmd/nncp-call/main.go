@@ -22,7 +22,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -40,14 +39,16 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath  = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw  = flag.Int("nice", 255, "Minimal required niceness")
-		rxOnly   = flag.Bool("rx", false, "Only receive packets")
-		txOnly   = flag.Bool("tx", false, "Only transfer packets")
-		quiet    = flag.Bool("quiet", false, "Print only errors")
-		debug    = flag.Bool("debug", false, "Print debug messages")
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw   = flag.Int("nice", 255, "Minimal required niceness")
+		rxOnly    = flag.Bool("rx", false, "Only receive packets")
+		txOnly    = flag.Bool("tx", false, "Only transfer packets")
+		spoolPath = flag.String("spool", "", "Override path to spool")
+		logPath   = flag.String("log", "", "Override path to logfile")
+		quiet     = flag.Bool("quiet", false, "Print only errors")
+		debug     = flag.Bool("debug", false, "Print debug messages")
+		version   = flag.Bool("version", false, "Print version information")
+		warranty  = flag.Bool("warranty", false, "Print warranty information")
 
 		onlineDeadline = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
 		maxOnlineTime  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
@@ -74,19 +75,13 @@ func main() {
 		log.Fatalln("-rx and -tx can not be set simultaneously")
 	}
 
-	cfgRaw, err := ioutil.ReadFile(nncp.CfgPathFromEnv(cfgPath))
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {
-		log.Fatalln("Can not read config:", err)
-	}
-	ctx, err := nncp.CfgParse(cfgRaw)
-	if err != nil {
-		log.Fatalln("Can not parse config:", err)
+		log.Fatalln("Error during initialization:", err)
 	}
 	if ctx.Self == nil {
 		log.Fatalln("Config lacks private keys")
 	}
-	ctx.Quiet = *quiet
-	ctx.Debug = *debug
 
 	splitted := strings.SplitN(flag.Arg(0), ":", 2)
 	node, err := ctx.FindNode(splitted[0])

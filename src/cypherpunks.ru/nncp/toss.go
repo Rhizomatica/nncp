@@ -38,6 +38,10 @@ import (
 	"golang.org/x/crypto/blake2b"
 )
 
+const (
+	SeenSuffix = ".seen"
+)
+
 func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 	return strings.NewReader(fmt.Sprintf(
 		"From: %s\nTo: %s\nSubject: %s\n",
@@ -47,7 +51,7 @@ func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 	))
 }
 
-func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
+func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Fd.Name())
@@ -113,7 +117,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 						strings.Split(recipients, " ")...,
 					)...,
 				)
-				cmd.Env = append(cmd.Env, "NNCP_SENDER=" + sender.Id.String())
+				cmd.Env = append(cmd.Env, "NNCP_SENDER="+sender.Id.String())
 				cmd.Stdin = decompressor
 				if err = cmd.Run(); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "sendmail")
@@ -123,6 +127,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 			}
 			ctx.LogI("rx", sds, "")
 			if !dryRun {
+				if doSeen {
+					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
+						fd.Close()
+					}
+				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 					isBad = true
@@ -189,6 +198,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 			}
 			ctx.LogI("rx", sds, "")
 			if !dryRun {
+				if doSeen {
+					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
+						fd.Close()
+					}
+				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 					isBad = true
@@ -258,6 +272,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 			}
 			ctx.LogI("rx", sds, "")
 			if !dryRun {
+				if doSeen {
+					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
+						fd.Close()
+					}
+				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 					isBad = true
@@ -297,6 +316,11 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun bool) bool {
 			}
 			ctx.LogI("rx", sds, "")
 			if !dryRun {
+				if doSeen {
+					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
+						fd.Close()
+					}
+				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 					isBad = true
