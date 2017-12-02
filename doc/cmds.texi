@@ -407,7 +407,9 @@ Checksums:
 @verbatim
 % nncp-rm [options] -tmp
 % nncp-rm [options] -lock
-% nncp-rm [options] -node NODE [-rx] [-tx] [-part] [-seen]
+% nncp-rm [options] -node NODE -part
+% nncp-rm [options] -node NODE -seen
+% nncp-rm [options] -node NODE [-rx] [-tx]
 % nncp-rm [options] -node NODE -pkt PKT
 @end verbatim
 

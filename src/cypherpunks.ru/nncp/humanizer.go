@@ -169,6 +169,8 @@ func (ctx *Ctx) Humanize(s string) string {
 		if err, exists := sds["err"]; exists {
 			msg += ": " + err
 		}
+	case "nncp-rm":
+		msg += "removing " + sds["file"]
 	case "call-start":
 		msg = fmt.Sprintf("Connected to %s", nodeS)
 	case "call-finish":
