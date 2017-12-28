@@ -103,12 +103,9 @@ Each encrypted packet has the following header:
 
 Signature is calculated over all previous fields.
 
-All following encryption is done using
-@url{https://www.schneier.com/academic/twofish/, Twofish} algorithm with
-256-bit key in
-@url{https://en.wikipedia.org/wiki/Counter_mode#Counter_.28CTR.29, CTR}
-mode of operation with zero initialization vector (because each
-encrypted packet has ephemeral exchange key). @url{https://blake2.net/,
+All following encryption is done using @url{https://cr.yp.to/chacha.html,
+ChaCha20} algorithm. Data is splitted on 128 KiB blocks. Each block is
+encrypted with increasing nonce counter. @url{https://blake2.net/,
 BLAKE2b-256} MAC is appended to the ciphertext.
 
 After the headers comes an encrypted payload size and MAC of that size.
@@ -133,15 +130,15 @@ When node A want to send encrypted packet to node B, it:
 @item takes remote node's exchange public key and performs
     Diffie-Hellman computation on this remote static public key and
     private ephemeral one
-@item derived ephemeral key is used as an input to
-    @url{https://en.wikipedia.org/wiki/HKDF, HKDF}-BLAKE2b-256 KDF
-@item derives four session keys using
-    @url{https://en.wikipedia.org/wiki/HKDF, HKDF}-BLAKE2b-256 KDF:
+@item derived ephemeral key is used as a key input to
+    @url{https://blake2.net/, BLAKE2Xb} XOF
+@item derives five session keys using output from the XOF above:
     @enumerate
-    @item "Size" encryption (for Twofish) key
+    @item "Size" encryption (for ChaCha20) key
     @item "Size" authentication (for BLAKE2b-MAC) key
     @item Payload encryption key
     @item Payload authentication key
+    @item Optional pad generation key (for ChaCha20)
     @end enumerate
 @item encrypts size, appends its ciphertext to the header
 @item appends MAC tag over that ciphertext
