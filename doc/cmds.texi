@@ -252,11 +252,9 @@ packet creation. Pay attention that if you want to send 1 GiB of data
 taken from stdin, then you have to have 2 GiB of disk space for that
 temporary file and resulting encrypted packet. You can control where
 temporary file will be stored using @env{TMPDIR} environment variable.
-Encryption is performed with
-@url{https://www.schneier.com/academic/twofish/, Twofish} algorithm, 256
-bit random key, zero IV, in
-@url{https://en.wikipedia.org/wiki/Counter_mode#Counter_.28CTR.29, CTR}
-mode.
+Encryption is performed with @url{https://cr.yp.to/chacha.html,
+ChaCha20} algorithm. Data is splitted on 128 KiB blocks. Each block is
+encrypted with increasing nonce counter.
 
 If @option{-chunked} is specified, then source file will be split
 @ref{Chunked, on chunks}. @option{INT} is the desired chunk size in

@@ -34,12 +34,10 @@ golang.org/x/crypto/blake2s
 golang.org/x/crypto/chacha20poly1305
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ed25519
-golang.org/x/crypto/hkdf
 golang.org/x/crypto/nacl
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/salsa20
 golang.org/x/crypto/ssh/terminal
-golang.org/x/crypto/twofish
 golang.org/x/net/AUTHORS
 golang.org/x/net/CONTRIBUTORS
 golang.org/x/net/LICENSE
