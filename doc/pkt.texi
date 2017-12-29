@@ -83,7 +83,7 @@ Each encrypted packet has the following header:
 @headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|N N C P E 0x00 0x00 0x01|}
+    @verb{|N N C P E 0x00 0x00 0x03|}
 @item Niceness @tab
     unsigned integer @tab
     1-255, packet @ref{Niceness, niceness} level

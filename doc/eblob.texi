@@ -41,7 +41,7 @@ Eblob is an @url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structure:
 @headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|N N C P B 0x00 0x00 0x01|}
+    @verb{|N N C P B 0x00 0x00 0x02|}
 @item S, T, P @tab
     unsigned integer @tab
     Space cost, time cost and parallel jobs number
