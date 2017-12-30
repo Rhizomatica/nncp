@@ -68,8 +68,8 @@ storages and that are synchronized between TCP daemons.
 Each encrypted packet has the following header:
 
 @verbatim
-  +------------ HEADER -------------+   +-------- ENCRYPTED --------+
- /                                   \ /                             \
+  +------------ HEADER --------------------+   +-------- ENCRYPTED --------+
+ /                                          \ /                             \
 +--------------------------------------------+------------+----...-----------+------+
 | MAGIC | NICE | SENDER | RCPT | EPUB | SIGN | SIZE | MAC | CIPHERTEXT | MAC | JUNK |
 +-------------------------------------/------\------------+----...-----------+------+
@@ -83,7 +83,7 @@ Each encrypted packet has the following header:
 @headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|N N C P E 0x00 0x00 0x01|}
+    @verb{|N N C P E 0x00 0x00 0x03|}
 @item Niceness @tab
     unsigned integer @tab
     1-255, packet @ref{Niceness, niceness} level
@@ -103,12 +103,9 @@ Each encrypted packet has the following header:
 
 Signature is calculated over all previous fields.
 
-All following encryption is done using
-@url{https://www.schneier.com/academic/twofish/, Twofish} algorithm with
-256-bit key in
-@url{https://en.wikipedia.org/wiki/Counter_mode#Counter_.28CTR.29, CTR}
-mode of operation with zero initialization vector (because each
-encrypted packet has ephemeral exchange key). @url{https://blake2.net/,
+All following encryption is done using @url{https://cr.yp.to/chacha.html,
+ChaCha20} algorithm. Data is splitted on 128 KiB blocks. Each block is
+encrypted with increasing nonce counter. @url{https://blake2.net/,
 BLAKE2b-256} MAC is appended to the ciphertext.
 
 After the headers comes an encrypted payload size and MAC of that size.
@@ -133,15 +130,16 @@ When node A want to send encrypted packet to node B, it:
 @item takes remote node's exchange public key and performs
     Diffie-Hellman computation on this remote static public key and
     private ephemeral one
-@item derived ephemeral key is used as an input to
-    @url{https://en.wikipedia.org/wiki/HKDF, HKDF}-BLAKE2b-256 KDF
-@item derives four session keys using
-    @url{https://en.wikipedia.org/wiki/HKDF, HKDF}-BLAKE2b-256 KDF:
+@item derive the keys:
     @enumerate
-    @item "Size" encryption (for Twofish) key
-    @item "Size" authentication (for BLAKE2b-MAC) key
-    @item Payload encryption key
-    @item Payload authentication key
+    @item initialize @url{https://blake2.net/, BLAKE2Xb} XOF with
+    derived ephemeral key and 224-byte output length
+    @item feed @verb{|N N C P E 0x00 0x00 0x03|} magic number to XOF
+    @item read 32-bytes of "size" encryption key (for ChaCha20)
+    @item read 64-bytes of "size" authentication key (for BLAKE2b-MAC)
+    @item read 32-bytes of payload encryption key
+    @item read 64-bytes of payload authentication key
+    @item optionally read 32-bytes pad generation key (for ChaCha20)
     @end enumerate
 @item encrypts size, appends its ciphertext to the header
 @item appends MAC tag over that ciphertext

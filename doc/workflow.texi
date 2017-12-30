@@ -24,9 +24,21 @@ many times any time as you wish.
     connection to required nodes from time to time
     @item use @ref{nncp-xfer} with removable storage devices for copying
     packets to/from other nodes
+    @item use @ref{nncp-bundle} with either sequential storage devices
+    or broadcasting transmissions for copying packets
     @end itemize
 @item After successful packet exchanging (or just simply from time to
 time), run @ref{nncp-toss} for tossing (decrypting and processing) all
 inbound queues to receive mail messages, files, file requests and relay
 transition packets to other nodes.
 @end enumerate
+
+@itemize
+@item If you wish to encrypt your configuration file containing your
+private keys, then use @ref{nncp-cfgenc} utility. You can always use an
+encrypted config without decrypting it in temporary memory file.
+@item If you wish to strip off any private keys from your config, then
+use @ref{nncp-cfgmin} utility. It will be useful for transferring
+messages with offline methods, but tossing them later on the machine
+with private keys.
+@end itemize
