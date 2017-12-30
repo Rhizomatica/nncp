@@ -28,7 +28,7 @@ golang.org/x/crypto/AUTHORS
 golang.org/x/crypto/CONTRIBUTORS
 golang.org/x/crypto/LICENSE
 golang.org/x/crypto/PATENTS
-golang.org/x/crypto/README
+golang.org/x/crypto/README.md
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
 golang.org/x/crypto/chacha20poly1305
@@ -42,13 +42,13 @@ golang.org/x/net/AUTHORS
 golang.org/x/net/CONTRIBUTORS
 golang.org/x/net/LICENSE
 golang.org/x/net/PATENTS
-golang.org/x/net/README
+golang.org/x/net/README.md
 golang.org/x/net/netutil
 golang.org/x/sys/AUTHORS
 golang.org/x/sys/CONTRIBUTORS
 golang.org/x/sys/LICENSE
 golang.org/x/sys/PATENTS
-golang.org/x/sys/README
+golang.org/x/sys/README.md
 golang.org/x/sys/unix
 EOF
 tar cfCI - src $tmp/includes | tar xfC - $tmp
