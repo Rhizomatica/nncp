@@ -22,7 +22,6 @@ import (
 	"bufio"
 	"bytes"
 	"compress/zlib"
-	"crypto/cipher"
 	"crypto/rand"
 	"errors"
 	"hash"
@@ -35,7 +34,6 @@ import (
 
 	"github.com/davecgh/go-xdr/xdr2"
 	"golang.org/x/crypto/blake2b"
-	"golang.org/x/crypto/twofish"
 )
 
 func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io.Reader) (*Node, error) {
@@ -119,25 +117,20 @@ func prepareTxFile(srcPath string) (io.Reader, *os.File, int64, error) {
 		}
 		os.Remove(src.Name())
 		tmpW := bufio.NewWriter(src)
-
-		tmpKey := make([]byte, 32)
-		if _, err = rand.Read(tmpKey); err != nil {
+		tmpKey := new([32]byte)
+		if _, err = rand.Read(tmpKey[:]); err != nil {
 			return nil, nil, 0, err
 		}
-		ciph, err := twofish.NewCipher(tmpKey)
+		written, err := ae(tmpKey, bufio.NewReader(os.Stdin), tmpW)
 		if err != nil {
 			return nil, nil, 0, err
 		}
-		ctr := cipher.NewCTR(ciph, make([]byte, twofish.BlockSize))
-		encrypter := &cipher.StreamWriter{S: ctr, W: tmpW}
-		fileSize, err = io.Copy(encrypter, bufio.NewReader(os.Stdin))
-		if err != nil {
-			return nil, nil, 0, err
-		}
+		fileSize = int64(written)
 		tmpW.Flush()
 		src.Seek(0, 0)
-		ctr = cipher.NewCTR(ciph, make([]byte, twofish.BlockSize))
-		reader = &cipher.StreamReader{S: ctr, R: bufio.NewReader(src)}
+		r, w := io.Pipe()
+		go ae(tmpKey, bufio.NewReader(src), w)
+		reader = r
 	} else {
 		src, err = os.Open(srcPath)
 		if err != nil {

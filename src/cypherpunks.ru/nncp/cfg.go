@@ -339,7 +339,7 @@ func (nodeOur *NodeOur) ToYAML() string {
 
 func CfgParse(data []byte) (*Ctx, error) {
 	var err error
-	if bytes.Compare(data[:8], MagicNNCPBv1[:]) == 0 {
+	if bytes.Compare(data[:8], MagicNNCPBv2[:]) == 0 {
 		os.Stderr.WriteString("Passphrase:")
 		password, err := terminal.ReadPassword(0)
 		if err != nil {

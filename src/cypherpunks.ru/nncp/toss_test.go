@@ -63,7 +63,8 @@ func TestTossEmail(t *testing.T) {
 		defer os.RemoveAll(spool)
 		nodeOur, err := NewNodeGenerate()
 		if err != nil {
-			panic(err)
+			t.Error(err)
+			return false
 		}
 		ctx := Ctx{
 			Spool:   spool,
@@ -82,7 +83,8 @@ func TestTossEmail(t *testing.T) {
 			}
 			our, err := NewNodeGenerate()
 			if err != nil {
-				panic(err)
+				t.Error(err)
+				return false
 			}
 			privates[recipient] = our
 			ctx.Neigh[*our.Id] = our.Their()
@@ -95,7 +97,8 @@ func TestTossEmail(t *testing.T) {
 				[]byte{123},
 				1<<15,
 			); err != nil {
-				panic(err)
+				t.Error(err)
+				return false
 			}
 		}
 		for _, recipient := range recipients {
@@ -158,7 +161,8 @@ func TestTossFile(t *testing.T) {
 		defer os.RemoveAll(spool)
 		nodeOur, err := NewNodeGenerate()
 		if err != nil {
-			panic(err)
+			t.Error(err)
+			return false
 		}
 		ctx := Ctx{
 			Spool:   spool,
@@ -185,7 +189,8 @@ func TestTossFile(t *testing.T) {
 				fileName,
 				1<<15,
 			); err != nil {
-				panic(err)
+				t.Error(err)
+				return false
 			}
 		}
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
@@ -227,7 +232,8 @@ func TestTossFileSameName(t *testing.T) {
 		defer os.RemoveAll(spool)
 		nodeOur, err := NewNodeGenerate()
 		if err != nil {
-			panic(err)
+			t.Error(err)
+			return false
 		}
 		ctx := Ctx{
 			Spool:   spool,
@@ -245,7 +251,8 @@ func TestTossFileSameName(t *testing.T) {
 			[]byte("doesnotmatter"),
 			os.FileMode(0600),
 		); err != nil {
-			panic(err)
+			t.Error(err)
+			return false
 		}
 		incomingPath := filepath.Join(spool, "incoming")
 		for i := 0; i < files; i++ {
@@ -256,7 +263,8 @@ func TestTossFileSameName(t *testing.T) {
 				"samefile",
 				1<<15,
 			); err != nil {
-				panic(err)
+				t.Error(err)
+				return false
 			}
 		}
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
@@ -296,7 +304,8 @@ func TestTossFreq(t *testing.T) {
 		defer os.RemoveAll(spool)
 		nodeOur, err := NewNodeGenerate()
 		if err != nil {
-			panic(err)
+			t.Error(err)
+			return false
 		}
 		ctx := Ctx{
 			Spool:   spool,
@@ -323,7 +332,8 @@ func TestTossFreq(t *testing.T) {
 				fileName,
 				1<<15,
 			); err != nil {
-				panic(err)
+				t.Error(err)
+				return false
 			}
 		}
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
@@ -356,11 +366,13 @@ func TestTossFreq(t *testing.T) {
 			var buf bytes.Buffer
 			_, _, err := PktEncRead(ctx.Self, ctx.Neigh, job.Fd, &buf)
 			if err != nil {
-				panic(err)
+				t.Error(err)
+				return false
 			}
 			var pkt Pkt
 			if _, err = xdr.Unmarshal(&buf, &pkt); err != nil {
-				panic(err)
+				t.Error(err)
+				return false
 			}
 			dst := string(pkt.Path[:int(pkt.PathLen)])
 			if bytes.Compare(buf.Bytes(), files[dst]) != 0 {
@@ -395,7 +407,8 @@ func TestTossTrns(t *testing.T) {
 		defer os.RemoveAll(spool)
 		nodeOur, err := NewNodeGenerate()
 		if err != nil {
-			panic(err)
+			t.Error(err)
+			return false
 		}
 		ctx := Ctx{
 			Spool:   spool,
@@ -430,7 +443,8 @@ func TestTossTrns(t *testing.T) {
 				bytes.NewReader(data),
 				&dst,
 			); err != nil {
-				panic(err)
+				t.Error(err)
+				return false
 			}
 			checksum := blake2b.Sum256(dst.Bytes())
 			if err := ioutil.WriteFile(

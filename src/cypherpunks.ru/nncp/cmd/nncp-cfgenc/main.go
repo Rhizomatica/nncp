@@ -79,7 +79,7 @@ func main() {
 		if _, err := xdr.Unmarshal(bytes.NewReader(data), &eblob); err != nil {
 			log.Fatalln(err)
 		}
-		if eblob.Magic != nncp.MagicNNCPBv1 {
+		if eblob.Magic != nncp.MagicNNCPBv2 {
 			log.Fatalln(errors.New("Unknown eblob type"))
 		}
 		fmt.Println("Strengthening function: Balloon with BLAKE2b-256")

@@ -111,7 +111,7 @@ func main() {
 	}
 	var pktEnc nncp.PktEnc
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc)
-	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv2 {
+	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv3 {
 		if *dump {
 			ctx, err := nncp.CtxFromCmdline(*cfgPath, "", "", false, false)
 			if err != nil {

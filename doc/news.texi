@@ -3,6 +3,21 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 2.0
+@section Release 2.0
+@itemize
+@item
+@strong{Incompatible} encrypted/eblob packet format changes. Older
+versions are not supported.
+@item
+Twofish encryption algorithm is replaced with ChaCha20. It is much more
+faster. One cryptographic primitive less.
+@item
+HKDF-BLAKE2b-256 KDF algorithm is replaced with BLAKE2Xb XOF. Yet
+another cryptographic primitive less (assuming that BLAKE2X is nearly
+identical to BLAKE2).
+@end itemize
+
 @node Release 1.0
 @section Release 1.0
 @itemize

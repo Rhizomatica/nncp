@@ -41,7 +41,7 @@ Eblob is an @url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structure:
 @headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|N N C P B 0x00 0x00 0x01|}
+    @verb{|N N C P B 0x00 0x00 0x02|}
 @item S, T, P @tab
     unsigned integer @tab
     Space cost, time cost and parallel jobs number
@@ -56,12 +56,16 @@ Eblob is an @url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structure:
     BLAKE2b-256 MAC of encrypted blob
 @end multitable
 
-Blob's encryption is done using
-@url{https://www.schneier.com/academic/twofish/, Twofish} algorithm with
-256-bit key in
-@url{https://en.wikipedia.org/wiki/Counter_mode#Counter_.28CTR.29, CTR}
-mode of operation with zero initialization vector.
-@code{balloon(BLAKE2b-256, S, T, P, salt, password)} gives the main key,
-that is fed to @url{https://en.wikipedia.org/wiki/HKDF,
-HKDF}-BLAKE2b-256 KDF. Actual encryption key for Twofish and
-authentication key for MAC are derived from that KDF.
+@enumerate
+@item generate the main key using @code{balloon(BLAKE2b-256, S, T, P,
+salt, password)}
+@item initialize @url{https://blake2.net/, BLAKE2Xb} XOF with generated
+main key and 96-byte output length
+@item feed @verb{|N N C P B 0x00 0x00 0x02|} magic number to XOF
+@item read 32-bytes of blob encryption key
+@item read 64-bytes of blob authentication key
+@item encrypt the blob using @url{https://cr.yp.to/chacha.html,
+ChaCha20}. Blob is splitted on 128 KiB blocks. Each block is encrypted
+with increasing nonce counter
+@item authenticate ciphertext with MAC
+@end enumerate
