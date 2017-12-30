@@ -68,8 +68,8 @@ storages and that are synchronized between TCP daemons.
 Each encrypted packet has the following header:
 
 @verbatim
-  +------------ HEADER -------------+   +-------- ENCRYPTED --------+
- /                                   \ /                             \
+  +------------ HEADER --------------------+   +-------- ENCRYPTED --------+
+ /                                          \ /                             \
 +--------------------------------------------+------------+----...-----------+------+
 | MAGIC | NICE | SENDER | RCPT | EPUB | SIGN | SIZE | MAC | CIPHERTEXT | MAC | JUNK |
 +-------------------------------------/------\------------+----...-----------+------+
@@ -130,15 +130,16 @@ When node A want to send encrypted packet to node B, it:
 @item takes remote node's exchange public key and performs
     Diffie-Hellman computation on this remote static public key and
     private ephemeral one
-@item derived ephemeral key is used as a key input to
-    @url{https://blake2.net/, BLAKE2Xb} XOF
-@item derives five session keys using output from the XOF above:
+@item derive the keys:
     @enumerate
-    @item "Size" encryption (for ChaCha20) key
-    @item "Size" authentication (for BLAKE2b-MAC) key
-    @item Payload encryption key
-    @item Payload authentication key
-    @item Optional pad generation key (for ChaCha20)
+    @item initialize @url{https://blake2.net/, BLAKE2Xb} XOF with
+    derived ephemeral key and 224-byte output length
+    @item feed @verb{|N N C P E 0x00 0x00 0x03|} magic number to XOF
+    @item read 32-bytes of "size" encryption key (for ChaCha20)
+    @item read 64-bytes of "size" authentication key (for BLAKE2b-MAC)
+    @item read 32-bytes of payload encryption key
+    @item read 64-bytes of payload authentication key
+    @item optionally read 32-bytes pad generation key (for ChaCha20)
     @end enumerate
 @item encrypts size, appends its ciphertext to the header
 @item appends MAC tag over that ciphertext
