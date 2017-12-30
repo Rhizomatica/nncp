@@ -56,9 +56,16 @@ Eblob is an @url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structure:
     BLAKE2b-256 MAC of encrypted blob
 @end multitable
 
-Blob's encryption is done using @url{https://cr.yp.to/chacha.html,
-ChaCha20} algorithm. Data is splitted on 128 KiB blocks. Each block is
-encrypted with increasing nonce counter. @code{balloon(BLAKE2b-256, S,
-T, P, salt, password)} gives the main key, that is fed to
-@url{https://blake2.net/, BLAKE2Xb} XOF Actual encryption key for
-ChaCha20 and authentication key for MAC are derived from that XOF.
+@enumerate
+@item generate the main key using @code{balloon(BLAKE2b-256, S, T, P,
+salt, password)}
+@item initialize @url{https://blake2.net/, BLAKE2Xb} XOF with generated
+main key and 96-byte output length
+@item feed @verb{|N N C P B 0x00 0x00 0x02|} magic number to XOF
+@item read 32-bytes of blob encryption key
+@item read 64-bytes of blob authentication key
+@item encrypt the blob using @url{https://cr.yp.to/chacha.html,
+ChaCha20}. Blob is splitted on 128 KiB blocks. Each block is encrypted
+with increasing nonce counter
+@item authenticate ciphertext with MAC
+@end enumerate
