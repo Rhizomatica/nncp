@@ -5,7 +5,7 @@ Possibly NNCP package already exists for your distribution:
 
 @itemize
 @item @url{https://github.com/voidlinux/void-packages/blob/master/srcpkgs/nncp/template, Void Linux}
-@item @url{https://git.cypherpunks.ru/cgit.cgi/nncp.git/tree/ports/nncp, FreeBSD currently uncommitted port}
+@item @url{https://www.freshports.org/net/nncp/, FreeBSD ports}
 @end itemize
 
 NNCP should run on any POSIX-compatible operating system.
