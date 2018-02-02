@@ -1,7 +1,7 @@
-# $FreeBSD$
+# $FreeBSD: head/net/nncp/Makefile 460314 2018-01-29 16:17:45Z yuri $
 
 PORTNAME=	nncp
-PORTVERSION=	2.0
+DISTVERSION=	2.0
 CATEGORIES=	net
 MASTER_SITES=	http://www.nncpgo.org/download/
 
@@ -15,38 +15,17 @@ BUILD_DEPENDS=	go:lang/go
 
 USES=		tar:xz
 MAKEFILE=	BSDmakefile
-
 USE_RC_SUBR=	nncp-caller nncp-daemon nncp-toss
-REQUIRE=	DAEMON
+INSTALL_TARGET=	install-strip
 
-SUB_FILES=	pkg-message pkg-install pkg-deinstall nncp.newsyslog.conf.sample
+SUB_FILES=	pkg-message pkg-install pkg-deinstall
+
+OPTIONS_DEFINE=	DOCS
 
 PORTDOCS=	AUTHORS NEWS NEWS.RU README README.RU THANKS
 INFO=		nncp
-INSTALL_TARGET=	install-strip
-
-PLIST_FILES=	bin/nncp-bundle \
-		bin/nncp-call \
-		bin/nncp-caller \
-		bin/nncp-cfgenc \
-		bin/nncp-cfgmin \
-		bin/nncp-cfgnew \
-		bin/nncp-check \
-		bin/nncp-daemon \
-		bin/nncp-file \
-		bin/nncp-freq \
-		bin/nncp-log \
-		bin/nncp-mail \
-		bin/nncp-pkt \
-		bin/nncp-reass \
-		bin/nncp-rm \
-		bin/nncp-stat \
-		bin/nncp-toss \
-		bin/nncp-xfer \
-		"@sample etc/newsyslog.conf.d/nncp.conf.sample"
 
 post-install:
-	${MKDIR} ${STAGEDIR}${PREFIX}/etc/newsyslog.conf.d
-	${INSTALL_DATA} ${WRKDIR}/nncp.newsyslog.conf.sample ${STAGEDIR}${PREFIX}/etc/newsyslog.conf.d/nncp.conf.sample
+	${INSTALL_DATA} ${FILESDIR}/nncp.newsyslog.conf.sample ${STAGEDIR}${PREFIX}/etc/nncp.conf.sample
 
 .include <bsd.port.mk>
