@@ -229,6 +229,59 @@ utility, producing usual directory hierarchy:
     --progress
 @end verbatim
 
+Also you can create separate NNCP node those mail receiver will be the
+script downloading website's page and send you its WARC representation
+as a file. You can configure @option{sendmail} option like this:
+
+@verbatim
+% cat /usr/local/etc/nncp.yaml
+[...]
+  stargrave.org:
+    [...]
+    sendmail: ["/bin/sh", "/path/to/warcer.sh"]
+[...]
+@end verbatim
+
+And @file{warcer.sh} contents are:
+
+@verbatim
+#!/bin/sh -ex
+
+user_agent="Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27"
+
+name="$1"
+read cmdline
+
+tmp=$(mktemp -d)
+cd $tmp
+warc_name=$name-$(date '+%Y%M%d%H%m%S')
+wget \
+    --page-requisites \
+    --convert-links \
+    --adjust-extension \
+    --restrict-file-names=ascii \
+    --span-hosts \
+    --random-wait \
+    --execute robots=off \
+    --user-agent "$user_agent" \
+    --reject '*.woff*,*.ttf,*.eot,*.js' \
+    --tries 10 \
+    --warc-file $warc_name \
+    --no-warc-compression \
+    --no-warc-keep-log \
+    $cmdline || :
+xz -9 "$warc_name".warc
+nncp-file "$warc_name".warc.xz $NNCP_SENDER:
+rm -r $tmp
+@end verbatim
+
+Now you can queueu that node to send you some website's page:
+
+@verbatim
+% echo http://www.nncpgo.org/Postfix.html |
+    nncp-mail remote.node nncp-postfix-page
+@end verbatim
+
 @node BitTorrent
 @section BitTorrent and huge files
 
