@@ -250,12 +250,32 @@ You can queue you files after they are completely downloaded:
 @verbatim
 % cat send-downloaded.sh
 #!/bin/sh
-nncp-file -chunked $(( 1024 * 100 )) "$3" remote.node
+
+if [ "$2" -eq 0 ]; then
+    # This could be downloaded .torrent file itself
+    exit 0
+fi
+
+if [ "$2" -gt 1 ]; then
+    # This is directory downloaded with BitTorrent
+    wholedir="$(dirname "$3")"
+    name=$(basename "$wholedir")
+    cd "$wholedir"/..
+    tartmp=$(mktemp ./finished.XXXXXX)
+    tar cf $tartmp "$name"
+    nncp-file -chunked $(( 1024 * 100 )) $tartmp remote:"$name".tar
+    rm $tartmp
+else
+    nncp-file -chunked $(( 1024 * 100 )) "$3" remote:
+fi
 
 % aria2c \
     --on-download-complete send-downloaded.sh \
     http://example.org/file.iso \
     http://example.org/file.iso.asc
+% aria2c \
+    --on-bt-download-complete send-downloaded.sh \
+    http://example.org/file.torrent
 @end verbatim
 
 Also you can prepare
