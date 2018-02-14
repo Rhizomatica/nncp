@@ -111,6 +111,7 @@ freqing. This is the desired chunk size in KiBs.
 If set, then apply @ref{OptMinSize, -minsize} option during file
 transmission.
 
+@anchor{CfgVia}
 @item via
 An array of node identifiers that will be used as a relay to that node.
 For example @verb{|[foo,bar]|} means that packet can reach current node

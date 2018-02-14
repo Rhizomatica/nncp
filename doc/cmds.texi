@@ -20,6 +20,9 @@ Nearly all commands have the following common options:
     1-255 values are allowed.
 @item -node
     Process only single specified node.
+@item -via
+    Override @ref{CfgVia, via} configuration option for destination node.
+    Specified nodes must be separated with comma: @verb{|NODE1,NODE2|}.
 @item -spool
     Override path to spool directory. May be specified by
     @env{NNCPSPOOL} environment variable.
