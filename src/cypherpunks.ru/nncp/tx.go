@@ -211,6 +211,35 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 		return err
 	}
 
+	if fileSize <= chunkSize {
+		pkt, err := NewPkt(PktTypeFile, dstPath)
+		if err != nil {
+			return err
+		}
+		_, err = ctx.Tx(node, pkt, nice, fileSize, minSize, reader)
+		if err == nil {
+			ctx.LogI("tx", SDS{
+				"type": "file",
+				"node": node.Id,
+				"nice": strconv.Itoa(int(nice)),
+				"src":  srcPath,
+				"dst":  dstPath,
+				"size": strconv.FormatInt(fileSize, 10),
+			}, "sent")
+		} else {
+			ctx.LogE("tx", SDS{
+				"type": "file",
+				"node": node.Id,
+				"nice": strconv.Itoa(int(nice)),
+				"src":  srcPath,
+				"dst":  dstPath,
+				"size": strconv.FormatInt(fileSize, 10),
+				"err":  err,
+			}, "sent")
+		}
+		return err
+	}
+
 	leftSize := fileSize
 	metaPkt := ChunkedMeta{
 		Magic:     MagicNNCPMv1,
