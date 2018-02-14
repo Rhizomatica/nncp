@@ -40,15 +40,16 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw   = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
-		minSize   = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
-		spoolPath = flag.String("spool", "", "Override path to spool")
-		logPath   = flag.String("log", "", "Override path to logfile")
-		quiet     = flag.Bool("quiet", false, "Print only errors")
-		debug     = flag.Bool("debug", false, "Print debug messages")
-		version   = flag.Bool("version", false, "Print version information")
-		warranty  = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath     = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw     = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
+		minSize     = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
+		viaOverride = flag.String("via", "", "Override Via path to destination node")
+		spoolPath   = flag.String("spool", "", "Override path to spool")
+		logPath     = flag.String("log", "", "Override path to logfile")
+		quiet       = flag.Bool("quiet", false, "Print only errors")
+		debug       = flag.Bool("debug", false, "Print debug messages")
+		version     = flag.Bool("version", false, "Print version information")
+		warranty    = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -80,6 +81,18 @@ func main() {
 	node, err := ctx.FindNode(flag.Arg(0))
 	if err != nil {
 		log.Fatalln("Invalid NODE specified:", err)
+	}
+
+	if *viaOverride != "" {
+		vias := make([]*nncp.NodeId, 0, strings.Count(*viaOverride, ",")+1)
+		for _, via := range strings.Split(*viaOverride, ",") {
+			foundNodeId, err := ctx.FindNode(via)
+			if err != nil {
+				log.Fatalln("Invalid Via node specified:", err)
+			}
+			vias = append(vias, foundNodeId.Id)
+		}
+		node.Via = vias
 	}
 
 	body, err := ioutil.ReadAll(bufio.NewReader(os.Stdin))

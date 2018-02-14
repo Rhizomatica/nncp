@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 2.1
+@subsection Релиз 2.1
+@itemize
+@item
+Возможность переопределить @option{via} опцию конфигурации для целевого
+узла через @option{-via} опцию командной строки для следующих команд:
+@command{nncp-file}, @command{nncp-freq}, @command{nncp-mail}.
+@end itemize
+
 @node Релиз 2.0
 @subsection Релиз 2.0
 @itemize

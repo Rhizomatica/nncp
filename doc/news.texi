@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 2.1
+@section Release 2.1
+@itemize
+@item
+Ability to override @option{via} configuration option for destination
+node via @option{-via} command line option for following commands:
+@command{nncp-file}, @command{nncp-freq}, @command{nncp-mail}.
+@end itemize
+
 @node Release 2.0
 @section Release 2.0
 @itemize
