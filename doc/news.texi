@@ -10,6 +10,9 @@ See also this page @ref{Новости, on russian}.
 Ability to override @option{via} configuration option for destination
 node via @option{-via} command line option for following commands:
 @command{nncp-file}, @command{nncp-freq}, @command{nncp-mail}.
+@item
+Chunked files, having size less than specified chunk size, will be sent
+as an ordinary single file.
 @end itemize
 
 @node Release 2.0
