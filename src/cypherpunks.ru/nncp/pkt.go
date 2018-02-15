@@ -55,7 +55,7 @@ const (
 )
 
 var (
-	MagicNNCPPv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 1}
+	MagicNNCPPv2 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 2}
 	MagicNNCPEv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 3}
 	BadMagic     error   = errors.New("Unknown magic number")
 	BadPktType   error   = errors.New("Unknown packet type")
@@ -67,6 +67,7 @@ var (
 type Pkt struct {
 	Magic   [8]byte
 	Type    PktType
+	Nice    uint8
 	PathLen uint8
 	Path    *[MaxPathSize]byte
 }
@@ -120,14 +121,15 @@ func init() {
 	PktEncOverhead = int64(n)
 }
 
-func NewPkt(typ PktType, path string) (*Pkt, error) {
+func NewPkt(typ PktType, nice uint8, path string) (*Pkt, error) {
 	pb := []byte(path)
 	if len(pb) > MaxPathSize {
 		return nil, errors.New("Too long path")
 	}
 	pkt := Pkt{
-		Magic:   MagicNNCPPv1,
+		Magic:   MagicNNCPPv2,
 		Type:    typ,
+		Nice:    nice,
 		PathLen: uint8(len(pb)),
 		Path:    new([MaxPathSize]byte),
 	}

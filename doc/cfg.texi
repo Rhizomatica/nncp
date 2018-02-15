@@ -91,7 +91,7 @@ An array containing path to executable and its command line arguments
 that is called for mail sending. If it is empty, then no mail processing
 will be performed from that node. Sendmail command
 @command{["/bin/foo", "bar"]} called the following way:
-@command{NNCP_SENDER=NODEID /bin/foo bar RCPT1 RCPT2 ... < MSG}.
+@command{NNCP_NICE=NICE NNCP_SENDER=NODEID /bin/foo bar RCPT1 RCPT2 ... < MSG}.
 
 @anchor{CfgIncoming}
 @item incoming

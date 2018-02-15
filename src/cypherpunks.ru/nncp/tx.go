@@ -69,7 +69,7 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io
 	var pipeRPrev io.Reader
 	for i := 1; i < len(hops); i++ {
 		pktTrans := Pkt{
-			Magic:   MagicNNCPPv1,
+			Magic:   MagicNNCPPv2,
 			Type:    PktTypeTrns,
 			PathLen: blake2b.Size256,
 			Path:    new([MaxPathSize]byte),
@@ -157,7 +157,7 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize 
 	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
 	}
-	pkt, err := NewPkt(PktTypeFile, dstPath)
+	pkt, err := NewPkt(PktTypeFile, nice, dstPath)
 	if err != nil {
 		return err
 	}
@@ -212,7 +212,7 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 	}
 
 	if fileSize <= chunkSize {
-		pkt, err := NewPkt(PktTypeFile, dstPath)
+		pkt, err := NewPkt(PktTypeFile, nice, dstPath)
 		if err != nil {
 			return err
 		}
@@ -263,7 +263,7 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 			sizeToSend = chunkSize
 		}
 		path = dstPath + ChunkedSuffixPart + strconv.Itoa(chunkNum)
-		pkt, err = NewPkt(PktTypeFile, path)
+		pkt, err = NewPkt(PktTypeFile, nice, path)
 		if err != nil {
 			return err
 		}
@@ -313,7 +313,7 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 		return err
 	}
 	path = dstPath + ChunkedSuffixMeta
-	pkt, err = NewPkt(PktTypeFile, path)
+	pkt, err = NewPkt(PktTypeFile, nice, path)
 	if err != nil {
 		return err
 	}
@@ -342,7 +342,7 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 	return err
 }
 
-func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string, minSize int64) error {
+func (ctx *Ctx) TxFreq(node *Node, nice, replyNice uint8, srcPath, dstPath string, minSize int64) error {
 	dstPath = filepath.Clean(dstPath)
 	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
@@ -351,7 +351,7 @@ func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string, minSize 
 	if filepath.IsAbs(srcPath) {
 		return errors.New("Relative source path required")
 	}
-	pkt, err := NewPkt(PktTypeFreq, srcPath)
+	pkt, err := NewPkt(PktTypeFreq, replyNice, srcPath)
 	if err != nil {
 		return err
 	}
@@ -380,7 +380,7 @@ func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string, minSize 
 }
 
 func (ctx *Ctx) TxMail(node *Node, nice uint8, recipient string, body []byte, minSize int64) error {
-	pkt, err := NewPkt(PktTypeMail, recipient)
+	pkt, err := NewPkt(PktTypeMail, nice, recipient)
 	if err != nil {
 		return err
 	}

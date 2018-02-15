@@ -68,7 +68,7 @@ func main() {
 	}
 	var pkt nncp.Pkt
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pkt)
-	if err == nil && pkt.Magic == nncp.MagicNNCPPv1 {
+	if err == nil && pkt.Magic == nncp.MagicNNCPPv2 {
 		if *dump {
 			bufW := bufio.NewWriter(os.Stdout)
 			var r io.Reader
@@ -106,7 +106,10 @@ func main() {
 		default:
 			path = string(pkt.Path[:pkt.PathLen])
 		}
-		fmt.Printf("Packet type: plain\nPayload type: %s\nPath: %s\n", payloadType, path)
+		fmt.Printf(
+			"Packet type: plain\nPayload type: %s\nNiceness: %d\nPath: %s\n",
+			payloadType, pkt.Nice, path,
+		)
 		return
 	}
 	var pktEnc nncp.PktEnc
