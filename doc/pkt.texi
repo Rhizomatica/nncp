@@ -19,9 +19,9 @@ drive.
 
 @verbatim
             HEADER
-+-------------------------------+--...---+
-| MAGIC | TYPE | PATHLEN | PATH | PAYLOAD|
-+-------------------------------+--...---+
++--------------------------------------+--...---+
+| MAGIC | TYPE | NICE | PATHLEN | PATH | PAYLOAD|
++--------------------------------------+--...---+
 @end verbatim
 
 @multitable @columnfractions 0.2 0.3 0.5
@@ -32,6 +32,9 @@ drive.
 @item Payload type @tab
     unsigned integer @tab
     0 (file), 1 (freq), 2 (mail), 3 (transition)
+@item Niceness @tab
+    unsigned integer @tab
+    1-255, preferred packet @ref{Niceness, niceness} level
 @item Path length @tab
     unsigned integer @tab
     actual length of @emph{path} field's payload
@@ -57,6 +60,14 @@ Depending on the packet's type, payload could store:
 @item Destination path for freq
 @item @url{http://zlib.net/, zlib} compressed email
 @item Whole encrypted packet we need to relay on
+@end itemize
+
+Also depending on packet's type, niceness level means:
+
+@itemize
+@item Preferable niceness level for files sent by freq
+@item @env{NNCP_NICE} variable's value passed during
+    @ref{CfgSendmail} invocation.
 @end itemize
 
 @node Encrypted

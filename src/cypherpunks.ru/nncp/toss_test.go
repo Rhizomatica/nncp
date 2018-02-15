@@ -293,7 +293,7 @@ func TestTossFileSameName(t *testing.T) {
 }
 
 func TestTossFreq(t *testing.T) {
-	f := func(fileSizes []uint8) bool {
+	f := func(fileSizes []uint8, replyNice uint8) bool {
 		if len(fileSizes) == 0 {
 			return true
 		}
@@ -328,6 +328,7 @@ func TestTossFreq(t *testing.T) {
 			if err := ctx.TxFreq(
 				ctx.Neigh[*nodeOur.Id],
 				DefaultNiceFreq,
+				replyNice,
 				fileName,
 				fileName,
 				1<<15,
@@ -372,6 +373,9 @@ func TestTossFreq(t *testing.T) {
 			var pkt Pkt
 			if _, err = xdr.Unmarshal(&buf, &pkt); err != nil {
 				t.Error(err)
+				return false
+			}
+			if pkt.Nice != replyNice {
 				return false
 			}
 			dst := string(pkt.Path[:int(pkt.PathLen)])
@@ -426,7 +430,7 @@ func TestTossTrns(t *testing.T) {
 		os.MkdirAll(txPath, os.FileMode(0700))
 		for _, data := range datum {
 			pktTrans := Pkt{
-				Magic:   MagicNNCPPv1,
+				Magic:   MagicNNCPPv2,
 				Type:    PktTypeTrns,
 				PathLen: blake2b.Size256,
 				Path:    new([MaxPathSize]byte),

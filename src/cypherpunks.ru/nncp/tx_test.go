@@ -76,7 +76,7 @@ func TestTx(t *testing.T) {
 			privates[*node.Id] = node
 			nodeTgt.Via = append(nodeTgt.Via, node.Id)
 		}
-		pkt, err := NewPkt(PktTypeMail, pathSrc)
+		pkt, err := NewPkt(PktTypeMail, 123, pathSrc)
 		src := strings.NewReader(data)
 		dstNode, err := ctx.Tx(
 			nodeTgt,

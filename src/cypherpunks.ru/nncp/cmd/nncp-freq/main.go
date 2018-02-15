@@ -39,16 +39,17 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath     = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw     = flag.Int("nice", nncp.DefaultNiceFreq, "Outbound packet niceness")
-		minSize     = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
-		viaOverride = flag.String("via", "", "Override Via path to destination node")
-		spoolPath   = flag.String("spool", "", "Override path to spool")
-		logPath     = flag.String("log", "", "Override path to logfile")
-		quiet       = flag.Bool("quiet", false, "Print only errors")
-		debug       = flag.Bool("debug", false, "Print debug messages")
-		version     = flag.Bool("version", false, "Print version information")
-		warranty    = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw      = flag.Int("nice", nncp.DefaultNiceFreq, "Outbound packet niceness")
+		replyNiceRaw = flag.Int("replynice", nncp.DefaultNiceFile, "Reply file packet niceness")
+		minSize      = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
+		viaOverride  = flag.String("via", "", "Override Via path to destination node")
+		spoolPath    = flag.String("spool", "", "Override path to spool")
+		logPath      = flag.String("log", "", "Override path to logfile")
+		quiet        = flag.Bool("quiet", false, "Print only errors")
+		debug        = flag.Bool("debug", false, "Print debug messages")
+		version      = flag.Bool("version", false, "Print version information")
+		warranty     = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -68,6 +69,10 @@ func main() {
 		log.Fatalln("-nice must be between 1 and 255")
 	}
 	nice := uint8(*niceRaw)
+	if *replyNiceRaw < 1 || *replyNiceRaw > 255 {
+		log.Fatalln("-replynice must be between 1 and 255")
+	}
+	replyNice := uint8(*replyNiceRaw)
 
 	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {
@@ -109,6 +114,7 @@ func main() {
 	if err = ctx.TxFreq(
 		node,
 		nice,
+		replyNice,
 		splitted[1],
 		dst,
 		int64(*minSize)*1024,

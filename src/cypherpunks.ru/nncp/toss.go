@@ -118,6 +118,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 					)...,
 				)
 				cmd.Env = append(cmd.Env, "NNCP_SENDER="+sender.Id.String())
+				cmd.Env = append(cmd.Env, "NNCP_NICE="+strconv.Itoa(int(pkt.Nice)))
 				cmd.Stdin = decompressor
 				if err = cmd.Run(); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "sendmail")
@@ -249,7 +250,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				if sender.FreqChunked == 0 {
 					err = ctx.TxFile(
 						sender,
-						job.PktEnc.Nice,
+						pkt.Nice,
 						filepath.Join(*freq, src),
 						dst,
 						sender.FreqMinSize,
@@ -257,7 +258,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				} else {
 					err = ctx.TxFileChunked(
 						sender,
-						job.PktEnc.Nice,
+						pkt.Nice,
 						filepath.Join(*freq, src),
 						dst,
 						sender.FreqMinSize,

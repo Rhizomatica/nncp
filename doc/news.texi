@@ -3,8 +3,8 @@
 
 See also this page @ref{Новости, on russian}.
 
-@node Release 2.1
-@section Release 2.1
+@node Release 3.0
+@section Release 3.0
 @itemize
 @item
 Ability to override @option{via} configuration option for destination
@@ -13,6 +13,16 @@ node via @option{-via} command line option for following commands:
 @item
 Chunked files, having size less than specified chunk size, will be sent
 as an ordinary single file.
+@item
+@strong{Incompatible} plain packet format changes. @emph{NICE} field is
+added. Older versions are not supported.
+@item
+Sendmail command is invoked with additional @env{NNCP_FILE} environment
+variable containing niceness level from incoming message packet.
+@item
+Files, that are sent as a reply to freq, have niceness level taken from
+the freq packet. You can set desired niceness during @command{nncp-freq}
+invocation using @option{-replynice} option.
 @end itemize
 
 @node Release 2.0
