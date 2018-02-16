@@ -263,7 +263,8 @@ If @option{-chunked} is specified, then source file will be split
 @ref{Chunked, on chunks}. @option{INT} is the desired chunk size in
 KiBs. This mode is more CPU hungry. Pay attention that chunk is saved in
 spool directory immediately and it is not deleted if any error occurs.
-@option{-minsize} option is applied per each chunk.
+@option{-minsize} option is applied per each chunk. Do not forget about
+@ref{ChunkedZFS, possible} ZFS deduplication issues.
 
 If @ref{CfgNotify, notification} is enabled on the remote side for
 file transmissions, then it will sent simple letter after successful
@@ -401,6 +402,8 @@ Checksums:
     2: f4f883975a663f2252328707a30e71b2678f933b2f3103db8475b03293e4316e
     3: 0e9e229501bf0ca42d4aa07393d19406d40b179f3922a3986ef12b41019b45a3
 @end verbatim
+
+ Do not forget about @ref{ChunkedZFS, possible} ZFS deduplication issues.
 
 @node nncp-rm
 @section nncp-rm
