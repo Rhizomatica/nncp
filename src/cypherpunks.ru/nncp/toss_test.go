@@ -108,12 +108,12 @@ func TestTossEmail(t *testing.T) {
 			if len(dirFiles(rxPath)) == 0 {
 				continue
 			}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail-1, false, false)
+			ctx.Toss(ctx.Self.Id, DefaultNiceMail-1, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
 			ctx.Neigh[*nodeOur.Id].Sendmail = []string{"/bin/sh", "-c", "false"}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail, false, false)
+			ctx.Toss(ctx.Self.Id, DefaultNiceMail, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
@@ -121,7 +121,7 @@ func TestTossEmail(t *testing.T) {
 				"/bin/sh", "-c",
 				fmt.Sprintf("cat >> %s", filepath.Join(spool, "mbox")),
 			}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail, false, false)
+			ctx.Toss(ctx.Self.Id, DefaultNiceMail, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) != 0 {
 				return false
 			}
@@ -195,12 +195,12 @@ func TestTossFile(t *testing.T) {
 		}
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
 		os.Rename(filepath.Join(spool, ctx.Self.Id.String(), string(TTx)), rxPath)
-		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false, false, false, false, false)
 		if len(dirFiles(rxPath)) == 0 {
 			return false
 		}
 		ctx.Neigh[*nodeOur.Id].Incoming = &incomingPath
-		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false, false, false, false, false)
 		if len(dirFiles(rxPath)) != 0 {
 			return false
 		}
@@ -270,7 +270,7 @@ func TestTossFileSameName(t *testing.T) {
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
 		os.Rename(filepath.Join(spool, ctx.Self.Id.String(), string(TTx)), rxPath)
 		ctx.Neigh[*nodeOur.Id].Incoming = &incomingPath
-		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false, false, false, false, false)
 		expected := make(map[string]struct{})
 		expected["samefile"] = struct{}{}
 		for i := 0; i < files-1; i++ {
@@ -341,12 +341,12 @@ func TestTossFreq(t *testing.T) {
 		txPath := filepath.Join(spool, ctx.Self.Id.String(), string(TTx))
 		os.Rename(txPath, rxPath)
 		os.MkdirAll(txPath, os.FileMode(0700))
-		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false, false, false, false, false)
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
 		}
 		ctx.Neigh[*nodeOur.Id].Freq = &spool
-		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false, false, false, false, false)
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
 		}
@@ -359,7 +359,7 @@ func TestTossFreq(t *testing.T) {
 				panic(err)
 			}
 		}
-		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false, false, false, false, false)
 		if len(dirFiles(txPath)) == 0 || len(dirFiles(rxPath)) != 0 {
 			return false
 		}
@@ -459,7 +459,7 @@ func TestTossTrns(t *testing.T) {
 				panic(err)
 			}
 		}
-		ctx.Toss(ctx.Self.Id, 123, false, false)
+		ctx.Toss(ctx.Self.Id, 123, false, false, false, false, false, false)
 		if len(dirFiles(rxPath)) != 0 {
 			return false
 		}
