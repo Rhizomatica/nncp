@@ -20,6 +20,7 @@ package nncp
 
 import (
 	"bufio"
+	"bytes"
 	"compress/zlib"
 	"fmt"
 	"io"
@@ -93,10 +94,13 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 		ctx.LogD("rx", sds, "taken")
 		switch pkt.Type {
 		case PktTypeMail:
-			recipients := string(pkt.Path[:int(pkt.PathLen)])
+			recipients := make([]string, 0)
+			for _, recipient := range bytes.Split(pkt.Path[:int(pkt.PathLen)], []byte{0}) {
+				recipients = append(recipients, string(recipient))
+			}
 			sds := SdsAdd(sds, SDS{
 				"type": "mail",
-				"dst":  recipients,
+				"dst":  strings.Join(recipients, " "),
 			})
 			decompressor, err := zlib.NewReader(pipeR)
 			if err != nil {
@@ -112,10 +116,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 			if !dryRun {
 				cmd := exec.Command(
 					sendmail[0],
-					append(
-						sendmail[1:len(sendmail)],
-						strings.Split(recipients, " ")...,
-					)...,
+					append(sendmail[1:len(sendmail)], recipients...)...,
 				)
 				cmd.Env = append(cmd.Env, "NNCP_SENDER="+sender.Id.String())
 				cmd.Env = append(cmd.Env, "NNCP_NICE="+strconv.Itoa(int(pkt.Nice)))
