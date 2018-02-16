@@ -23,6 +23,10 @@ variable containing niceness level from incoming message packet.
 Files, that are sent as a reply to freq, have niceness level taken from
 the freq packet. You can set desired niceness during @command{nncp-freq}
 invocation using @option{-replynice} option.
+@item
+@command{nncp-toss} command can ignore specified packet types during
+processing: @option{-nofile}, @option{-nofreq}, @option{-nomail},
+@option{-notrns}.
 @end itemize
 
 @node Release 2.0

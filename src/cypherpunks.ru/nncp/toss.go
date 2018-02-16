@@ -52,7 +52,7 @@ func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 	))
 }
 
-func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
+func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen, noFile, noFreq, noMail, noTrns bool) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Fd.Name())
@@ -94,6 +94,9 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 		ctx.LogD("rx", sds, "taken")
 		switch pkt.Type {
 		case PktTypeMail:
+			if noMail {
+				goto Closing
+			}
 			recipients := make([]string, 0)
 			for _, recipient := range bytes.Split(pkt.Path[:int(pkt.PathLen)], []byte{0}) {
 				recipients = append(recipients, string(recipient))
@@ -140,6 +143,9 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				}
 			}
 		case PktTypeFile:
+			if noFile {
+				goto Closing
+			}
 			dst := string(pkt.Path[:int(pkt.PathLen)])
 			sds := SdsAdd(sds, SDS{"type": "file", "dst": dst})
 			if filepath.IsAbs(dst) {
@@ -225,6 +231,9 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				}
 			}
 		case PktTypeFreq:
+			if noFreq {
+				goto Closing
+			}
 			src := string(pkt.Path[:int(pkt.PathLen)])
 			if filepath.IsAbs(src) {
 				ctx.LogE("rx", sds, "non-relative source path")
@@ -298,6 +307,9 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				}
 			}
 		case PktTypeTrns:
+			if noTrns {
+				goto Closing
+			}
 			dst := new([blake2b.Size256]byte)
 			copy(dst[:], pkt.Path[:int(pkt.PathLen)])
 			nodeId := NodeId(*dst)

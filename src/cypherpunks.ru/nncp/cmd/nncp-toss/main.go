@@ -44,6 +44,10 @@ func main() {
 		dryRun    = flag.Bool("dryrun", false, "Do not actually write any tossed data")
 		doSeen    = flag.Bool("seen", false, "Create .seen files")
 		cycle     = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
+		noFile    = flag.Bool("nofile", false, "Do not process packets with type: file")
+		noFreq    = flag.Bool("nofreq", false, "Do not process packets with type: freq")
+		noMail    = flag.Bool("nomail", false, "Do not process packets with type: mail")
+		noTrns    = flag.Bool("notrns", false, "Do not process packets with type: transitional")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -88,7 +92,16 @@ Cycle:
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		isBad = ctx.Toss(node.Id, nice, *dryRun, *doSeen)
+		isBad = ctx.Toss(
+			node.Id,
+			nice,
+			*dryRun,
+			*doSeen,
+			*noFile,
+			*noFreq,
+			*noMail,
+			*noTrns,
+		)
 	}
 	if *cycle > 0 {
 		time.Sleep(time.Duration(*cycle) * time.Second)
