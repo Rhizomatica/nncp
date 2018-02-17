@@ -27,6 +27,11 @@ invocation using @option{-replynice} option.
 @command{nncp-toss} command can ignore specified packet types during
 processing: @option{-nofile}, @option{-nofreq}, @option{-nomail},
 @option{-notrns}.
+@item
+@command{nncp-file} command uses
+@option{FreqMinSize}/@option{FreqChunked} conifiguration file options
+for @option{-minsize}/@option{-chunked} by default. You can turn this
+off by specifying zero value.
 @end itemize
 
 @node Release 2.0
