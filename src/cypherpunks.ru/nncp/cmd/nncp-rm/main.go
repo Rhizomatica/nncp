@@ -32,7 +32,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-rm -- remove packet\n")
+	fmt.Fprintf(os.Stderr, "nncp-rm -- remove packet\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] -tmp\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -lock\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE -part\n", os.Args[0])

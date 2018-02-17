@@ -33,7 +33,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-mail -- send email\n")
+	fmt.Fprintf(os.Stderr, "nncp-mail -- send email\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE USER ...\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }

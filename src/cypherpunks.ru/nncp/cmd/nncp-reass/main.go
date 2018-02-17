@@ -42,7 +42,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-reass -- reassemble chunked files\n")
+	fmt.Fprintf(os.Stderr, "nncp-reass -- reassemble chunked files\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [FILE.nncp.meta]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 	fmt.Fprint(os.Stderr, `

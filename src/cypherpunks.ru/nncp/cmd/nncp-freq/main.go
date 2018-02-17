@@ -32,7 +32,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-freq -- send file request\n")
+	fmt.Fprintf(os.Stderr, "nncp-freq -- send file request\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE:SRC [DST]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
