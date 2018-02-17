@@ -94,13 +94,20 @@ func main() {
 			payloadType = "file"
 		case nncp.PktTypeFreq:
 			payloadType = "file request"
-		case nncp.PktTypeMail:
-			payloadType = "mail"
+		case nncp.PktTypeExec:
+			payloadType = "exec"
 		case nncp.PktTypeTrns:
 			payloadType = "transitional"
 		}
 		var path string
 		switch pkt.Type {
+		case nncp.PktTypeExec:
+			path = string(bytes.Replace(
+				pkt.Path[:pkt.PathLen],
+				[]byte{0},
+				[]byte(" "),
+				-1,
+			))
 		case nncp.PktTypeTrns:
 			path = nncp.ToBase32(pkt.Path[:pkt.PathLen])
 		default:

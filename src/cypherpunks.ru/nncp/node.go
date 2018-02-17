@@ -42,7 +42,7 @@ type Node struct {
 	ExchPub        *[32]byte
 	SignPub        ed25519.PublicKey
 	NoisePub       *[32]byte
-	Sendmail       []string
+	Exec           map[string][]string
 	Incoming       *string
 	Freq           *string
 	FreqChunked    int64

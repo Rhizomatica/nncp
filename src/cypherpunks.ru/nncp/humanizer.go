@@ -84,10 +84,10 @@ func (ctx *Ctx) Humanize(s string) string {
 				"File request from %s:%s to %s: %s",
 				nodeS, sds["src"], sds["dst"], rem,
 			)
-		case "mail":
+		case "exec":
 			msg = fmt.Sprintf(
-				"Mail to %s@%s (%s): %s",
-				nodeS, strings.Replace(sds["dst"], " ", ",", -1), size, rem,
+				"Exec to %s@%s (%s): %s",
+				nodeS, sds["dst"], size, rem,
 			)
 		case "trns":
 			msg = fmt.Sprintf(
@@ -102,10 +102,10 @@ func (ctx *Ctx) Humanize(s string) string {
 		}
 	case "rx":
 		switch sds["type"] {
-		case "mail":
+		case "exec":
 			msg = fmt.Sprintf(
-				"Got mail from %s to %s (%s)",
-				nodeS, strings.Replace(sds["dst"], " ", ",", -1), size,
+				"Got exec from %s to %s (%s)",
+				nodeS, sds["dst"], size,
 			)
 		case "file":
 			msg = fmt.Sprintf("Got file %s (%s) from %s", sds["dst"], size, nodeS)

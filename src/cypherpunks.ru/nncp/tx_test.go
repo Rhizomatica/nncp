@@ -33,7 +33,7 @@ import (
 )
 
 func TestTx(t *testing.T) {
-	f := func(hops uint8, pathSrc, data string, nice uint8, padSize int16) bool {
+	f := func(hops uint8, pathSrc, data string, nice, replyNice uint8, padSize int16) bool {
 		if len(pathSrc) > int(MaxPathSize) {
 			pathSrc = pathSrc[:MaxPathSize]
 		}
@@ -76,7 +76,7 @@ func TestTx(t *testing.T) {
 			privates[*node.Id] = node
 			nodeTgt.Via = append(nodeTgt.Via, node.Id)
 		}
-		pkt, err := NewPkt(PktTypeMail, 123, pathSrc)
+		pkt, err := NewPkt(PktTypeExec, replyNice, []byte(pathSrc))
 		src := strings.NewReader(data)
 		dstNode, err := ctx.Tx(
 			nodeTgt,
@@ -121,7 +121,10 @@ func TestTx(t *testing.T) {
 				return false
 			}
 			if *hopId == *nodeTgt.Id {
-				if pkt.Type != PktTypeMail {
+				if pkt.Type != PktTypeExec {
+					return false
+				}
+				if pkt.Nice != replyNice {
 					return false
 				}
 				if !bytes.HasPrefix(pkt.Path[:], []byte(pathSrc)) {

@@ -14,7 +14,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 @item News transmission @tab @strong{Yes} @tab @strong{Yes} @tab No @tab No
 @item File transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Chunked files @tab No @tab @strong{Yes} @tab @strong{Yes} @tab No
-@item Remote command execution @tab @strong{Yes} @tab No @tab No @tab No
+@item Remote command execution @tab @strong{Yes} @tab No @tab @strong{Yes} @tab No
 @item Resumable downloads @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Packets prioritizing @tab @strong{Yes} @tab No @tab @strong{Yes} @tab No
 @item Mail compression @tab No @tab @strong{Yes} @tab @strong{Yes} @tab No

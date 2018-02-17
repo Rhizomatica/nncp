@@ -7,25 +7,38 @@ See also this page @ref{Новости, on russian}.
 @section Release 3.0
 @itemize
 @item
+@strong{Incompatible} plain packet format changes. Older versions are
+not supported.
+@item
+Ability to queue remote command execution, by configuring @option{exec}
+option in configuration file and using @command{nncp-exec} command:
+    @itemize
+    @item
+    @command{nncp-mail} command is replaced with more flexible
+    @command{nncp-exec}. Instead of @verb{|nncp-mail NODE RECIPIENT|}
+    you must use @verb{|nncp-exec NODE sendmail RECIPIENT|}.
+    @item
+    @option{sendmail} configuration file option is replaced with
+    @option{exec}. @verb{|sendmail: [...]|} must be replaced with
+    @verb{|exec: sendmail: [...]|}.
+    @end itemize
+@item
 Ability to override @option{via} configuration option for destination
 node via @option{-via} command line option for following commands:
-@command{nncp-file}, @command{nncp-freq}, @command{nncp-mail}.
+@command{nncp-file}, @command{nncp-freq}, @command{nncp-exec}.
 @item
 Chunked files, having size less than specified chunk size, will be sent
 as an ordinary single file.
 @item
-@strong{Incompatible} plain packet format changes. @emph{NICE} field is
-added. Older versions are not supported.
-@item
-Sendmail command is invoked with additional @env{NNCP_FILE} environment
-variable containing niceness level from incoming message packet.
+Exec commands are invoked with additional @env{NNCP_NICE} and
+@env{NNCP_SELF} environment variables.
 @item
 Files, that are sent as a reply to freq, have niceness level taken from
 the freq packet. You can set desired niceness during @command{nncp-freq}
 invocation using @option{-replynice} option.
 @item
 @command{nncp-toss} command can ignore specified packet types during
-processing: @option{-nofile}, @option{-nofreq}, @option{-nomail},
+processing: @option{-nofile}, @option{-nofreq}, @option{-noexec},
 @option{-notrns}.
 @item
 @command{nncp-file} command uses

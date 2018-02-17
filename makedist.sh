@@ -103,12 +103,13 @@ NNCP (Node to Node copy) is a collection of utilities simplifying
 secure store-and-forward files and mail exchanging.
 
 This utilities are intended to help build up small size (dozens of
-nodes) ad-hoc friend-to-friend (F2F) statically routed darknet networks
-for fire-and-forget secure reliable files, file requests and Internet
-mail transmission. All packets are integrity checked, end-to-end
-encrypted (E2EE), explicitly authenticated by known participants public
-keys. Onion encryption is applied to relayed packets. Each node acts
-both as a client and server, can use push and poll behaviour model.
+nodes) ad-hoc friend-to-friend (F2F) statically routed darknet
+delay-tolerant networks for fire-and-forget secure reliable files, file
+requests, Internet mail and commands transmission. All packets are
+integrity checked, end-to-end encrypted (E2EE), explicitly authenticated
+by known participants public keys. Onion encryption is applied to
+relayed packets. Each node acts both as a client and server, can use
+push and poll behaviour model.
 
 Out-of-box offline sneakernet/floppynet, dead drops, sequential and
 append-only CD-ROM/tape storages, air-gapped computers support. But
@@ -147,10 +148,10 @@ Subject: [RU] Состоялся релиз NNCP $release
 NNCP (Node to Node copy) это набор утилит упрощающий безопасный обмен
 файлами и почтой в режиме сохранить-и-переслать.
 
-Эти утилиты предназначены помочь с построением одноранговых сетей
-небольшого размера (дюжины узлов), в режиме друг-к-другу (F2F) со
-статической маршрутизацией для безопасной надёжной передачи файлов,
-запросов на передачу файлов и Интернет почты по принципу
+Эти утилиты предназначены помочь с построением одноранговых устойчивых к
+разрывам сетей небольшого размера (дюжины узлов), в режиме друг-к-другу
+(F2F) со статической маршрутизацией для безопасной надёжной передачи
+файлов, запросов на передачу файлов, Интернет почты и команд по принципу
 выстрелил-и-забыл. Все пакеты проверяются на целостность, шифруются по
 принципу точка-точка (E2EE), аутентифицируются известными публичными
 ключами участников. Луковичное (onion) шифрование применяется ко всем
