@@ -93,7 +93,7 @@ nncp-xfer:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-xfer
 
 test:
-	GOPATH=$(GOPATH) go test cypherpunks.ru/nncp/...
+	GOPATH=$(GOPATH) go test -failfast cypherpunks.ru/nncp/...
 
 clean:
 	rm -f $(ALL)
