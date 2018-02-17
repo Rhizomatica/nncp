@@ -36,7 +36,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-cfgenc -- encrypt/decrypt configuration file\n")
+	fmt.Fprintf(os.Stderr, "nncp-cfgenc -- encrypt/decrypt configuration file\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] cfg.yaml > cfg.yaml.eblob\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -d cfg.yaml.eblob > cfg.yaml\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -dump cfg.yaml.eblob\n", os.Args[0])
