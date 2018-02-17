@@ -70,7 +70,9 @@ func main() {
 				ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
 				SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
 				NoisePub: &noisePub,
-				Sendmail: []string{nncp.DefaultSendmailPath},
+				Exec: map[string][]string{
+					"sendmail": []string{nncp.DefaultSendmailPath},
+				},
 			},
 		},
 		Spool: nncp.DefaultSpoolPath,

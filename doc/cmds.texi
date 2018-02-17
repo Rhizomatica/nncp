@@ -18,6 +18,10 @@ Nearly all commands have the following common options:
 @item -nice
     Set desired outgoing packet @ref{Niceness, niceness level}.
     1-255 values are allowed.
+@item -replynice
+    Set desired reply packet @ref{Niceness, niceness level}. Only freq
+    and exec packets look at that niceness level. 1-255 values are
+    allowed.
 @item -node
     Process only single specified node.
 @item -via
@@ -233,6 +237,39 @@ time to time.
 can handle. @option{-bind} option specifies @option{addr:port} it must
 bind to and listen.
 
+@node nncp-exec
+@section nncp-exec
+
+@verbatim
+% nncp-exec [options] NODE HANDLE [ARG0 ARG1 ...]
+@end verbatim
+
+Send execution command to @option{NODE} for specified @option{HANDLE}.
+Body is read from stdin and compressed. After receiving, remote side
+will execute specified @ref{CfgExec, handle} command with @option{ARG*}
+appended and decompressed body fed to command's stdin.
+
+For example, if remote side has following configuration file for your
+node:
+
+@verbatim
+exec:
+  sendmail: [/usr/sbin/sendmail, "-t"]
+  appender: ["/bin/sh", "-c", "cat >> /append"]
+@end verbatim
+
+then executing @verb{|echo My message | nncp-exec -replynice 123 REMOTE
+sendmail root@localhost|} will lead to executing of:
+
+@verbatim
+echo My message |
+    NNCP_SELF=REMOTE \
+    NNCP_SENDER=OurNodeId \
+    NNCP_NICE=123 \
+    /usr/sbin/sendmail -t root@localhost
+@end verbatim
+
+
 @node nncp-file
 @section nncp-file
 
@@ -294,19 +331,6 @@ queuing.
 @end verbatim
 
 Parse @ref{Log, log} file and print out its records in human-readable form.
-
-@node nncp-mail
-@section nncp-mail
-
-@verbatim
-% nncp-mail [options] NODE USER ...
-@end verbatim
-
-Send mail, that is read from stdin, to @option{NODE} and specified
-@option{USER}s. Mail message will be compressed. After receiving, remote
-side will execute specified @ref{CfgSendmail, sendmail} command with
-@option{USER}s appended as a command line argument and feed decompressed
-mail body to that command's stdin.
 
 @node nncp-pkt
 @section nncp-pkt

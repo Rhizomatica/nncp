@@ -41,7 +41,7 @@ func TestPktEncWrite(t *testing.T) {
 		if len(path) > int(pathSize) {
 			path = path[:int(pathSize)]
 		}
-		pkt, err := NewPkt(PktTypeFile, 123, path)
+		pkt, err := NewPkt(PktTypeFile, 123, []byte(path))
 		if err != nil {
 			panic(err)
 		}
@@ -87,7 +87,7 @@ func TestPktEncRead(t *testing.T) {
 		if len(path) > int(pathSize) {
 			path = path[:int(pathSize)]
 		}
-		pkt, err := NewPkt(PktTypeFile, 123, path)
+		pkt, err := NewPkt(PktTypeFile, 123, []byte(path))
 		if err != nil {
 			panic(err)
 		}

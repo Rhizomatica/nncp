@@ -48,14 +48,14 @@ type NodeYAML struct {
 	Id          string
 	ExchPub     string
 	SignPub     string
-	NoisePub    *string    `noisepub,omitempty`
-	Sendmail    []string   `sendmail,omitempty`
-	Incoming    *string    `incoming,omitempty`
-	Freq        *string    `freq,omitempty`
-	FreqChunked *uint64    `freqchunked,omitempty`
-	FreqMinSize *uint64    `freqminsize,omitempty`
-	Via         []string   `via,omitempty`
-	Calls       []CallYAML `calls,omitempty`
+	NoisePub    *string             `noisepub,omitempty`
+	Exec        map[string][]string `exec,omitempty`
+	Incoming    *string             `incoming,omitempty`
+	Freq        *string             `freq,omitempty`
+	FreqChunked *uint64             `freqchunked,omitempty`
+	FreqMinSize *uint64             `freqminsize,omitempty`
+	Via         []string            `via,omitempty`
+	Calls       []CallYAML          `calls,omitempty`
 
 	Addrs map[string]string `addrs,omitempty`
 
@@ -232,7 +232,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		Id:             nodeId,
 		ExchPub:        new([32]byte),
 		SignPub:        ed25519.PublicKey(signPub),
-		Sendmail:       yml.Sendmail,
+		Exec:           yml.Exec,
 		Incoming:       incoming,
 		Freq:           freq,
 		FreqChunked:    freqChunked,

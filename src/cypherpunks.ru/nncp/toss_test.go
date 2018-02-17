@@ -51,8 +51,8 @@ func dirFiles(path string) []string {
 	return names
 }
 
-func TestTossEmail(t *testing.T) {
-	f := func(recipients [16]uint8) bool {
+func TestTossExec(t *testing.T) {
+	f := func(replyNice uint8, handle string, recipients [16]uint8) bool {
 		for i, recipient := range recipients {
 			recipients[i] = recipient % 8
 		}
@@ -90,10 +90,12 @@ func TestTossEmail(t *testing.T) {
 			ctx.Neigh[*our.Id] = our.Their()
 		}
 		for _, recipient := range recipients {
-			if err := ctx.TxMail(
+			if err := ctx.TxExec(
 				ctx.Neigh[*privates[recipient].Id],
-				DefaultNiceMail,
-				"recipient",
+				DefaultNiceExec,
+				replyNice,
+				handle,
+				[]string{"arg0", "arg1"},
 				[]byte{123},
 				1<<15,
 			); err != nil {
@@ -108,20 +110,25 @@ func TestTossEmail(t *testing.T) {
 			if len(dirFiles(rxPath)) == 0 {
 				continue
 			}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail-1, false, false, false, false, false, false)
+			ctx.Toss(ctx.Self.Id, DefaultNiceExec-1, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
-			ctx.Neigh[*nodeOur.Id].Sendmail = []string{"/bin/sh", "-c", "false"}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail, false, false, false, false, false, false)
+			ctx.Neigh[*nodeOur.Id].Exec = make(map[string][]string)
+			ctx.Neigh[*nodeOur.Id].Exec[handle] = []string{"/bin/sh", "-c", "false"}
+			ctx.Toss(ctx.Self.Id, DefaultNiceExec, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
-			ctx.Neigh[*nodeOur.Id].Sendmail = []string{
+			ctx.Neigh[*nodeOur.Id].Exec[handle] = []string{
 				"/bin/sh", "-c",
-				fmt.Sprintf("cat >> %s", filepath.Join(spool, "mbox")),
+				fmt.Sprintf(
+					"echo $NNCP_NICE $@ >> %s ; cat >> %s",
+					filepath.Join(spool, "mbox"),
+					filepath.Join(spool, "mbox"),
+				),
 			}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail, false, false, false, false, false, false)
+			ctx.Toss(ctx.Self.Id, DefaultNiceExec, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) != 0 {
 				return false
 			}
@@ -132,6 +139,10 @@ func TestTossEmail(t *testing.T) {
 		}
 		expected := make([]byte, 0, 16)
 		for i := 0; i < 16; i++ {
+			expected = append(
+				expected,
+				[]byte(fmt.Sprintf("%d arg0 arg1\n", replyNice))...,
+			)
 			expected = append(expected, 123)
 		}
 		return bytes.Compare(mbox, expected) == 0
@@ -471,7 +482,6 @@ func TestTossTrns(t *testing.T) {
 			for k, data := range datum {
 				if bytes.Compare(dataRead, data) == 0 {
 					delete(datum, k)
-					break
 				}
 			}
 		}

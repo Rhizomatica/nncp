@@ -46,7 +46,7 @@ func main() {
 		cycle     = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
 		noFile    = flag.Bool("nofile", false, "Do not process packets with type: file")
 		noFreq    = flag.Bool("nofreq", false, "Do not process packets with type: freq")
-		noMail    = flag.Bool("nomail", false, "Do not process packets with type: mail")
+		noExec    = flag.Bool("noexec", false, "Do not process packets with type: exec")
 		noTrns    = flag.Bool("notrns", false, "Do not process packets with type: transitional")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
@@ -99,7 +99,7 @@ Cycle:
 			*doSeen,
 			*noFile,
 			*noFreq,
-			*noMail,
+			*noExec,
 			*noTrns,
 		)
 	}

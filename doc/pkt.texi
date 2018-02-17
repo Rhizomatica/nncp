@@ -13,7 +13,7 @@ All packets are
 @section Plain packet
 
 Plain packet contains either the whole file, or file request (freq), or
-transition packet or email message. It is called "plain", because it
+transition packet or exec message. It is called "plain", because it
 contains plaintext, but plain packets would never be stored on your hard
 drive.
 
@@ -31,7 +31,7 @@ drive.
     @verb{|N N C P P 0x00 0x00 0x01|}
 @item Payload type @tab
     unsigned integer @tab
-    0 (file), 1 (freq), 2 (mail), 3 (transition)
+    0 (file), 1 (freq), 2 (exec), 3 (transition)
 @item Niceness @tab
     unsigned integer @tab
     1-255, preferred packet @ref{Niceness, niceness} level
@@ -43,7 +43,7 @@ drive.
     @itemize
     @item UTF-8 encoded destination path for file transfer
     @item UTF-8 encoded source path for file request
-    @item UTF-8 encoded, space separated, email recipients list
+    @item UTF-8 encoded, zero byte separated, exec's arguments
     @item Node's id the transition packet must be relayed on
     @end itemize
 @end multitable
@@ -58,7 +58,7 @@ Depending on the packet's type, payload could store:
 @itemize
 @item File contents
 @item Destination path for freq
-@item @url{http://zlib.net/, zlib} compressed email
+@item @url{http://zlib.net/, zlib} compressed exec body
 @item Whole encrypted packet we need to relay on
 @end itemize
 
@@ -66,8 +66,7 @@ Also depending on packet's type, niceness level means:
 
 @itemize
 @item Preferable niceness level for files sent by freq
-@item @env{NNCP_NICE} variable's value passed during
-    @ref{CfgSendmail} invocation.
+@item @env{NNCP_NICE} variable's value passed during @ref{CfgExec} invocation.
 @end itemize
 
 @node Encrypted

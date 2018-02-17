@@ -42,12 +42,12 @@ const (
 
 	PktTypeFile PktType = iota
 	PktTypeFreq PktType = iota
-	PktTypeMail PktType = iota
+	PktTypeExec PktType = iota
 	PktTypeTrns PktType = iota
 
 	MaxPathSize = 1<<8 - 1
 
-	DefaultNiceMail = 64
+	DefaultNiceExec = 64
 	DefaultNiceFreq = 64
 	DefaultNiceFile = 196
 
@@ -121,19 +121,18 @@ func init() {
 	PktEncOverhead = int64(n)
 }
 
-func NewPkt(typ PktType, nice uint8, path string) (*Pkt, error) {
-	pb := []byte(path)
-	if len(pb) > MaxPathSize {
+func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
+	if len(path) > MaxPathSize {
 		return nil, errors.New("Too long path")
 	}
 	pkt := Pkt{
 		Magic:   MagicNNCPPv2,
 		Type:    typ,
 		Nice:    nice,
-		PathLen: uint8(len(pb)),
+		PathLen: uint8(len(path)),
 		Path:    new([MaxPathSize]byte),
 	}
-	copy(pkt.Path[:], pb)
+	copy(pkt.Path[:], path)
 	return &pkt, nil
 }
 
