@@ -52,7 +52,8 @@ func dirFiles(path string) []string {
 }
 
 func TestTossExec(t *testing.T) {
-	f := func(replyNice uint8, handle string, recipients [16]uint8) bool {
+	f := func(replyNice uint8, handleRaw uint32, recipients [16]uint8) bool {
+		handle := strconv.Itoa(int(handleRaw))
 		for i, recipient := range recipients {
 			recipients[i] = recipient % 8
 		}
@@ -96,7 +97,7 @@ func TestTossExec(t *testing.T) {
 				replyNice,
 				handle,
 				[]string{"arg0", "arg1"},
-				[]byte{123},
+				[]byte("BODY\n"),
 				1<<15,
 			); err != nil {
 				t.Error(err)
@@ -123,7 +124,7 @@ func TestTossExec(t *testing.T) {
 			ctx.Neigh[*nodeOur.Id].Exec[handle] = []string{
 				"/bin/sh", "-c",
 				fmt.Sprintf(
-					"echo $NNCP_NICE $@ >> %s ; cat >> %s",
+					"echo $NNCP_NICE $0 $1 >> %s ; cat >> %s",
 					filepath.Join(spool, "mbox"),
 					filepath.Join(spool, "mbox"),
 				),
@@ -143,7 +144,7 @@ func TestTossExec(t *testing.T) {
 				expected,
 				[]byte(fmt.Sprintf("%d arg0 arg1\n", replyNice))...,
 			)
-			expected = append(expected, 123)
+			expected = append(expected, []byte("BODY\n")...)
 		}
 		return bytes.Compare(mbox, expected) == 0
 	}
