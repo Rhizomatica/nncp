@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -51,8 +51,9 @@ func dirFiles(path string) []string {
 	return names
 }
 
-func TestTossEmail(t *testing.T) {
-	f := func(recipients [16]uint8) bool {
+func TestTossExec(t *testing.T) {
+	f := func(replyNice uint8, handleRaw uint32, recipients [16]uint8) bool {
+		handle := strconv.Itoa(int(handleRaw))
 		for i, recipient := range recipients {
 			recipients[i] = recipient % 8
 		}
@@ -90,11 +91,13 @@ func TestTossEmail(t *testing.T) {
 			ctx.Neigh[*our.Id] = our.Their()
 		}
 		for _, recipient := range recipients {
-			if err := ctx.TxMail(
+			if err := ctx.TxExec(
 				ctx.Neigh[*privates[recipient].Id],
-				DefaultNiceMail,
-				"recipient",
-				[]byte{123},
+				DefaultNiceExec,
+				replyNice,
+				handle,
+				[]string{"arg0", "arg1"},
+				[]byte("BODY\n"),
 				1<<15,
 			); err != nil {
 				t.Error(err)
@@ -108,20 +111,25 @@ func TestTossEmail(t *testing.T) {
 			if len(dirFiles(rxPath)) == 0 {
 				continue
 			}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail-1, false, false)
+			ctx.Toss(ctx.Self.Id, DefaultNiceExec-1, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
-			ctx.Neigh[*nodeOur.Id].Sendmail = []string{"/bin/sh", "-c", "false"}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail, false, false)
+			ctx.Neigh[*nodeOur.Id].Exec = make(map[string][]string)
+			ctx.Neigh[*nodeOur.Id].Exec[handle] = []string{"/bin/sh", "-c", "false"}
+			ctx.Toss(ctx.Self.Id, DefaultNiceExec, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
-			ctx.Neigh[*nodeOur.Id].Sendmail = []string{
+			ctx.Neigh[*nodeOur.Id].Exec[handle] = []string{
 				"/bin/sh", "-c",
-				fmt.Sprintf("cat >> %s", filepath.Join(spool, "mbox")),
+				fmt.Sprintf(
+					"echo $NNCP_NICE $0 $1 >> %s ; cat >> %s",
+					filepath.Join(spool, "mbox"),
+					filepath.Join(spool, "mbox"),
+				),
 			}
-			ctx.Toss(ctx.Self.Id, DefaultNiceMail, false, false)
+			ctx.Toss(ctx.Self.Id, DefaultNiceExec, false, false, false, false, false, false)
 			if len(dirFiles(rxPath)) != 0 {
 				return false
 			}
@@ -132,7 +140,11 @@ func TestTossEmail(t *testing.T) {
 		}
 		expected := make([]byte, 0, 16)
 		for i := 0; i < 16; i++ {
-			expected = append(expected, 123)
+			expected = append(
+				expected,
+				[]byte(fmt.Sprintf("%d arg0 arg1\n", replyNice))...,
+			)
+			expected = append(expected, []byte("BODY\n")...)
 		}
 		return bytes.Compare(mbox, expected) == 0
 	}
@@ -195,12 +207,12 @@ func TestTossFile(t *testing.T) {
 		}
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
 		os.Rename(filepath.Join(spool, ctx.Self.Id.String(), string(TTx)), rxPath)
-		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false, false, false, false, false)
 		if len(dirFiles(rxPath)) == 0 {
 			return false
 		}
 		ctx.Neigh[*nodeOur.Id].Incoming = &incomingPath
-		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false, false, false, false, false)
 		if len(dirFiles(rxPath)) != 0 {
 			return false
 		}
@@ -270,7 +282,7 @@ func TestTossFileSameName(t *testing.T) {
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
 		os.Rename(filepath.Join(spool, ctx.Self.Id.String(), string(TTx)), rxPath)
 		ctx.Neigh[*nodeOur.Id].Incoming = &incomingPath
-		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFile, false, false, false, false, false, false)
 		expected := make(map[string]struct{})
 		expected["samefile"] = struct{}{}
 		for i := 0; i < files-1; i++ {
@@ -293,7 +305,7 @@ func TestTossFileSameName(t *testing.T) {
 }
 
 func TestTossFreq(t *testing.T) {
-	f := func(fileSizes []uint8) bool {
+	f := func(fileSizes []uint8, replyNice uint8) bool {
 		if len(fileSizes) == 0 {
 			return true
 		}
@@ -328,6 +340,7 @@ func TestTossFreq(t *testing.T) {
 			if err := ctx.TxFreq(
 				ctx.Neigh[*nodeOur.Id],
 				DefaultNiceFreq,
+				replyNice,
 				fileName,
 				fileName,
 				1<<15,
@@ -340,12 +353,12 @@ func TestTossFreq(t *testing.T) {
 		txPath := filepath.Join(spool, ctx.Self.Id.String(), string(TTx))
 		os.Rename(txPath, rxPath)
 		os.MkdirAll(txPath, os.FileMode(0700))
-		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false, false, false, false, false)
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
 		}
 		ctx.Neigh[*nodeOur.Id].Freq = &spool
-		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false, false, false, false, false)
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
 		}
@@ -358,7 +371,7 @@ func TestTossFreq(t *testing.T) {
 				panic(err)
 			}
 		}
-		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false)
+		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false, false, false, false, false)
 		if len(dirFiles(txPath)) == 0 || len(dirFiles(rxPath)) != 0 {
 			return false
 		}
@@ -372,6 +385,9 @@ func TestTossFreq(t *testing.T) {
 			var pkt Pkt
 			if _, err = xdr.Unmarshal(&buf, &pkt); err != nil {
 				t.Error(err)
+				return false
+			}
+			if pkt.Nice != replyNice {
 				return false
 			}
 			dst := string(pkt.Path[:int(pkt.PathLen)])
@@ -426,7 +442,7 @@ func TestTossTrns(t *testing.T) {
 		os.MkdirAll(txPath, os.FileMode(0700))
 		for _, data := range datum {
 			pktTrans := Pkt{
-				Magic:   MagicNNCPPv1,
+				Magic:   MagicNNCPPv2,
 				Type:    PktTypeTrns,
 				PathLen: blake2b.Size256,
 				Path:    new([MaxPathSize]byte),
@@ -455,7 +471,7 @@ func TestTossTrns(t *testing.T) {
 				panic(err)
 			}
 		}
-		ctx.Toss(ctx.Self.Id, 123, false, false)
+		ctx.Toss(ctx.Self.Id, 123, false, false, false, false, false, false)
 		if len(dirFiles(rxPath)) != 0 {
 			return false
 		}
@@ -467,7 +483,6 @@ func TestTossTrns(t *testing.T) {
 			for k, data := range datum {
 				if bytes.Compare(dataRead, data) == 0 {
 					delete(datum, k)
-					break
 				}
 			}
 		}

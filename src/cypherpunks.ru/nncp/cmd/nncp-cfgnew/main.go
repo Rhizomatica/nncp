@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -70,7 +70,9 @@ func main() {
 				ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
 				SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
 				NoisePub: &noisePub,
-				Sendmail: []string{nncp.DefaultSendmailPath},
+				Exec: map[string][]string{
+					"sendmail": []string{nncp.DefaultSendmailPath},
+				},
 			},
 		},
 		Spool: nncp.DefaultSpoolPath,

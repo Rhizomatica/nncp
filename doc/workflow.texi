@@ -12,9 +12,9 @@ following workflow:
 neighbours. Add their keys to your configuration file and do any other
 required configuration about their reachability, permissions of file or
 freq transmission.
-@item Use @ref{nncp-file}, @ref{nncp-freq}, @ref{nncp-mail}
+@item Use @ref{nncp-file}, @ref{nncp-freq}, @ref{nncp-exec}
 (@ref{Postfix, look how} Postfix SMTP server could be configured)
-commands to queue file, freq and mail transmissions. Repeat as
+commands to queue file, freq and exec transmissions. Repeat as
 many times any time as you wish.
 @item Depending on connection methods, either:
     @itemize
@@ -29,7 +29,7 @@ many times any time as you wish.
     @end itemize
 @item After successful packet exchanging (or just simply from time to
 time), run @ref{nncp-toss} for tossing (decrypting and processing) all
-inbound queues to receive mail messages, files, file requests and relay
+inbound queues to receive exec messages, files, file requests and relay
 transition packets to other nodes.
 @end enumerate
 

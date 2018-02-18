@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Send email via NNCP
+// Send execution command via NNCP
 package main
 
 import (
@@ -33,22 +33,24 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-mail -- send email\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE USER ...\nOptions:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "nncp-exec -- send execution command\n\n")
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE HANDLE [ARG0 ARG1 ...]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
 func main() {
 	var (
-		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw   = flag.Int("nice", nncp.DefaultNiceMail, "Outbound packet niceness")
-		minSize   = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
-		spoolPath = flag.String("spool", "", "Override path to spool")
-		logPath   = flag.String("log", "", "Override path to logfile")
-		quiet     = flag.Bool("quiet", false, "Print only errors")
-		debug     = flag.Bool("debug", false, "Print debug messages")
-		version   = flag.Bool("version", false, "Print version information")
-		warranty  = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw      = flag.Int("nice", nncp.DefaultNiceExec, "Outbound packet niceness")
+		replyNiceRaw = flag.Int("replynice", nncp.DefaultNiceFile, "Possible reply packet niceness")
+		minSize      = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
+		viaOverride  = flag.String("via", "", "Override Via path to destination node")
+		spoolPath    = flag.String("spool", "", "Override path to spool")
+		logPath      = flag.String("log", "", "Override path to logfile")
+		quiet        = flag.Bool("quiet", false, "Print only errors")
+		debug        = flag.Bool("debug", false, "Print debug messages")
+		version      = flag.Bool("version", false, "Print version information")
+		warranty     = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -68,6 +70,10 @@ func main() {
 		log.Fatalln("-nice must be between 1 and 255")
 	}
 	nice := uint8(*niceRaw)
+	if *replyNiceRaw < 1 || *replyNiceRaw > 255 {
+		log.Fatalln("-replynice must be between 1 and 255")
+	}
+	replyNice := uint8(*replyNiceRaw)
 
 	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {
@@ -82,15 +88,29 @@ func main() {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
 
-	body, err := ioutil.ReadAll(bufio.NewReader(os.Stdin))
-	if err != nil {
-		log.Fatalln("Can not read mail body from stdin:", err)
+	if *viaOverride != "" {
+		vias := make([]*nncp.NodeId, 0, strings.Count(*viaOverride, ",")+1)
+		for _, via := range strings.Split(*viaOverride, ",") {
+			foundNodeId, err := ctx.FindNode(via)
+			if err != nil {
+				log.Fatalln("Invalid Via node specified:", err)
+			}
+			vias = append(vias, foundNodeId.Id)
+		}
+		node.Via = vias
 	}
 
-	if err = ctx.TxMail(
+	body, err := ioutil.ReadAll(bufio.NewReader(os.Stdin))
+	if err != nil {
+		log.Fatalln("Can not read body from stdin:", err)
+	}
+
+	if err = ctx.TxExec(
 		node,
 		nice,
-		strings.Join(flag.Args()[1:], " "),
+		replyNice,
+		flag.Args()[1],
+		flag.Args()[2:],
 		body,
 		int64(*minSize)*1024,
 	); err != nil {

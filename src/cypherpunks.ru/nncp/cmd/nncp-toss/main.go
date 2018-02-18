@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-toss -- process inbound packets\n")
+	fmt.Fprintf(os.Stderr, "nncp-toss -- process inbound packets\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
@@ -44,6 +44,10 @@ func main() {
 		dryRun    = flag.Bool("dryrun", false, "Do not actually write any tossed data")
 		doSeen    = flag.Bool("seen", false, "Create .seen files")
 		cycle     = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
+		noFile    = flag.Bool("nofile", false, "Do not process packets with type: file")
+		noFreq    = flag.Bool("nofreq", false, "Do not process packets with type: freq")
+		noExec    = flag.Bool("noexec", false, "Do not process packets with type: exec")
+		noTrns    = flag.Bool("notrns", false, "Do not process packets with type: transitional")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -88,7 +92,16 @@ Cycle:
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		isBad = ctx.Toss(node.Id, nice, *dryRun, *doSeen)
+		isBad = ctx.Toss(
+			node.Id,
+			nice,
+			*dryRun,
+			*doSeen,
+			*noFile,
+			*noFreq,
+			*noExec,
+			*noTrns,
+		)
 	}
 	if *cycle > 0 {
 		time.Sleep(time.Duration(*cycle) * time.Second)

@@ -151,7 +151,7 @@ and a wildcard year field is appended, that is, @verb{|* * * * Mon|}
 internally become @verb{|0 * * * * Mon *|}.
 @item
 Domain for day-of-week field is [0-7] instead of [0-6], 7 being Sunday
-(like 0). This to comply with @url{http://linux.die.net/man/5/crontab}.
+(like 0). This to comply with @url{https://linux.die.net/man/5/crontab}.
 @end itemize
 
 @item nice

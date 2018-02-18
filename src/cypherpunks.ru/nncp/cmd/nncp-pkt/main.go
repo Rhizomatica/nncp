@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-pkt -- parse raw packet\n")
+	fmt.Fprintf(os.Stderr, "nncp-pkt -- parse raw packet\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 	fmt.Fprintln(os.Stderr, "Packet is read from stdin.")
@@ -68,7 +68,7 @@ func main() {
 	}
 	var pkt nncp.Pkt
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pkt)
-	if err == nil && pkt.Magic == nncp.MagicNNCPPv1 {
+	if err == nil && pkt.Magic == nncp.MagicNNCPPv2 {
 		if *dump {
 			bufW := bufio.NewWriter(os.Stdout)
 			var r io.Reader
@@ -94,19 +94,29 @@ func main() {
 			payloadType = "file"
 		case nncp.PktTypeFreq:
 			payloadType = "file request"
-		case nncp.PktTypeMail:
-			payloadType = "mail"
+		case nncp.PktTypeExec:
+			payloadType = "exec"
 		case nncp.PktTypeTrns:
 			payloadType = "transitional"
 		}
 		var path string
 		switch pkt.Type {
+		case nncp.PktTypeExec:
+			path = string(bytes.Replace(
+				pkt.Path[:pkt.PathLen],
+				[]byte{0},
+				[]byte(" "),
+				-1,
+			))
 		case nncp.PktTypeTrns:
 			path = nncp.ToBase32(pkt.Path[:pkt.PathLen])
 		default:
 			path = string(pkt.Path[:pkt.PathLen])
 		}
-		fmt.Printf("Packet type: plain\nPayload type: %s\nPath: %s\n", payloadType, path)
+		fmt.Printf(
+			"Packet type: plain\nPayload type: %s\nNiceness: %d\nPath: %s\n",
+			payloadType, pkt.Nice, path,
+		)
 		return
 	}
 	var pktEnc nncp.PktEnc

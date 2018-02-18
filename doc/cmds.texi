@@ -18,8 +18,15 @@ Nearly all commands have the following common options:
 @item -nice
     Set desired outgoing packet @ref{Niceness, niceness level}.
     1-255 values are allowed.
+@item -replynice
+    Set desired reply packet @ref{Niceness, niceness level}. Only freq
+    and exec packets look at that niceness level. 1-255 values are
+    allowed.
 @item -node
     Process only single specified node.
+@item -via
+    Override @ref{CfgVia, via} configuration option for destination node.
+    Specified nodes must be separated with comma: @verb{|NODE1,NODE2|}.
 @item -spool
     Override path to spool directory. May be specified by
     @env{NNCPSPOOL} environment variable.
@@ -230,6 +237,39 @@ time to time.
 can handle. @option{-bind} option specifies @option{addr:port} it must
 bind to and listen.
 
+@node nncp-exec
+@section nncp-exec
+
+@verbatim
+% nncp-exec [options] NODE HANDLE [ARG0 ARG1 ...]
+@end verbatim
+
+Send execution command to @option{NODE} for specified @option{HANDLE}.
+Body is read from stdin and compressed. After receiving, remote side
+will execute specified @ref{CfgExec, handle} command with @option{ARG*}
+appended and decompressed body fed to command's stdin.
+
+For example, if remote side has following configuration file for your
+node:
+
+@verbatim
+exec:
+  sendmail: [/usr/sbin/sendmail, "-t"]
+  appender: ["/bin/sh", "-c", "cat >> /append"]
+@end verbatim
+
+then executing @verb{|echo My message | nncp-exec -replynice 123 REMOTE
+sendmail root@localhost|} will lead to executing of:
+
+@verbatim
+echo My message |
+    NNCP_SELF=REMOTE \
+    NNCP_SENDER=OurNodeId \
+    NNCP_NICE=123 \
+    /usr/sbin/sendmail -t root@localhost
+@end verbatim
+
+
 @node nncp-file
 @section nncp-file
 
@@ -260,7 +300,8 @@ If @option{-chunked} is specified, then source file will be split
 @ref{Chunked, on chunks}. @option{INT} is the desired chunk size in
 KiBs. This mode is more CPU hungry. Pay attention that chunk is saved in
 spool directory immediately and it is not deleted if any error occurs.
-@option{-minsize} option is applied per each chunk.
+@option{-minsize} option is applied per each chunk. Do not forget about
+@ref{ChunkedZFS, possible} ZFS deduplication issues.
 
 If @ref{CfgNotify, notification} is enabled on the remote side for
 file transmissions, then it will sent simple letter after successful
@@ -290,19 +331,6 @@ queuing.
 @end verbatim
 
 Parse @ref{Log, log} file and print out its records in human-readable form.
-
-@node nncp-mail
-@section nncp-mail
-
-@verbatim
-% nncp-mail [options] NODE USER ...
-@end verbatim
-
-Send mail, that is read from stdin, to @option{NODE} and specified
-@option{USER}s. Mail message will be compressed. After receiving, remote
-side will execute specified @ref{CfgSendmail, sendmail} command with
-@option{USER}s appended as a command line argument and feed decompressed
-mail body to that command's stdin.
 
 @node nncp-pkt
 @section nncp-pkt
@@ -399,6 +427,8 @@ Checksums:
     3: 0e9e229501bf0ca42d4aa07393d19406d40b179f3922a3986ef12b41019b45a3
 @end verbatim
 
+ Do not forget about @ref{ChunkedZFS, possible} ZFS deduplication issues.
+
 @node nncp-rm
 @section nncp-rm
 
@@ -445,7 +475,14 @@ queues.
 @section nncp-toss
 
 @verbatim
-% nncp-toss [options] [-dryrun] [-cycle INT] [-seen]
+% nncp-toss [options]
+    [-dryrun]
+    [-cycle INT]
+    [-seen]
+    [-nofile]
+    [-nofreq]
+    [-nomail]
+    [-notrns]
 @end verbatim
 
 Perform "tossing" operation on all inbound packets. This is the tool
@@ -464,6 +501,9 @@ running this command as a daemon.
 successful tossing of @file{XXX} packet. @ref{nncp-xfer} and
 @ref{nncp-bundle} commands skip inbound packets that has been already
 seen, processed and tossed. This is helpful to defeat duplicates.
+
+@option{-nofile}, @option{-nofreq}, @option{-nomail}, @option{-notrns}
+options allow to disable any kind of packet types processing.
 
 @node nncp-xfer
 @section nncp-xfer
