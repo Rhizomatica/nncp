@@ -25,10 +25,10 @@ ALL = \
 	nncp-cfgnew \
 	nncp-check \
 	nncp-daemon \
+	nncp-exec \
 	nncp-file \
 	nncp-freq \
 	nncp-log \
-	nncp-mail \
 	nncp-pkt \
 	nncp-reass \
 	nncp-rm \
@@ -62,6 +62,9 @@ nncp-check:
 nncp-daemon:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-daemon
 
+nncp-exec:
+	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-exec
+
 nncp-file:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-file
 
@@ -70,9 +73,6 @@ nncp-freq:
 
 nncp-log:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-log
-
-nncp-mail:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-mail
 
 nncp-pkt:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-pkt
@@ -93,7 +93,7 @@ nncp-xfer:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-xfer
 
 test:
-	GOPATH=$(GOPATH) go test cypherpunks.ru/nncp/...
+	GOPATH=$(GOPATH) go test -failfast cypherpunks.ru/nncp/...
 
 clean:
 	rm -f $(ALL)

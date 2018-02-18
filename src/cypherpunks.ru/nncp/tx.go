@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,13 +68,7 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io
 
 	var pipeRPrev io.Reader
 	for i := 1; i < len(hops); i++ {
-		pktTrans := Pkt{
-			Magic:   MagicNNCPPv1,
-			Type:    PktTypeTrns,
-			PathLen: blake2b.Size256,
-			Path:    new([MaxPathSize]byte),
-		}
-		copy(pktTrans.Path[:], hops[i-1].Id[:])
+		pktTrns, _ := NewPkt(PktTypeTrns, 0, hops[i-1].Id[:])
 		curSize += PktOverhead + PktEncOverhead
 		pipeRPrev = pipeR
 		pipeR, pipeW = io.Pipe()
@@ -86,7 +80,7 @@ func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io
 			}, "trns wrote")
 			errs <- PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
 			dst.Close()
-		}(hops[i], &pktTrans, curSize, pipeRPrev, pipeW)
+		}(hops[i], pktTrns, curSize, pipeRPrev, pipeW)
 	}
 	go func() {
 		_, err := io.Copy(tmp.W, pipeR)
@@ -157,7 +151,7 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize 
 	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
 	}
-	pkt, err := NewPkt(PktTypeFile, dstPath)
+	pkt, err := NewPkt(PktTypeFile, nice, []byte(dstPath))
 	if err != nil {
 		return err
 	}
@@ -169,25 +163,19 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize 
 		return err
 	}
 	_, err = ctx.Tx(node, pkt, nice, fileSize, minSize, reader)
+	sds := SDS{
+		"type": "file",
+		"node": node.Id,
+		"nice": strconv.Itoa(int(nice)),
+		"src":  srcPath,
+		"dst":  dstPath,
+		"size": strconv.FormatInt(fileSize, 10),
+	}
 	if err == nil {
-		ctx.LogI("tx", SDS{
-			"type": "file",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"src":  srcPath,
-			"dst":  dstPath,
-			"size": strconv.FormatInt(fileSize, 10),
-		}, "sent")
+		ctx.LogI("tx", sds, "sent")
 	} else {
-		ctx.LogE("tx", SDS{
-			"type": "file",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"src":  srcPath,
-			"dst":  dstPath,
-			"size": strconv.FormatInt(fileSize, 10),
-			"err":  err,
-		}, "sent")
+		sds["err"] = err
+		ctx.LogE("tx", sds, "sent")
 	}
 	return err
 }
@@ -208,6 +196,29 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 		defer src.Close()
 	}
 	if err != nil {
+		return err
+	}
+
+	if fileSize <= chunkSize {
+		pkt, err := NewPkt(PktTypeFile, nice, []byte(dstPath))
+		if err != nil {
+			return err
+		}
+		_, err = ctx.Tx(node, pkt, nice, fileSize, minSize, reader)
+		sds := SDS{
+			"type": "file",
+			"node": node.Id,
+			"nice": strconv.Itoa(int(nice)),
+			"src":  srcPath,
+			"dst":  dstPath,
+			"size": strconv.FormatInt(fileSize, 10),
+		}
+		if err == nil {
+			ctx.LogI("tx", sds, "sent")
+		} else {
+			sds["err"] = err
+			ctx.LogE("tx", sds, "sent")
+		}
 		return err
 	}
 
@@ -234,7 +245,7 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 			sizeToSend = chunkSize
 		}
 		path = dstPath + ChunkedSuffixPart + strconv.Itoa(chunkNum)
-		pkt, err = NewPkt(PktTypeFile, path)
+		pkt, err = NewPkt(PktTypeFile, nice, []byte(path))
 		if err != nil {
 			return err
 		}
@@ -250,25 +261,19 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 			minSize,
 			io.TeeReader(reader, hsh),
 		)
+		sds := SDS{
+			"type": "file",
+			"node": node.Id,
+			"nice": strconv.Itoa(int(nice)),
+			"src":  srcPath,
+			"dst":  path,
+			"size": strconv.FormatInt(sizeToSend, 10),
+		}
 		if err == nil {
-			ctx.LogI("tx", SDS{
-				"type": "file",
-				"node": node.Id,
-				"nice": strconv.Itoa(int(nice)),
-				"src":  srcPath,
-				"dst":  path,
-				"size": strconv.FormatInt(sizeToSend, 10),
-			}, "sent")
+			ctx.LogI("tx", sds, "sent")
 		} else {
-			ctx.LogE("tx", SDS{
-				"type": "file",
-				"node": node.Id,
-				"nice": strconv.Itoa(int(nice)),
-				"src":  srcPath,
-				"dst":  path,
-				"size": strconv.FormatInt(sizeToSend, 10),
-				"err":  err,
-			}, "sent")
+			sds["err"] = err
+			ctx.LogE("tx", sds, "sent")
 			return err
 		}
 		hsh.Sum(metaPkt.Checksums[chunkNum][:0])
@@ -284,36 +289,30 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 		return err
 	}
 	path = dstPath + ChunkedSuffixMeta
-	pkt, err = NewPkt(PktTypeFile, path)
+	pkt, err = NewPkt(PktTypeFile, nice, []byte(path))
 	if err != nil {
 		return err
 	}
 	metaPktSize := int64(metaBuf.Len())
 	_, err = ctx.Tx(node, pkt, nice, metaPktSize, minSize, &metaBuf)
+	sds := SDS{
+		"type": "file",
+		"node": node.Id,
+		"nice": strconv.Itoa(int(nice)),
+		"src":  srcPath,
+		"dst":  path,
+		"size": strconv.FormatInt(metaPktSize, 10),
+	}
 	if err == nil {
-		ctx.LogI("tx", SDS{
-			"type": "file",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"src":  srcPath,
-			"dst":  path,
-			"size": strconv.FormatInt(metaPktSize, 10),
-		}, "sent")
+		ctx.LogI("tx", sds, "sent")
 	} else {
-		ctx.LogE("tx", SDS{
-			"type": "file",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"src":  srcPath,
-			"dst":  path,
-			"size": strconv.FormatInt(metaPktSize, 10),
-			"err":  err,
-		}, "sent")
+		sds["err"] = err
+		ctx.LogE("tx", sds, "sent")
 	}
 	return err
 }
 
-func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string, minSize int64) error {
+func (ctx *Ctx) TxFreq(node *Node, nice, replyNice uint8, srcPath, dstPath string, minSize int64) error {
 	dstPath = filepath.Clean(dstPath)
 	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
@@ -322,36 +321,37 @@ func (ctx *Ctx) TxFreq(node *Node, nice uint8, srcPath, dstPath string, minSize 
 	if filepath.IsAbs(srcPath) {
 		return errors.New("Relative source path required")
 	}
-	pkt, err := NewPkt(PktTypeFreq, srcPath)
+	pkt, err := NewPkt(PktTypeFreq, replyNice, []byte(srcPath))
 	if err != nil {
 		return err
 	}
 	src := strings.NewReader(dstPath)
 	size := int64(src.Len())
 	_, err = ctx.Tx(node, pkt, nice, size, minSize, src)
+	sds := SDS{
+		"type":      "freq",
+		"node":      node.Id,
+		"nice":      strconv.Itoa(int(nice)),
+		"replynice": strconv.Itoa(int(replyNice)),
+		"src":       srcPath,
+		"dst":       dstPath,
+	}
 	if err == nil {
-		ctx.LogI("tx", SDS{
-			"type": "freq",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"src":  srcPath,
-			"dst":  dstPath,
-		}, "sent")
+		ctx.LogI("tx", sds, "sent")
 	} else {
-		ctx.LogE("tx", SDS{
-			"type": "freq",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"src":  srcPath,
-			"dst":  dstPath,
-			"err":  err,
-		}, "sent")
+		sds["err"] = err
+		ctx.LogE("tx", sds, "sent")
 	}
 	return err
 }
 
-func (ctx *Ctx) TxMail(node *Node, nice uint8, recipient string, body []byte, minSize int64) error {
-	pkt, err := NewPkt(PktTypeMail, recipient)
+func (ctx *Ctx) TxExec(node *Node, nice, replyNice uint8, handle string, args []string, body []byte, minSize int64) error {
+	path := make([][]byte, 0, 1+len(args))
+	path = append(path, []byte(handle))
+	for _, arg := range args {
+		path = append(path, []byte(arg))
+	}
+	pkt, err := NewPkt(PktTypeExec, replyNice, bytes.Join(path, []byte{0}))
 	if err != nil {
 		return err
 	}
@@ -366,34 +366,31 @@ func (ctx *Ctx) TxMail(node *Node, nice uint8, recipient string, body []byte, mi
 	compressor.Close()
 	size := int64(compressed.Len())
 	_, err = ctx.Tx(node, pkt, nice, size, minSize, &compressed)
+	sds := SDS{
+		"type":      "exec",
+		"node":      node.Id,
+		"nice":      strconv.Itoa(int(nice)),
+		"replynice": strconv.Itoa(int(replyNice)),
+		"dst":       strings.Join(append([]string{handle}, args...), " "),
+		"size":      strconv.FormatInt(size, 10),
+	}
 	if err == nil {
-		ctx.LogI("tx", SDS{
-			"type": "mail",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"dst":  recipient,
-			"size": strconv.FormatInt(size, 10),
-		}, "sent")
+		ctx.LogI("tx", sds, "sent")
 	} else {
-		ctx.LogE("tx", SDS{
-			"type": "mail",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"dst":  recipient,
-			"size": strconv.FormatInt(size, 10),
-			"err":  err,
-		}, "sent")
+		sds["err"] = err
+		ctx.LogE("tx", sds, "sent")
 	}
 	return err
 }
 
 func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error {
-	ctx.LogD("tx", SDS{
+	sds := SDS{
 		"type": "trns",
 		"node": node.Id,
 		"nice": strconv.Itoa(int(nice)),
 		"size": strconv.FormatInt(size, 10),
-	}, "taken")
+	}
+	ctx.LogD("tx", sds, "taken")
 	tmp, err := ctx.NewTmpFileWHash()
 	if err != nil {
 		return err
@@ -404,20 +401,10 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	nodePath := filepath.Join(ctx.Spool, node.Id.String())
 	err = tmp.Commit(filepath.Join(nodePath, string(TTx)))
 	if err == nil {
-		ctx.LogI("tx", SDS{
-			"type": "trns",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"size": strconv.FormatInt(size, 10),
-		}, "sent")
+		ctx.LogI("tx", sds, "sent")
 	} else {
-		ctx.LogI("tx", SDS{
-			"type": "trns",
-			"node": node.Id,
-			"nice": strconv.Itoa(int(nice)),
-			"size": strconv.FormatInt(size, 10),
-			"err":  err,
-		}, "sent")
+		sds["err"] = err
+		ctx.LogI("tx", sds, "sent")
 	}
 	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name))
 	return err

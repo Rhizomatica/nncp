@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ type Node struct {
 	ExchPub        *[32]byte
 	SignPub        ed25519.PublicKey
 	NoisePub       *[32]byte
-	Sendmail       []string
+	Exec           map[string][]string
 	Incoming       *string
 	Freq           *string
 	FreqChunked    int64
@@ -85,7 +85,10 @@ func NewNodeGenerate() (*NodeOur, error) {
 	if err != nil {
 		return nil, err
 	}
-	noiseKey := noise.DH25519.GenerateKeypair(rand.Reader)
+	noiseKey, err := noise.DH25519.GenerateKeypair(rand.Reader)
+	if err != nil {
+		return nil, err
+	}
 	noisePub := new([32]byte)
 	noisePrv := new([32]byte)
 	copy(noisePrv[:], noiseKey.Private)

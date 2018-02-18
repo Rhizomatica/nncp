@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-reass -- reassemble chunked files\n")
+	fmt.Fprintf(os.Stderr, "nncp-reass -- reassemble chunked files\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [FILE.nncp.meta]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 	fmt.Fprint(os.Stderr, `

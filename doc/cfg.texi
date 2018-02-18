@@ -27,13 +27,15 @@ neigh:
     exchpub: CYVGQ...PSEWQ
     signpub: 2NMVC...CMH5Q
     noisepub: KIBKK...ESM7Q
-    sendmail: [/usr/sbin/sendmail]
+    exec:
+      sendmail: [/usr/sbin/sendmail]
   alice:
     id: XJZBK...65IJQ
     exchpub: MJACJ...FAI6A
     signpub: T4AFC...N2FRQ
     noisepub: UBM5K...VI42A
-    sendmail: ["/bin/sh", "-c", "false"]
+    exec:
+      flag: ["/usr/bin/touch", "-t"]
     incoming: /home/alice/incoming
     onlinedeadline: 1800
     maxonlinetime: 3600
@@ -47,7 +49,10 @@ neigh:
     id: 2IZNP...UYGYA
     exchpub: WFLMZ...B7NHA
     signpub: GTGXG...IE3OA
-    sendmail: [/usr/sbin/sendmail]
+    exec:
+      sendmail: [/usr/sbin/sendmail]
+      warcer: [/path/to/warcer.sh]
+      wgeter: [/path/to/wgeter.sh]
     freq: /home/bob/pub
     freqchunked: 1024
     freqminsize: 2048
@@ -62,9 +67,9 @@ log} file.
 @strong{notify} section contains notification settings for successfully
 tossed file and freq packets. Corresponding @strong{from} and
 @strong{to} fields will be substituted in notification email message.
-@emph{neigh/self/sendmail} will be used as a local mailer. You can omit
-either of those two @emph{from}/@emph{to} sections to omit corresponding
-notifications, or the whole section at once.
+@emph{neigh/self/exec/sendmail} will be used as a local mailer. You can
+omit either of those two @emph{from}/@emph{to} sections to omit
+corresponding notifications, or the whole section at once.
 
 @strong{self} section contains our node's private keypairs.
 @strong{exch*} and @strong{sign*} are used during @ref{Encrypted,
@@ -85,13 +90,25 @@ node has the following fields:
 If present, then node can be online called using @ref{Sync,
 synchronization protocol}. Contains authentication public key.
 
-@anchor{CfgSendmail}
-@item sendmail
-An array containing path to executable and its command line arguments
-that is called for mail sending. If it is empty, then no mail processing
-will be performed from that node. Sendmail command
-@command{["/bin/foo", "bar"]} called the following way:
-@command{NNCP_SENDER=NODEID /bin/foo bar RCPT1 RCPT2 ... < MSG}.
+@anchor{CfgExec}
+@item exec
+Dictionary consisting of handles and corresponding command line
+arguments. In example above there are @command{sendmail} handles,
+@command{warcer}, @command{wgeter} and @command{flag} one. Remote node
+can queue some handle execution with providing additional command line
+arguments and the body fed to command's stdin.
+
+@verb{|sendmail: ["/usr/sbin/sendmail", "-t"]|} handle, when called by
+@verb{|echo hello world | nncp-exec OURNODE sendmail ARG0 ARG1 ARG2|}
+command, will execute:
+
+@verbatim
+echo hello world |
+    NNCP_SELF=OURNODE \
+    NNCP_SENDER=REMOTE \
+    NNCP_NICE=64 \
+    /usr/sbin/sendmail -t ARG0 ARG1 ARG2
+@end verbatim
 
 @anchor{CfgIncoming}
 @item incoming
@@ -111,6 +128,7 @@ freqing. This is the desired chunk size in KiBs.
 If set, then apply @ref{OptMinSize, -minsize} option during file
 transmission.
 
+@anchor{CfgVia}
 @item via
 An array of node identifiers that will be used as a relay to that node.
 For example @verb{|[foo,bar]|} means that packet can reach current node

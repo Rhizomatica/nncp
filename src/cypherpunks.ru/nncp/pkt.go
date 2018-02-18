@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,12 +42,12 @@ const (
 
 	PktTypeFile PktType = iota
 	PktTypeFreq PktType = iota
-	PktTypeMail PktType = iota
+	PktTypeExec PktType = iota
 	PktTypeTrns PktType = iota
 
 	MaxPathSize = 1<<8 - 1
 
-	DefaultNiceMail = 64
+	DefaultNiceExec = 64
 	DefaultNiceFreq = 64
 	DefaultNiceFile = 196
 
@@ -55,7 +55,7 @@ const (
 )
 
 var (
-	MagicNNCPPv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 1}
+	MagicNNCPPv2 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 2}
 	MagicNNCPEv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 3}
 	BadMagic     error   = errors.New("Unknown magic number")
 	BadPktType   error   = errors.New("Unknown packet type")
@@ -67,6 +67,7 @@ var (
 type Pkt struct {
 	Magic   [8]byte
 	Type    PktType
+	Nice    uint8
 	PathLen uint8
 	Path    *[MaxPathSize]byte
 }
@@ -120,18 +121,18 @@ func init() {
 	PktEncOverhead = int64(n)
 }
 
-func NewPkt(typ PktType, path string) (*Pkt, error) {
-	pb := []byte(path)
-	if len(pb) > MaxPathSize {
+func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
+	if len(path) > MaxPathSize {
 		return nil, errors.New("Too long path")
 	}
 	pkt := Pkt{
-		Magic:   MagicNNCPPv1,
+		Magic:   MagicNNCPPv2,
 		Type:    typ,
-		PathLen: uint8(len(pb)),
+		Nice:    nice,
+		PathLen: uint8(len(path)),
 		Path:    new([MaxPathSize]byte),
 	}
-	copy(pkt.Path[:], pb)
+	copy(pkt.Path[:], path)
 	return &pkt, nil
 }
 

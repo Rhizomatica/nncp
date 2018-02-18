@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -297,9 +297,13 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly TRxTx, 
 		},
 		PeerStatic: node.NoisePub[:],
 	}
+	hs, err := noise.NewHandshakeState(conf)
+	if err != nil {
+		return nil, err
+	}
 	state := SPState{
 		ctx:            ctx,
-		hs:             noise.NewHandshakeState(conf),
+		hs:             hs,
 		Node:           node,
 		onlineDeadline: onlineDeadline,
 		maxOnlineTime:  maxOnlineTime,
@@ -328,7 +332,11 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly TRxTx, 
 
 	var buf []byte
 	var payload []byte
-	buf, _, _ = state.hs.WriteMessage(nil, firstPayload)
+	buf, _, _, err = state.hs.WriteMessage(nil, firstPayload)
+	if err != nil {
+		state.dirUnlock()
+		return nil, err
+	}
 	sds := SDS{"node": nodeId, "nice": strconv.Itoa(int(nice))}
 	ctx.LogD("sp-start", sds, "sending first message")
 	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline * time.Second))
@@ -371,9 +379,13 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly TRxTx) (*SPState, error
 			Public:  ctx.Self.NoisePub[:],
 		},
 	}
+	hs, err := noise.NewHandshakeState(conf)
+	if err != nil {
+		return nil, err
+	}
 	state := SPState{
 		ctx:          ctx,
-		hs:           noise.NewHandshakeState(conf),
+		hs:           hs,
 		nice:         nice,
 		payloads:     make(chan []byte),
 		infosOurSeen: make(map[[32]byte]struct{}),
@@ -383,7 +395,6 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly TRxTx) (*SPState, error
 	}
 	var buf []byte
 	var payload []byte
-	var err error
 	ctx.LogD(
 		"sp-start",
 		SDS{"nice": strconv.Itoa(int(nice))},
@@ -449,7 +460,11 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly TRxTx) (*SPState, error
 	}
 
 	ctx.LogD("sp-start", sds, "sending first message")
-	buf, state.csTheir, state.csOur = state.hs.WriteMessage(nil, firstPayload)
+	buf, state.csTheir, state.csOur, err = state.hs.WriteMessage(nil, firstPayload)
+	if err != nil {
+		state.dirUnlock()
+		return nil, err
+	}
 	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline * time.Second))
 	if err = state.WriteSP(conn, buf); err != nil {
 		ctx.LogE("sp-start", SdsAdd(sds, SDS{"err": err}), "")

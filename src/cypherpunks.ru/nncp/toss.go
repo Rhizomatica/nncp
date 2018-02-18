@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package nncp
 
 import (
 	"bufio"
+	"bytes"
 	"compress/zlib"
 	"fmt"
 	"io"
@@ -51,7 +52,7 @@ func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 	))
 }
 
-func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
+func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen, noFile, noFreq, noExec, noTrns bool) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Fd.Name())
@@ -92,35 +93,45 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 		sds["size"] = strconv.FormatInt(pktSize, 10)
 		ctx.LogD("rx", sds, "taken")
 		switch pkt.Type {
-		case PktTypeMail:
-			recipients := string(pkt.Path[:int(pkt.PathLen)])
+		case PktTypeExec:
+			if noExec {
+				goto Closing
+			}
+			path := bytes.Split(pkt.Path[:int(pkt.PathLen)], []byte{0})
+			handle := string(path[0])
+			args := make([]string, 0, len(path)-1)
+			for _, p := range path[1:] {
+				args = append(args, string(p))
+			}
 			sds := SdsAdd(sds, SDS{
-				"type": "mail",
-				"dst":  recipients,
+				"type": "exec",
+				"dst":  strings.Join(append([]string{handle}, args...), " "),
 			})
 			decompressor, err := zlib.NewReader(pipeR)
 			if err != nil {
 				log.Fatalln(err)
 			}
 			sender := ctx.Neigh[*job.PktEnc.Sender]
-			sendmail := sender.Sendmail
-			if len(sendmail) == 0 {
-				ctx.LogE("rx", SdsAdd(sds, SDS{"err": "No sendmail configured"}), "")
+			cmdline, exists := sender.Exec[handle]
+			if !exists || len(cmdline) == 0 {
+				ctx.LogE("rx", SdsAdd(sds, SDS{"err": "No handle found"}), "")
 				isBad = true
 				goto Closing
 			}
 			if !dryRun {
 				cmd := exec.Command(
-					sendmail[0],
-					append(
-						sendmail[1:len(sendmail)],
-						strings.Split(recipients, " ")...,
-					)...,
+					cmdline[0],
+					append(cmdline[1:len(cmdline)], args...)...,
 				)
-				cmd.Env = append(cmd.Env, "NNCP_SENDER="+sender.Id.String())
+				cmd.Env = append(
+					cmd.Env,
+					"NNCP_SELF="+ctx.Self.Id.String(),
+					"NNCP_SENDER="+sender.Id.String(),
+					"NNCP_NICE="+strconv.Itoa(int(pkt.Nice)),
+				)
 				cmd.Stdin = decompressor
 				if err = cmd.Run(); err != nil {
-					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "sendmail")
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "handle")
 					isBad = true
 					goto Closing
 				}
@@ -138,6 +149,9 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				}
 			}
 		case PktTypeFile:
+			if noFile {
+				goto Closing
+			}
 			dst := string(pkt.Path[:int(pkt.PathLen)])
 			sds := SdsAdd(sds, SDS{"type": "file", "dst": dst})
 			if filepath.IsAbs(dst) {
@@ -207,8 +221,8 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 					isBad = true
 				}
-				sendmail := ctx.Neigh[*ctx.SelfId].Sendmail
-				if ctx.NotifyFile != nil {
+				sendmail, exists := ctx.Neigh[*ctx.SelfId].Exec["sendmail"]
+				if exists && len(sendmail) > 0 && ctx.NotifyFile != nil {
 					cmd := exec.Command(
 						sendmail[0],
 						append(sendmail[1:len(sendmail)], ctx.NotifyFile.To)...,
@@ -223,6 +237,9 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				}
 			}
 		case PktTypeFreq:
+			if noFreq {
+				goto Closing
+			}
 			src := string(pkt.Path[:int(pkt.PathLen)])
 			if filepath.IsAbs(src) {
 				ctx.LogE("rx", sds, "non-relative source path")
@@ -249,7 +266,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				if sender.FreqChunked == 0 {
 					err = ctx.TxFile(
 						sender,
-						job.PktEnc.Nice,
+						pkt.Nice,
 						filepath.Join(*freq, src),
 						dst,
 						sender.FreqMinSize,
@@ -257,7 +274,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				} else {
 					err = ctx.TxFileChunked(
 						sender,
-						job.PktEnc.Nice,
+						pkt.Nice,
 						filepath.Join(*freq, src),
 						dst,
 						sender.FreqMinSize,
@@ -281,8 +298,8 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "remove")
 					isBad = true
 				}
-				if ctx.NotifyFreq != nil {
-					sendmail := ctx.Neigh[*ctx.SelfId].Sendmail
+				sendmail, exists := ctx.Neigh[*ctx.SelfId].Exec["sendmail"]
+				if exists && len(sendmail) > 0 && ctx.NotifyFreq != nil {
 					cmd := exec.Command(
 						sendmail[0],
 						append(sendmail[1:len(sendmail)], ctx.NotifyFreq.To)...,
@@ -296,6 +313,9 @@ func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen bool) bool {
 				}
 			}
 		case PktTypeTrns:
+			if noTrns {
+				goto Closing
+			}
 			dst := new([blake2b.Size256]byte)
 			copy(dst[:], pkt.Path[:int(pkt.PathLen)])
 			nodeId := NodeId(*dst)

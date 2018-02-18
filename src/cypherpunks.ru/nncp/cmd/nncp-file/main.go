@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2017 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,26 +31,30 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintln(os.Stderr, "nncp-file -- send file\n")
+	fmt.Fprintf(os.Stderr, "nncp-file -- send file\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] SRC NODE:[DST]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 	fmt.Fprint(os.Stderr, `
 If SRC equals to -, then read data from stdin to temporary file.
+
+-minsize/-chunked take NODE's FreqMinSize/FreqChunked configuration
+options by default. You can forcefully turn them off by specifying 0 value.
 `)
 }
 
 func main() {
 	var (
-		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw   = flag.Int("nice", nncp.DefaultNiceFile, "Outbound packet niceness")
-		minSize   = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
-		chunkSize = flag.Uint64("chunked", 0, "Split file on specified size chunks, in KiB")
-		spoolPath = flag.String("spool", "", "Override path to spool")
-		logPath   = flag.String("log", "", "Override path to logfile")
-		quiet     = flag.Bool("quiet", false, "Print only errors")
-		debug     = flag.Bool("debug", false, "Print debug messages")
-		version   = flag.Bool("version", false, "Print version information")
-		warranty  = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw      = flag.Int("nice", nncp.DefaultNiceFile, "Outbound packet niceness")
+		argMinSize   = flag.Int64("minsize", -1, "Minimal required resulting packet size, in KiB")
+		argChunkSize = flag.Int64("chunked", -1, "Split file on specified size chunks, in KiB")
+		viaOverride  = flag.String("via", "", "Override Via path to destination node")
+		spoolPath    = flag.String("spool", "", "Override path to spool")
+		logPath      = flag.String("log", "", "Override path to logfile")
+		quiet        = flag.Bool("quiet", false, "Print only errors")
+		debug        = flag.Bool("debug", false, "Print debug messages")
+		version      = flag.Bool("version", false, "Print version information")
+		warranty     = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -89,13 +93,39 @@ func main() {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
 
-	if *chunkSize == 0 {
+	if *viaOverride != "" {
+		vias := make([]*nncp.NodeId, 0, strings.Count(*viaOverride, ",")+1)
+		for _, via := range strings.Split(*viaOverride, ",") {
+			foundNodeId, err := ctx.FindNode(via)
+			if err != nil {
+				log.Fatalln("Invalid Via node specified:", err)
+			}
+			vias = append(vias, foundNodeId.Id)
+		}
+		node.Via = vias
+	}
+
+	var minSize int64
+	if *argMinSize < 0 {
+		minSize = node.FreqMinSize
+	} else if *argMinSize > 0 {
+		minSize = *argMinSize * 1024
+	}
+
+	var chunkSize int64
+	if *argChunkSize < 0 {
+		chunkSize = node.FreqChunked
+	} else if *argChunkSize > 0 {
+		chunkSize = *argChunkSize * 1024
+	}
+
+	if chunkSize == 0 {
 		err = ctx.TxFile(
 			node,
 			nice,
 			flag.Arg(0),
 			splitted[1],
-			int64(*minSize)*1024,
+			minSize,
 		)
 	} else {
 		err = ctx.TxFileChunked(
@@ -103,8 +133,8 @@ func main() {
 			nice,
 			flag.Arg(0),
 			splitted[1],
-			int64(*minSize)*1024,
-			int64(*chunkSize)*1024,
+			minSize,
+			chunkSize,
 		)
 	}
 	if err != nil {
