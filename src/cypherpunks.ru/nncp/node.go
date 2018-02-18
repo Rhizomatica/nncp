@@ -85,7 +85,10 @@ func NewNodeGenerate() (*NodeOur, error) {
 	if err != nil {
 		return nil, err
 	}
-	noiseKey := noise.DH25519.GenerateKeypair(rand.Reader)
+	noiseKey, err := noise.DH25519.GenerateKeypair(rand.Reader)
+	if err != nil {
+		return nil, err
+	}
 	noisePub := new([32]byte)
 	noisePrv := new([32]byte)
 	copy(noisePrv[:], noiseKey.Private)
