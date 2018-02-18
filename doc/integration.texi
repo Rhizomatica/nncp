@@ -247,37 +247,9 @@ URIs, Web-seeding, selective downloads, LPD. @command{aria2} can
 accelerate HTTP*/*FTP downloads by segmented multiple parallel
 connections.
 
-You can queue you files after they are completely downloaded:
-@verbatim
-% cat send-downloaded.sh
-#!/bin/sh
-
-if [ "$2" -eq 0 ]; then
-    # This could be downloaded .torrent file itself
-    exit 0
-fi
-
-if [ "$2" -gt 1 ]; then
-    # This is directory downloaded with BitTorrent
-    wholedir="$(dirname "$3")"
-    name=$(basename "$wholedir")
-    cd "$wholedir"/..
-    tartmp=$(mktemp ./finished.XXXXXX)
-    tar cf $tartmp "$name"
-    nncp-file -chunked $(( 1024 * 100 )) $tartmp remote:"$name".tar
-    rm $tartmp
-else
-    nncp-file -chunked $(( 1024 * 100 )) "$3" remote:
-fi
-
-% aria2c \
-    --on-download-complete send-downloaded.sh \
-    http://example.org/file.iso \
-    http://example.org/file.iso.asc
-% aria2c \
-    --on-bt-download-complete send-downloaded.sh \
-    http://example.org/file.torrent
-@end verbatim
+You can queue you files after they are completely downloaded.
+@file{aria2-downloaded.sh} contents:
+@verbatiminclude aria2-downloaded.sh
 
 Also you can prepare
 @url{http://aria2.github.io/manual/en/html/aria2c.html#files, input file}
@@ -289,7 +261,7 @@ http://www.nncpgo.org/download/nncp-0.11.tar.xz
 http://www.nncpgo.org/download/nncp-0.11.tar.xz.sig
     out=nncp.txz.sig
 % aria2c \
-    --on-download-complete send-downloaded.sh \
+    --on-download-complete aria2-downloaded.sh \
     --input-file jobs
 @end verbatim
 and all that downloaded (@file{nncp.txz}, @file{nncp.txz.sig}) files
@@ -308,57 +280,16 @@ exec:
   wgeter: ["/bin/sh", "/path/to/wgeter.sh"]
   aria2c: [
     "/usr/local/bin/aria2c",
-    "--on-download-complete", "send-downloaded.sh",
-    "--on-bt-download-complete", "send-downloaded.sh"
+    "--on-download-complete", "aria2-downloaded.sh",
+    "--on-bt-download-complete", "aria2-downloaded.sh"
   ]
 @end verbatim
 
 @file{warcer.sh} contents:
-
-@verbatim
-#!/bin/sh -ex
-
-user_agent="Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27"
-
-name="$1"
-read cmdline
-
-tmp=$(mktemp -d)
-cd $tmp
-warc_name=$name-$(date '+%Y%M%d%H%m%S')
-wget \
-    --page-requisites \
-    --convert-links \
-    --adjust-extension \
-    --restrict-file-names=ascii \
-    --span-hosts \
-    --random-wait \
-    --execute robots=off \
-    --user-agent "$user_agent" \
-    --reject '*.woff*,*.ttf,*.eot,*.js' \
-    --tries 10 \
-    --warc-file $warc_name \
-    --no-warc-compression \
-    --no-warc-keep-log \
-    $cmdline || :
-xz -9 "$warc_name".warc
-nncp-file -nice $NNCP_NICE "$warc_name".warc.xz $NNCP_SENDER:
-rm -r $tmp
-@end verbatim
+@verbatiminclude warcer.sh
 
 @file{wgeter.sh} contents:
-
-@verbatim
-#!/bin/sh -ex
-
-name="$1"
-read cmdline
-tmp=$(mktemp)
-wget --output-document=$tmp $cmdline
-xz -9 $tmp
-nncp-file -nice $NNCP_NICE $tmp.xz $NNCP_SENDER:$name.xz
-rm $tmp.xz
-@end verbatim
+@verbatiminclude wgeter.sh
 
 Now you can queue that node to send you some website's page, file or
 BitTorrents:
