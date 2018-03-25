@@ -4,31 +4,19 @@
 @node General
 @subsection General installation instructions
 
+Look @ref{Integrity, here} for finding public keys for tarball authentication.
+
 @verbatim
 % wget http://www.nncpgo.org/download/nncp-3.0.tar.xz
 % wget http://www.nncpgo.org/download/nncp-3.0.tar.xz.sig
 % gpg --verify nncp-3.0.tar.xz.sig nncp-3.0.tar.xz
-% tar xf nncp-3.0.tar.xz
+% xz -d nncp-3.0.tar.xz
+% tar xf nncp-3.0.tar
 % make -C nncp-3.0 all
 @end verbatim
 
 There is @command{install} target respecting @env{DESTDIR}. It will
 install binaries and info-documentation.
-
-@node FreeBSD
-@subsection FreeBSD installation instructions
-
-Look @ref{Integrity, here} for finding public keys for tarball authentication.
-
-@verbatim
-# pkg install go
-@end verbatim
-
-follow @ref{General, general} installation instructions
-
-@verbatim
-# make -C nncp-3.0 install
-@end verbatim
 
 @node Ubuntu
 @subsection Ubuntu installation instructions
