@@ -5,6 +5,4 @@ Please send questions regarding the use of NNCP, bug reports and patches to
 @url{https://lists.cypherpunks.ru/pipermail/nncp-devel/, nncp-devel}
 mailing list. Announcements also go to this mailing list.
 
-Official website is @url{http://www.nncpgo.org/}, also available as
-@url{https://geti2p.net/en/, I2P} service
-@url{http://ryeyslcg6oajmyruje3weqayepze5e5oglxndhkavzfatgnxcd7q.b32.i2p/}.
+Official website is @url{http://www.nncpgo.org/}.

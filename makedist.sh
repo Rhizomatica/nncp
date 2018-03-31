@@ -125,8 +125,6 @@ $(git cat-file -p $release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 ------------------------ >8 ------------------------
 
 NNCP's home page is: http://www.nncpgo.org/
-Also available as I2P service:
-http://ryeyslcg6oajmyruje3weqayepze5e5oglxndhkavzfatgnxcd7q.b32.i2p/
 
 Source code and its signature for that version can be found here:
 
@@ -175,8 +173,6 @@ $(git cat-file -p $release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 ------------------------ >8 ------------------------
 
 Домашняя страница NNCP: http://www.nncpgo.org/
-Также доступная как I2P сервис:
-http://ryeyslcg6oajmyruje3weqayepze5e5oglxndhkavzfatgnxcd7q.b32.i2p/
 Коротко об утилитах: http://www.nncpgo.org/Ob-utilitakh.html
 
 Исходный код и его подпись для этой версии находятся здесь:
