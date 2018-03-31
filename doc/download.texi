@@ -85,5 +85,3 @@ Tarballs include all necessary required libraries:
 @tab @code{8F71D65B 70865EBF FE802CDF A5C14D00 A9FD6559 FD722E60 5D97E82C 5E2412C2}
 
 @end multitable
-
-Also you can try its @ref{Contacts, .i2p} version.
