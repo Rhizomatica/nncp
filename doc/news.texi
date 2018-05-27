@@ -3,6 +3,13 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 3.1
+@section Release 3.1
+@itemize
+@item
+Ability to disable relaying at all using @verb{|-via -|} command line option.
+@end itemize
+
 @node Release 3.0
 @section Release 3.0
 @itemize

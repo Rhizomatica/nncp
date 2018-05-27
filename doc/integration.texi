@@ -17,7 +17,7 @@ making them store-and-forward friendly.
 @node Postfix
 @section Integration with Postfix
 
-This section is taken from @url{http://www.postfix.org/nncp_README.html,
+This section is taken from @url{http://www.postfix.org/UUCP_README.html,
 Postfix and UUCP} manual and just replaces UUCP-related calls with NNCP
 ones.
 
