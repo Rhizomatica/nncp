@@ -23,6 +23,10 @@ Tarballs include all necessary required libraries:
 @multitable {XXXXX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Size @tab Tarball @tab SHA256 checksum
 
+@item @ref{Release 3.0, 3.0} @tab 993 KiB
+@tab @url{download/nncp-3.0.tar.xz, link} @url{download/nncp-3.0.tar.xz.sig, sign}
+@tab @code{248B2257 2F576E79 A19672E9 B82EB649 18FC95A9 194408C0 67EA4DD3 0468286D}
+
 @item @ref{Release 2.0, 2.0} @tab 986 KiB
 @tab @url{download/nncp-2.0.tar.xz, link} @url{download/nncp-2.0.tar.xz.sig, sign}
 @tab @code{BEF31B13 FB25381E A511FB77 067798AB 27409238 BDF5600F E2EADB29 E5E78996}
@@ -81,5 +85,3 @@ Tarballs include all necessary required libraries:
 @tab @code{8F71D65B 70865EBF FE802CDF A5C14D00 A9FD6559 FD722E60 5D97E82C 5E2412C2}
 
 @end multitable
-
-Also you can try its @ref{Contacts, .i2p} version.
