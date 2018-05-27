@@ -1,7 +1,7 @@
 # $FreeBSD: head/net/nncp/Makefile 460314 2018-01-29 16:17:45Z yuri $
 
 PORTNAME=	nncp
-DISTVERSION=	3.0
+DISTVERSION=	3.1
 CATEGORIES=	net
 MASTER_SITES=	http://www.nncpgo.org/download/
 

@@ -7,12 +7,12 @@
 Look @ref{Integrity, here} for finding public keys for tarball authentication.
 
 @verbatim
-% wget http://www.nncpgo.org/download/nncp-3.0.tar.xz
-% wget http://www.nncpgo.org/download/nncp-3.0.tar.xz.sig
-% gpg --verify nncp-3.0.tar.xz.sig nncp-3.0.tar.xz
-% xz -d nncp-3.0.tar.xz
-% tar xf nncp-3.0.tar
-% make -C nncp-3.0 all
+% wget http://www.nncpgo.org/download/nncp-3.1.tar.xz
+% wget http://www.nncpgo.org/download/nncp-3.1.tar.xz.sig
+% gpg --verify nncp-3.1.tar.xz.sig nncp-3.1.tar.xz
+% xz -d nncp-3.1.tar.xz
+% tar xf nncp-3.1.tar
+% make -C nncp-3.1 all
 @end verbatim
 
 There is @command{install} target respecting @env{DESTDIR}. It will
@@ -33,19 +33,19 @@ Look @ref{Integrity, here} for finding public keys for tarball authentication.
 follow @ref{General, general} installation instructions
 
 @verbatim
-# make -C nncp-3.0 install PREFIX=/usr
+# make -C nncp-3.1 install PREFIX=/usr
 @end verbatim
 
 @item Ubuntu 14.04
 
 @verbatim
 # apt-get install golang-1.6
-% wget http://www.nncpgo.org/download/nncp-3.0.tar.xz
-% wget http://www.nncpgo.org/download/nncp-3.0.tar.xz.sig
-% gpg --verify nncp-3.0.tar.xz.sig nncp-3.0.tar.xz
-% tar xf nncp-3.0.tar.xz
-% PATH=/usr/lib/go-1.6/bin:$PATH make -C nncp-3.0 all
-# make -C nncp-3.0 install PREFIX=/usr
+% wget http://www.nncpgo.org/download/nncp-3.1.tar.xz
+% wget http://www.nncpgo.org/download/nncp-3.1.tar.xz.sig
+% gpg --verify nncp-3.1.tar.xz.sig nncp-3.1.tar.xz
+% tar xf nncp-3.1.tar.xz
+% PATH=/usr/lib/go-1.6/bin:$PATH make -C nncp-3.1 all
+# make -C nncp-3.1 install PREFIX=/usr
 @end verbatim
 
 @end table

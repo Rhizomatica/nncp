@@ -27,6 +27,7 @@ Nearly all commands have the following common options:
 @item -via
     Override @ref{CfgVia, via} configuration option for destination node.
     Specified nodes must be separated with comma: @verb{|NODE1,NODE2|}.
+    With @verb{|-via -|} you can disable relaying at all.
 @item -spool
     Override path to spool directory. May be specified by
     @env{NNCPSPOOL} environment variable.
