@@ -33,5 +33,5 @@ uid   NNCP releases <releases at nncpgo dot org>
 
 Then you could verify tarballs signature:
 @verbatim
-% gpg --verify nncp-3.0.tar.xz.sig nncp-3.0.tar.xz
+% gpg --verify nncp-3.1.tar.xz.sig nncp-3.1.tar.xz
 @end verbatim

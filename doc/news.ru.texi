@@ -1,6 +1,14 @@
 @node Новости
 @section Новости
 
+@node Релиз 3.1
+@subsection Релиз 3.1
+@itemize
+@item
+Возможность отключать пересылку через промежуточные ноды используя
+@verb{|-via -|} опцию командной строки.
+@end itemize
+
 @node Релиз 3.0
 @subsection Релиз 3.0
 @itemize

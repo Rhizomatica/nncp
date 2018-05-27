@@ -26,7 +26,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 
 	"cypherpunks.ru/nncp"
 )
@@ -88,17 +87,7 @@ func main() {
 		log.Fatalln("Invalid NODE specified:", err)
 	}
 
-	if *viaOverride != "" {
-		vias := make([]*nncp.NodeId, 0, strings.Count(*viaOverride, ",")+1)
-		for _, via := range strings.Split(*viaOverride, ",") {
-			foundNodeId, err := ctx.FindNode(via)
-			if err != nil {
-				log.Fatalln("Invalid Via node specified:", err)
-			}
-			vias = append(vias, foundNodeId.Id)
-		}
-		node.Via = vias
-	}
+	nncp.ViaOverride(*viaOverride, ctx, node)
 
 	body, err := ioutil.ReadAll(bufio.NewReader(os.Stdin))
 	if err != nil {
