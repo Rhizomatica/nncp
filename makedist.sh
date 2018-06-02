@@ -50,6 +50,7 @@ golang.org/x/sys/CONTRIBUTORS
 golang.org/x/sys/LICENSE
 golang.org/x/sys/PATENTS
 golang.org/x/sys/README.md
+golang.org/x/sys/cpu
 golang.org/x/sys/unix
 EOF
 tar cfCI - src $tmp/includes | tar xfC - $tmp
