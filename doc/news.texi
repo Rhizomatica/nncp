@@ -3,6 +3,18 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 3.2
+@section Release 3.2
+@itemize
+@item
+@strong{Incompatible} @emph{bundle} archive format changes and
+@command{nncp-bundle} workability with Go 1.10+. Bundles must be
+valid tar archives, but Go 1.9 made them invalid because of long paths
+inside. NNCP accidentally was dependant on that bug. Explicit adding of
+@file{NNCP/} directory in archive restores workability with valid tar
+archives.
+@end itemize
+
 @node Release 3.1
 @section Release 3.1
 @itemize

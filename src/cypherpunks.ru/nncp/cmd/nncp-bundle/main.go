@@ -120,6 +120,14 @@ func main() {
 					continue
 				}
 				if err = tarWr.WriteHeader(&tar.Header{
+					Format:   tar.FormatUSTAR,
+					Name:     nncp.NNCPBundlePrefix,
+					Mode:     0700,
+					Typeflag: tar.TypeDir,
+				}); err != nil {
+					log.Fatalln("Error writing tar header:", err)
+				}
+				if err = tarWr.WriteHeader(&tar.Header{
 					Format: tar.FormatPAX,
 					Name: strings.Join([]string{
 						nncp.NNCPBundlePrefix,
@@ -184,6 +192,21 @@ func main() {
 			bufStdin.Discard(prefixIdx)
 			tarR = tar.NewReader(bufStdin)
 			sds["xx"] = string(nncp.TRx)
+			entry, err = tarR.Next()
+			if err != nil {
+				if err != io.EOF {
+					ctx.LogD(
+						"nncp-bundle",
+						nncp.SdsAdd(sds, nncp.SDS{"err": err}),
+						"error reading tar",
+					)
+				}
+				continue
+			}
+			if entry.Typeflag != tar.TypeDir {
+				ctx.LogD("nncp-bundle", sds, "Expected NNCP/")
+				continue
+			}
 			entry, err = tarR.Next()
 			if err != nil {
 				if err != io.EOF {
