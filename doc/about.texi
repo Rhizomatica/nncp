@@ -1,5 +1,5 @@
-NNCP (Node to Node copy) is a collection of utilities simplifying
-secure store-and-forward files and mail exchanging.
+@strong{NNCP} (Node to Node copy) is a collection of utilities
+simplifying secure store-and-forward files and mail exchanging.
 
 See also this page @ref{Об утилитах, on russian}.
 
