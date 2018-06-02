@@ -60,7 +60,7 @@ func main() {
 		doTx      = flag.Bool("tx", false, "Transfer packets")
 		doDelete  = flag.Bool("delete", false, "Delete transferred packets")
 		doCheck   = flag.Bool("check", false, "Check integrity while receiving")
-		dryRun    = flag.Bool("dryrun", false, "Do not writings")
+		dryRun    = flag.Bool("dryrun", false, "Do no writes")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -120,13 +120,22 @@ func main() {
 					continue
 				}
 				if err = tarWr.WriteHeader(&tar.Header{
+					Format:   tar.FormatUSTAR,
+					Name:     nncp.NNCPBundlePrefix,
+					Mode:     0700,
+					Typeflag: tar.TypeDir,
+				}); err != nil {
+					log.Fatalln("Error writing tar header:", err)
+				}
+				if err = tarWr.WriteHeader(&tar.Header{
+					Format: tar.FormatPAX,
 					Name: strings.Join([]string{
 						nncp.NNCPBundlePrefix,
 						nodeId.String(),
 						ctx.SelfId.String(),
 						pktName,
 					}, "/"),
-					Mode:     0440,
+					Mode:     0400,
 					Size:     job.Size,
 					Typeflag: tar.TypeReg,
 				}); err != nil {
@@ -183,6 +192,21 @@ func main() {
 			bufStdin.Discard(prefixIdx)
 			tarR = tar.NewReader(bufStdin)
 			sds["xx"] = string(nncp.TRx)
+			entry, err = tarR.Next()
+			if err != nil {
+				if err != io.EOF {
+					ctx.LogD(
+						"nncp-bundle",
+						nncp.SdsAdd(sds, nncp.SDS{"err": err}),
+						"error reading tar",
+					)
+				}
+				continue
+			}
+			if entry.Typeflag != tar.TypeDir {
+				ctx.LogD("nncp-bundle", sds, "Expected NNCP/")
+				continue
+			}
 			entry, err = tarR.Next()
 			if err != nil {
 				if err != io.EOF {

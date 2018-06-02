@@ -2,12 +2,12 @@ all: nncp.info nncp.html
 
 MAKEINFO ?= makeinfo
 
-nncp.info: *.texi
+nncp.info: *.texi pedro.txt
 	$(MAKEINFO) -o nncp.info index.texi
 
 CSS != cat style.css
 
-nncp.html: *.texi
+nncp.html: *.texi pedro.txt
 	rm -f nncp.html/*.html
 	$(MAKEINFO) --html \
 		--set-customization-variable CSS_LINES='$(CSS)' \
