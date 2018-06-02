@@ -763,22 +763,23 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.infosTheir[*info.Hash] = &info
 			state.Unlock()
 			state.ctx.LogD("sp-process", sdsp, "stating part")
-			if _, err = os.Stat(filepath.Join(
+			pktPath := filepath.Join(
 				state.ctx.Spool,
 				state.Node.Id.String(),
 				string(TRx),
 				ToBase32(info.Hash[:]),
-			)); err == nil {
+			)
+			if _, err = os.Stat(pktPath); err == nil {
 				state.ctx.LogD("sp-process", sdsp, "already done")
 				replies = append(replies, MarshalSP(SPTypeDone, SPDone{info.Hash}))
 				continue
 			}
-			fi, err := os.Stat(filepath.Join(
-				state.ctx.Spool,
-				state.Node.Id.String(),
-				string(TRx),
-				ToBase32(info.Hash[:])+PartSuffix,
-			))
+			if _, err = os.Stat(pktPath + SeenSuffix); err == nil {
+				state.ctx.LogD("sp-process", sdsp, "already seen")
+				replies = append(replies, MarshalSP(SPTypeDone, SPDone{info.Hash}))
+				continue
+			}
+			fi, err := os.Stat(pktPath + PartSuffix)
 			var offset int64
 			if err == nil {
 				offset = fi.Size()
