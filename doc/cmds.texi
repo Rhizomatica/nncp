@@ -87,7 +87,7 @@ spool if everything is good. So it is advisable to recheck your streams:
 % dd if=/dev/cd0 bs=2048 | nncp-bundle -rx -delete
 @end verbatim
 
-@option{-dryrun} option prevents any writing to the spool. This is
+@option{-dryrun} option prevents any writes to the spool. This is
 useful when you need to see what packets will pass by and possibly check
 their integrity.
 

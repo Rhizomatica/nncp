@@ -60,7 +60,7 @@ func main() {
 		doTx      = flag.Bool("tx", false, "Transfer packets")
 		doDelete  = flag.Bool("delete", false, "Delete transferred packets")
 		doCheck   = flag.Bool("check", false, "Check integrity while receiving")
-		dryRun    = flag.Bool("dryrun", false, "Do not writings")
+		dryRun    = flag.Bool("dryrun", false, "Do no writes")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
