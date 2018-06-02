@@ -120,6 +120,7 @@ func main() {
 					continue
 				}
 				if err = tarWr.WriteHeader(&tar.Header{
+					Format: tar.FormatPAX,
 					Name: strings.Join([]string{
 						nncp.NNCPBundlePrefix,
 						nodeId.String(),
