@@ -126,7 +126,7 @@ func main() {
 						ctx.SelfId.String(),
 						pktName,
 					}, "/"),
-					Mode:     0440,
+					Mode:     0400,
 					Size:     job.Size,
 					Typeflag: tar.TypeReg,
 				}); err != nil {
