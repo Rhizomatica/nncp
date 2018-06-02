@@ -3,6 +3,16 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 3.3
+@section Release 3.3
+@itemize
+@item
+@command{nncp-daemon}, @command{nncp-call}, @command{nncp-caller} check
+if @file{.seen} exists and treat it like file was already downloaded.
+Possibly it was transferred out-of-bound and remote side needs to be
+notifier about that.
+@end itemize
+
 @node Release 3.2
 @section Release 3.2
 @itemize

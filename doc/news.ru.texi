@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 3.3
+@subsection Релиз 3.3
+@itemize
+@item
+@command{nncp-daemon}, @command{nncp-call}, @command{nncp-caller}
+проверяют существование @file{.seen} файла и расценивают его как то, что
+файл уже был скачан. Возможно передача данных была осуществлена
+сторонним способом и удалённая сторона должна быть оповещена об этом.
+@end itemize
+
 @node Релиз 3.2
 @subsection Релиз 3.2
 @itemize

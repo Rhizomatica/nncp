@@ -136,36 +136,62 @@ just an unsigned integer telling what body structure follows.
 
 Typical peer's behaviour is following:
 
+@verbatiminclude sp.utxt
+
 @enumerate
-@item Perform Noise-IK handshake.
-@item When remote peer's identity is known (by definition for initiator
-and after receiving first packet for responser (however it is not
-authenticated yet)), then collect all @emph{tx}-related files
-information and prepare payload packets with all that @emph{INFO}s.
-@item Pad the very first payload packet (that is sent with first Noise
-handshake message) with @emph{HALT}s to the maximal size.
-@item Send all queued payload packets.
-@item When @emph{INFO} packet received, check that is has an acceptable
-niceness level (skip if not), check if file's @file{.part} exists and
-queue @emph{FREQ} outgoing packet (with corresponding offset if
-required).
+@item Perform @emph{Noise-IK} handshake:
+
+    @table @strong
+    @item Initiator
+    Collects all @emph{tx}-related files information and prepares
+    payload filled with @emph{INFO}s for including in the @strong{first}
+    handshake message.
+    @item Responder
+    After receiving the first handshake message, it gains remote
+    identity knowledge and similarly prepares the payload for including
+    in the @strong{second} handshake message.
+    @end table
+
+    All payloads are padded to maximal message size with @emph{HALT}s.
+
+@item If queued @emph{INFO}s are not sent completely in handshake
+payloads, then send all of remaining in the transport stage.
+
+@item When @emph{INFO} packet received:
+
+    @itemize
+    @item Check that it has an acceptable niceness level.
+    Ignore it if it is too nice.
+    @item If already downloaded file exists, then queue @emph{DONE}
+    sending.
+    @item If @file{.seen} exists, then queue @emph{DONE} sending.
+    @item If @file{.part} exists, then queue @emph{FREQ} sending with
+    corresponding offset.
+    @end itemize
+
 @item When @emph{FREQ} packet received, append it to current sending
 queue. Sending queue contains files with offsets that are needed to be
 sent.
-@item While sending queue is not empty, send @emph{FILE} packet until
-queue's head is not fully sent. @emph{FREQ} can contain offset equal to
-size -- anyway sent @emph{FILE} packet with an empty payload.
-@item When @emph{FILE} packet received, check if it is not fully
-downloaded (comparing to @emph{INFO}'s packet information). If so, then
-run background integrity checker on it. If check is succeeded, then
+
+@item While sending queue is not empty, send @emph{FILE} packets.
+@emph{FREQ} could contain offset equal to size -- anyway sent
+@emph{FILE} packet with an empty payload. @emph{FILE} sending is
+performed only if no other outgoing packets are queued: @emph{INFO}s
+have higher priority.
+
+@item When @emph{FILE} packet received, check if it is completely
+downloaded (comparing to @emph{INFO}'s packet size information). If so,
+then run background integrity checker on it. If check succeeds, then
 delete @file{.part} suffix from file's name and send @emph{DONE} packet.
+
 @item When @emph{DONE} packet received, delete corresponding file.
 @item When @emph{HALT} packet received, empty file sending queue.
-@item @emph{FILE} sending is performed only if no other outgoing packets
-are queued.
+
 @item Each second, node checks: are there any new @emph{tx} packets
 appeared and queues corresponding @emph{INFO} packets.
+
 @item If no packets are sent and received during @ref{CfgOnlineDeadline,
 onlinedeadline} duration, then close the connection. There is no
 explicit indication that session is over.
+
 @end enumerate
