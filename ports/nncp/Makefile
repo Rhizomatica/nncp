@@ -1,12 +1,12 @@
-# $FreeBSD: head/net/nncp/Makefile 460314 2018-01-29 16:17:45Z yuri $
+# $FreeBSD: head/net/nncp/Makefile 471003 2018-05-27 20:24:00Z krion $
 
 PORTNAME=	nncp
-DISTVERSION=	3.1
+DISTVERSION=	3.2
 CATEGORIES=	net
 MASTER_SITES=	http://www.nncpgo.org/download/
 
 MAINTAINER=	stargrave@stargrave.org
-COMMENT=	Utilities for secure store-and-forward files, mail and command exchanging
+COMMENT=	Utilities for secure store-and-forward files, mail, command exchanging
 
 LICENSE=	GPLv3+
 LICENSE_FILE=	${WRKSRC}/COPYING
