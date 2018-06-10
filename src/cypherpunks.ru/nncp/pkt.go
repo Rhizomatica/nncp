@@ -253,7 +253,7 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize 
 	if err != nil {
 		return err
 	}
-	lr := io.LimitedReader{data, size}
+	lr := io.LimitedReader{R: data, N: size}
 	mr := io.MultiReader(&pktBuf, &lr)
 	mw := io.MultiWriter(out, mac)
 	fullSize := pktBuf.Len() + int(size)
@@ -271,7 +271,7 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize 
 		if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
 			return err
 		}
-		lr = io.LimitedReader{DevZero{}, padSize}
+		lr = io.LimitedReader{R: DevZero{}, N: padSize}
 		written, err = ae(keyEnc, &lr, out)
 		if err != nil {
 			return err
@@ -373,7 +373,7 @@ func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Wri
 	}
 
 	fullSize := PktOverhead + size - 8 - 2*blake2b.Size256
-	lr := io.LimitedReader{data, fullSize}
+	lr := io.LimitedReader{R: data, N: fullSize}
 	tr := io.TeeReader(&lr, mac)
 	written, err := ae(keyEnc, tr, out)
 	if err != nil {

@@ -48,28 +48,28 @@ type NodeYAML struct {
 	Id          string
 	ExchPub     string
 	SignPub     string
-	NoisePub    *string             `noisepub,omitempty`
-	Exec        map[string][]string `exec,omitempty`
-	Incoming    *string             `incoming,omitempty`
-	Freq        *string             `freq,omitempty`
-	FreqChunked *uint64             `freqchunked,omitempty`
-	FreqMinSize *uint64             `freqminsize,omitempty`
-	Via         []string            `via,omitempty`
-	Calls       []CallYAML          `calls,omitempty`
+	NoisePub    *string             `yaml:"noisepub,omitempty"`
+	Exec        map[string][]string `yaml:"exec,omitempty"`
+	Incoming    *string             `yaml:"incoming,omitempty"`
+	Freq        *string             `yaml:"freq,omitempty"`
+	FreqChunked *uint64             `yaml:"freqchunked,omitempty"`
+	FreqMinSize *uint64             `yaml:"freqminsize,omitempty"`
+	Via         []string            `yaml:"via,omitempty"`
+	Calls       []CallYAML          `yaml:"calls,omitempty"`
 
-	Addrs map[string]string `addrs,omitempty`
+	Addrs map[string]string `yaml:"addrs,omitempty"`
 
-	OnlineDeadline *uint `onlinedeadline,omitempty`
-	MaxOnlineTime  *uint `maxonlinetime,omitempty`
+	OnlineDeadline *uint `yaml:"onlinedeadline,omitempty"`
+	MaxOnlineTime  *uint `yaml:"maxonlinetime,omitempty"`
 }
 
 type CallYAML struct {
 	Cron           string
-	Nice           *int    `nice,omitempty`
-	Xx             string  `xx,omitempty`
-	Addr           *string `addr,omitempty`
-	OnlineDeadline *uint   `onlinedeadline,omitempty`
-	MaxOnlineTime  *uint   `maxonlinetime,omitempty`
+	Nice           *int    `yaml:"nice,omitempty"`
+	Xx             string  `yaml:"xx,omitempty"`
+	Addr           *string `yaml:"addr,omitempty"`
+	OnlineDeadline *uint   `yaml:"onlinedeadline,omitempty"`
+	MaxOnlineTime  *uint   `yaml:"maxonlinetime,omitempty"`
 }
 
 type NodeOurYAML struct {
@@ -88,17 +88,17 @@ type FromToYAML struct {
 }
 
 type NotifyYAML struct {
-	File *FromToYAML `file,omitempty`
-	Freq *FromToYAML `freq,omitempty`
+	File *FromToYAML `yaml:"file,omitempty"`
+	Freq *FromToYAML `yaml:"freq,omitempty"`
 }
 
 type CfgYAML struct {
-	Self  *NodeOurYAML `self,omitempty`
+	Self  *NodeOurYAML `yaml:"self,omitempty"`
 	Neigh map[string]NodeYAML
 
 	Spool  string
 	Log    string
-	Notify *NotifyYAML `notify,omitempty`
+	Notify *NotifyYAML `yaml:"notify,omitempty"`
 }
 
 func NewNode(name string, yml NodeYAML) (*Node, error) {
