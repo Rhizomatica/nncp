@@ -17,6 +17,14 @@
 К средствам связанным с online-соединениями (@command{nncp-daemon},
 @command{nncp-call}, @command{nncp-caller}) добавлен простой
 ограничитель скорости.
+@item
+Возможность задания приоритета символьными обозначениями:
+@verb{|NORMAL|}, @verb{|BULK+10|}, @verb{|PRIORITY-5|}, итд.
+@item
+Изменены значения приоритетов по-умолчанию:
+для @command{nncp-exec} с 64 на 96,
+для @command{nncp-freq} с 64 на 160,
+для @command{nncp-file} с 196 на 224.
 @end itemize
 
 @node Релиз 3.2

@@ -45,7 +45,7 @@ func main() {
 	var (
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		nodeRaw   = flag.String("node", "", "Process only that node")
-		niceRaw   = flag.Int("nice", 255, "Minimal required niceness")
+		niceRaw   = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
 		rxOnly    = flag.Bool("rx", false, "Only receive packets")
 		txOnly    = flag.Bool("tx", false, "Only transfer packets")
 		mkdir     = flag.Bool("mkdir", false, "Create necessary outbound directories")
@@ -71,10 +71,10 @@ func main() {
 		usage()
 		os.Exit(1)
 	}
-	if *niceRaw < 1 || *niceRaw > 255 {
-		log.Fatalln("-nice must be between 1 and 255")
+	nice, err := nncp.NicenessParse(*niceRaw)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	nice := uint8(*niceRaw)
 	if *rxOnly && *txOnly {
 		log.Fatalln("-rx and -tx can not be set simultaneously")
 	}

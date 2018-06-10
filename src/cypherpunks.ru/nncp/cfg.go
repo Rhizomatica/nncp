@@ -67,7 +67,7 @@ type NodeYAML struct {
 
 type CallYAML struct {
 	Cron           string
-	Nice           *int    `yaml:"nice,omitempty"`
+	Nice           *string `yaml:"nice,omitempty"`
 	Xx             string  `yaml:"xx,omitempty"`
 	RxRate         *int    `yaml:"rxrate,omitempty"`
 	TxRate         *int    `yaml:"txrate,omitempty"`
@@ -197,10 +197,10 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 
 		nice := uint8(255)
 		if callYml.Nice != nil {
-			if *callYml.Nice < 1 || *callYml.Nice > 255 {
-				return nil, errors.New("Nice must be between 1 and 255")
+			nice, err = NicenessParse(*callYml.Nice)
+			if err != nil {
+				return nil, err
 			}
-			nice = uint8(*callYml.Nice)
 		}
 
 		var xx TRxTx

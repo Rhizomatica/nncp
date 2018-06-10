@@ -47,10 +47,6 @@ const (
 
 	MaxPathSize = 1<<8 - 1
 
-	DefaultNiceExec = 64
-	DefaultNiceFreq = 64
-	DefaultNiceFile = 196
-
 	NNCPBundlePrefix = "NNCP"
 )
 

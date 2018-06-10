@@ -114,8 +114,8 @@ func main() {
 			path = string(pkt.Path[:pkt.PathLen])
 		}
 		fmt.Printf(
-			"Packet type: plain\nPayload type: %s\nNiceness: %d\nPath: %s\n",
-			payloadType, pkt.Nice, path,
+			"Packet type: plain\nPayload type: %s\nNiceness: %s (%d)\nPath: %s\n",
+			payloadType, nncp.NicenessFmt(pkt.Nice), pkt.Nice, path,
 		)
 		return
 	}
@@ -148,8 +148,8 @@ func main() {
 			return
 		}
 		fmt.Printf(
-			"Packet type: encrypted\nNiceness: %d\nSender: %s\nRecipient: %s\n",
-			pktEnc.Nice, pktEnc.Sender, pktEnc.Recipient,
+			"Packet type: encrypted\nNiceness: %s (%d)\nSender: %s\nRecipient: %s\n",
+			nncp.NicenessFmt(pktEnc.Nice), pktEnc.Nice, pktEnc.Sender, pktEnc.Recipient,
 		)
 		return
 	}

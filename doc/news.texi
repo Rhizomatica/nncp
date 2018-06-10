@@ -17,6 +17,14 @@ queue its sending first, interrupting lower priority transmissions.
 @item
 Simple packet rate limiter added to online-related tools
 (@command{nncp-daemon}, @command{nncp-call}, @command{nncp-caller}).
+@item
+Ability to specify niceness with symbolic notation:
+@verb{|NORMAL|}, @verb{|BULK+10|}, @verb{|PRIORITY-5|}, итд.
+@item
+Changed default niceness levels:
+for @command{nncp-exec} from 64 to 96,
+for @command{nncp-freq} from 64 to 160,
+for @command{nncp-file} from 196 to 224.
 @end itemize
 
 @node Release 3.2
