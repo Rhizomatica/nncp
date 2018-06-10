@@ -16,6 +16,8 @@ calls:
     onlinedeadline: 1800
     maxonlinetime: 1750
     nice: 64
+    rxrate: 10
+    txrate: 20
   -
     cron: "0 * * * SAT,SUN"
     xx: rx
@@ -166,6 +168,10 @@ receive or to transmit data during that call.
 Optional. Call only that address, instead of trying all from
 @ref{CfgAddrs, @emph{addrs}} configuration option. It can be either key
 from @emph{addrs} dictionary, or an ordinary @option{addr:port}.
+
+@item rxrate/txrate
+Optional. Override @ref{CfgXxRate, @emph{rxrate/txrate}} configuration
+option when calling.
 
 @item onlinedeadline
 Optional. Override @ref{CfgOnlineDeadline, @emph{onlinedeadline}}

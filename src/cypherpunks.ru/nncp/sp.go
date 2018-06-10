@@ -188,6 +188,8 @@ type SPState struct {
 	rxLock         *os.File
 	txLock         *os.File
 	xxOnly         TRxTx
+	rxRate         int
+	txRate         int
 	isDead         bool
 	sync.RWMutex
 }
@@ -271,7 +273,7 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]uint8) [
 	return payloadsSplit(payloads)
 }
 
-func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly TRxTx, onlineDeadline, maxOnlineTime uint) (*SPState, error) {
+func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly TRxTx, rxRate, txRate int, onlineDeadline, maxOnlineTime uint) (*SPState, error) {
 	err := ctx.ensureRxDir(nodeId)
 	if err != nil {
 		return nil, err
@@ -320,6 +322,8 @@ func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly TRxTx, 
 		rxLock:         rxLock,
 		txLock:         txLock,
 		xxOnly:         xxOnly,
+		rxRate:         rxRate,
+		txRate:         txRate,
 	}
 
 	var infosPayloads [][]byte
@@ -427,6 +431,8 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly TRxTx) (*SPState, error
 		return nil, errors.New("Unknown peer: " + peerId)
 	}
 	state.Node = node
+	state.rxRate = node.RxRate
+	state.txRate = node.TxRate
 	state.onlineDeadline = node.OnlineDeadline
 	state.maxOnlineTime = node.MaxOnlineTime
 	sds := SDS{"node": node.Id, "nice": strconv.Itoa(int(nice))}
@@ -570,6 +576,11 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 				}
 				freq := state.queueTheir[0].freq
 				state.RUnlock()
+
+				if state.txRate > 0 {
+					time.Sleep(time.Second / time.Duration(state.txRate))
+				}
+
 				sdsp := SdsAdd(sds, SDS{
 					"xx":   string(TTx),
 					"hash": ToBase32(freq.Hash[:]),
@@ -707,6 +718,9 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 					state.payloads <- reply
 				}
 			}()
+			if state.rxRate > 0 {
+				time.Sleep(time.Second / time.Duration(state.rxRate))
+			}
 		}
 	}()
 

@@ -14,6 +14,9 @@ notifier about that.
 @item
 If higher priority packet is spooled, then @command{nncp-daemon} will
 queue its sending first, interrupting lower priority transmissions.
+@item
+Simple packet rate limiter added to online-related tools
+(@command{nncp-daemon}, @command{nncp-call}, @command{nncp-caller}).
 @end itemize
 
 @node Release 3.2
