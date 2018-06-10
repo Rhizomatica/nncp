@@ -42,7 +42,9 @@ func main() {
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw   = flag.Int("nice", 255, "Minimal required niceness")
 		rxOnly    = flag.Bool("rx", false, "Only receive packets")
-		txOnly    = flag.Bool("tx", false, "Only transfer packets")
+		txOnly    = flag.Bool("tx", false, "Only transmit packets")
+		rxRate    = flag.Int("rxrate", 0, "Maximal receive rate, pkts/sec")
+		txRate    = flag.Int("txrate", 0, "Maximal transmit rate, pkts/sec")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -121,7 +123,16 @@ func main() {
 		}
 	}
 
-	if !ctx.CallNode(node, addrs, nice, xxOnly, *onlineDeadline, *maxOnlineTime) {
+	if !ctx.CallNode(
+		node,
+		addrs,
+		nice,
+		xxOnly,
+		*rxRate,
+		*txRate,
+		*onlineDeadline,
+		*maxOnlineTime,
+	) {
 		os.Exit(1)
 	}
 }

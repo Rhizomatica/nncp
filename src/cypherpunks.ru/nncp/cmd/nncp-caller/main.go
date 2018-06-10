@@ -128,6 +128,8 @@ func main() {
 							addrs,
 							call.Nice,
 							call.Xx,
+							call.RxRate,
+							call.TxRate,
 							call.OnlineDeadline,
 							call.MaxOnlineTime,
 						)

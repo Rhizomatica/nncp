@@ -95,8 +95,13 @@ their integrity.
 @section nncp-call
 
 @verbatim
-% nncp-call [options] [-onlinedeadline INT] [-maxonlinetime INT] [-rx|-tx]
-                      NODE[:ADDR] [FORCEADDR]
+% nncp-call [options]
+    [-onlinedeadline INT]
+    [-maxonlinetime INT]
+    [-rx|-tx]
+    [-rxrate INT]
+    [-txrate INT]
+    NODE[:ADDR] [FORCEADDR]
 @end verbatim
 
 Call (connect to) specified @option{NODE} and run @ref{Sync,
@@ -111,7 +116,8 @@ transmission is performed. If @option{-tx} option is specified, then
 only outbound transmission is performed. @option{-onlinedeadline}
 overrides @ref{CfgOnlineDeadline, @emph{onlinedeadline}}.
 @option{-maxonlinetime} overrides @ref{CfgMaxOnlineTime,
-@emph{maxonlinetime}}.
+@emph{maxonlinetime}}. @option{-rxrate}/@option{-txrate} override
+@ref{CfgXxRate, rxrate/txrate}.
 
 @node nncp-caller
 @section nncp-caller
