@@ -11,6 +11,9 @@ See also this page @ref{Новости, on russian}.
 if @file{.seen} exists and treat it like file was already downloaded.
 Possibly it was transferred out-of-bound and remote side needs to be
 notifier about that.
+@item
+If higher priority packet is spooled, then @command{nncp-daemon} will
+queue its sending first, interrupting lower priority transmissions.
 @end itemize
 
 @node Release 3.2

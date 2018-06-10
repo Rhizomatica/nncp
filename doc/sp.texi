@@ -169,8 +169,9 @@ payloads, then send all of remaining in the transport stage.
     corresponding offset.
     @end itemize
 
-@item When @emph{FREQ} packet received, append it to current sending
-queue. Sending queue contains files with offsets that are needed to be
+@item When @emph{FREQ} packet received, insert it to current sending
+queue with niceness level sort: higher priority packets will be sent
+first. Sending queue contains files with offsets that are needed to be
 sent.
 
 @item While sending queue is not empty, send @emph{FILE} packets.
