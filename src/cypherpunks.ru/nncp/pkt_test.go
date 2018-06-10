@@ -81,7 +81,12 @@ func TestPktEncRead(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	f := func(path string, pathSize uint8, data [1 << 16]byte, size, padSize uint16, junk []byte) bool {
+	f := func(
+		path string,
+		pathSize uint8,
+		data [1 << 16]byte,
+		size, padSize uint16,
+		junk []byte) bool {
 		dataR := bytes.NewReader(data[:])
 		var ct bytes.Buffer
 		if len(path) > int(pathSize) {
