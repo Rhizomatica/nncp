@@ -655,7 +655,7 @@ func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payloa
 				SdsAdd(sds, SDS{"size": strconv.Itoa(len(payload))}),
 				"sending",
 			)
-			conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			conn.SetWriteDeadline(time.Now().Add(DefaultDeadline * time.Second))
 			if err := state.WriteSP(conn, state.csOur.Encrypt(nil, nil, payload)); err != nil {
 				state.ctx.LogE("sp-xmit", SdsAdd(sds, SDS{"err": err}), "")
 				break
