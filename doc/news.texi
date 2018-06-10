@@ -3,6 +3,30 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 3.3
+@section Release 3.3
+@itemize
+@item
+@command{nncp-daemon}, @command{nncp-call}, @command{nncp-caller} check
+if @file{.seen} exists and treat it like file was already downloaded.
+Possibly it was transferred out-of-bound and remote side needs to be
+notifier about that.
+@item
+If higher priority packet is spooled, then @command{nncp-daemon} will
+queue its sending first, interrupting lower priority transmissions.
+@item
+Simple packet rate limiter added to online-related tools
+(@command{nncp-daemon}, @command{nncp-call}, @command{nncp-caller}).
+@item
+Ability to specify niceness with symbolic notation:
+@verb{|NORMAL|}, @verb{|BULK+10|}, @verb{|PRIORITY-5|}, итд.
+@item
+Changed default niceness levels:
+for @command{nncp-exec} from 64 to 96,
+for @command{nncp-freq} from 64 to 160,
+for @command{nncp-file} from 196 to 224.
+@end itemize
+
 @node Release 3.2
 @section Release 3.2
 @itemize

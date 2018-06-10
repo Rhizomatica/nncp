@@ -40,7 +40,7 @@ func main() {
 	var (
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		nodeRaw   = flag.String("node", "", "Process only that node")
-		niceRaw   = flag.Int("nice", 255, "Minimal required niceness")
+		niceRaw   = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
 		dryRun    = flag.Bool("dryrun", false, "Do not actually write any tossed data")
 		doSeen    = flag.Bool("seen", false, "Create .seen files")
 		cycle     = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
@@ -65,10 +65,10 @@ func main() {
 		fmt.Println(nncp.VersionGet())
 		return
 	}
-	if *niceRaw < 1 || *niceRaw > 255 {
-		log.Fatalln("-nice must be between 1 and 255")
+	nice, err := nncp.NicenessParse(*niceRaw)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	nice := uint8(*niceRaw)
 
 	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {

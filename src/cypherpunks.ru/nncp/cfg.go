@@ -48,28 +48,32 @@ type NodeYAML struct {
 	Id          string
 	ExchPub     string
 	SignPub     string
-	NoisePub    *string             `noisepub,omitempty`
-	Exec        map[string][]string `exec,omitempty`
-	Incoming    *string             `incoming,omitempty`
-	Freq        *string             `freq,omitempty`
-	FreqChunked *uint64             `freqchunked,omitempty`
-	FreqMinSize *uint64             `freqminsize,omitempty`
-	Via         []string            `via,omitempty`
-	Calls       []CallYAML          `calls,omitempty`
+	NoisePub    *string             `yaml:"noisepub,omitempty"`
+	Exec        map[string][]string `yaml:"exec,omitempty"`
+	Incoming    *string             `yaml:"incoming,omitempty"`
+	Freq        *string             `yaml:"freq,omitempty"`
+	FreqChunked *uint64             `yaml:"freqchunked,omitempty"`
+	FreqMinSize *uint64             `yaml:"freqminsize,omitempty"`
+	Via         []string            `yaml:"via,omitempty"`
+	Calls       []CallYAML          `yaml:"calls,omitempty"`
 
-	Addrs map[string]string `addrs,omitempty`
+	Addrs map[string]string `yaml:"addrs,omitempty"`
 
-	OnlineDeadline *uint `onlinedeadline,omitempty`
-	MaxOnlineTime  *uint `maxonlinetime,omitempty`
+	RxRate         *int  `yaml:"rxrate,omitempty"`
+	TxRate         *int  `yaml:"txrate,omitempty"`
+	OnlineDeadline *uint `yaml:"onlinedeadline,omitempty"`
+	MaxOnlineTime  *uint `yaml:"maxonlinetime,omitempty"`
 }
 
 type CallYAML struct {
 	Cron           string
-	Nice           *int    `nice,omitempty`
-	Xx             string  `xx,omitempty`
-	Addr           *string `addr,omitempty`
-	OnlineDeadline *uint   `onlinedeadline,omitempty`
-	MaxOnlineTime  *uint   `maxonlinetime,omitempty`
+	Nice           *string `yaml:"nice,omitempty"`
+	Xx             string  `yaml:"xx,omitempty"`
+	RxRate         *int    `yaml:"rxrate,omitempty"`
+	TxRate         *int    `yaml:"txrate,omitempty"`
+	Addr           *string `yaml:"addr,omitempty"`
+	OnlineDeadline *uint   `yaml:"onlinedeadline,omitempty"`
+	MaxOnlineTime  *uint   `yaml:"maxonlinetime,omitempty"`
 }
 
 type NodeOurYAML struct {
@@ -88,17 +92,17 @@ type FromToYAML struct {
 }
 
 type NotifyYAML struct {
-	File *FromToYAML `file,omitempty`
-	Freq *FromToYAML `freq,omitempty`
+	File *FromToYAML `yaml:"file,omitempty"`
+	Freq *FromToYAML `yaml:"freq,omitempty"`
 }
 
 type CfgYAML struct {
-	Self  *NodeOurYAML `self,omitempty`
+	Self  *NodeOurYAML `yaml:"self,omitempty"`
 	Neigh map[string]NodeYAML
 
 	Spool  string
 	Log    string
-	Notify *NotifyYAML `notify,omitempty`
+	Notify *NotifyYAML `yaml:"notify,omitempty"`
 }
 
 func NewNode(name string, yml NodeYAML) (*Node, error) {
@@ -163,6 +167,15 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		freqMinSize = int64(*yml.FreqMinSize) * 1024
 	}
 
+	defRxRate := 0
+	if yml.RxRate != nil && *yml.RxRate > 0 {
+		defRxRate = *yml.RxRate
+	}
+	defTxRate := 0
+	if yml.TxRate != nil && *yml.TxRate > 0 {
+		defTxRate = *yml.TxRate
+	}
+
 	defOnlineDeadline := uint(DefaultDeadline)
 	if yml.OnlineDeadline != nil {
 		if *yml.OnlineDeadline <= 0 {
@@ -181,13 +194,15 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		nice := uint8(255)
 		if callYml.Nice != nil {
-			if *callYml.Nice < 1 || *callYml.Nice > 255 {
-				return nil, errors.New("Nice must be between 1 and 255")
+			nice, err = NicenessParse(*callYml.Nice)
+			if err != nil {
+				return nil, err
 			}
-			nice = uint8(*callYml.Nice)
 		}
+
 		var xx TRxTx
 		switch callYml.Xx {
 		case "rx":
@@ -198,6 +213,16 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		default:
 			return nil, errors.New("xx field must be either \"rx\" or \"tx\"")
 		}
+
+		rxRate := 0
+		if callYml.RxRate != nil && *callYml.RxRate > 0 {
+			rxRate = *callYml.RxRate
+		}
+		txRate := 0
+		if callYml.TxRate != nil && *callYml.TxRate > 0 {
+			txRate = *callYml.TxRate
+		}
+
 		var addr *string
 		if callYml.Addr != nil {
 			if a, exists := yml.Addrs[*callYml.Addr]; exists {
@@ -206,6 +231,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 				addr = callYml.Addr
 			}
 		}
+
 		onlineDeadline := defOnlineDeadline
 		if callYml.OnlineDeadline != nil {
 			if *callYml.OnlineDeadline == 0 {
@@ -213,14 +239,18 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 			}
 			onlineDeadline = *callYml.OnlineDeadline
 		}
+
 		var maxOnlineTime uint
 		if callYml.MaxOnlineTime != nil {
 			maxOnlineTime = *callYml.MaxOnlineTime
 		}
+
 		calls = append(calls, &Call{
 			Cron:           expr,
 			Nice:           nice,
 			Xx:             xx,
+			RxRate:         rxRate,
+			TxRate:         txRate,
 			Addr:           addr,
 			OnlineDeadline: onlineDeadline,
 			MaxOnlineTime:  maxOnlineTime,
@@ -239,6 +269,8 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		FreqMinSize:    freqMinSize,
 		Calls:          calls,
 		Addrs:          yml.Addrs,
+		RxRate:         defRxRate,
+		TxRate:         defTxRate,
 		OnlineDeadline: defOnlineDeadline,
 		MaxOnlineTime:  defMaxOnlineTime,
 	}
