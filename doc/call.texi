@@ -10,12 +10,12 @@ calls:
   -
     cron: "*/1 * * * MON-FRI"
     onlinedeadline: 3600
-    nice: 64
+    nice: PRIORITY+10
   -
     cron: "30 * * * SAT,SUN"
     onlinedeadline: 1800
     maxonlinetime: 1750
-    nice: 64
+    nice: NORMAL
     rxrate: 10
     txrate: 20
   -
