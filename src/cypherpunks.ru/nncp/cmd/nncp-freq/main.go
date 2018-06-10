@@ -25,6 +25,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"cypherpunks.ru/nncp"
@@ -40,8 +41,8 @@ func usage() {
 func main() {
 	var (
 		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw      = flag.Int("nice", nncp.DefaultNiceFreq, "Outbound packet niceness")
-		replyNiceRaw = flag.Int("replynice", nncp.DefaultNiceFile, "Reply file packet niceness")
+		niceRaw      = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFreq), "Outbound packet niceness")
+		replyNiceRaw = flag.String("replynice", strconv.Itoa(nncp.DefaultNiceFile), "Reply file packet niceness")
 		minSize      = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
 		viaOverride  = flag.String("via", "", "Override Via path to destination node")
 		spoolPath    = flag.String("spool", "", "Override path to spool")
@@ -65,14 +66,14 @@ func main() {
 		usage()
 		os.Exit(1)
 	}
-	if *niceRaw < 1 || *niceRaw > 255 {
-		log.Fatalln("-nice must be between 1 and 255")
+	nice, err := nncp.NicenessParse(*niceRaw)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	nice := uint8(*niceRaw)
-	if *replyNiceRaw < 1 || *replyNiceRaw > 255 {
-		log.Fatalln("-replynice must be between 1 and 255")
+	replyNice, err := nncp.NicenessParse(*replyNiceRaw)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	replyNice := uint8(*replyNiceRaw)
 
 	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
 	if err != nil {

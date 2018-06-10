@@ -47,10 +47,6 @@ const (
 
 	MaxPathSize = 1<<8 - 1
 
-	DefaultNiceExec = 64
-	DefaultNiceFreq = 64
-	DefaultNiceFile = 196
-
 	NNCPBundlePrefix = "NNCP"
 )
 
@@ -174,7 +170,14 @@ func ae(keyEnc *[32]byte, r io.Reader, w io.Writer) (int, error) {
 	return written, nil
 }
 
-func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize int64, data io.Reader, out io.Writer) error {
+func PktEncWrite(
+	our *NodeOur,
+	their *Node,
+	pkt *Pkt,
+	nice uint8,
+	size, padSize int64,
+	data io.Reader,
+	out io.Writer) error {
 	pubEph, prvEph, err := box.GenerateKey(rand.Reader)
 	if err != nil {
 		return err
@@ -253,7 +256,7 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize 
 	if err != nil {
 		return err
 	}
-	lr := io.LimitedReader{data, size}
+	lr := io.LimitedReader{R: data, N: size}
 	mr := io.MultiReader(&pktBuf, &lr)
 	mw := io.MultiWriter(out, mac)
 	fullSize := pktBuf.Len() + int(size)
@@ -271,7 +274,7 @@ func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize 
 		if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
 			return err
 		}
-		lr = io.LimitedReader{DevZero{}, padSize}
+		lr = io.LimitedReader{R: DevZero{}, N: padSize}
 		written, err = ae(keyEnc, &lr, out)
 		if err != nil {
 			return err
@@ -298,7 +301,11 @@ func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 	return ed25519.Verify(their.SignPub, tbsBuf.Bytes(), pktEnc.Sign[:]), nil
 }
 
-func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Writer) (*Node, int64, error) {
+func PktEncRead(
+	our *NodeOur,
+	nodes map[NodeId]*Node,
+	data io.Reader,
+	out io.Writer) (*Node, int64, error) {
 	var pktEnc PktEnc
 	_, err := xdr.Unmarshal(data, &pktEnc)
 	if err != nil {
@@ -373,7 +380,7 @@ func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Wri
 	}
 
 	fullSize := PktOverhead + size - 8 - 2*blake2b.Size256
-	lr := io.LimitedReader{data, fullSize}
+	lr := io.LimitedReader{R: data, N: fullSize}
 	tr := io.TeeReader(&lr, mac)
 	written, err := ae(keyEnc, tr, out)
 	if err != nil {

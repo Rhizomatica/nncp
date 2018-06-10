@@ -55,7 +55,7 @@ func usage() {
 func main() {
 	var (
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw   = flag.Int("nice", 255, "Minimal required niceness")
+		niceRaw   = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
 		doRx      = flag.Bool("rx", false, "Receive packets")
 		doTx      = flag.Bool("tx", false, "Transfer packets")
 		doDelete  = flag.Bool("delete", false, "Delete transferred packets")
@@ -78,10 +78,10 @@ func main() {
 		fmt.Println(nncp.VersionGet())
 		return
 	}
-	if *niceRaw < 1 || *niceRaw > 255 {
-		log.Fatalln("-nice must be between 1 and 255")
+	nice, err := nncp.NicenessParse(*niceRaw)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	nice := uint8(*niceRaw)
 	if *doRx && *doTx {
 		log.Fatalln("-rx and -tx can not be set simultaneously")
 	}

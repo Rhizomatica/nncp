@@ -99,18 +99,19 @@ func main() {
 			txBytes[job.PktEnc.Nice] = txBytes[job.PktEnc.Nice] + job.Size
 		}
 		fmt.Println(node.Name)
-		for nice := 0; nice < 256; nice++ {
-			rxNum, rxExists := rxNums[uint8(nice)]
-			txNum, txExists := txNums[uint8(nice)]
+		var nice uint8
+		for nice = 1; nice > 0; nice++ {
+			rxNum, rxExists := rxNums[nice]
+			txNum, txExists := txNums[nice]
 			if !(rxExists || txExists) {
 				continue
 			}
 			fmt.Printf(
-				"\tnice:% 3d | Rx: % 10s, % 3d pkts | Tx: % 10s, % 3d pkts\n",
-				nice,
-				humanize.IBytes(uint64(rxBytes[uint8(nice)])),
+				"\tnice:% 4s | Rx: % 10s, % 3d pkts | Tx: % 10s, % 3d pkts\n",
+				nncp.NicenessFmt(nice),
+				humanize.IBytes(uint64(rxBytes[nice])),
 				rxNum,
-				humanize.IBytes(uint64(txBytes[uint8(nice)])),
+				humanize.IBytes(uint64(txBytes[nice])),
 				txNum,
 			)
 		}

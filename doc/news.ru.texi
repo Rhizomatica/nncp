@@ -1,6 +1,32 @@
 @node Новости
 @section Новости
 
+@node Релиз 3.3
+@subsection Релиз 3.3
+@itemize
+@item
+@command{nncp-daemon}, @command{nncp-call}, @command{nncp-caller}
+проверяют существование @file{.seen} файла и расценивают его как то, что
+файл уже был скачан. Возможно передача данных была осуществлена
+сторонним способом и удалённая сторона должна быть оповещена об этом.
+@item
+Если более высокоприоритетный пакет попадает в спул, то
+@command{nncp-daemon} добавит его в очередь отправки первым, прерывая
+низкоприоритетные передачи.
+@item
+К средствам связанным с online-соединениями (@command{nncp-daemon},
+@command{nncp-call}, @command{nncp-caller}) добавлен простой
+ограничитель скорости.
+@item
+Возможность задания приоритета символьными обозначениями:
+@verb{|NORMAL|}, @verb{|BULK+10|}, @verb{|PRIORITY-5|}, итд.
+@item
+Изменены значения приоритетов по-умолчанию:
+для @command{nncp-exec} с 64 на 96,
+для @command{nncp-freq} с 64 на 160,
+для @command{nncp-file} с 196 на 224.
+@end itemize
+
 @node Релиз 3.2
 @subsection Релиз 3.2
 @itemize

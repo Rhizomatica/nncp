@@ -36,7 +36,12 @@ import (
 	"golang.org/x/crypto/blake2b"
 )
 
-func (ctx *Ctx) Tx(node *Node, pkt *Pkt, nice uint8, size, minSize int64, src io.Reader) (*Node, error) {
+func (ctx *Ctx) Tx(
+	node *Node,
+	pkt *Pkt,
+	nice uint8,
+	size, minSize int64,
+	src io.Reader) (*Node, error) {
 	tmp, err := ctx.NewTmpFileWHash()
 	if err != nil {
 		return nil, err
@@ -180,7 +185,12 @@ func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize 
 	return err
 }
 
-func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, minSize int64, chunkSize int64) error {
+func (ctx *Ctx) TxFileChunked(
+	node *Node,
+	nice uint8,
+	srcPath, dstPath string,
+	minSize int64,
+	chunkSize int64) error {
 	if dstPath == "" {
 		if srcPath == "-" {
 			return errors.New("Must provide destination filename")
@@ -312,7 +322,11 @@ func (ctx *Ctx) TxFileChunked(node *Node, nice uint8, srcPath, dstPath string, m
 	return err
 }
 
-func (ctx *Ctx) TxFreq(node *Node, nice, replyNice uint8, srcPath, dstPath string, minSize int64) error {
+func (ctx *Ctx) TxFreq(
+	node *Node,
+	nice, replyNice uint8,
+	srcPath, dstPath string,
+	minSize int64) error {
 	dstPath = filepath.Clean(dstPath)
 	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
@@ -345,7 +359,13 @@ func (ctx *Ctx) TxFreq(node *Node, nice, replyNice uint8, srcPath, dstPath strin
 	return err
 }
 
-func (ctx *Ctx) TxExec(node *Node, nice, replyNice uint8, handle string, args []string, body []byte, minSize int64) error {
+func (ctx *Ctx) TxExec(
+	node *Node,
+	nice, replyNice uint8,
+	handle string,
+	args []string,
+	body []byte,
+	minSize int64) error {
 	path := make([][]byte, 0, 1+len(args))
 	path = append(path, []byte(handle))
 	for _, arg := range args {

@@ -52,7 +52,10 @@ func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 	))
 }
 
-func (ctx *Ctx) Toss(nodeId *NodeId, nice uint8, dryRun, doSeen, noFile, noFreq, noExec, noTrns bool) bool {
+func (ctx *Ctx) Toss(
+	nodeId *NodeId,
+	nice uint8,
+	dryRun, doSeen, noFile, noFreq, noExec, noTrns bool) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Fd.Name())
