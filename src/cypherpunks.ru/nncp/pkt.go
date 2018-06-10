@@ -174,7 +174,14 @@ func ae(keyEnc *[32]byte, r io.Reader, w io.Writer) (int, error) {
 	return written, nil
 }
 
-func PktEncWrite(our *NodeOur, their *Node, pkt *Pkt, nice uint8, size, padSize int64, data io.Reader, out io.Writer) error {
+func PktEncWrite(
+	our *NodeOur,
+	their *Node,
+	pkt *Pkt,
+	nice uint8,
+	size, padSize int64,
+	data io.Reader,
+	out io.Writer) error {
 	pubEph, prvEph, err := box.GenerateKey(rand.Reader)
 	if err != nil {
 		return err
@@ -298,7 +305,11 @@ func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 	return ed25519.Verify(their.SignPub, tbsBuf.Bytes(), pktEnc.Sign[:]), nil
 }
 
-func PktEncRead(our *NodeOur, nodes map[NodeId]*Node, data io.Reader, out io.Writer) (*Node, int64, error) {
+func PktEncRead(
+	our *NodeOur,
+	nodes map[NodeId]*Node,
+	data io.Reader,
+	out io.Writer) (*Node, int64, error) {
 	var pktEnc PktEnc
 	_, err := xdr.Unmarshal(data, &pktEnc)
 	if err != nil {

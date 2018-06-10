@@ -202,7 +202,8 @@ func (state *SPState) NotAlive() bool {
 	if state.maxOnlineTime > 0 && state.started.Add(time.Duration(state.maxOnlineTime)*time.Second).Before(now) {
 		return true
 	}
-	return uint(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline && uint(now.Sub(state.TxLastSeen).Seconds()) >= state.onlineDeadline
+	return uint(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline &&
+		uint(now.Sub(state.TxLastSeen).Seconds()) >= state.onlineDeadline
 }
 
 func (state *SPState) dirUnlock() {
@@ -273,7 +274,13 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]uint8) [
 	return payloadsSplit(payloads)
 }
 
-func (ctx *Ctx) StartI(conn net.Conn, nodeId *NodeId, nice uint8, xxOnly TRxTx, rxRate, txRate int, onlineDeadline, maxOnlineTime uint) (*SPState, error) {
+func (ctx *Ctx) StartI(
+	conn net.Conn,
+	nodeId *NodeId,
+	nice uint8,
+	xxOnly TRxTx,
+	rxRate, txRate int,
+	onlineDeadline, maxOnlineTime uint) (*SPState, error) {
 	err := ctx.ensureRxDir(nodeId)
 	if err != nil {
 		return nil, err
@@ -491,7 +498,10 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly TRxTx) (*SPState, error
 	return &state, err
 }
 
-func (state *SPState) StartWorkers(conn net.Conn, infosPayloads [][]byte, payload []byte) error {
+func (state *SPState) StartWorkers(
+	conn net.Conn,
+	infosPayloads [][]byte,
+	payload []byte) error {
 	sds := SDS{"node": state.Node.Id, "nice": strconv.Itoa(int(state.nice))}
 	if len(infosPayloads) > 1 {
 		go func() {
