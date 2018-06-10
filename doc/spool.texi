@@ -21,16 +21,16 @@ spool/BYRR...CG6Q/tx/ZI5U...5RRQ
 
 Except for @file{tmp}, all other directories are Base32-encoded node
 identifiers (@file{2WHB...OABQ}, @file{BYRR...CG6Q} in our example).
-Each node subdirectory has @file{rx} (received, partly received and
+Each node subdirectory has @file{rx} (received, partially received and
 currently unprocessed packets) and @file{tx} (for outbound packets)
 directories.
 
 Each @file{rx}/@file{tx} directory contains one file per encrypted
 packet. Its filename is Base32 encoded BLAKE2b hash of the contents. So
 it can be integrity checked at any time. @file{5ZIB...UMKW.part} is
-partly received file from @file{2WHB...OABQ} node. @file{tx} directory
-can not contain partly written files -- they are moved atomically from
-@file{tmp}.
+partially received file from @file{2WHB...OABQ} node. @file{tx}
+directory can not contain partially written files -- they are moved
+atomically from @file{tmp}.
 
 When @ref{nncp-toss} utility is called with @option{-seen} option, it
 will create empty @file{XXX.seen} files, telling that some kind of
