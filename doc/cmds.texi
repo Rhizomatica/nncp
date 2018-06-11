@@ -503,9 +503,10 @@ tells what it will do.
 running this command as a daemon.
 
 @option{-seen} option creates empty @file{XXX.seen} file after
-successful tossing of @file{XXX} packet. @ref{nncp-xfer} and
-@ref{nncp-bundle} commands skip inbound packets that has been already
-seen, processed and tossed. This is helpful to defeat duplicates.
+successful tossing of @file{XXX} packet. @ref{nncp-xfer},
+@ref{nncp-bundle}, @ref{nncp-daemon} and @ref{nncp-call} commands skip
+inbound packets that has been already seen, processed and tossed. This
+is helpful to prevent duplicates.
 
 @option{-nofile}, @option{-nofreq}, @option{-nomail}, @option{-notrns}
 options allow to disable any kind of packet types processing.
