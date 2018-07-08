@@ -3,6 +3,13 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 3.4
+@section Release 3.4
+@itemize
+@item
+@command{nncp-daemon} can be run as @command{inetd}-service.
+@end itemize
+
 @node Release 3.3
 @section Release 3.3
 @itemize
@@ -19,7 +26,7 @@ Simple packet rate limiter added to online-related tools
 (@command{nncp-daemon}, @command{nncp-call}, @command{nncp-caller}).
 @item
 Ability to specify niceness with symbolic notation:
-@verb{|NORMAL|}, @verb{|BULK+10|}, @verb{|PRIORITY-5|}, итд.
+@verb{|NORMAL|}, @verb{|BULK+10|}, @verb{|PRIORITY-5|}, etc.
 @item
 Changed default niceness levels:
 for @command{nncp-exec} from 64 to 96,
@@ -85,7 +92,7 @@ processing: @option{-nofile}, @option{-nofreq}, @option{-noexec},
 @option{-notrns}.
 @item
 @command{nncp-file} command uses
-@option{FreqMinSize}/@option{FreqChunked} conifiguration file options
+@option{FreqMinSize}/@option{FreqChunked} configuration file options
 for @option{-minsize}/@option{-chunked} by default. You can turn this
 off by specifying zero value.
 @end itemize
