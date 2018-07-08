@@ -3,6 +3,13 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 3.4
+@section Release 3.4
+@itemize
+@item
+@command{nncp-daemon} can be run as @command{inetd}-service.
+@end itemize
+
 @node Release 3.3
 @section Release 3.3
 @itemize

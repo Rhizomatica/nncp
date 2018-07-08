@@ -230,7 +230,7 @@ not used often in practice, if ever.
 @section nncp-daemon
 
 @verbatim
-% nncp-daemon [options] [-maxconn INT] [-bind ADDR]
+% nncp-daemon [options] [-maxconn INT] [-bind ADDR] [-inetd]
 @end verbatim
 
 Start listening TCP daemon, wait for incoming connections and run
@@ -241,6 +241,13 @@ time to time.
 @option{-maxconn} option specifies how many simultaneous clients daemon
 can handle. @option{-bind} option specifies @option{addr:port} it must
 bind to and listen.
+
+It could be run as @command{inetd} service, by specifying
+@option{-inetd} option. Example inetd-entry:
+
+@verbatim
+uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -inetd
+@end verbatim
 
 @node nncp-exec
 @section nncp-exec

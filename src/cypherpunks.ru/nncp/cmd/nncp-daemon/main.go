@@ -26,6 +26,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"time"
 
 	"cypherpunks.ru/nncp"
 	"golang.org/x/net/netutil"
@@ -38,11 +39,55 @@ func usage() {
 	flag.PrintDefaults()
 }
 
+type InetdConn struct {
+	r *os.File
+	w *os.File
+}
+
+func (ic *InetdConn) Read(p []byte) (n int, err error) {
+	return ic.r.Read(p)
+}
+
+func (ic *InetdConn) Write(p []byte) (n int, err error) {
+	return ic.w.Write(p)
+}
+
+func (ic *InetdConn) SetReadDeadline(t time.Time) error {
+	return ic.r.SetReadDeadline(t)
+}
+
+func (ic *InetdConn) SetWriteDeadline(t time.Time) error {
+	return ic.w.SetWriteDeadline(t)
+}
+
+func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
+	state, err := ctx.StartR(conn, nice, "")
+	if err == nil {
+		ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
+		state.Wait()
+		ctx.LogI("call-finish", nncp.SDS{
+			"node":     state.Node.Id,
+			"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
+			"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
+			"txbytes":  strconv.FormatInt(state.TxBytes, 10),
+			"rxspeed":  strconv.FormatInt(state.RxSpeed, 10),
+			"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
+		}, "")
+	} else {
+		nodeId := "unknown"
+		if state != nil && state.Node != nil {
+			nodeId = state.Node.Id.String()
+		}
+		ctx.LogE("call-start", nncp.SDS{"node": nodeId, "err": err}, "")
+	}
+}
+
 func main() {
 	var (
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw   = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
 		bind      = flag.String("bind", "[::]:5400", "Address to bind to")
+		inetd     = flag.Bool("inetd", false, "Is it started as inetd service")
 		maxConn   = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
@@ -74,6 +119,13 @@ func main() {
 		log.Fatalln("Config lacks private keys")
 	}
 
+	if *inetd {
+		os.Stderr.Close()
+		conn := &InetdConn{os.Stdin, os.Stdout}
+		performSP(ctx, conn, nice)
+		return
+	}
+
 	ln, err := net.Listen("tcp", *bind)
 	if err != nil {
 		log.Fatalln("Can not listen:", err)
@@ -86,25 +138,7 @@ func main() {
 		}
 		ctx.LogD("daemon", nncp.SDS{"addr": conn.RemoteAddr()}, "accepted")
 		go func(conn net.Conn) {
-			state, err := ctx.StartR(conn, nice, "")
-			if err == nil {
-				ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
-				state.Wait()
-				ctx.LogI("call-finish", nncp.SDS{
-					"node":     state.Node.Id,
-					"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
-					"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
-					"txbytes":  strconv.FormatInt(state.TxBytes, 10),
-					"rxspeed":  strconv.FormatInt(state.RxSpeed, 10),
-					"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
-				}, "")
-			} else {
-				nodeId := "unknown"
-				if state != nil && state.Node != nil {
-					nodeId = state.Node.Id.String()
-				}
-				ctx.LogE("call-start", nncp.SDS{"node": nodeId, "err": err}, "")
-			}
+			performSP(ctx, conn, nice)
 			conn.Close()
 		}(conn)
 	}
