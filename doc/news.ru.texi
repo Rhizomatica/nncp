@@ -1,6 +1,13 @@
 @node Новости
 @section Новости
 
+@node Релиз 3.4
+@subsection Релиз 3.4
+@itemize
+@item
+@command{nncp-daemon} может быть запущен как @command{inetd}-служба.
+@end itemize
+
 @node Релиз 3.3
 @subsection Релиз 3.3
 @itemize
