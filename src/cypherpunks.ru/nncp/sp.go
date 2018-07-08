@@ -104,6 +104,12 @@ type FreqWithNice struct {
 	nice uint8
 }
 
+type ConnDeadlined interface {
+	io.ReadWriter
+	SetReadDeadline(t time.Time) error
+	SetWriteDeadline(t time.Time) error
+}
+
 func init() {
 	var buf bytes.Buffer
 	spHead := SPHead{Type: SPTypeHalt}
@@ -275,7 +281,7 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]uint8) [
 }
 
 func (ctx *Ctx) StartI(
-	conn net.Conn,
+	conn ConnDeadlined,
 	nodeId *NodeId,
 	nice uint8,
 	xxOnly TRxTx,
@@ -384,7 +390,7 @@ func (ctx *Ctx) StartI(
 	return &state, err
 }
 
-func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly TRxTx) (*SPState, error) {
+func (ctx *Ctx) StartR(conn ConnDeadlined, nice uint8, xxOnly TRxTx) (*SPState, error) {
 	started := time.Now()
 	conf := noise.Config{
 		CipherSuite: NoiseCipherSuite,
@@ -499,7 +505,7 @@ func (ctx *Ctx) StartR(conn net.Conn, nice uint8, xxOnly TRxTx) (*SPState, error
 }
 
 func (state *SPState) StartWorkers(
-	conn net.Conn,
+	conn ConnDeadlined,
 	infosPayloads [][]byte,
 	payload []byte) error {
 	sds := SDS{"node": state.Node.Id, "nice": strconv.Itoa(int(state.nice))}
