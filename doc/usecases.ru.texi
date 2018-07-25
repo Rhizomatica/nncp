@@ -104,9 +104,9 @@ NNCP поддерживает @ref{Niceness, приоритезацию траф
 опцию:
 
 @verbatim
-% nncp-file -nice 32 myfile node:dst
-% nncp-xfer -nice 192 /mnt/shared
-% nncp-call -nice 224 bob
+% nncp-file -nice FLASH myfile node:dst
+% nncp-xfer -nice PRIORITY /mnt/shared
+% nncp-call -nice NORMAL bob
 [...]
 @end verbatim
 

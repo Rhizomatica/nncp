@@ -99,9 +99,9 @@ niceness level, that will guarantee that it will be processed earlier or
 later than the other ones. Nearly all commands has corresponding option:
 
 @verbatim
-% nncp-file -nice 32 myfile node:dst
-% nncp-xfer -nice 192 /mnt/shared
-% nncp-call -nice 224 bob
+% nncp-file -nice FLASH myfile node:dst
+% nncp-xfer -nice PRIORITY /mnt/shared
+% nncp-call -nice NORMAL bob
 [...]
 @end verbatim
 
