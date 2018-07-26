@@ -20,8 +20,6 @@ Nearly all commands have the following common options:
 @item -replynice
     Set desired reply packet @ref{Niceness, niceness level}. Only freq
     and exec packets look at that niceness level.
-@item -node
-    Process only single specified node.
 @item -via
     Override @ref{CfgVia, via} configuration option for destination node.
     Specified nodes must be separated with comma: @verb{|NODE1,NODE2|}.
@@ -475,19 +473,20 @@ ones. If @option{-seen} option is specified, then delete only
 @section nncp-stat
 
 @verbatim
-% nncp-stat [options]
+% nncp-stat [options] [-node NODE]
 @end verbatim
 
 Print current @ref{Spool, spool} statistics about unsent and unprocessed
-packets. For each node and each niceness level there will be printed how
-many packets (with the total size) are in inbound (Rx) and outbound (Tx)
-queues.
+packets. For each node (unless @option{-node} specified) and each
+niceness level there will be printed how many packets (with the total
+size) are in inbound (Rx) and outbound (Tx) queues.
 
 @node nncp-toss
 @section nncp-toss
 
 @verbatim
 % nncp-toss [options]
+    [-node NODE]
     [-dryrun]
     [-cycle INT]
     [-seen]
@@ -522,7 +521,7 @@ options allow to disable any kind of packet types processing.
 @section nncp-xfer
 
 @verbatim
-% nncp-xfer [options] [-mkdir] [-keep] [-rx|-tx] DIR
+% nncp-xfer [options] [-node NODE] [-mkdir] [-keep] [-rx|-tx] DIR
 @end verbatim
 
 Search for directory in @file{DIR} containing inbound packets for us and
