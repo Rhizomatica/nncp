@@ -492,7 +492,7 @@ size) are in inbound (Rx) and outbound (Tx) queues.
     [-seen]
     [-nofile]
     [-nofreq]
-    [-nomail]
+    [-noexec]
     [-notrns]
 @end verbatim
 
@@ -514,7 +514,7 @@ successful tossing of @file{XXX} packet. @ref{nncp-xfer},
 inbound packets that has been already seen, processed and tossed. This
 is helpful to prevent duplicates.
 
-@option{-nofile}, @option{-nofreq}, @option{-nomail}, @option{-notrns}
+@option{-nofile}, @option{-nofreq}, @option{-noexec}, @option{-notrns}
 options allow to disable any kind of packet types processing.
 
 @node nncp-xfer
