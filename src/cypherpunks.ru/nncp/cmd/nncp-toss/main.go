@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Process inbound NNCP packets
+// Process inbound NNCP packets.
 package main
 
 import (
