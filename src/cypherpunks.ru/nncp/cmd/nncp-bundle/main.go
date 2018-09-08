@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Create/digest stream of NNCP encrypted packets
+// Create/digest stream of NNCP encrypted packets.
 package main
 
 import (

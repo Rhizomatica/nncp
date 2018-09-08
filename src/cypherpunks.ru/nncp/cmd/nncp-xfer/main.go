@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Copy NNCP inbound and outbounds packets
+// Exchange NNCP inbound and outbounds packets with external directory.
 package main
 
 import (
