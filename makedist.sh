@@ -80,7 +80,7 @@ find . -name .gitignore -delete
 rm .gitmodules
 
 cd ..
-tar cvf nncp-"$release".tar nncp-"$release"
+tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
 xz -9 nncp-"$release".tar
 gpg --detach-sign --sign --local-user 0x2B25868E75A1A953 nncp-"$release".tar.xz
 mv $tmp/nncp-"$release".tar.xz $tmp/nncp-"$release".tar.xz.sig $cur/doc/nncp.html/download
