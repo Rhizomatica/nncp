@@ -88,9 +88,11 @@ mv $tmp/nncp-"$release".tar.xz $tmp/nncp-"$release".tar.xz.sig $cur/doc/nncp.htm
 tarball=$cur/doc/nncp.html/download/nncp-"$release".tar.xz
 size=$(( $(cat $tarball | wc -c) / 1024 ))
 hash=$(gpg --print-md SHA256 < $tarball)
+release_date=$(date "+%Y-%m-%d")
+
 cat <<EOF
 An entry for documentation:
-@item @ref{Release $release, $release} @tab $size KiB
+@item @ref{Release $release, $release} @tab $release_date @tab $size KiB
 @tab @url{download/nncp-${release}.tar.xz, link} @url{download/nncp-${release}.tar.xz.sig, sign}
 @tab @code{$hash}
 EOF
