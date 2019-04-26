@@ -320,10 +320,10 @@ func main() {
 	}
 
 	if flag.NArg() > 0 {
-		if !process(ctx, flag.Arg(0), *keep, *dryRun, *stdout, *dumpMeta) {
-			os.Exit(1)
+		if process(ctx, flag.Arg(0), *keep, *dryRun, *stdout, *dumpMeta) {
+			return
 		}
-		return
+		os.Exit(1)
 	}
 
 	hasErrors := false
@@ -337,7 +337,9 @@ func main() {
 				if _, seen := seenMetaPaths[metaPath]; seen {
 					continue
 				}
-				hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false, false)
+				if !process(ctx, metaPath, *keep, *dryRun, false, false) {
+					hasErrors = true
+				}
 				seenMetaPaths[metaPath] = struct{}{}
 			}
 		}
@@ -346,7 +348,9 @@ func main() {
 			log.Fatalln("Specified -node does not allow incoming")
 		}
 		for _, metaPath := range findMetas(ctx, *nodeOnly.Incoming) {
-			hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false, false)
+			if !process(ctx, metaPath, *keep, *dryRun, false, false) {
+				hasErrors = true
+			}
 		}
 	}
 	if hasErrors {

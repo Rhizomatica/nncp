@@ -75,7 +75,9 @@ func main() {
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		isBad = isBad || ctx.Check(node.Id)
+		if !ctx.Check(node.Id) {
+			isBad = true
+		}
 	}
 	if isBad {
 		os.Exit(1)
