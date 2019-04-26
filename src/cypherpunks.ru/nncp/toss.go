@@ -189,8 +189,18 @@ func (ctx *Ctx) Toss(
 					isBad = true
 					goto Closing
 				}
-				bufW.Flush()
-				tmp.Sync()
+				if err = bufW.Flush(); err != nil {
+					tmp.Close()
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "copy")
+					isBad = true
+					goto Closing
+				}
+				if err = tmp.Sync(); err != nil {
+					tmp.Close()
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "copy")
+					isBad = true
+					goto Closing
+				}
 				tmp.Close()
 				dstPathOrig := filepath.Join(*incoming, dst)
 				dstPath := dstPathOrig
