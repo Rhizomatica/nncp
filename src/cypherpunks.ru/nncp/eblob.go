@@ -26,8 +26,8 @@ import (
 	"hash"
 	"io"
 
-	"chacha20"
 	"cypherpunks.ru/balloon"
+	"cypherpunks.ru/nncp/internal/chacha20"
 	"github.com/davecgh/go-xdr/xdr2"
 	"golang.org/x/crypto/blake2b"
 )
