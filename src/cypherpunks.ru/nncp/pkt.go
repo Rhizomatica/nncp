@@ -26,7 +26,7 @@ import (
 	"errors"
 	"io"
 
-	"chacha20"
+	"cypherpunks.ru/nncp/internal/chacha20"
 	"github.com/davecgh/go-xdr/xdr2"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/curve25519"
