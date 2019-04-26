@@ -309,14 +309,19 @@ Tx:
 				isBad = true
 				continue
 			}
-			err = bufW.Flush()
-			tmp.Sync()
-			tmp.Close()
-			if err != nil {
-				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "copy")
+			if err = bufW.Flush(); err != nil {
+				tmp.Close()
+				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "flush")
 				isBad = true
 				continue
 			}
+			if err = tmp.Sync(); err != nil {
+				tmp.Close()
+				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "sync")
+				isBad = true
+				continue
+			}
+			tmp.Close()
 			if err = os.Rename(tmp.Name(), filepath.Join(dstPath, pktName)); err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "rename")
 				isBad = true

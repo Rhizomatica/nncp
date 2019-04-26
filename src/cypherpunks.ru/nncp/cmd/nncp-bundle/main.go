@@ -367,7 +367,9 @@ func main() {
 					if err = bufTmp.Flush(); err != nil {
 						log.Fatalln("Error during flushing:", err)
 					}
-					tmp.Sync()
+					if err = tmp.Sync(); err != nil {
+						log.Fatalln("Error during syncing:", err)
+					}
 					tmp.Close()
 					if err = os.MkdirAll(selfPath, os.FileMode(0700)); err != nil {
 						log.Fatalln("Error during mkdir:", err)

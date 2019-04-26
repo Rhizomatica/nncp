@@ -203,9 +203,13 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			}
 		}
 	}
-	dstW.Flush()
+	if err = dstW.Flush(); err != nil {
+		log.Fatalln("Can not flush:", err)
+	}
 	if tmp != nil {
-		tmp.Sync()
+		if err = tmp.Sync(); err != nil {
+			log.Fatalln("Can not sync:", err)
+		}
 		tmp.Close()
 	}
 	ctx.LogD("nncp-reass", sds, "written")
