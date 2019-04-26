@@ -176,13 +176,13 @@ func (ctx *Ctx) Toss(
 			}
 			if !dryRun {
 				tmp, err := ioutil.TempFile(dir, "nncp-file")
-				sds["tmp"] = tmp.Name()
-				ctx.LogD("rx", sds, "created")
 				if err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "mktemp")
 					isBad = true
 					goto Closing
 				}
+				sds["tmp"] = tmp.Name()
+				ctx.LogD("rx", sds, "created")
 				bufW := bufio.NewWriter(tmp)
 				if _, err = io.Copy(bufW, pipeR); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "copy")
