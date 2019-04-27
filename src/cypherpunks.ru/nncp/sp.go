@@ -824,6 +824,10 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					"part exists",
 				)
 			}
+			if !state.ctx.IsEnoughSpace(int64(info.Size) - offset) {
+				state.ctx.LogI("sp-process", sdsp, "not enough space")
+				continue
+			}
 			replies = append(replies, MarshalSP(
 				SPTypeFreq,
 				SPFreq{info.Hash, uint64(offset)},

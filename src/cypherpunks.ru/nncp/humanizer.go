@@ -149,6 +149,8 @@ func (ctx *Ctx) Humanize(s string) string {
 		}
 		if err, exists := sds["err"]; exists {
 			msg += ": " + err
+		} else {
+			msg += " " + rem
 		}
 	case "nncp-bundle":
 		switch sds["xx"] {
@@ -206,6 +208,8 @@ func (ctx *Ctx) Humanize(s string) string {
 			return s
 		}
 		msg += fmt.Sprintf("%s packets, %s", sds["pkts"], size)
+	case "sp-process":
+		msg = fmt.Sprintf("%s has %s (%s): %s", nodeS, sds["hash"], size, rem)
 	case "sp-file":
 		switch sds["xx"] {
 		case "rx":
