@@ -162,6 +162,7 @@ func main() {
 			}
 			filename := filepath.Join(dir.Name(), fiInt.Name())
 			sds["file"] = filename
+			delete(sds, "size")
 			fd, err := os.Open(filename)
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "open")
@@ -180,13 +181,18 @@ func main() {
 				fd.Close()
 				continue
 			}
+			sds["size"] = strconv.FormatInt(fiInt.Size(), 10)
+			if !ctx.IsEnoughSpace(fiInt.Size()) {
+				ctx.LogE("nncp-xfer", sds, "is not enough space")
+				fd.Close()
+				continue
+			}
 			fd.Seek(0, 0)
 			tmp, err := ctx.NewTmpFileWHash()
 			if err != nil {
 				log.Fatalln(err)
 			}
-			copied, err := io.Copy(tmp.W, bufio.NewReader(fd))
-			if err != nil {
+			if _, err = io.CopyN(tmp.W, bufio.NewReader(fd), fiInt.Size()); err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "copy")
 				isBad = true
 				fd.Close()
@@ -201,9 +207,7 @@ func main() {
 			)); err != nil {
 				log.Fatalln(err)
 			}
-			ctx.LogI("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{
-				"size": strconv.FormatInt(copied, 10),
-			}), "")
+			ctx.LogI("nncp-xfer", sds, "")
 			if !*keep {
 				if err = os.Remove(filename); err != nil {
 					ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "remove")

@@ -12,6 +12,9 @@ encryption mode with 128 KiB blocks is used now, because previously
 @command{nncp-toss} did not verify encrypted packet's MAC before feeding
 decrypted data to external command. Older versions are not supported.
 @item
+Available free space checking before copying in @command{nncp-xfer},
+@command{nncp-daemon}, @command{nncp-call(er)}.
+@item
 Dependant libraries are updated.
 @item
 Minor bugfixes.
