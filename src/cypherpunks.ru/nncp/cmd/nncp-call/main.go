@@ -43,6 +43,7 @@ func main() {
 		niceRaw   = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
 		rxOnly    = flag.Bool("rx", false, "Only receive packets")
 		txOnly    = flag.Bool("tx", false, "Only transmit packets")
+		listOnly  = flag.Bool("list", false, "Only list remote packets")
 		rxRate    = flag.Int("rxrate", 0, "Maximal receive rate, pkts/sec")
 		txRate    = flag.Int("txrate", 0, "Maximal transmit rate, pkts/sec")
 		spoolPath = flag.String("spool", "", "Override path to spool")
@@ -132,6 +133,7 @@ func main() {
 		*txRate,
 		*onlineDeadline,
 		*maxOnlineTime,
+		*listOnly,
 	) {
 		os.Exit(1)
 	}

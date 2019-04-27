@@ -198,6 +198,29 @@ func (ctx *Ctx) Humanize(s string) string {
 			humanize.IBytes(uint64(rx)), humanize.IBytes(uint64(rxs)),
 			humanize.IBytes(uint64(tx)), humanize.IBytes(uint64(txs)),
 		)
+	case "sp-info":
+		nice, err := NicenessParse(sds["nice"])
+		if err != nil {
+			return s
+		}
+		msg = fmt.Sprintf(
+			"Packet %s (%s) (nice %s)",
+			sds["hash"],
+			size,
+			NicenessFmt(nice),
+		)
+		offsetParsed, err := strconv.ParseUint(sds["offset"], 10, 64)
+		if err != nil {
+			return s
+		}
+		sizeParsed, err := strconv.ParseUint(sds["size"], 10, 64)
+		if err != nil {
+			return s
+		}
+		msg += fmt.Sprintf(": %d%%", 100*offsetParsed/sizeParsed)
+		if len(rem) > 0 {
+			msg += ": " + rem
+		}
 	case "sp-infos":
 		switch sds["xx"] {
 		case "rx":
