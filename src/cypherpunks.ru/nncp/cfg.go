@@ -214,12 +214,12 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 			return nil, errors.New("xx field must be either \"rx\" or \"tx\"")
 		}
 
-		rxRate := 0
-		if callYml.RxRate != nil && *callYml.RxRate > 0 {
+		rxRate := defRxRate
+		if callYml.RxRate != nil {
 			rxRate = *callYml.RxRate
 		}
-		txRate := 0
-		if callYml.TxRate != nil && *callYml.TxRate > 0 {
+		txRate := defTxRate
+		if callYml.TxRate != nil {
 			txRate = *callYml.TxRate
 		}
 
