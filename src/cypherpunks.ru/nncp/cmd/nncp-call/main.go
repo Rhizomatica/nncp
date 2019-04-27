@@ -39,19 +39,20 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw   = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
-		rxOnly    = flag.Bool("rx", false, "Only receive packets")
-		txOnly    = flag.Bool("tx", false, "Only transmit packets")
-		listOnly  = flag.Bool("list", false, "Only list remote packets")
-		rxRate    = flag.Int("rxrate", 0, "Maximal receive rate, pkts/sec")
-		txRate    = flag.Int("txrate", 0, "Maximal transmit rate, pkts/sec")
-		spoolPath = flag.String("spool", "", "Override path to spool")
-		logPath   = flag.String("log", "", "Override path to logfile")
-		quiet     = flag.Bool("quiet", false, "Print only errors")
-		debug     = flag.Bool("debug", false, "Print debug messages")
-		version   = flag.Bool("version", false, "Print version information")
-		warranty  = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath     = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw     = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
+		rxOnly      = flag.Bool("rx", false, "Only receive packets")
+		txOnly      = flag.Bool("tx", false, "Only transmit packets")
+		listOnly    = flag.Bool("list", false, "Only list remote packets")
+		onlyPktsRaw = flag.String("pkts", "", "Recieve only that packets, comma separated")
+		rxRate      = flag.Int("rxrate", 0, "Maximal receive rate, pkts/sec")
+		txRate      = flag.Int("txrate", 0, "Maximal transmit rate, pkts/sec")
+		spoolPath   = flag.String("spool", "", "Override path to spool")
+		logPath     = flag.String("log", "", "Override path to logfile")
+		quiet       = flag.Bool("quiet", false, "Print only errors")
+		debug       = flag.Bool("debug", false, "Print debug messages")
+		version     = flag.Bool("version", false, "Print version information")
+		warranty    = flag.Bool("warranty", false, "Print warranty information")
 
 		onlineDeadline = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
 		maxOnlineTime  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
@@ -124,6 +125,21 @@ func main() {
 		}
 	}
 
+	var onlyPkts map[[32]byte]bool
+	if len(*onlyPktsRaw) > 0 {
+		splitted = strings.Split(*onlyPktsRaw, ",")
+		onlyPkts = make(map[[32]byte]bool, len(splitted))
+		for _, pktIdRaw := range splitted {
+			pktId, err := nncp.FromBase32(pktIdRaw)
+			if err != nil {
+				log.Fatalln("Invalid packet specified: ", err)
+			}
+			pktIdArr := new([32]byte)
+			copy(pktIdArr[:], pktId)
+			onlyPkts[*pktIdArr] = true
+		}
+	}
+
 	if !ctx.CallNode(
 		node,
 		addrs,
@@ -134,6 +150,7 @@ func main() {
 		*onlineDeadline,
 		*maxOnlineTime,
 		*listOnly,
+		onlyPkts,
 	) {
 		os.Exit(1)
 	}
