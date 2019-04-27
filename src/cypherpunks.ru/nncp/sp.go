@@ -622,7 +622,7 @@ func (state *SPState) StartWorkers(
 				var buf []byte
 				if freq.Offset < fullSize {
 					state.ctx.LogD("sp-file", sdsp, "seeking")
-					if _, err = fd.Seek(int64(freq.Offset), 0); err != nil {
+					if _, err = fd.Seek(int64(freq.Offset), io.SeekStart); err != nil {
 						state.ctx.LogE("sp-file", SdsAdd(sdsp, SDS{"err": err}), "")
 						break
 					}
@@ -868,7 +868,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				SdsAdd(sdsp, SDS{"offset": strconv.FormatInt(int64(file.Offset), 10)}),
 				"seeking",
 			)
-			if _, err = fd.Seek(int64(file.Offset), 0); err != nil {
+			if _, err = fd.Seek(int64(file.Offset), io.SeekStart); err != nil {
 				state.ctx.LogE("sp-file", SdsAdd(sdsp, SDS{"err": err}), "")
 				fd.Close()
 				return nil, err
@@ -901,7 +901,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				}
 				state.wg.Add(1)
 				defer state.wg.Done()
-				fd.Seek(0, 0)
+				fd.Seek(0, io.SeekStart)
 				state.ctx.LogD("sp-file", sdsp, "checking")
 				gut, err := Check(fd, file.Hash[:])
 				fd.Close()

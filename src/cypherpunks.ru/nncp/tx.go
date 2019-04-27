@@ -128,7 +128,7 @@ func prepareTxFile(srcPath string) (io.Reader, *os.File, int64, error) {
 		if err = tmpW.Flush(); err != nil {
 			return nil, nil, 0, err
 		}
-		src.Seek(0, 0)
+		src.Seek(0, io.SeekStart)
 		r, w := io.Pipe()
 		go ae(tmpKey, bufio.NewReader(src), w)
 		reader = r
