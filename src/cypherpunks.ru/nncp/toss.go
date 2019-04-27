@@ -37,6 +37,7 @@ import (
 	"github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
 	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/poly1305"
 )
 
 const (
@@ -87,12 +88,18 @@ func (ctx *Ctx) Toss(
 		var pkt Pkt
 		var err error
 		var pktSize int64
+		var pktSizeBlocks int64
 		if _, err = xdr.Unmarshal(pipeR, &pkt); err != nil {
 			ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "unmarshal")
 			isBad = true
 			goto Closing
 		}
-		pktSize = job.Size - PktEncOverhead - PktOverhead
+		pktSize = job.Size - PktEncOverhead - PktOverhead - PktSizeOverhead
+		pktSizeBlocks = pktSize / (EncBlkSize + poly1305.TagSize)
+		if pktSize%(EncBlkSize+poly1305.TagSize) != 0 {
+			pktSize -= poly1305.TagSize
+		}
+		pktSize -= pktSizeBlocks * poly1305.TagSize
 		sds["size"] = strconv.FormatInt(pktSize, 10)
 		ctx.LogD("rx", sds, "taken")
 		switch pkt.Type {

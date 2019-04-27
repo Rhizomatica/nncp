@@ -38,69 +38,65 @@ ALL = \
 
 all: $(ALL)
 
-src/cypherpunks.ru/nncp/internal/chacha20: src/golang.org/x/crypto/internal/chacha20 src/golang.org/x/crypto/internal/subtle
-	$(MAKE) -C src/cypherpunks.ru/nncp/internal
-
-nncp-bundle: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-bundle:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-bundle
 
-nncp-call: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-call:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-call
 
-nncp-caller: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-caller:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-caller
 
-nncp-cfgenc: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-cfgenc:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgenc
 
-nncp-cfgmin: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-cfgmin:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgmin
 
-nncp-cfgnew: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-cfgnew:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgnew
 
-nncp-check: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-check:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-check
 
-nncp-daemon: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-daemon:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-daemon
 
-nncp-exec: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-exec:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-exec
 
-nncp-file: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-file:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-file
 
-nncp-freq: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-freq:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-freq
 
-nncp-log: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-log:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-log
 
-nncp-pkt: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-pkt:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-pkt
 
-nncp-reass: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-reass:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-reass
 
-nncp-rm: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-rm:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-rm
 
-nncp-stat: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-stat:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-stat
 
-nncp-toss: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-toss:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-toss
 
-nncp-xfer: src/cypherpunks.ru/nncp/internal/chacha20
+nncp-xfer:
 	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-xfer
 
-test: src/cypherpunks.ru/nncp/internal/chacha20
+test:
 	GOPATH=$(GOPATH) go test -failfast cypherpunks.ru/nncp/...
 
 clean:
 	rm -f $(ALL)
-	rm -fr src/cypherpunks.ru/nncp/internal/chacha20
 
 .PHONY: doc
 

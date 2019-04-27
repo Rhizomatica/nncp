@@ -236,7 +236,7 @@ func main() {
 				ctx.LogD("nncp-bundle", sds, "Bad packet structure")
 				continue
 			}
-			if pktEnc.Magic != nncp.MagicNNCPEv3 {
+			if pktEnc.Magic != nncp.MagicNNCPEv4 {
 				ctx.LogD("nncp-bundle", sds, "Bad packet magic number")
 				continue
 			}

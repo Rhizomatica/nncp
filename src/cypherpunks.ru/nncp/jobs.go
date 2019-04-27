@@ -65,7 +65,7 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 				continue
 			}
 			var pktEnc PktEnc
-			if _, err = xdr.Unmarshal(fd, &pktEnc); err != nil || pktEnc.Magic != MagicNNCPEv3 {
+			if _, err = xdr.Unmarshal(fd, &pktEnc); err != nil || pktEnc.Magic != MagicNNCPEv4 {
 				fd.Close()
 				continue
 			}
