@@ -5,19 +5,23 @@ tmp=$(mktemp -d)
 release=$1
 [ -n "$release" ]
 
+vendor=src/cypherpunks.ru/nncp/vendor
+
 git clone . $tmp/nncp-$release
 repos="
-    src/github.com/davecgh/go-xdr
-    src/github.com/dustin/go-humanize
-    src/github.com/flynn/noise
-    src/golang.org/x/crypto
-    src/golang.org/x/net
-    src/golang.org/x/sys
-    src/gopkg.in/check.v1
-    src/gopkg.in/yaml.v2
+    cypherpunks.ru/balloon
+    github.com/davecgh/go-xdr
+    github.com/dustin/go-humanize
+    github.com/flynn/noise
+    github.com/gorhill/cronexpr
+    golang.org/x/crypto
+    golang.org/x/net
+    golang.org/x/sys
+    gopkg.in/check.v1
+    gopkg.in/yaml.v2
 "
 for repo in $repos; do
-    git clone $repo $tmp/nncp-$release/$repo
+    git clone $vendor/$repo $tmp/nncp-$release/$vendor/$repo
 done
 cd $tmp/nncp-$release
 git checkout $release
@@ -25,43 +29,48 @@ git submodule update --init
 
 cat > $tmp/includes <<EOF
 golang.org/x/crypto/AUTHORS
-golang.org/x/crypto/CONTRIBUTORS
-golang.org/x/crypto/LICENSE
-golang.org/x/crypto/PATENTS
-golang.org/x/crypto/README.md
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
 golang.org/x/crypto/chacha20poly1305
+golang.org/x/crypto/CONTRIBUTORS
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ed25519
+golang.org/x/crypto/go.mod
+golang.org/x/crypto/go.sum
 golang.org/x/crypto/internal/chacha20
 golang.org/x/crypto/internal/subtle
+golang.org/x/crypto/LICENSE
 golang.org/x/crypto/nacl
+golang.org/x/crypto/PATENTS
 golang.org/x/crypto/poly1305
+golang.org/x/crypto/README.md
 golang.org/x/crypto/salsa20
 golang.org/x/crypto/ssh/terminal
 golang.org/x/net/AUTHORS
 golang.org/x/net/CONTRIBUTORS
+golang.org/x/net/go.mod
+golang.org/x/net/go.sum
 golang.org/x/net/LICENSE
+golang.org/x/net/netutil
 golang.org/x/net/PATENTS
 golang.org/x/net/README.md
-golang.org/x/net/netutil
 golang.org/x/sys/AUTHORS
 golang.org/x/sys/CONTRIBUTORS
+golang.org/x/sys/cpu
+golang.org/x/sys/go.mod
 golang.org/x/sys/LICENSE
 golang.org/x/sys/PATENTS
 golang.org/x/sys/README.md
-golang.org/x/sys/cpu
 golang.org/x/sys/unix
 EOF
-tar cfCI - src $tmp/includes | tar xfC - $tmp
-rm -fr src/golang.org
-mv $tmp/golang.org src/
-rm -fr $tmp/golang.org $tmp/includes
+tar cfCI - $vendor $tmp/includes | tar xfC - $tmp
+rm -fr $vendor/golang.org
+mv $tmp/golang.org $vendor
+rm $tmp/includes
 
 find src -name .travis.yml -delete
-rm -fr src/github.com/davecgh/go-xdr/xdr
-rm -fr src/github.com/gorhill/cronexpr/cronexpr src/github.com/gorhill/cronexpr/APLv2
+rm -fr $vendor/github.com/davecgh/go-xdr/xdr
+rm $vendor/github.com/gorhill/cronexpr/APLv2
 rm -fr ports
 rm makedist.sh
 
@@ -81,12 +90,12 @@ rm .gitmodules
 
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
-xz -9 nncp-"$release".tar
-gpg --detach-sign --sign --local-user 0x2B25868E75A1A953 nncp-"$release".tar.xz
-mv $tmp/nncp-"$release".tar.xz $tmp/nncp-"$release".tar.xz.sig $cur/doc/nncp.html/download
+xz -9v nncp-"$release".tar
+gpg --detach-sign --sign --local-user releases@nncpgo.org nncp-"$release".tar.xz
+mv -v $tmp/nncp-"$release".tar.xz $tmp/nncp-"$release".tar.xz.sig $cur/doc/nncp.html/download
 
 tarball=$cur/doc/nncp.html/download/nncp-"$release".tar.xz
-size=$(( $(cat $tarball | wc -c) / 1024 ))
+size=$(( $(stat -f %z $tarball) / 1024 ))
 hash=$(gpg --print-md SHA256 < $tarball)
 release_date=$(date "+%Y-%m-%d")
 

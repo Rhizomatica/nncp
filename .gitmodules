@@ -1,32 +1,32 @@
-[submodule "src/github.com/davecgh/go-xdr"]
-	path = src/github.com/davecgh/go-xdr
+[submodule "src/cypherpunks.ru/nncp/vendor/github.com/davecgh/go-xdr"]
+	path = src/cypherpunks.ru/nncp/vendor/github.com/davecgh/go-xdr
 	url = https://github.com/davecgh/go-xdr.git
-[submodule "src/github.com/dustin/go-humanize"]
-	path = src/github.com/dustin/go-humanize
+[submodule "src/cypherpunks.ru/nncp/vendor/github.com/dustin/go-humanize"]
+	path = src/cypherpunks.ru/nncp/vendor/github.com/dustin/go-humanize
 	url = https://github.com/dustin/go-humanize.git
-[submodule "src/github.com/flynn/noise"]
-	path = src/github.com/flynn/noise
+[submodule "src/cypherpunks.ru/nncp/vendor/github.com/flynn/noise"]
+	path = src/cypherpunks.ru/nncp/vendor/github.com/flynn/noise
 	url = https://github.com/flynn/noise.git
-[submodule "src/gopkg.in/check.v1"]
-	path = src/gopkg.in/check.v1
+[submodule "src/cypherpunks.ru/nncp/vendor/gopkg.in/check.v1"]
+	path = src/cypherpunks.ru/nncp/vendor/gopkg.in/check.v1
 	url = https://github.com/go-check/check.git
 	branch = v1
-[submodule "src/gopkg.in/yaml.v2"]
-	path = src/gopkg.in/yaml.v2
+[submodule "src/cypherpunks.ru/nncp/vendor/gopkg.in/yaml.v2"]
+	path = src/cypherpunks.ru/nncp/vendor/gopkg.in/yaml.v2
 	url = https://github.com/go-yaml/yaml.git
 	branch = v2
-[submodule "src/golang.org/x/crypto"]
-	path = src/golang.org/x/crypto
+[submodule "src/cypherpunks.ru/nncp/vendor/golang.org/x/crypto"]
+	path = src/cypherpunks.ru/nncp/vendor/golang.org/x/crypto
 	url = https://go.googlesource.com/crypto
-[submodule "src/golang.org/x/sys"]
-	path = src/golang.org/x/sys
+[submodule "src/cypherpunks.ru/nncp/vendor/golang.org/x/sys"]
+	path = src/cypherpunks.ru/nncp/vendor/golang.org/x/sys
 	url = https://go.googlesource.com/sys
-[submodule "src/golang.org/x/net"]
-	path = src/golang.org/x/net
+[submodule "src/cypherpunks.ru/nncp/vendor/golang.org/x/net"]
+	path = src/cypherpunks.ru/nncp/vendor/golang.org/x/net
 	url = https://go.googlesource.com/net
-[submodule "src/github.com/gorhill/cronexpr"]
-	path = src/github.com/gorhill/cronexpr
+[submodule "src/cypherpunks.ru/nncp/vendor/github.com/gorhill/cronexpr"]
+	path = src/cypherpunks.ru/nncp/vendor/github.com/gorhill/cronexpr
 	url = https://github.com/gorhill/cronexpr.git
-[submodule "src/cypherpunks.ru/balloon"]
-	path = src/cypherpunks.ru/balloon
+[submodule "src/cypherpunks.ru/nncp/vendor/cypherpunks.ru/balloon"]
+	path = src/cypherpunks.ru/nncp/vendor/cypherpunks.ru/balloon
 	url = git://git.cypherpunks.ru/balloon.git
