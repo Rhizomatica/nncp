@@ -26,6 +26,8 @@ configuration file section.
 Dependant libraries are updated.
 @item
 Minor bugfixes.
+@item
+Begin using of @code{go.mod} subsystem.
 @end itemize
 
 @node Release 3.4
