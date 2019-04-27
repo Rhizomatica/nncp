@@ -96,6 +96,7 @@ their integrity.
     [-maxonlinetime INT]
     [-rx|-tx]
     [-list]
+    [-pkts PKT,PKT,...]
     [-rxrate INT]
     [-txrate INT]
     NODE[:ADDR] [FORCEADDR]
@@ -116,6 +117,9 @@ overrides @ref{CfgOnlineDeadline, @emph{onlinedeadline}}.
 @emph{maxonlinetime}}. @option{-rxrate}/@option{-txrate} override
 @ref{CfgXxRate, rxrate/txrate}. @option{-list} option allows you to list
 packets of remote node, without any transmission.
+
+You can specify what packets your want to download, by specifying
+@option{-pkts} option with comma-separated list of packets identifiers.
 
 @node nncp-caller
 @section nncp-caller

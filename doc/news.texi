@@ -18,6 +18,8 @@ Available free space checking before copying in @command{nncp-xfer},
 @command{nncp-call} has ability only to listen packets on remote node,
 without its transmission.
 @item
+@command{nncp-call} has ability to download only specified packets.
+@item
 Dependant libraries are updated.
 @item
 Minor bugfixes.

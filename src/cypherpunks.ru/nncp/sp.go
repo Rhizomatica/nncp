@@ -198,6 +198,7 @@ type SPState struct {
 	txRate         int
 	isDead         bool
 	listOnly       bool
+	onlyPkts       map[[32]byte]bool
 	sync.RWMutex
 }
 
@@ -288,7 +289,9 @@ func (ctx *Ctx) StartI(
 	xxOnly TRxTx,
 	rxRate, txRate int,
 	onlineDeadline, maxOnlineTime uint,
-	listOnly bool) (*SPState, error) {
+	listOnly bool,
+	onlyPkts map[[32]byte]bool,
+) (*SPState, error) {
 	err := ctx.ensureRxDir(nodeId)
 	if err != nil {
 		return nil, err
@@ -340,6 +343,7 @@ func (ctx *Ctx) StartI(
 		rxRate:         rxRate,
 		txRate:         txRate,
 		listOnly:       listOnly,
+		onlyPkts:       onlyPkts,
 	}
 
 	var infosPayloads [][]byte
@@ -839,7 +843,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				SdsAdd(sdsp, SDS{"offset": strconv.FormatInt(offset, 10)}),
 				"",
 			)
-			if !state.listOnly {
+			if !state.listOnly && (state.onlyPkts == nil || state.onlyPkts[*info.Hash]) {
 				replies = append(replies, MarshalSP(
 					SPTypeFreq,
 					SPFreq{info.Hash, uint64(offset)},
