@@ -44,7 +44,8 @@ func (ctx *Ctx) CallNode(
 	rxRate, txRate int,
 	onlineDeadline, maxOnlineTime uint,
 	listOnly bool,
-	onlyPkts map[[32]byte]bool) (isGood bool) {
+	onlyPkts map[[32]byte]bool,
+) (isGood bool) {
 	for _, addr := range addrs {
 		sds := SDS{"node": node.Id, "addr": addr}
 		ctx.LogD("call", sds, "dialing")
