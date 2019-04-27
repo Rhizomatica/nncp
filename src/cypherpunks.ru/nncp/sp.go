@@ -546,6 +546,9 @@ func (state *SPState) StartWorkers(
 	if state.xxOnly == "" || state.xxOnly == TTx {
 		go func() {
 			for range time.Tick(time.Second) {
+				if state.NotAlive() {
+					return
+				}
 				for _, payload := range state.ctx.infosOur(
 					state.Node.Id,
 					state.nice,
