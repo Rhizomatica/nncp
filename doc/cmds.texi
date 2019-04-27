@@ -95,6 +95,7 @@ their integrity.
     [-onlinedeadline INT]
     [-maxonlinetime INT]
     [-rx|-tx]
+    [-list]
     [-rxrate INT]
     [-txrate INT]
     NODE[:ADDR] [FORCEADDR]
@@ -113,7 +114,8 @@ only outbound transmission is performed. @option{-onlinedeadline}
 overrides @ref{CfgOnlineDeadline, @emph{onlinedeadline}}.
 @option{-maxonlinetime} overrides @ref{CfgMaxOnlineTime,
 @emph{maxonlinetime}}. @option{-rxrate}/@option{-txrate} override
-@ref{CfgXxRate, rxrate/txrate}.
+@ref{CfgXxRate, rxrate/txrate}. @option{-list} option allows you to list
+packets of remote node, without any transmission.
 
 @node nncp-caller
 @section nncp-caller

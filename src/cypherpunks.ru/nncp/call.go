@@ -42,7 +42,8 @@ func (ctx *Ctx) CallNode(
 	nice uint8,
 	xxOnly TRxTx,
 	rxRate, txRate int,
-	onlineDeadline, maxOnlineTime uint) (isGood bool) {
+	onlineDeadline, maxOnlineTime uint,
+	listOnly bool) (isGood bool) {
 	for _, addr := range addrs {
 		sds := SDS{"node": node.Id, "addr": addr}
 		ctx.LogD("call", sds, "dialing")
@@ -61,6 +62,7 @@ func (ctx *Ctx) CallNode(
 			txRate,
 			onlineDeadline,
 			maxOnlineTime,
+			listOnly,
 		)
 		if err == nil {
 			ctx.LogI("call-start", sds, "connected")
