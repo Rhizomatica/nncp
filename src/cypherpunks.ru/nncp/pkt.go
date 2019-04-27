@@ -139,7 +139,8 @@ func aeadProcess(
 	nonce []byte,
 	doEncrypt bool,
 	r io.Reader,
-	w io.Writer) (int, error) {
+	w io.Writer,
+) (int, error) {
 	var blkCtr uint64
 	ciphCtr := nonce[len(nonce)-8:]
 	buf := make([]byte, EncBlkSize+aead.Overhead())
@@ -196,7 +197,8 @@ func PktEncWrite(
 	nice uint8,
 	size, padSize int64,
 	data io.Reader,
-	out io.Writer) error {
+	out io.Writer,
+) error {
 	pubEph, prvEph, err := box.GenerateKey(rand.Reader)
 	if err != nil {
 		return err
@@ -299,7 +301,8 @@ func PktEncRead(
 	our *NodeOur,
 	nodes map[NodeId]*Node,
 	data io.Reader,
-	out io.Writer) (*Node, int64, error) {
+	out io.Writer,
+) (*Node, int64, error) {
 	var pktEnc PktEnc
 	_, err := xdr.Unmarshal(data, &pktEnc)
 	if err != nil {

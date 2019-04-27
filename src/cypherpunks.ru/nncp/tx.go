@@ -42,7 +42,8 @@ func (ctx *Ctx) Tx(
 	pkt *Pkt,
 	nice uint8,
 	size, minSize int64,
-	src io.Reader) (*Node, error) {
+	src io.Reader,
+) (*Node, error) {
 	tmp, err := ctx.NewTmpFileWHash()
 	if err != nil {
 		return nil, err
@@ -206,7 +207,8 @@ func (ctx *Ctx) TxFileChunked(
 	nice uint8,
 	srcPath, dstPath string,
 	minSize int64,
-	chunkSize int64) error {
+	chunkSize int64,
+) error {
 	if dstPath == "" {
 		if srcPath == "-" {
 			return errors.New("Must provide destination filename")
@@ -381,7 +383,8 @@ func (ctx *Ctx) TxExec(
 	handle string,
 	args []string,
 	body []byte,
-	minSize int64) error {
+	minSize int64,
+) error {
 	path := make([][]byte, 0, 1+len(args))
 	path = append(path, []byte(handle))
 	for _, arg := range args {
