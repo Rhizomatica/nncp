@@ -34,6 +34,7 @@ import (
 
 	"github.com/davecgh/go-xdr/xdr2"
 	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/chacha20poly1305"
 )
 
 func (ctx *Ctx) Tx(
@@ -53,7 +54,11 @@ func (ctx *Ctx) Tx(
 		lastNode = ctx.Neigh[*node.Via[i-1]]
 		hops = append(hops, lastNode)
 	}
-	padSize := minSize - size - int64(len(hops))*(PktOverhead+PktEncOverhead)
+	expectedSize := size
+	for i := 0; i < len(hops); i++ {
+		expectedSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+expectedSize)
+	}
+	padSize := minSize - expectedSize
 	if padSize < 0 {
 		padSize = 0
 	}
@@ -69,12 +74,11 @@ func (ctx *Ctx) Tx(
 		errs <- PktEncWrite(ctx.Self, hops[0], pkt, nice, size, padSize, src, dst)
 		dst.Close()
 	}(curSize, src, pipeW)
-	curSize += padSize
+	curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize) + padSize
 
 	var pipeRPrev io.Reader
 	for i := 1; i < len(hops); i++ {
 		pktTrns, _ := NewPkt(PktTypeTrns, 0, hops[i-1].Id[:])
-		curSize += PktOverhead + PktEncOverhead
 		pipeRPrev = pipeR
 		pipeR, pipeW = io.Pipe()
 		go func(node *Node, pkt *Pkt, size int64, src io.Reader, dst io.WriteCloser) {
@@ -86,6 +90,7 @@ func (ctx *Ctx) Tx(
 			errs <- PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
 			dst.Close()
 		}(hops[i], pktTrns, curSize, pipeRPrev, pipeW)
+		curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize)
 	}
 	go func() {
 		_, err := io.Copy(tmp.W, pipeR)
@@ -116,11 +121,16 @@ func prepareTxFile(srcPath string) (io.Reader, *os.File, int64, error) {
 		}
 		os.Remove(src.Name())
 		tmpW := bufio.NewWriter(src)
-		tmpKey := new([32]byte)
+		tmpKey := make([]byte, chacha20poly1305.KeySize)
 		if _, err = rand.Read(tmpKey[:]); err != nil {
 			return nil, nil, 0, err
 		}
-		written, err := ae(tmpKey, bufio.NewReader(os.Stdin), tmpW)
+		aead, err := chacha20poly1305.New(tmpKey)
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		nonce := make([]byte, aead.NonceSize())
+		written, err := aeadProcess(aead, nonce, true, bufio.NewReader(os.Stdin), tmpW)
 		if err != nil {
 			return nil, nil, 0, err
 		}
@@ -130,7 +140,11 @@ func prepareTxFile(srcPath string) (io.Reader, *os.File, int64, error) {
 		}
 		src.Seek(0, io.SeekStart)
 		r, w := io.Pipe()
-		go ae(tmpKey, bufio.NewReader(src), w)
+		go func() {
+			if _, err := aeadProcess(aead, nonce, false, bufio.NewReader(src), w); err != nil {
+				panic(err)
+			}
+		}()
 		reader = r
 	} else {
 		src, err = os.Open(srcPath)

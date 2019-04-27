@@ -3,6 +3,20 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 4.0
+@section Release 4.0
+@itemize
+@item
+@strong{Incompatible} encrypted and eblob packet format change: AEAD
+encryption mode with 128 KiB blocks is used now, because previously
+@command{nncp-toss} did not verify encrypted packet's MAC before feeding
+decrypted data to external command. Older versions are not supported.
+@item
+Dependant libraries are updated.
+@item
+Minor bugfixes.
+@end itemize
+
 @node Release 3.4
 @section Release 3.4
 @itemize

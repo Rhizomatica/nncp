@@ -20,25 +20,26 @@ package nncp
 
 import (
 	"bytes"
+	"crypto/cipher"
 	"crypto/rand"
-	"crypto/subtle"
 	"encoding/binary"
 	"errors"
 	"io"
 
-	"cypherpunks.ru/nncp/internal/chacha20"
 	"github.com/davecgh/go-xdr/xdr2"
 	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/nacl/box"
+	"golang.org/x/crypto/poly1305"
 )
 
 type PktType uint8
 
 const (
 	EncBlkSize = 128 * (1 << 10)
-	KDFXOFSize = 2*(32+64) + 32
+	KDFXOFSize = chacha20poly1305.KeySize * 2
 
 	PktTypeFile PktType = iota
 	PktTypeFreq PktType = iota
@@ -52,12 +53,13 @@ const (
 
 var (
 	MagicNNCPPv2 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 2}
-	MagicNNCPEv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 3}
+	MagicNNCPEv4 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 4}
 	BadMagic     error   = errors.New("Unknown magic number")
 	BadPktType   error   = errors.New("Unknown packet type")
 
-	PktOverhead    int64
-	PktEncOverhead int64
+	PktOverhead     int64
+	PktEncOverhead  int64
+	PktSizeOverhead int64 = 8 + poly1305.TagSize
 )
 
 type Pkt struct {
@@ -95,7 +97,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	PktOverhead = 8 + blake2b.Size256 + int64(n) + blake2b.Size256
+	PktOverhead = int64(n)
 	buf.Reset()
 
 	dummyId, err := NodeIdFromString("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
@@ -103,7 +105,7 @@ func init() {
 		panic(err)
 	}
 	pktEnc := PktEnc{
-		Magic:     MagicNNCPEv3,
+		Magic:     MagicNNCPEv4,
 		Nice:      123,
 		Sender:    dummyId,
 		Recipient: dummyId,
@@ -132,42 +134,59 @@ func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
 	return &pkt, nil
 }
 
-type DevZero struct{}
-
-func (d DevZero) Read(b []byte) (n int, err error) {
-	for n = 0; n < len(b); n++ {
-		b[n] = 0
-	}
-	return
-}
-
-func ae(keyEnc *[32]byte, r io.Reader, w io.Writer) (int, error) {
+func aeadProcess(
+	aead cipher.AEAD,
+	nonce []byte,
+	doEncrypt bool,
+	r io.Reader,
+	w io.Writer) (int, error) {
 	var blkCtr uint64
-	ciphNonce := new([16]byte)
-	ciphCtr := ciphNonce[8:]
-	buf := make([]byte, EncBlkSize)
+	ciphCtr := nonce[len(nonce)-8:]
+	buf := make([]byte, EncBlkSize+aead.Overhead())
+	var toRead []byte
+	var toWrite []byte
 	var n int
-	var written int
+	var readBytes int
 	var err error
+	if doEncrypt {
+		toRead = buf[:EncBlkSize]
+	} else {
+		toRead = buf
+	}
 	for {
-		n, err = io.ReadFull(r, buf)
+		n, err = io.ReadFull(r, toRead)
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
 			if err != io.ErrUnexpectedEOF {
-				return written + n, err
+				return readBytes + n, err
 			}
 		}
-		written += n
+		readBytes += n
 		blkCtr++
 		binary.BigEndian.PutUint64(ciphCtr, blkCtr)
-		chacha20.XORKeyStream(buf[:n], buf[:n], ciphNonce, keyEnc)
-		if _, err = w.Write(buf[:n]); err != nil {
-			return written, err
+		if doEncrypt {
+			toWrite = aead.Seal(buf[:0], nonce, buf[:n], nil)
+		} else {
+			toWrite, err = aead.Open(buf[:0], nonce, buf[:n], nil)
+			if err != nil {
+				return readBytes, err
+			}
+		}
+		if _, err = w.Write(toWrite); err != nil {
+			return readBytes, err
 		}
 	}
-	return written, nil
+	return readBytes, nil
+}
+
+func sizeWithTags(size int64) (fullSize int64) {
+	fullSize = size + (size/EncBlkSize)*poly1305.TagSize
+	if size%EncBlkSize != 0 {
+		fullSize += poly1305.TagSize
+	}
+	return
 }
 
 func PktEncWrite(
@@ -187,7 +206,7 @@ func PktEncWrite(
 		return err
 	}
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv3,
+		Magic:     MagicNNCPEv4,
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
@@ -200,7 +219,7 @@ func PktEncWrite(
 	signature := new([ed25519.SignatureSize]byte)
 	copy(signature[:], ed25519.Sign(our.SignPrv, tbsBuf.Bytes()))
 	pktEnc := PktEnc{
-		Magic:     MagicNNCPEv3,
+		Magic:     MagicNNCPEv4,
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
@@ -216,71 +235,46 @@ func PktEncWrite(
 	if err != nil {
 		return err
 	}
-	if _, err = kdf.Write(MagicNNCPEv3[:]); err != nil {
+	if _, err = kdf.Write(MagicNNCPEv4[:]); err != nil {
 		return err
 	}
 
-	keyEnc := new([32]byte)
-	if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
+	key := make([]byte, chacha20poly1305.KeySize)
+	if _, err = io.ReadFull(kdf, key); err != nil {
 		return err
 	}
-	keyAuth := make([]byte, 64)
-	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
-		return err
-	}
-	mac, err := blake2b.New256(keyAuth)
+	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return err
 	}
+	nonce := make([]byte, aead.NonceSize())
 
-	sizeBuf := make([]byte, 8)
-	binary.BigEndian.PutUint64(sizeBuf, uint64(size))
-	chacha20.XORKeyStream(sizeBuf, sizeBuf, new([16]byte), keyEnc)
-	if _, err = out.Write(sizeBuf); err != nil {
-		return err
-	}
-	if _, err = mac.Write(sizeBuf); err != nil {
-		return err
-	}
-	if _, err = out.Write(mac.Sum(nil)); err != nil {
+	fullSize := pktBuf.Len() + int(size)
+	sizeBuf := make([]byte, 8+aead.Overhead())
+	binary.BigEndian.PutUint64(sizeBuf, uint64(sizeWithTags(int64(fullSize))))
+	if _, err = out.Write(aead.Seal(sizeBuf[:0], nonce, sizeBuf[:8], nil)); err != nil {
 		return err
 	}
 
-	if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
-		return err
-	}
-	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
-		return err
-	}
-	mac, err = blake2b.New256(keyAuth)
-	if err != nil {
-		return err
-	}
 	lr := io.LimitedReader{R: data, N: size}
 	mr := io.MultiReader(&pktBuf, &lr)
-	mw := io.MultiWriter(out, mac)
-	fullSize := pktBuf.Len() + int(size)
-	written, err := ae(keyEnc, mr, mw)
+	written, err := aeadProcess(aead, nonce, true, mr, out)
 	if err != nil {
 		return err
 	}
 	if written != fullSize {
 		return io.ErrUnexpectedEOF
 	}
-	if _, err = out.Write(mac.Sum(nil)); err != nil {
-		return err
-	}
 	if padSize > 0 {
-		if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
+		if _, err = io.ReadFull(kdf, key); err != nil {
 			return err
 		}
-		lr = io.LimitedReader{R: DevZero{}, N: padSize}
-		written, err = ae(keyEnc, &lr, out)
+		kdf, err = blake2b.NewXOF(blake2b.OutputLengthUnknown, key)
 		if err != nil {
 			return err
 		}
-		if written != int(padSize) {
-			return io.ErrUnexpectedEOF
+		if _, err = io.CopyN(out, kdf, padSize); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -288,7 +282,7 @@ func PktEncWrite(
 
 func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv3,
+		Magic:     MagicNNCPEv4,
 		Nice:      pktEnc.Nice,
 		Sender:    their.Id,
 		Recipient: our.Id,
@@ -311,7 +305,7 @@ func PktEncRead(
 	if err != nil {
 		return nil, 0, err
 	}
-	if pktEnc.Magic != MagicNNCPEv3 {
+	if pktEnc.Magic != MagicNNCPEv4 {
 		return nil, 0, BadMagic
 	}
 	their, known := nodes[*pktEnc.Sender]
@@ -334,66 +328,37 @@ func PktEncRead(
 	if err != nil {
 		return their, 0, err
 	}
-	if _, err = kdf.Write(MagicNNCPEv3[:]); err != nil {
+	if _, err = kdf.Write(MagicNNCPEv4[:]); err != nil {
 		return their, 0, err
 	}
 
-	keyEnc := new([32]byte)
-	if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
+	key := make([]byte, chacha20poly1305.KeySize)
+	if _, err = io.ReadFull(kdf, key); err != nil {
 		return their, 0, err
 	}
-	keyAuth := make([]byte, 64)
-	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
-		return their, 0, err
-	}
-	mac, err := blake2b.New256(keyAuth)
+	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return their, 0, err
 	}
+	nonce := make([]byte, aead.NonceSize())
 
-	sizeBuf := make([]byte, 8)
+	sizeBuf := make([]byte, 8+aead.Overhead())
 	if _, err = io.ReadFull(data, sizeBuf); err != nil {
 		return their, 0, err
 	}
-	if _, err = mac.Write(sizeBuf); err != nil {
-		return their, 0, err
-	}
-	tag := make([]byte, blake2b.Size256)
-	if _, err = io.ReadFull(data, tag); err != nil {
-		return their, 0, err
-	}
-	if subtle.ConstantTimeCompare(mac.Sum(nil), tag) != 1 {
-		return their, 0, errors.New("Unauthenticated size")
-	}
-	chacha20.XORKeyStream(sizeBuf, sizeBuf, new([16]byte), keyEnc)
-	size := int64(binary.BigEndian.Uint64(sizeBuf))
-
-	if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
-		return their, size, err
-	}
-	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
-		return their, size, err
-	}
-	mac, err = blake2b.New256(keyAuth)
+	sizeBuf, err = aead.Open(sizeBuf[:0], nonce, sizeBuf, nil)
 	if err != nil {
 		return their, 0, err
 	}
+	size := int64(binary.BigEndian.Uint64(sizeBuf))
 
-	fullSize := PktOverhead + size - 8 - 2*blake2b.Size256
-	lr := io.LimitedReader{R: data, N: fullSize}
-	tr := io.TeeReader(&lr, mac)
-	written, err := ae(keyEnc, tr, out)
+	lr := io.LimitedReader{R: data, N: size}
+	written, err := aeadProcess(aead, nonce, false, &lr, out)
 	if err != nil {
 		return their, int64(written), err
 	}
-	if written != int(fullSize) {
+	if written != int(size) {
 		return their, int64(written), io.ErrUnexpectedEOF
-	}
-	if _, err = io.ReadFull(data, tag); err != nil {
-		return their, size, err
-	}
-	if subtle.ConstantTimeCompare(mac.Sum(nil), tag) != 1 {
-		return their, size, errors.New("Unauthenticated payload")
 	}
 	return their, size, nil
 }

@@ -21,15 +21,12 @@ package nncp
 import (
 	"bytes"
 	"crypto/rand"
-	"crypto/subtle"
-	"errors"
 	"hash"
-	"io"
 
 	"cypherpunks.ru/balloon"
-	"cypherpunks.ru/nncp/internal/chacha20"
 	"github.com/davecgh/go-xdr/xdr2"
 	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/chacha20poly1305"
 )
 
 const (
@@ -39,7 +36,7 @@ const (
 )
 
 var (
-	MagicNNCPBv2 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'B', 0, 0, 2}
+	MagicNNCPBv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'B', 0, 0, 3}
 )
 
 type EBlob struct {
@@ -49,7 +46,6 @@ type EBlob struct {
 	PCost uint32
 	Salt  *[32]byte
 	Blob  []byte
-	MAC   *[blake2b.Size256]byte
 }
 
 func blake256() hash.Hash {
@@ -69,46 +65,31 @@ func NewEBlob(sCost, tCost, pCost int, password, data []byte) ([]byte, error) {
 	if _, err = rand.Read(salt[:]); err != nil {
 		return nil, err
 	}
-	key := balloon.H(blake256, password, salt[:], sCost, tCost, pCost)
-	kdf, err := blake2b.NewXOF(32+64, key)
-	if err != nil {
-		return nil, err
-	}
-	if _, err = kdf.Write(MagicNNCPBv2[:]); err != nil {
-		return nil, err
-	}
-	keyEnc := new([32]byte)
-	if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
-		return nil, err
-	}
-	keyAuth := make([]byte, 64)
-	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
-		return nil, err
-	}
-	mac, err := blake2b.New256(keyAuth)
-	if err != nil {
-		return nil, err
-	}
-	chacha20.XORKeyStream(data, data, new([16]byte), keyEnc)
-	if _, err = mac.Write(data); err != nil {
-		return nil, err
-	}
-	macTag := new([blake2b.Size256]byte)
-	mac.Sum(macTag[:0])
 	eblob := EBlob{
-		Magic: MagicNNCPBv2,
+		Magic: MagicNNCPBv3,
 		SCost: uint32(sCost),
 		TCost: uint32(tCost),
 		PCost: uint32(pCost),
 		Salt:  salt,
-		Blob:  data,
-		MAC:   macTag,
+		Blob:  nil,
 	}
-	var eblobRaw bytes.Buffer
-	if _, err = xdr.Marshal(&eblobRaw, &eblob); err != nil {
+	var eblobBuf bytes.Buffer
+	if _, err = xdr.Marshal(&eblobBuf, &eblob); err != nil {
 		return nil, err
 	}
-	return eblobRaw.Bytes(), nil
+	key := balloon.H(blake256, password, salt[:], sCost, tCost, pCost)
+	aead, err := chacha20poly1305.New(key)
+	if err != nil {
+		return nil, err
+	}
+	buf := make([]byte, 0, len(data)+aead.Overhead())
+	buf = aead.Seal(buf, make([]byte, aead.NonceSize()), data, eblobBuf.Bytes())
+	eblob.Blob = buf
+	eblobBuf.Reset()
+	if _, err = xdr.Marshal(&eblobBuf, &eblob); err != nil {
+		return nil, err
+	}
+	return eblobBuf.Bytes(), nil
 }
 
 func DeEBlob(eblobRaw, password []byte) ([]byte, error) {
@@ -117,7 +98,7 @@ func DeEBlob(eblobRaw, password []byte) ([]byte, error) {
 	if _, err = xdr.Unmarshal(bytes.NewReader(eblobRaw), &eblob); err != nil {
 		return nil, err
 	}
-	if eblob.Magic != MagicNNCPBv2 {
+	if eblob.Magic != MagicNNCPBv3 {
 		return nil, BadMagic
 	}
 	key := balloon.H(
@@ -128,31 +109,25 @@ func DeEBlob(eblobRaw, password []byte) ([]byte, error) {
 		int(eblob.TCost),
 		int(eblob.PCost),
 	)
-	kdf, err := blake2b.NewXOF(32+64, key)
+	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return nil, err
 	}
-	if _, err = kdf.Write(MagicNNCPBv2[:]); err != nil {
+
+	ciphertext := eblob.Blob
+	eblob.Blob = nil
+	var eblobBuf bytes.Buffer
+	if _, err = xdr.Marshal(&eblobBuf, &eblob); err != nil {
 		return nil, err
 	}
-	keyEnc := new([32]byte)
-	if _, err = io.ReadFull(kdf, keyEnc[:]); err != nil {
-		return nil, err
-	}
-	keyAuth := make([]byte, 64)
-	if _, err = io.ReadFull(kdf, keyAuth); err != nil {
-		return nil, err
-	}
-	mac, err := blake2b.New256(keyAuth)
+	data, err := aead.Open(
+		ciphertext[:0],
+		make([]byte, aead.NonceSize()),
+		ciphertext,
+		eblobBuf.Bytes(),
+	)
 	if err != nil {
 		return nil, err
 	}
-	if _, err = mac.Write(eblob.Blob); err != nil {
-		return nil, err
-	}
-	if subtle.ConstantTimeCompare(mac.Sum(nil), eblob.MAC[:]) != 1 {
-		return nil, errors.New("Unauthenticated blob")
-	}
-	chacha20.XORKeyStream(eblob.Blob, eblob.Blob, new([16]byte), keyEnc)
-	return eblob.Blob, nil
+	return data, nil
 }

@@ -120,7 +120,7 @@ func TestPktEncRead(t *testing.T) {
 		if *node.Id != *node1.Id {
 			return false
 		}
-		if sizeGot != int64(size) {
+		if sizeGot != sizeWithTags(PktOverhead+int64(size)) {
 			return false
 		}
 		var pktBuf bytes.Buffer
