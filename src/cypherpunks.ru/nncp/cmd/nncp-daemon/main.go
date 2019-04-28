@@ -61,8 +61,11 @@ func (ic *InetdConn) SetWriteDeadline(t time.Time) error {
 }
 
 func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
-	state, err := ctx.StartR(conn, nice, "")
-	if err == nil {
+	state := nncp.SPState{
+		Ctx:  ctx,
+		Nice: nice,
+	}
+	if err := state.StartR(conn); err == nil {
 		ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
 		state.Wait()
 		ctx.LogI("call-finish", nncp.SDS{
@@ -75,7 +78,7 @@ func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
 		}, "")
 	} else {
 		nodeId := "unknown"
-		if state != nil && state.Node != nil {
+		if state.Node != nil {
 			nodeId = state.Node.Id.String()
 		}
 		ctx.LogE("call-start", nncp.SDS{"node": nodeId, "err": err}, "")
