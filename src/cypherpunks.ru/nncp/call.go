@@ -55,19 +55,19 @@ func (ctx *Ctx) CallNode(
 			continue
 		}
 		ctx.LogD("call", sds, "connected")
-		state, err := ctx.StartI(
-			conn,
-			node.Id,
-			nice,
-			xxOnly,
-			rxRate,
-			txRate,
-			onlineDeadline,
-			maxOnlineTime,
-			listOnly,
-			onlyPkts,
-		)
-		if err == nil {
+		state := SPState{
+			Ctx:            ctx,
+			Node:           node,
+			Nice:           nice,
+			onlineDeadline: onlineDeadline,
+			maxOnlineTime:  maxOnlineTime,
+			xxOnly:         xxOnly,
+			rxRate:         rxRate,
+			txRate:         txRate,
+			listOnly:       listOnly,
+			onlyPkts:       onlyPkts,
+		}
+		if err = state.StartI(conn); err == nil {
 			ctx.LogI("call-start", sds, "connected")
 			state.Wait()
 			ctx.LogI("call-finish", SDS{
