@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Send file via NNCP
+// Reassembly chunked file.
 package main
 
 import (
@@ -203,9 +203,13 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			}
 		}
 	}
-	dstW.Flush()
+	if err = dstW.Flush(); err != nil {
+		log.Fatalln("Can not flush:", err)
+	}
 	if tmp != nil {
-		tmp.Sync()
+		if err = tmp.Sync(); err != nil {
+			log.Fatalln("Can not sync:", err)
+		}
 		tmp.Close()
 	}
 	ctx.LogD("nncp-reass", sds, "written")
@@ -316,10 +320,10 @@ func main() {
 	}
 
 	if flag.NArg() > 0 {
-		if !process(ctx, flag.Arg(0), *keep, *dryRun, *stdout, *dumpMeta) {
-			os.Exit(1)
+		if process(ctx, flag.Arg(0), *keep, *dryRun, *stdout, *dumpMeta) {
+			return
 		}
-		return
+		os.Exit(1)
 	}
 
 	hasErrors := false
@@ -333,7 +337,9 @@ func main() {
 				if _, seen := seenMetaPaths[metaPath]; seen {
 					continue
 				}
-				hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false, false)
+				if !process(ctx, metaPath, *keep, *dryRun, false, false) {
+					hasErrors = true
+				}
 				seenMetaPaths[metaPath] = struct{}{}
 			}
 		}
@@ -342,7 +348,9 @@ func main() {
 			log.Fatalln("Specified -node does not allow incoming")
 		}
 		for _, metaPath := range findMetas(ctx, *nodeOnly.Incoming) {
-			hasErrors = hasErrors || !process(ctx, metaPath, *keep, *dryRun, false, false)
+			if !process(ctx, metaPath, *keep, *dryRun, false, false) {
+				hasErrors = true
+			}
 		}
 	}
 	if hasErrors {

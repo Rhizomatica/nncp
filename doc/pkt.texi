@@ -28,7 +28,7 @@ drive.
 @headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|N N C P P 0x00 0x00 0x01|}
+    @verb{|N N C P P 0x00 0x00 0x02|}
 @item Payload type @tab
     unsigned integer @tab
     0 (file), 1 (freq), 2 (exec), 3 (transition)
@@ -78,11 +78,11 @@ storages and that are synchronized between TCP daemons.
 Each encrypted packet has the following header:
 
 @verbatim
-  +------------ HEADER --------------------+   +-------- ENCRYPTED --------+
- /                                          \ /                             \
-+--------------------------------------------+------------+----...-----------+------+
-| MAGIC | NICE | SENDER | RCPT | EPUB | SIGN | SIZE | MAC | CIPHERTEXT | MAC | JUNK |
-+-------------------------------------/------\------------+----...-----------+------+
+  +------------ HEADER --------------------+   +------------- ENCRYPTED -------------+
+ /                                          \ /                                       \
++--------------------------------------------+------+---------+----------...---+------+
+| MAGIC | NICE | SENDER | RCPT | EPUB | SIGN | SIZE | BLOCK 0 | BLOCK 1  ...   | JUNK |
++-------------------------------------/------\------+---------+----------...---+------+
                                      /        \
                       +-------------------------------------+
                       | MAGIC | NICE | SENDER | RCPT | EPUB |
@@ -93,7 +93,7 @@ Each encrypted packet has the following header:
 @headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|N N C P E 0x00 0x00 0x03|}
+    @verb{|N N C P E 0x00 0x00 0x04|}
 @item Niceness @tab
     unsigned integer @tab
     1-255, packet @ref{Niceness, niceness} level
@@ -113,12 +113,12 @@ Each encrypted packet has the following header:
 
 Signature is calculated over all previous fields.
 
-All following encryption is done using @url{https://cr.yp.to/chacha.html,
-ChaCha20} algorithm. Data is splitted on 128 KiB blocks. Each block is
-encrypted with increasing nonce counter. @url{https://blake2.net/,
-BLAKE2b-256} MAC is appended to the ciphertext.
+All following encryption is done in AEAD mode using
+@url{https://cr.yp.to/chacha.html, ChaCha20}-@url{https://en.wikipedia.org/wiki/Poly1305, Poly1305}
+algorithms. Data is splitted on 128 KiB blocks. Each block is encrypted with
+increasing nonce counter.
 
-After the headers comes an encrypted payload size and MAC of that size.
+Authenticated and encrypted size come after the header:
 
 @multitable @columnfractions 0.2 0.3 0.5
 @headitem @tab XDR type @tab Value
@@ -127,7 +127,7 @@ After the headers comes an encrypted payload size and MAC of that size.
     Payload size.
 @end multitable
 
-Next comes the actual encrypted payload with corresponding MAC.
+Then comes the actual payload.
 
 Each node has static @strong{exchange} and @strong{signature} keypairs.
 When node A want to send encrypted packet to node B, it:
@@ -143,18 +143,15 @@ When node A want to send encrypted packet to node B, it:
 @item derive the keys:
     @enumerate
     @item initialize @url{https://blake2.net/, BLAKE2Xb} XOF with
-    derived ephemeral key and 224-byte output length
-    @item feed @verb{|N N C P E 0x00 0x00 0x03|} magic number to XOF
-    @item read 32-bytes of "size" encryption key (for ChaCha20)
-    @item read 64-bytes of "size" authentication key (for BLAKE2b-MAC)
-    @item read 32-bytes of payload encryption key
-    @item read 64-bytes of payload authentication key
-    @item optionally read 32-bytes pad generation key (for ChaCha20)
+    derived ephemeral key and 96-byte output length
+    @item feed @verb{|N N C P E 0x00 0x00 0x04|} magic number to XOF
+    @item read 32-bytes of "size" AEAD encryption key
+    @item read 32-bytes of payload AEAD encryption key
+    @item optionally read 32-bytes pad generation key
     @end enumerate
-@item encrypts size, appends its ciphertext to the header
-@item appends MAC tag over that ciphertext
-@item encrypts and appends payload ciphertext
-@item appends MAC tag over that payload ciphertext
+@item encrypts size, appends its authenticated ciphertext to the header
+@item encrypts payload, appends its authenticated ciphertext
 @item possibly appends any kind of "junk" noise data to hide real
-    payload's size from the adversary
+    payload's size from the adversary (generated using XOF with
+    unlimited output length)
 @end enumerate

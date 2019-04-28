@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ func main() {
 		if _, err := xdr.Unmarshal(bytes.NewReader(data), &eblob); err != nil {
 			log.Fatalln(err)
 		}
-		if eblob.Magic != nncp.MagicNNCPBv2 {
+		if eblob.Magic != nncp.MagicNNCPBv3 {
 			log.Fatalln(errors.New("Unknown eblob type"))
 		}
 		fmt.Println("Strengthening function: Balloon with BLAKE2b-256")

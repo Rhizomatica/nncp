@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -120,7 +120,7 @@ func TestPktEncRead(t *testing.T) {
 		if *node.Id != *node1.Id {
 			return false
 		}
-		if sizeGot != int64(size) {
+		if sizeGot != sizeWithTags(PktOverhead+int64(size)) {
 			return false
 		}
 		var pktBuf bytes.Buffer

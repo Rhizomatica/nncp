@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ import (
 	"github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
 	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/poly1305"
 )
 
 const (
@@ -55,7 +56,8 @@ func newNotification(fromTo *FromToYAML, subject string) io.Reader {
 func (ctx *Ctx) Toss(
 	nodeId *NodeId,
 	nice uint8,
-	dryRun, doSeen, noFile, noFreq, noExec, noTrns bool) bool {
+	dryRun, doSeen, noFile, noFreq, noExec, noTrns bool,
+) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Fd.Name())
@@ -87,12 +89,18 @@ func (ctx *Ctx) Toss(
 		var pkt Pkt
 		var err error
 		var pktSize int64
+		var pktSizeBlocks int64
 		if _, err = xdr.Unmarshal(pipeR, &pkt); err != nil {
 			ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "unmarshal")
 			isBad = true
 			goto Closing
 		}
-		pktSize = job.Size - PktEncOverhead - PktOverhead
+		pktSize = job.Size - PktEncOverhead - PktOverhead - PktSizeOverhead
+		pktSizeBlocks = pktSize / (EncBlkSize + poly1305.TagSize)
+		if pktSize%(EncBlkSize+poly1305.TagSize) != 0 {
+			pktSize -= poly1305.TagSize
+		}
+		pktSize -= pktSizeBlocks * poly1305.TagSize
 		sds["size"] = strconv.FormatInt(pktSize, 10)
 		ctx.LogD("rx", sds, "taken")
 		switch pkt.Type {
@@ -176,21 +184,31 @@ func (ctx *Ctx) Toss(
 			}
 			if !dryRun {
 				tmp, err := ioutil.TempFile(dir, "nncp-file")
-				sds["tmp"] = tmp.Name()
-				ctx.LogD("rx", sds, "created")
 				if err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "mktemp")
 					isBad = true
 					goto Closing
 				}
+				sds["tmp"] = tmp.Name()
+				ctx.LogD("rx", sds, "created")
 				bufW := bufio.NewWriter(tmp)
 				if _, err = io.Copy(bufW, pipeR); err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "copy")
 					isBad = true
 					goto Closing
 				}
-				bufW.Flush()
-				tmp.Sync()
+				if err = bufW.Flush(); err != nil {
+					tmp.Close()
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "copy")
+					isBad = true
+					goto Closing
+				}
+				if err = tmp.Sync(); err != nil {
+					tmp.Close()
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "copy")
+					isBad = true
+					goto Closing
+				}
 				tmp.Close()
 				dstPathOrig := filepath.Join(*incoming, dst)
 				dstPath := dstPathOrig

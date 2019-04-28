@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Create/digest stream of NNCP encrypted packets
+// Create/digest stream of NNCP encrypted packets.
 package main
 
 import (
@@ -236,7 +236,7 @@ func main() {
 				ctx.LogD("nncp-bundle", sds, "Bad packet structure")
 				continue
 			}
-			if pktEnc.Magic != nncp.MagicNNCPEv3 {
+			if pktEnc.Magic != nncp.MagicNNCPEv4 {
 				ctx.LogD("nncp-bundle", sds, "Bad packet magic number")
 				continue
 			}
@@ -367,7 +367,9 @@ func main() {
 					if err = bufTmp.Flush(); err != nil {
 						log.Fatalln("Error during flushing:", err)
 					}
-					tmp.Sync()
+					if err = tmp.Sync(); err != nil {
+						log.Fatalln("Error during syncing:", err)
+					}
 					tmp.Close()
 					if err = os.MkdirAll(selfPath, os.FileMode(0700)); err != nil {
 						log.Fatalln("Error during mkdir:", err)
