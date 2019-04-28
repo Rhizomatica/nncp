@@ -949,18 +949,22 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.Ctx.LogD("sp-process", sdsp, "queueing")
 			nice, exists := state.infosOurSeen[*freq.Hash]
 			if exists {
-				state.Lock()
-				insertIdx := 0
-				var freqWithNice *FreqWithNice
-				for insertIdx, freqWithNice = range state.queueTheir {
-					if freqWithNice.nice > nice {
-						break
+				if state.onlyPkts == nil || !state.onlyPkts[*freq.Hash] {
+					state.Lock()
+					insertIdx := 0
+					var freqWithNice *FreqWithNice
+					for insertIdx, freqWithNice = range state.queueTheir {
+						if freqWithNice.nice > nice {
+							break
+						}
 					}
+					state.queueTheir = append(state.queueTheir, nil)
+					copy(state.queueTheir[insertIdx+1:], state.queueTheir[insertIdx:])
+					state.queueTheir[insertIdx] = &FreqWithNice{&freq, nice}
+					state.Unlock()
+				} else {
+					state.Ctx.LogD("sp-process", sdsp, "skipping")
 				}
-				state.queueTheir = append(state.queueTheir, nil)
-				copy(state.queueTheir[insertIdx+1:], state.queueTheir[insertIdx:])
-				state.queueTheir[insertIdx] = &FreqWithNice{&freq, nice}
-				state.Unlock()
 			} else {
 				state.Ctx.LogD("sp-process", sdsp, "unknown")
 			}
