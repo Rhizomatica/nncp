@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Parse raw NNCP packet
+// Parse raw NNCP packet.
 package main
 
 import (
@@ -31,7 +31,6 @@ import (
 
 	"cypherpunks.ru/nncp"
 	"github.com/davecgh/go-xdr/xdr2"
-	"golang.org/x/crypto/blake2b"
 )
 
 func usage() {
@@ -44,6 +43,7 @@ func usage() {
 
 func main() {
 	var (
+		overheads  = flag.Bool("overheads", false, "Print packet overheads")
 		dump       = flag.Bool("dump", false, "Write decrypted/parsed payload to stdout")
 		decompress = flag.Bool("decompress", false, "Try to zlib decompress dumped data")
 		cfgPath    = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
@@ -61,8 +61,18 @@ func main() {
 		return
 	}
 
+	if *overheads {
+		fmt.Printf(
+			"Plain: %d\nEncrypted: %d\nSize: %d\n",
+			nncp.PktOverhead,
+			nncp.PktEncOverhead,
+			nncp.PktSizeOverhead,
+		)
+		return
+	}
+
 	var err error
-	beginning := make([]byte, nncp.PktOverhead-8-2*blake2b.Size256)
+	beginning := make([]byte, nncp.PktOverhead)
 	if _, err = io.ReadFull(os.Stdin, beginning); err != nil {
 		log.Fatalln("Not enough data to read")
 	}
@@ -121,7 +131,7 @@ func main() {
 	}
 	var pktEnc nncp.PktEnc
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc)
-	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv3 {
+	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv4 {
 		if *dump {
 			ctx, err := nncp.CtxFromCmdline(*cfgPath, "", "", false, false)
 			if err != nil {

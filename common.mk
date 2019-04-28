@@ -1,4 +1,5 @@
 PREFIX ?= /usr/local
+GO ?= go
 
 SENDMAIL ?= /usr/sbin/sendmail
 CFGPATH ?= $(PREFIX)/etc/nncp.yaml
@@ -15,6 +16,7 @@ LDFLAGS = \
 	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL) \
 	-X cypherpunks.ru/nncp.DefaultSpoolPath=$(SPOOLPATH) \
 	-X cypherpunks.ru/nncp.DefaultLogPath=$(LOGPATH)
+BUILDMOD ?= -mod=vendor
 
 ALL = \
 	nncp-bundle \
@@ -36,67 +38,24 @@ ALL = \
 	nncp-toss \
 	nncp-xfer
 
+SRC := $(PWD)/src/cypherpunks.ru/nncp
+BIN := $(PWD)/bin
+GOPATH ?= $(PWD)/gopath
+
 all: $(ALL)
 
-nncp-bundle:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-bundle
+$(BIN):
+	mkdir -p $(BIN)
 
-nncp-call:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-call
-
-nncp-caller:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-caller
-
-nncp-cfgenc:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgenc
-
-nncp-cfgmin:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgmin
-
-nncp-cfgnew:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-cfgnew
-
-nncp-check:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-check
-
-nncp-daemon:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-daemon
-
-nncp-exec:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-exec
-
-nncp-file:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-file
-
-nncp-freq:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-freq
-
-nncp-log:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-log
-
-nncp-pkt:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-pkt
-
-nncp-reass:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-reass
-
-nncp-rm:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-rm
-
-nncp-stat:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-stat
-
-nncp-toss:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-toss
-
-nncp-xfer:
-	GOPATH=$(GOPATH) go build -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/nncp-xfer
+$(ALL): $(BIN)
+	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) build $(BUILDMOD) -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/$@
+	mv $(SRC)/$@ $(BIN)
 
 test:
-	GOPATH=$(GOPATH) go test -failfast cypherpunks.ru/nncp/...
+	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) test $(BUILDMOD) -failfast cypherpunks.ru/nncp/...
 
 clean:
-	rm -f $(ALL)
+	rm -rf bin
 
 .PHONY: doc
 
@@ -105,7 +64,7 @@ doc:
 
 install: all doc
 	mkdir -p $(BINDIR)
-	cp -f $(ALL) $(BINDIR)
+	(cd bin ; cp -f $(ALL) $(BINDIR))
 	for e in $(ALL) ; do chmod 755 $(BINDIR)/$$e ; done
 	mkdir -p $(INFODIR)
 	cp -f doc/nncp.info $(INFODIR)

@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -149,6 +149,8 @@ func (ctx *Ctx) Humanize(s string) string {
 		}
 		if err, exists := sds["err"]; exists {
 			msg += ": " + err
+		} else {
+			msg += " " + rem
 		}
 	case "nncp-bundle":
 		switch sds["xx"] {
@@ -196,6 +198,29 @@ func (ctx *Ctx) Humanize(s string) string {
 			humanize.IBytes(uint64(rx)), humanize.IBytes(uint64(rxs)),
 			humanize.IBytes(uint64(tx)), humanize.IBytes(uint64(txs)),
 		)
+	case "sp-info":
+		nice, err := NicenessParse(sds["nice"])
+		if err != nil {
+			return s
+		}
+		msg = fmt.Sprintf(
+			"Packet %s (%s) (nice %s)",
+			sds["hash"],
+			size,
+			NicenessFmt(nice),
+		)
+		offsetParsed, err := strconv.ParseUint(sds["offset"], 10, 64)
+		if err != nil {
+			return s
+		}
+		sizeParsed, err := strconv.ParseUint(sds["size"], 10, 64)
+		if err != nil {
+			return s
+		}
+		msg += fmt.Sprintf(": %d%%", 100*offsetParsed/sizeParsed)
+		if len(rem) > 0 {
+			msg += ": " + rem
+		}
 	case "sp-infos":
 		switch sds["xx"] {
 		case "rx":
@@ -206,6 +231,8 @@ func (ctx *Ctx) Humanize(s string) string {
 			return s
 		}
 		msg += fmt.Sprintf("%s packets, %s", sds["pkts"], size)
+	case "sp-process":
+		msg = fmt.Sprintf("%s has %s (%s): %s", nodeS, sds["hash"], size, rem)
 	case "sp-file":
 		switch sds["xx"] {
 		case "rx":

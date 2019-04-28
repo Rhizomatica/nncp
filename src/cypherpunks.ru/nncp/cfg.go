@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -214,12 +214,12 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 			return nil, errors.New("xx field must be either \"rx\" or \"tx\"")
 		}
 
-		rxRate := 0
-		if callYml.RxRate != nil && *callYml.RxRate > 0 {
+		rxRate := defRxRate
+		if callYml.RxRate != nil {
 			rxRate = *callYml.RxRate
 		}
-		txRate := 0
-		if callYml.TxRate != nil && *callYml.TxRate > 0 {
+		txRate := defTxRate
+		if callYml.TxRate != nil {
 			txRate = *callYml.TxRate
 		}
 
@@ -371,7 +371,7 @@ func (nodeOur *NodeOur) ToYAML() string {
 
 func CfgParse(data []byte) (*Ctx, error) {
 	var err error
-	if bytes.Compare(data[:8], MagicNNCPBv2[:]) == 0 {
+	if bytes.Compare(data[:8], MagicNNCPBv3[:]) == 0 {
 		os.Stderr.WriteString("Passphrase:")
 		password, err := terminal.ReadPassword(0)
 		if err != nil {

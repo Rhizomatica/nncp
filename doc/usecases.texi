@@ -10,10 +10,12 @@ See also this page @ref{Сценарии, on russian}.
 * Slow/expensive link for high-volume data, bad QoS: UsecaseQoS.
 * Extreme terrestrial environments, no link: UsecaseNoLink.
 * One-way broadcasting communications: UsecaseBroadcast.
+* Satellite links: UsecaseSatelliteLinks.
 * Private, isolated MitM/Sybil-resistant networks: UsecaseF2F.
 * Highly secure isolated air-gap computers: UsecaseAirgap.
 * Network censorship bypassing, health: UsecaseCensor.
 * Reconnaissance, spying, intelligence, covert agents: UsecaseSpy.
+* Cheap night transfers: UsecaseCaller.
 @end menu
 
 @node UsecaseMail
@@ -99,9 +101,9 @@ niceness level, that will guarantee that it will be processed earlier or
 later than the other ones. Nearly all commands has corresponding option:
 
 @verbatim
-% nncp-file -nice 32 myfile node:dst
-% nncp-xfer -nice 192 /mnt/shared
-% nncp-call -nice 224 bob
+% nncp-file -nice FLASH myfile node:dst
+% nncp-xfer -nice PRIORITY /mnt/shared
+% nncp-call -nice NORMAL bob
 [...]
 @end verbatim
 
@@ -171,6 +173,32 @@ a sequence of @ref{Encrypted, encrypted packets} you can catch on.
 With built-in packet duplicates detection ability, you can retransmit
 your broadcasts from time to time, to increase chances the recipient
 will catch them by regular stream listening.
+
+@node UsecaseSatelliteLinks
+@section Satellite links
+
+Satellite links have @strong{very} high delays together with high
+bandwidths. You can send several megabits of data per second, but they
+will reach the remote side only after half a second!
+Most file sharing protocols like
+@url{https://en.wikipedia.org/wiki/Files_transferred_over_shell_protocol, FISH},
+@url{https://en.wikipedia.org/wiki/FTP, FTP},
+@url{https://en.wikipedia.org/wiki/Secure_copy, scp},
+@url{https://en.wikipedia.org/wiki/XMODEM, XMODEM}
+will perform very badly because of round-trips quantity. Each file
+transmission explicitly generates request and acknowledgement packets
+that are send over the link. Remote side won't do anything until it
+receives them. Moreover not all protocols allow duplex data
+transmission (when both sides are sending data simultaneously).
+
+NNCP's @ref{Sync, synchronization protocol} (SP) tries to mitigate all
+that issues by reducing number of round-trips, number of packets passing
+through. All file lists, file download requests are grouped together
+(pipelined) in one huge packet. Only transmission halt and successful
+file download acknowledgements are sent explicitly. SP could be asked
+only either to upload or download packets for our node. SP could ignore
+files with low priority. Full files listing is passing even during the
+handshake procedure.
 
 @node UsecaseF2F
 @section Private, isolated MitM/Sybil-resistant networks
@@ -305,3 +333,47 @@ same device. Tossing (reading those encrypted packets and extracting
 transferred files and mail messages) could and should be done on a
 separate computer (@ref{nncp-cfgmin} command could help creating
 configuration file without private keys for that purpose).
+
+If you really want to carry your private keys, then @ref{nncp-cfgenc}
+command will be able to encrypt your configuration file. Passphrase you
+enter is strengthened with both CPU and memory hard function.
+
+@node UsecaseCaller
+@section Cheap night transfers
+
+Your Internet/telephone traffic price can vary, depending on daytime.
+Night calls/connections could be twice as cheaper. You wish to send your
+files at that time, but keep high priority email infrequently passing
+through in anytime. Also you wish to pass any kind of traffic when the
+node is available through the LAN.
+
+You can easily set your preferences in @ref{Call, call
+configurations} for @ref{nncp-caller} command used in online
+communications.
+
+@verbatim
+neigh:
+  [...]
+  some-node:
+    [...]
+    addrs:
+      lan: "[fe80::be5f:f4ff:fedd:2752%igb0]:5400"
+      wan: "some-node.com:5400"
+    calls:
+      -
+        cron: "*/1 * * * *"
+        addr: lan
+        nice: MAX
+        onlinedeadline: 3600
+      -
+        cron: "*/10 * * * *"
+        addr: wan
+        nice: PRIORITY
+        xx: rx
+      -
+        cron: "*/1 0-7 * * *"
+        addr: wan
+        nice: BULK
+        onlinedeadline: 3600
+        maxonlinetime: 3600
+@end verbatim

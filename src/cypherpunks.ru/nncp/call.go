@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,7 +42,10 @@ func (ctx *Ctx) CallNode(
 	nice uint8,
 	xxOnly TRxTx,
 	rxRate, txRate int,
-	onlineDeadline, maxOnlineTime uint) (isGood bool) {
+	onlineDeadline, maxOnlineTime uint,
+	listOnly bool,
+	onlyPkts map[[32]byte]bool,
+) (isGood bool) {
 	for _, addr := range addrs {
 		sds := SDS{"node": node.Id, "addr": addr}
 		ctx.LogD("call", sds, "dialing")
@@ -52,17 +55,19 @@ func (ctx *Ctx) CallNode(
 			continue
 		}
 		ctx.LogD("call", sds, "connected")
-		state, err := ctx.StartI(
-			conn,
-			node.Id,
-			nice,
-			xxOnly,
-			rxRate,
-			txRate,
-			onlineDeadline,
-			maxOnlineTime,
-		)
-		if err == nil {
+		state := SPState{
+			Ctx:            ctx,
+			Node:           node,
+			Nice:           nice,
+			onlineDeadline: onlineDeadline,
+			maxOnlineTime:  maxOnlineTime,
+			xxOnly:         xxOnly,
+			rxRate:         rxRate,
+			txRate:         txRate,
+			listOnly:       listOnly,
+			onlyPkts:       onlyPkts,
+		}
+		if err = state.StartI(conn); err == nil {
 			ctx.LogI("call-start", sds, "connected")
 			state.Wait()
 			ctx.LogI("call-finish", SDS{

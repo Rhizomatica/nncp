@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// NNCP TCP daemon
+// NNCP TCP daemon.
 package main
 
 import (
@@ -61,8 +61,11 @@ func (ic *InetdConn) SetWriteDeadline(t time.Time) error {
 }
 
 func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
-	state, err := ctx.StartR(conn, nice, "")
-	if err == nil {
+	state := nncp.SPState{
+		Ctx:  ctx,
+		Nice: nice,
+	}
+	if err := state.StartR(conn); err == nil {
 		ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
 		state.Wait()
 		ctx.LogI("call-finish", nncp.SDS{
@@ -75,7 +78,7 @@ func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
 		}, "")
 	} else {
 		nodeId := "unknown"
-		if state != nil && state.Node != nil {
+		if state.Node != nil {
 			nodeId = state.Node.Id.String()
 		}
 		ctx.LogE("call-start", nncp.SDS{"node": nodeId, "err": err}, "")

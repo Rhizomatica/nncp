@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2018 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Copy NNCP inbound and outbounds packets
+// Exchange NNCP inbound and outbounds packets with external directory.
 package main
 
 import (
@@ -162,6 +162,7 @@ func main() {
 			}
 			filename := filepath.Join(dir.Name(), fiInt.Name())
 			sds["file"] = filename
+			delete(sds, "size")
 			fd, err := os.Open(filename)
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "open")
@@ -170,7 +171,7 @@ func main() {
 			}
 			var pktEnc nncp.PktEnc
 			_, err = xdr.Unmarshal(fd, &pktEnc)
-			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv3 {
+			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv4 {
 				ctx.LogD("nncp-xfer", sds, "is not a packet")
 				fd.Close()
 				continue
@@ -180,13 +181,18 @@ func main() {
 				fd.Close()
 				continue
 			}
+			sds["size"] = strconv.FormatInt(fiInt.Size(), 10)
+			if !ctx.IsEnoughSpace(fiInt.Size()) {
+				ctx.LogE("nncp-xfer", sds, "is not enough space")
+				fd.Close()
+				continue
+			}
 			fd.Seek(0, 0)
 			tmp, err := ctx.NewTmpFileWHash()
 			if err != nil {
 				log.Fatalln(err)
 			}
-			copied, err := io.Copy(tmp.W, bufio.NewReader(fd))
-			if err != nil {
+			if _, err = io.CopyN(tmp.W, bufio.NewReader(fd), fiInt.Size()); err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "copy")
 				isBad = true
 				fd.Close()
@@ -201,9 +207,7 @@ func main() {
 			)); err != nil {
 				log.Fatalln(err)
 			}
-			ctx.LogI("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{
-				"size": strconv.FormatInt(copied, 10),
-			}), "")
+			ctx.LogI("nncp-xfer", sds, "")
 			if !*keep {
 				if err = os.Remove(filename); err != nil {
 					ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "remove")
@@ -309,14 +313,19 @@ Tx:
 				isBad = true
 				continue
 			}
-			err = bufW.Flush()
-			tmp.Sync()
-			tmp.Close()
-			if err != nil {
-				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "copy")
+			if err = bufW.Flush(); err != nil {
+				tmp.Close()
+				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "flush")
 				isBad = true
 				continue
 			}
+			if err = tmp.Sync(); err != nil {
+				tmp.Close()
+				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "sync")
+				isBad = true
+				continue
+			}
+			tmp.Close()
 			if err = os.Rename(tmp.Name(), filepath.Join(dstPath, pktName)); err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "rename")
 				isBad = true
