@@ -275,7 +275,7 @@ exec:
 @end verbatim
 
 then executing @verb{|echo My message | nncp-exec -replynice 123 REMOTE
-sendmail root@localhost|} will lead to executing of:
+sendmail root@localhost|} will lead to execution of:
 
 @verbatim
 echo My message |
