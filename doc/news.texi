@@ -3,6 +3,13 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 4.1
+@section Release 4.1
+@itemize
+@item
+Workability on GNU/Linux systems and Go 1.10 is fixed.
+@end itemize
+
 @node Release 4.0
 @section Release 4.0
 @itemize

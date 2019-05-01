@@ -112,5 +112,5 @@ func (ctx *Ctx) IsEnoughSpace(want int64) bool {
 	if err := unix.Statfs(ctx.Spool, &s); err != nil {
 		log.Fatalln(err)
 	}
-	return s.Bavail*int64(s.Bsize) > want
+	return int64(s.Bavail)*int64(s.Bsize) > want
 }
