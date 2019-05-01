@@ -1,5 +1,4 @@
 PREFIX ?= /usr/local
-GO ?= go
 
 SENDMAIL ?= /usr/sbin/sendmail
 CFGPATH ?= $(PREFIX)/etc/nncp.yaml
@@ -16,7 +15,6 @@ LDFLAGS = \
 	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL) \
 	-X cypherpunks.ru/nncp.DefaultSpoolPath=$(SPOOLPATH) \
 	-X cypherpunks.ru/nncp.DefaultLogPath=$(LOGPATH)
-BUILDMOD ?= -mod=vendor
 
 ALL = \
 	nncp-bundle \
@@ -40,7 +38,6 @@ ALL = \
 
 SRC := $(PWD)/src/cypherpunks.ru/nncp
 BIN := $(PWD)/bin
-GOPATH ?= $(PWD)/gopath
 
 all: $(ALL)
 

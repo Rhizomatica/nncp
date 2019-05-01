@@ -1,6 +1,13 @@
 @node Новости
 @section Новости
 
+@node Релиз 4.1
+@subsection Релиз 4.1
+@itemize
+@item
+Восстановлена работоспособность на GNU/Linux системах и Go версии 1.10.
+@end itemize
+
 @node Релиз 4.0
 @subsection Релиз 4.0
 @itemize
