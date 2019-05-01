@@ -1,7 +1,8 @@
-# $FreeBSD: head/net/nncp/Makefile 471003 2018-05-27 20:24:00Z krion $
+# $FreeBSD: head/net/nncp/Makefile 484628 2018-11-10 18:12:57Z bapt $
 
 PORTNAME=	nncp
-DISTVERSION=	3.4
+DISTVERSION=	4.0
+PORTREVISION=	1
 CATEGORIES=	net
 MASTER_SITES=	http://www.nncpgo.org/download/
 
@@ -24,6 +25,7 @@ OPTIONS_DEFINE=	DOCS
 
 PORTDOCS=	AUTHORS NEWS NEWS.RU README README.RU THANKS
 INFO=		nncp
+MAKE_ARGS=	INFODIR=${STAGEDIR}${PREFIX}/${INFO_PATH}
 
 post-install:
 	${INSTALL_DATA} ${FILESDIR}/nncp.newsyslog.conf.sample ${STAGEDIR}${PREFIX}/etc/nncp.conf.sample

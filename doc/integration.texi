@@ -121,9 +121,9 @@ nncp      unix  -       n       n       -       -       pipe
 
 This runs the @command{nncp-exec} command to place outgoing mail into
 the NNCP queue. It substitutes the hostname (@emph{nncp-gateway}, or
-whatever you specified) and the recipients before executing the command.
-The @command{nncp-exec} command is executed without assistance from the
-shell, so there are no problems with shell meta characters.
+whatever you specified) and the recipients before execution of the
+command. The @command{nncp-exec} command is executed without assistance
+from the shell, so there are no problems with shell meta characters.
 
 @item Execute the command @command{postfix reload} to make the changes
 effective.
