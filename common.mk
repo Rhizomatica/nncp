@@ -52,7 +52,7 @@ test:
 	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) test $(BUILDMOD) -failfast cypherpunks.ru/nncp/...
 
 clean:
-	rm -rf bin
+	rm -rf $(BIN)
 
 .PHONY: doc
 
@@ -61,7 +61,7 @@ doc:
 
 install: all doc
 	mkdir -p $(BINDIR)
-	(cd bin ; cp -f $(ALL) $(BINDIR))
+	(cd $(BIN) ; cp -f $(ALL) $(BINDIR))
 	for e in $(ALL) ; do chmod 755 $(BINDIR)/$$e ; done
 	mkdir -p $(INFODIR)
 	cp -f doc/nncp.info $(INFODIR)
