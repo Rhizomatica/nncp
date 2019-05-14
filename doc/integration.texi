@@ -349,6 +349,11 @@ HTTP/FTP/NNCP resuming capabilities. After you fetch repository via the
 bundle, you can add an ordinary @file{git://} remote and fetch the
 difference.
 
+Also you can find the following exec-handler useful:
+@verbatiminclude git-bundler.sh
+And it allows you to request for bundles like that:
+@code{echo some-old-commit..master | nncp-exec REMOTE bundler REPONAME}.
+
 @node Multimedia
 @section Integration with multimedia streaming
 
