@@ -29,7 +29,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 @item Packets encryption @tab No @tab No @tab @strong{Yes} @tab No
 @item Metadata privacy @tab No @tab No @tab @strong{Yes} @tab No
 @item Packets integrity check @tab No @tab No @tab @strong{Yes} @tab No
-@item Sneakernet friendliness @tab No @tab No @tab @strong{Yes} @tab No
+@item Sneakernet friendliness @tab No @tab Partially @tab @strong{Yes} @tab No
 
 @end multitable
 
