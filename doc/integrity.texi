@@ -20,7 +20,6 @@ uid   NNCP releases <releases at nncpgo dot org>
 
 @item
 @verbatim
-% gpg --keyserver hkp://keys.gnupg.net/ --recv-keys 0x2B25868E75A1A953
 % gpg --auto-key-locate dane --locate-keys releases at nncpgo dot org
 % gpg --auto-key-locate wkd --locate-keys releases at nncpgo dot org
 @end verbatim
