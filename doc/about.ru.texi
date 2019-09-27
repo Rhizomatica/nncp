@@ -38,7 +38,7 @@ CD-ROM}/@url{https://ru.wikipedia.org/wiki/%D0%A1%D1%82%D1%80%D0%B8%D0%BC%D0%B5%
 NNCP это @url{https://www.gnu.org/philosophy/pragmatic.ru.html,
 копилефт} @url{https://www.gnu.org/philosophy/free-sw.ru.html, свободное
 программное обеспечение}: лицензировано под условиями
-@url{https://www.gnu.org/licenses/gpl-3.0.ru.html, GNU GPLv3+}. Оно
+@url{https://www.gnu.org/licenses/gpl-3.0.ru.html, GNU GPLv3}. Оно
 должно работать на всех @url{https://ru.wikipedia.org/wiki/POSIX,
 POSIX}-совместимых системах. Лёгкая @ref{Integration, интеграция} с
 существующими @url{https://ru.wikipedia.org/wiki/SMTP, SMTP} серверами.
