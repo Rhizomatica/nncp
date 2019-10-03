@@ -11,10 +11,10 @@ You can obtain it by cloning @url{http://git-scm.com/, Git}
 and fetching dependent libraries source code as git submodules:
 
 @verbatim
-% git clone git://git.cypherpunks.ru/nncp.git nncp
-% cd nncp
-% git checkout develop
-% git submodule update --init
+$ git clone git://git.cypherpunks.ru/nncp.git nncp
+$ cd nncp
+$ git checkout develop
+$ git submodule update --init
 @end verbatim
 
 Also there is mirror of dependent libraries for safety if their native
