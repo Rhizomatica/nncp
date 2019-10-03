@@ -44,9 +44,9 @@ Nearly all commands have the following common options:
 @section nncp-bundle
 
 @verbatim
-% nncp-bundle [options] -tx [-delete] NODE [NODE ...] > ...
-% nncp-bundle [options] -rx -delete [-dryrun] [NODE ...] < ...
-% nncp-bundle [options] -rx [-check] [-dryrun] [NODE ...] < ...
+$ nncp-bundle [options] -tx [-delete] NODE [NODE ...] > ...
+$ nncp-bundle [options] -rx -delete [-dryrun] [NODE ...] < ...
+$ nncp-bundle [options] -rx [-check] [-dryrun] [NODE ...] < ...
 @end verbatim
 
 With @option{-tx} option, this command creates @ref{Bundles, bundle} of
@@ -79,8 +79,8 @@ packets integrity will be checked and they will be deleted from the
 spool if everything is good. So it is advisable to recheck your streams:
 
 @verbatim
-% nncp-bundle -tx ALICE BOB WHATEVER | cdrecord -tao -
-% dd if=/dev/cd0 bs=2048 | nncp-bundle -rx -delete
+$ nncp-bundle -tx ALICE BOB WHATEVER | cdrecord -tao -
+$ dd if=/dev/cd0 bs=2048 | nncp-bundle -rx -delete
 @end verbatim
 
 @option{-dryrun} option prevents any writes to the spool. This is
@@ -91,7 +91,7 @@ their integrity.
 @section nncp-call
 
 @verbatim
-% nncp-call [options]
+$ nncp-call [options]
     [-onlinedeadline INT]
     [-maxonlinetime INT]
     [-rx|-tx]
@@ -125,7 +125,7 @@ You can specify what packets your want to download, by specifying
 @section nncp-caller
 
 @verbatim
-% nncp-caller [options] [NODE ...]
+$ nncp-caller [options] [NODE ...]
 @end verbatim
 
 Croned daemon that calls remote nodes from time to time, according to
@@ -156,8 +156,8 @@ notification.
 @section nncp-cfgenc
 
 @verbatim
-% nncp-cfgmin [options] [-s INT] [-t INT] [-p INT] cfg.yaml > cfg.yaml.eblob
-% nncp-cfgmin [options] -d cfg.yaml.eblob > cfg.yaml
+$ nncp-cfgmin [options] [-s INT] [-t INT] [-p INT] cfg.yaml > cfg.yaml.eblob
+$ nncp-cfgmin [options] -d cfg.yaml.eblob > cfg.yaml
 @end verbatim
 
 This command allows you to encrypt provided @file{cfg.yaml} file with
@@ -184,7 +184,7 @@ if passphrase can not decrypt @file{eblob}.
 @option{-dump} options parses @file{eblob} and prints parameters used
 during its creation. For example:
 @verbatim
-% nncp-cfgenc -dump /usr/local/etc/nncp.yaml.eblob
+$ nncp-cfgenc -dump /usr/local/etc/nncp.yaml.eblob
 Strengthening function: Balloon with BLAKE2b-256
 Memory space cost: 1048576 bytes
 Number of rounds: 16
@@ -196,7 +196,7 @@ Blob size: 2494
 @section nncp-cfgmin
 
 @verbatim
-% nncp-cfgmin [options] > stripped.yaml
+$ nncp-cfgmin [options] > stripped.yaml
 @end verbatim
 
 Print out stripped configuration version: only path to @ref{Spool,
@@ -208,7 +208,7 @@ neighbours, without private keys involving.
 @section nncp-cfgnew
 
 @verbatim
-% nncp-cfgnew [options] > new.yaml
+$ nncp-cfgnew [options] > new.yaml
 @end verbatim
 
 Generate new node configuration: private keys, example configuration
@@ -222,7 +222,7 @@ operating system.
 @section nncp-check
 
 @verbatim
-% nncp-check [options]
+$ nncp-check [options]
 @end verbatim
 
 Perform @ref{Spool, spool} directory integrity check. Read all files
@@ -234,7 +234,7 @@ not used often in practice, if ever.
 @section nncp-daemon
 
 @verbatim
-% nncp-daemon [options] [-maxconn INT] [-bind ADDR] [-inetd]
+$ nncp-daemon [options] [-maxconn INT] [-bind ADDR] [-inetd]
 @end verbatim
 
 Start listening TCP daemon, wait for incoming connections and run
@@ -257,7 +257,7 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -inetd
 @section nncp-exec
 
 @verbatim
-% nncp-exec [options] NODE HANDLE [ARG0 ARG1 ...]
+$ nncp-exec [options] NODE HANDLE [ARG0 ARG1 ...]
 @end verbatim
 
 Send execution command to @option{NODE} for specified @option{HANDLE}.
@@ -290,7 +290,7 @@ echo My message |
 @section nncp-file
 
 @verbatim
-% nncp-file [options] [-chunked INT] SRC NODE:[DST]
+$ nncp-file [options] [-chunked INT] SRC NODE:[DST]
 @end verbatim
 
 Send @file{SRC} file to remote @option{NODE}. @file{DST} specifies
@@ -328,7 +328,7 @@ file receiving.
 @section nncp-freq
 
 @verbatim
-% nncp-freq [options] NODE:SRC [DST]
+$ nncp-freq [options] NODE:SRC [DST]
 @end verbatim
 
 Send file request to @option{NODE}, asking it to send its @file{SRC}
@@ -344,7 +344,7 @@ queuing.
 @section nncp-log
 
 @verbatim
-% nncp-log [options]
+$ nncp-log [options]
 @end verbatim
 
 Parse @ref{Log, log} file and print out its records in human-readable form.
@@ -353,9 +353,9 @@ Parse @ref{Log, log} file and print out its records in human-readable form.
 @section nncp-pkt
 
 @verbatim
-% nncp-pkt [options] < pkt
-% nncp-pkt [options] [-decompress] -dump < pkt > payload
-% nncp-pkt -overheads
+$ nncp-pkt [options] < pkt
+$ nncp-pkt [options] [-decompress] -dump < pkt > payload
+$ nncp-pkt -overheads
 @end verbatim
 
 Low level packet parser. Normally it should not be used, but can help in
@@ -394,8 +394,8 @@ packets).
 @section nncp-reass
 
 @verbatim
-% nncp-reass [options] [-dryrun] [-keep] [-dump] [-stdout] FILE.nncp.meta
-% nncp-reass [options] [-dryrun] [-keep] {-all | -node NODE}
+$ nncp-reass [options] [-dryrun] [-keep] [-dump] [-stdout] FILE.nncp.meta
+$ nncp-reass [options] [-dryrun] [-keep] {-all | -node NODE}
 @end verbatim
 
 Reassemble @ref{Chunked, chunked file} after @ref{nncp-toss, tossing}.
@@ -453,12 +453,12 @@ Checksums:
 @section nncp-rm
 
 @verbatim
-% nncp-rm [options] -tmp
-% nncp-rm [options] -lock
-% nncp-rm [options] -node NODE -part
-% nncp-rm [options] -node NODE -seen
-% nncp-rm [options] -node NODE [-rx] [-tx]
-% nncp-rm [options] -node NODE -pkt PKT
+$ nncp-rm [options] -tmp
+$ nncp-rm [options] -lock
+$ nncp-rm [options] -node NODE -part
+$ nncp-rm [options] -node NODE -seen
+$ nncp-rm [options] -node NODE [-rx] [-tx]
+$ nncp-rm [options] -node NODE -pkt PKT
 @end verbatim
 
 This command is aimed to delete various files from your spool directory:
@@ -483,7 +483,7 @@ ones. If @option{-seen} option is specified, then delete only
 @section nncp-stat
 
 @verbatim
-% nncp-stat [options] [-node NODE]
+$ nncp-stat [options] [-node NODE]
 @end verbatim
 
 Print current @ref{Spool, spool} statistics about unsent and unprocessed
@@ -495,7 +495,7 @@ size) are in inbound (Rx) and outbound (Tx) queues.
 @section nncp-toss
 
 @verbatim
-% nncp-toss [options]
+$ nncp-toss [options]
     [-node NODE]
     [-dryrun]
     [-cycle INT]
@@ -531,7 +531,7 @@ options allow to disable any kind of packet types processing.
 @section nncp-xfer
 
 @verbatim
-% nncp-xfer [options] [-node NODE] [-mkdir] [-keep] [-rx|-tx] DIR
+$ nncp-xfer [options] [-node NODE] [-mkdir] [-keep] [-rx|-tx] DIR
 @end verbatim
 
 Search for directory in @file{DIR} containing inbound packets for us and
