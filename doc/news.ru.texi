@@ -1,6 +1,14 @@
 @node Новости
 @section Новости
 
+@node Релиз 4.2.0
+@subsection Релиз 4.2.0
+@itemize
+@item Обновлены зависимости.
+@item Полное использование go модулей для управления зависимостями
+    (используется @code{go.cypherpunks.ru/nncp/v4} namespace).
+@end itemize
+
 @node Релиз 4.1
 @subsection Релиз 4.1
 @itemize

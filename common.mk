@@ -1,3 +1,4 @@
+GO ?= go
 PREFIX ?= /usr/local
 
 SENDMAIL ?= /usr/sbin/sendmail
@@ -9,12 +10,14 @@ BINDIR = $(DESTDIR)$(PREFIX)/bin
 INFODIR = $(DESTDIR)$(PREFIX)/info
 DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
 
+MOD = go.cypherpunks.ru/nncp/v4
+
 LDFLAGS = \
-	-X cypherpunks.ru/nncp.Version=$(VERSION) \
-	-X cypherpunks.ru/nncp.DefaultCfgPath=$(CFGPATH) \
-	-X cypherpunks.ru/nncp.DefaultSendmailPath=$(SENDMAIL) \
-	-X cypherpunks.ru/nncp.DefaultSpoolPath=$(SPOOLPATH) \
-	-X cypherpunks.ru/nncp.DefaultLogPath=$(LOGPATH)
+	-X $(MOD).Version=$(VERSION) \
+	-X $(MOD).DefaultCfgPath=$(CFGPATH) \
+	-X $(MOD).DefaultSendmailPath=$(SENDMAIL) \
+	-X $(MOD).DefaultSpoolPath=$(SPOOLPATH) \
+	-X $(MOD).DefaultLogPath=$(LOGPATH)
 
 ALL = \
 	nncp-bundle \
@@ -36,7 +39,7 @@ ALL = \
 	nncp-toss \
 	nncp-xfer
 
-SRC := $(PWD)/src/cypherpunks.ru/nncp
+SRC := $(PWD)/src
 BIN := $(PWD)/bin
 
 all: $(ALL)
@@ -45,11 +48,11 @@ $(BIN):
 	mkdir -p $(BIN)
 
 $(ALL): $(BIN)
-	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) build $(BUILDMOD) -ldflags "$(LDFLAGS)" cypherpunks.ru/nncp/cmd/$@
+	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) build -ldflags "$(LDFLAGS)" $(MOD)/cmd/$@
 	mv $(SRC)/$@ $(BIN)
 
 test:
-	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) test $(BUILDMOD) -failfast cypherpunks.ru/nncp/...
+	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) test -failfast $(MOD)/...
 
 clean:
 	rm -rf $(BIN)

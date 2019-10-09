@@ -5,27 +5,35 @@ tmp=$(mktemp -d)
 release=$1
 [ -n "$release" ]
 
-vendor=src/cypherpunks.ru/nncp/vendor
-
 git clone . $tmp/nncp-$release
-repos="
-    cypherpunks.ru/balloon
-    github.com/davecgh/go-xdr
-    github.com/dustin/go-humanize
-    github.com/flynn/noise
-    github.com/gorhill/cronexpr
-    golang.org/x/crypto
-    golang.org/x/net
-    golang.org/x/sys
-    gopkg.in/check.v1
-    gopkg.in/yaml.v2
-"
-for repo in $repos; do
-    git clone $vendor/$repo $tmp/nncp-$release/$vendor/$repo
-done
 cd $tmp/nncp-$release
-git checkout $release
-git submodule update --init
+git checkout v$release
+rm -fr .git
+
+mod_name=go.cypherpunks.ru/nncp/v4
+mv src src.orig
+mkdir -p src/$mod_name
+mv src.orig/* src/$mod_name
+rmdir src.orig
+
+mods="
+github.com/davecgh/go-xdr
+github.com/dustin/go-humanize
+github.com/flynn/noise
+github.com/gorhill/cronexpr
+go.cypherpunks.ru/balloon
+golang.org/x/crypto
+golang.org/x/net
+golang.org/x/sys
+gopkg.in/yaml.v2
+"
+for mod in $mods; do
+    mod_path=$(sed -n "s#^	\($mod\) \(.*\)\$#\1@\2#p" src/$mod_name/go.mod)
+    [ -n "$mod_path" ]
+    mkdir -p src/$mod
+    ( cd $GOPATH/pkg/mod/$mod_path ; tar cf - --exclude ".git*" * ) | tar xfC - src/$mod
+    chmod -R +w src/$mod
+done
 
 cat > $tmp/includes <<EOF
 golang.org/x/crypto/AUTHORS
@@ -63,14 +71,13 @@ golang.org/x/sys/PATENTS
 golang.org/x/sys/README.md
 golang.org/x/sys/unix
 EOF
-tar cfCI - $vendor $tmp/includes | tar xfC - $tmp
-rm -fr $vendor/golang.org
-mv $tmp/golang.org $vendor
-rm $tmp/includes
+tar cfCI - src $tmp/includes | tar xfC - $tmp
+rm -fr src/golang.org $tmp/includes
+mv $tmp/golang.org src
 
 find src -name .travis.yml -delete
-rm -fr $vendor/github.com/davecgh/go-xdr/xdr
-rm $vendor/github.com/gorhill/cronexpr/APLv2
+rm -fr src/github.com/davecgh/go-xdr/xdr
+rm src/github.com/gorhill/cronexpr/APLv2
 rm -fr ports
 rm makedist.sh
 
@@ -82,11 +89,15 @@ You can obtain releases source code prepared tarballs on
 EOF
 make -C doc
 ./supplementary_files.sh
-rm -r doc/.well-known doc/nncp.html/.well-known supplementary_files.sh
+rm -r \
+    doc/.gitignore \
+    doc/.well-known \
+    doc/nncp.html/.well-known \
+    supplementary_files.sh
 
-find . -name .git | xargs rm -fr
-find . -name .gitignore -delete
-rm .gitmodules
+find . -type d -exec chmod 700 {} \;
+find . -type f -exec chmod 600 {} \;
+find . -type f -name "*.sh" -exec chmod 700 {} \;
 
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
