@@ -3,6 +3,14 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 4.2.0
+@section Release 4.2.0
+@itemize
+@item Updated dependencies.
+@item Full usage of go modules for dependencies management
+    (@code{go.cypherpunks.ru/nncp/v4} namespace is used).
+@end itemize
+
 @node Release 4.1
 @section Release 4.1
 @itemize
