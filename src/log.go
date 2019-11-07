@@ -62,7 +62,7 @@ func (ctx *Ctx) Log(msg string) {
 	fdLock, err := os.OpenFile(
 		ctx.LogPath+".lock",
 		os.O_CREATE|os.O_WRONLY,
-		os.FileMode(0600),
+		os.FileMode(0666),
 	)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Can not open lock for log:", err)
@@ -78,7 +78,7 @@ func (ctx *Ctx) Log(msg string) {
 	fd, err := os.OpenFile(
 		ctx.LogPath,
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
-		os.FileMode(0600),
+		os.FileMode(0666),
 	)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Can not open log:", err)

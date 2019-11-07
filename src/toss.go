@@ -176,13 +176,13 @@ func (ctx *Ctx) Toss(
 				goto Closing
 			}
 			dir := filepath.Join(*incoming, path.Dir(dst))
-			if err = os.MkdirAll(dir, os.FileMode(0700)); err != nil {
+			if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
 				ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "mkdir")
 				isBad = true
 				goto Closing
 			}
 			if !dryRun {
-				tmp, err := ioutil.TempFile(dir, "nncp-file")
+				tmp, err := TempFile(dir, "file")
 				if err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "mktemp")
 					isBad = true

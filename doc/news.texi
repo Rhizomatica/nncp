@@ -6,6 +6,8 @@ See also this page @ref{Новости, on russian}.
 @node Release 4.2.0
 @section Release 4.2.0
 @itemize
+@item Files and directories are created with 666/777 permissions by
+    default, allowing control with @command{umask}.
 @item Updated dependencies.
 @item Full usage of go modules for dependencies management
     (@code{go.cypherpunks.ru/nncp/v4} namespace is used).

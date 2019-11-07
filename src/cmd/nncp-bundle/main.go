@@ -370,7 +370,7 @@ func main() {
 						log.Fatalln("Error during syncing:", err)
 					}
 					tmp.Close()
-					if err = os.MkdirAll(selfPath, os.FileMode(0700)); err != nil {
+					if err = os.MkdirAll(selfPath, os.FileMode(0777)); err != nil {
 						log.Fatalln("Error during mkdir:", err)
 					}
 					if err = os.Rename(tmp.Name(), dstPath); err != nil {
