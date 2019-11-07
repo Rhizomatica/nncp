@@ -6,6 +6,8 @@ See also this page @ref{Новости, on russian}.
 @node Release 4.2.0
 @section Release 4.2.0
 @itemize
+@item Duplicate filenames have @file{.CTR} suffix, instead of
+    @file{CTR}, to avoid possible collisions with @file{.nncp.chunkCTR}.
 @item Files and directories are created with 666/777 permissions by
     default, allowing control with @command{umask}.
 @item Updated dependencies.
