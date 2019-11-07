@@ -23,7 +23,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -244,7 +243,7 @@ Tx:
 					ctx.UnlockDir(dirLock)
 					continue
 				}
-				if err = os.Mkdir(nodePath, os.FileMode(0700)); err != nil {
+				if err = os.Mkdir(nodePath, os.FileMode(0777)); err != nil {
 					ctx.UnlockDir(dirLock)
 					ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "mkdir")
 					isBad = true
@@ -262,7 +261,7 @@ Tx:
 		_, err = os.Stat(dstPath)
 		if err != nil {
 			if os.IsNotExist(err) {
-				if err = os.Mkdir(dstPath, os.FileMode(0700)); err != nil {
+				if err = os.Mkdir(dstPath, os.FileMode(0777)); err != nil {
 					ctx.UnlockDir(dirLock)
 					ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "mkdir")
 					isBad = true
@@ -294,7 +293,7 @@ Tx:
 				job.Fd.Close()
 				continue
 			}
-			tmp, err := ioutil.TempFile(dstPath, "nncp-xfer")
+			tmp, err := nncp.TempFile(dstPath, "xfer")
 			if err != nil {
 				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "mktemp")
 				job.Fd.Close()

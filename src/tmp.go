@@ -21,20 +21,28 @@ import (
 	"bufio"
 	"hash"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"golang.org/x/crypto/blake2b"
 )
 
+func TempFile(dir, prefix string) (*os.File, error) {
+	// Assume that probability of suffix collision is negligible
+	suffix := strconv.FormatInt(time.Now().UnixNano()+int64(os.Getpid()), 16)
+	name := filepath.Join(dir, "nncp"+prefix+suffix)
+	return os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_EXCL, os.FileMode(0666))
+}
+
 func (ctx *Ctx) NewTmpFile() (*os.File, error) {
 	jobsPath := filepath.Join(ctx.Spool, "tmp")
 	var err error
-	if err = os.MkdirAll(jobsPath, os.FileMode(0700)); err != nil {
+	if err = os.MkdirAll(jobsPath, os.FileMode(0777)); err != nil {
 		return nil, err
 	}
-	fd, err := ioutil.TempFile(jobsPath, "")
+	fd, err := TempFile(jobsPath, "")
 	if err == nil {
 		ctx.LogD("tmp", SDS{"src": fd.Name()}, "created")
 	}
@@ -73,7 +81,7 @@ func (tmp *TmpFileWHash) Cancel() {
 
 func (tmp *TmpFileWHash) Commit(dir string) error {
 	var err error
-	if err = os.MkdirAll(dir, os.FileMode(0700)); err != nil {
+	if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
 		return err
 	}
 	if err = tmp.W.Flush(); err != nil {

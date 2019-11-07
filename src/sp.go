@@ -848,7 +848,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			fd, err := os.OpenFile(
 				filePath+PartSuffix,
 				os.O_RDWR|os.O_CREATE,
-				os.FileMode(0600),
+				os.FileMode(0666),
 			)
 			if err != nil {
 				state.Ctx.LogE("sp-file", SdsAdd(sdsp, SDS{"err": err}), "")

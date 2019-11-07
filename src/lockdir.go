@@ -30,7 +30,7 @@ func (ctx *Ctx) LockDir(nodeId *NodeId, xx TRxTx) (*os.File, error) {
 	dirLock, err := os.OpenFile(
 		lockPath,
 		os.O_CREATE|os.O_WRONLY,
-		os.FileMode(0600),
+		os.FileMode(0666),
 	)
 	if err != nil {
 		ctx.LogE("lockdir", SDS{"path": lockPath, "err": err}, "")

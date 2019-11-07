@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -172,7 +171,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		dst = os.Stdout
 		sds = nncp.SDS{"path": path}
 	} else {
-		tmp, err = ioutil.TempFile(mainDir, "nncp-reass")
+		tmp, err = nncp.TempFile(mainDir, "reass")
 		if err != nil {
 			log.Fatalln(err)
 		}
