@@ -285,7 +285,7 @@ func TestTossFileSameName(t *testing.T) {
 		expected := make(map[string]struct{})
 		expected["samefile"] = struct{}{}
 		for i := 0; i < files-1; i++ {
-			expected["samefile"+strconv.Itoa(i)] = struct{}{}
+			expected["samefile."+strconv.Itoa(i)] = struct{}{}
 		}
 		for _, filename := range dirFiles(incomingPath) {
 			if _, exists := expected[filename]; !exists {

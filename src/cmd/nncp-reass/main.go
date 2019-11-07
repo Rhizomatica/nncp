@@ -232,7 +232,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			}
 			log.Fatalln(err)
 		}
-		dstPath = dstPathOrig + strconv.Itoa(dstPathCtr)
+		dstPath = dstPathOrig + "." + strconv.Itoa(dstPathCtr)
 		dstPathCtr++
 	}
 	if err = os.Rename(tmp.Name(), dstPath); err != nil {

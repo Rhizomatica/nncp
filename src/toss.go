@@ -221,7 +221,7 @@ func (ctx *Ctx) Toss(
 						isBad = true
 						goto Closing
 					}
-					dstPath = dstPathOrig + strconv.Itoa(dstPathCtr)
+					dstPath = dstPathOrig + "." + strconv.Itoa(dstPathCtr)
 					dstPathCtr++
 				}
 				if err = os.Rename(tmp.Name(), dstPath); err != nil {
