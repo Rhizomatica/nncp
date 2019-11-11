@@ -28,7 +28,7 @@ import (
 	"os"
 
 	"github.com/davecgh/go-xdr/xdr2"
-	"go.cypherpunks.ru/nncp/v4"
+	"go.cypherpunks.ru/nncp/v5"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -36,9 +36,9 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintf(os.Stderr, "nncp-cfgenc -- encrypt/decrypt configuration file\n\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] cfg.yaml > cfg.yaml.eblob\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] -d cfg.yaml.eblob > cfg.yaml\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] -dump cfg.yaml.eblob\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] cfg.hjson > cfg.hjson.eblob\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -d cfg.hjson.eblob > cfg.hjson\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] -dump cfg.hjson.eblob\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }

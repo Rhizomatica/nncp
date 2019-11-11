@@ -10,7 +10,7 @@ cd $tmp/nncp-$release
 git checkout v$release
 rm -fr .git
 
-mod_name=go.cypherpunks.ru/nncp/v4
+mod_name=go.cypherpunks.ru/nncp/v5
 mv src src.orig
 mkdir -p src/$mod_name
 mv src.orig/* src/$mod_name
@@ -21,11 +21,11 @@ github.com/davecgh/go-xdr
 github.com/dustin/go-humanize
 github.com/flynn/noise
 github.com/gorhill/cronexpr
+github.com/hjson/hjson-go
 go.cypherpunks.ru/balloon
 golang.org/x/crypto
 golang.org/x/net
 golang.org/x/sys
-gopkg.in/yaml.v2
 "
 for mod in $mods; do
     mod_path=$(sed -n "s#^	\($mod\) \(.*\)\$#\1@\2#p" src/$mod_name/go.mod)

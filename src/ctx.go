@@ -37,8 +37,8 @@ type Ctx struct {
 	LogPath    string
 	Quiet      bool
 	Debug      bool
-	NotifyFile *FromToYAML
-	NotifyFreq *FromToYAML
+	NotifyFile *FromToJSON
+	NotifyFreq *FromToJSON
 }
 
 func (ctx *Ctx) FindNode(id string) (*Node, error) {

@@ -1,64 +1,76 @@
 @node Configuration
 @unnumbered Configuration file
 
-Example YAML configuration file:
+Example @url{https://hjson.org/, Hjson} configuration file:
 
 @verbatim
-spool: /var/spool/nncp
-log: /var/spool/nncp/log
-notify:
-  file:
-    from: nncp@localhost
-    to: user+file@example.com
-  freq:
-    from: nncp@localhost
-    to: user+freq@example.com
-self:
-  id: TIJQL...2NGIA
-  exchpub: CYVGQ...PSEWQ
-  exchprv: 65PUY...MPZ3Q
-  signpub: 2NMVC...CMH5Q
-  signprv: 555JD...RGD6Y
-  noiseprv: D62XU...NKYPA
-  noisepub: KIBKK...ESM7Q
-neigh:
-  self:
+{
+  spool: /var/spool/nncp
+  log: /var/spool/nncp/log
+  notify: {
+    file: {
+      from: nncp@localhost
+      to: user+file@example.com
+    }
+    freq: {
+      from: nncp@localhost
+      to: user+freq@example.com
+    }
+  }
+  self: {
     id: TIJQL...2NGIA
     exchpub: CYVGQ...PSEWQ
+    exchprv: 65PUY...MPZ3Q
     signpub: 2NMVC...CMH5Q
+    signprv: 555JD...RGD6Y
+    noiseprv: D62XU...NKYPA
     noisepub: KIBKK...ESM7Q
-    exec:
-      sendmail: [/usr/sbin/sendmail]
-  alice:
-    id: XJZBK...65IJQ
-    exchpub: MJACJ...FAI6A
-    signpub: T4AFC...N2FRQ
-    noisepub: UBM5K...VI42A
-    exec:
-      flag: ["/usr/bin/touch", "-t"]
-    incoming: /home/alice/incoming
-    onlinedeadline: 1800
-    maxonlinetime: 3600
-    addrs:
-      lan: "[fe80::1234%igb0]:5400"
-      internet: alice.com:3389
-    calls:
-      -
-        cron: "*/2 * * * *"
-  bob:
-    id: 2IZNP...UYGYA
-    exchpub: WFLMZ...B7NHA
-    signpub: GTGXG...IE3OA
-    exec:
-      sendmail: [/usr/sbin/sendmail]
-      warcer: [/path/to/warcer.sh]
-      wgeter: [/path/to/wgeter.sh]
-    freq: /home/bob/pub
-    freqchunked: 1024
-    freqminsize: 2048
-    via: [alice]
-    rxrate: 10
-    txrate: 20
+  }
+  neigh: {
+    self: {
+      id: TIJQL...2NGIA
+      exchpub: CYVGQ...PSEWQ
+      signpub: 2NMVC...CMH5Q
+      noisepub: KIBKK...ESM7Q
+      exec: {sendmail: ["/usr/sbin/sendmail"]}
+    }
+    alice: {
+      id: "XJZBK...65IJQ"
+      exchpub: MJACJ...FAI6A
+      signpub: T4AFC...N2FRQ
+      noisepub: UBM5K...VI42A
+      exec: {flag: ["/usr/bin/touch", "-t"]}
+      incoming: "/home/alice/incoming"
+      onlinedeadline: 1800
+      maxonlinetime: 3600
+      addrs: {
+        lan: "[fe80::1234%igb0]:5400"
+        internet: alice.com:3389
+      }
+      calls: [
+        {
+          cron: "*/2 * * * *"
+        },
+      ]
+    }
+    bob: {
+      id: 2IZNP...UYGYA
+      exchpub: WFLMZ...B7NHA
+      signpub: GTGXG...IE3OA
+      exec: {
+        sendmail: ["/usr/sbin/sendmail"]
+        warcer: ["/path/to/warcer.sh"]
+        wgeter: ["/path/to/wgeter.sh"]
+      }
+      freq: "/home/bob/pub"
+      freqchunked: 1024
+      freqminsize: 2048
+      via: ["alice"]
+      rxrate: 10
+      txrate: 20
+    }
+  }
+}
 @end verbatim
 
 @strong{spool} field contains an absolute path to @ref{Spool, spool}

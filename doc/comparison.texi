@@ -45,7 +45,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     like GoldEd, not an ordinary email client. Moreover, there is no
     out-of-box encryption and strong authentication involved.
 
-    NNCP requires editing of single YAML @ref{Configuration,
+    NNCP requires editing of single Hjson @ref{Configuration,
     configuration file}.
 
 @item News transmission

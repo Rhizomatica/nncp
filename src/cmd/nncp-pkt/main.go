@@ -29,7 +29,7 @@ import (
 	"os"
 
 	"github.com/davecgh/go-xdr/xdr2"
-	"go.cypherpunks.ru/nncp/v4"
+	"go.cypherpunks.ru/nncp/v5"
 )
 
 func usage() {

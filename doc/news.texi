@@ -3,16 +3,22 @@
 
 See also this page @ref{Новости, on russian}.
 
-@node Release 4.2.0
-@section Release 4.2.0
+@node Release 5.0.0
+@section Release 5.0.0
 @itemize
+@item @strong{Incompatible} configuration file format change: YAML is
+    replaced with Hjson, due to its simplicity, without noticeable lack
+    of either functionality or convenience.
+@item @command{nncp-cfgnew} generates configuration file with many
+    comments. @option{-nocomments} option can be used for an old
+    behaviour.
 @item Duplicate filenames have @file{.CTR} suffix, instead of
     @file{CTR}, to avoid possible collisions with @file{.nncp.chunkCTR}.
 @item Files and directories are created with 666/777 permissions by
     default, allowing control with @command{umask}.
 @item Updated dependencies.
 @item Full usage of go modules for dependencies management
-    (@code{go.cypherpunks.ru/nncp/v4} namespace is used).
+    (@code{go.cypherpunks.ru/nncp/v5} namespace is used).
 @end itemize
 
 @node Release 4.1

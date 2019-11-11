@@ -276,14 +276,18 @@ CD-ROM, жёстких дисков, SD, лент и USB накопителей 
 NNCP из коробки поддерживает ретрансляцию пакетов.
 
 @verbatim
-neigh:
-  bob:
+neigh: {
+  bob: {
     [...]
-    addrs:
-      lan: [fe80::5400%igb0]:5400
+    addrs: {
+      lan: "[fe80::5400%igb0]:5400"
+    }
+  }
   bob-airgap:
     [...]
-    via: [bob]
+    via: ["bob"]
+  }
+}
 @end verbatim
 
 Такой @ref{Configuration, конфигурационный файл} говорит что у нас есть
@@ -375,28 +379,35 @@ Bluetooth и WiFi могут быть и довольно быстрыми, по
 звонков} для @ref{nncp-caller} команды, используемой при online связи.
 
 @verbatim
-neigh:
+neigh: {
   [...]
-  some-node:
+  some-node: {
     [...]
-    addrs:
+    addrs: {
       lan: "[fe80::be5f:f4ff:fedd:2752%igb0]:5400"
       wan: "some-node.com:5400"
-    calls:
-      -
+    }
+    calls: [
+      {
         cron: "*/1 * * * *"
         addr: lan
         nice: MAX
         onlinedeadline: 3600
-      -
+      },
+      {
         cron: "*/10 * * * *"
         addr: wan
         nice: PRIORITY
         xx: rx
-      -
+      },
+      {
         cron: "*/1 0-7 * * *"
         addr: wan
         nice: BULK
         onlinedeadline: 3600
         maxonlinetime: 3600
+      },
+    ]
+  }
+}
 @end verbatim

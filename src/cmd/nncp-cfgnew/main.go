@@ -23,8 +23,7 @@ import (
 	"fmt"
 	"os"
 
-	"go.cypherpunks.ru/nncp/v4"
-	"gopkg.in/yaml.v2"
+	"go.cypherpunks.ru/nncp/v5"
 )
 
 func usage() {
@@ -35,8 +34,9 @@ func usage() {
 
 func main() {
 	var (
-		version  = flag.Bool("version", false, "Print version information")
-		warranty = flag.Bool("warranty", false, "Print warranty information")
+		noComments = flag.Bool("nocomments", false, "Do not include descriptive comments")
+		version    = flag.Bool("version", false, "Print version information")
+		warranty   = flag.Bool("warranty", false, "Print warranty information")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -52,34 +52,163 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	noisePub := nncp.ToBase32(nodeOur.NoisePub[:])
-	cfg := nncp.CfgYAML{
-		Self: &nncp.NodeOurYAML{
-			Id:       nodeOur.Id.String(),
-			ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
-			ExchPrv:  nncp.ToBase32(nodeOur.ExchPrv[:]),
-			SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
-			SignPrv:  nncp.ToBase32(nodeOur.SignPrv[:]),
-			NoisePub: nncp.ToBase32(nodeOur.NoisePub[:]),
-			NoisePrv: nncp.ToBase32(nodeOur.NoisePrv[:]),
-		},
-		Neigh: map[string]nncp.NodeYAML{
-			"self": nncp.NodeYAML{
-				Id:       nodeOur.Id.String(),
-				ExchPub:  nncp.ToBase32(nodeOur.ExchPub[:]),
-				SignPub:  nncp.ToBase32(nodeOur.SignPub[:]),
-				NoisePub: &noisePub,
-				Exec: map[string][]string{
-					"sendmail": []string{nncp.DefaultSendmailPath},
-				},
-			},
-		},
-		Spool: nncp.DefaultSpoolPath,
-		Log:   nncp.DefaultLogPath,
+	var cfgRaw string
+	if *noComments {
+		cfgRaw = fmt.Sprintf(`{
+  spool: %s
+  log: %s
+
+  self: {
+    # DO NOT show anyone your private keys!!!
+    id: %s
+    exchpub: %s
+    exchprv: %s
+    signpub: %s
+    signprv: %s
+    noiseprv: %s
+    noisepub: %s
+  }
+  neigh: {
+    self: {
+      id: %s
+      exchpub: %s
+      signpub: %s
+      noisepub: %s
+      exec: {sendmail: ["%s"]}
+    }
+  }
+}`,
+			nncp.DefaultSpoolPath,
+			nncp.DefaultLogPath,
+			nodeOur.Id.String(),
+			nncp.ToBase32(nodeOur.ExchPub[:]),
+			nncp.ToBase32(nodeOur.ExchPrv[:]),
+			nncp.ToBase32(nodeOur.SignPub[:]),
+			nncp.ToBase32(nodeOur.SignPrv[:]),
+			nncp.ToBase32(nodeOur.NoisePub[:]),
+			nncp.ToBase32(nodeOur.NoisePrv[:]),
+			nodeOur.Id.String(),
+			nncp.ToBase32(nodeOur.ExchPub[:]),
+			nncp.ToBase32(nodeOur.SignPub[:]),
+			nncp.ToBase32(nodeOur.NoisePub[:]),
+			nncp.DefaultSendmailPath,
+		)
+	} else {
+		cfgRaw = fmt.Sprintf(`{
+  # Path to encrypted packets spool directory
+  spool: %s
+  # Path to log file
+  log: %s
+
+  # Enable notification email sending
+  # notify: {
+  #   file: {
+  #     from: nncp@localhost
+  #     to: user+file@example.com
+  #   }
+  #   freq: {
+  #     from: nncp@localhost
+  #     to: user+freq@example.com
+  #   }
+  # }
+
+  self: {
+    # DO NOT show anyone your private keys!!!
+    id: %s
+    exchpub: %s
+    exchprv: %s
+    signpub: %s
+    signprv: %s
+    noiseprv: %s
+    noisepub: %s
+  }
+  neigh: {
+    self: {
+      # You should give public keys below to your neighbours
+      id: %s
+      exchpub: %s
+      signpub: %s
+      noisepub: %s
+
+      exec: {
+        # Default self's sendmail command is used for email notifications sending
+        sendmail: ["%s"]
+      }
+    }
+
+    # Example neighbour, most of fields are optional
+    # alice: {
+    #   id: XJZBK...65IJQ
+    #   exchpub: MJACJ...FAI6A
+    #   signpub: T4AFC...N2FRQ
+    #   noisepub: UBM5K...VI42A
+    #
+    #   # He is allowed to send email
+    #   exec: {sendmail: ["/usr/sbin/sendmail"]}
+    #
+    #   # Allow incoming files saving in that directory
+    #   incoming: "/home/alice/incoming"
+    #
+    #   # Transitional nodes path
+    #   via: ["bob", "eve"]
+    #
+    #   # Inactivity timeout when session with remote peer should be terminated
+    #   onlinedeadline: 1800
+    #
+    #   # Maximal online session lifetime
+    #   maxonlinetime: 3600
+    #
+    #   # Allow freqing from that directory
+    #   freq: "/home/bob/pub"
+    #   # Send freqed files with chunks
+    #   freqchunked: 1024
+    #   # Send freqed files with minumal chunk size
+    #   freqminsize: 2048
+    #
+    #   # Set maximal packets per second receive and transmit rates
+    #   rxrate: 10
+    #   txrate: 20
+    #
+    #   # Address aliases
+    #   addrs: {
+    #     lan: "[fe80::1234%%igb0]:5400"
+    #     internet: alice.com:3389
+    #   }
+    #
+    #   # Calls configuration
+    #   calls: [
+    #     {
+    #       cron: "*/2 * * * *"
+    #       onlinedeadline: 1800
+    #       maxonlinetime: 1750
+    #       nice: PRIORITY+10
+    #       rxrate: 10
+    #       txrate: 20
+    #       xx: rx
+    #       addr: lan
+    #     },
+    #   ]
+    # }
+  }
+}`,
+			nncp.DefaultSpoolPath,
+			nncp.DefaultLogPath,
+			nodeOur.Id.String(),
+			nncp.ToBase32(nodeOur.ExchPub[:]),
+			nncp.ToBase32(nodeOur.ExchPrv[:]),
+			nncp.ToBase32(nodeOur.SignPub[:]),
+			nncp.ToBase32(nodeOur.SignPrv[:]),
+			nncp.ToBase32(nodeOur.NoisePub[:]),
+			nncp.ToBase32(nodeOur.NoisePrv[:]),
+			nodeOur.Id.String(),
+			nncp.ToBase32(nodeOur.ExchPub[:]),
+			nncp.ToBase32(nodeOur.SignPub[:]),
+			nncp.ToBase32(nodeOur.NoisePub[:]),
+			nncp.DefaultSendmailPath,
+		)
 	}
-	raw, err := yaml.Marshal(&cfg)
-	if err != nil {
+	if _, err = nncp.CfgParse([]byte(cfgRaw)); err != nil {
 		panic(err)
 	}
-	fmt.Print(string(raw))
+	fmt.Println(cfgRaw)
 }

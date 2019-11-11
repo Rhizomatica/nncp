@@ -2,7 +2,7 @@ GO ?= go
 PREFIX ?= /usr/local
 
 SENDMAIL ?= /usr/sbin/sendmail
-CFGPATH ?= $(PREFIX)/etc/nncp.yaml
+CFGPATH ?= $(PREFIX)/etc/nncp.hjson
 SPOOLPATH ?= /var/spool/nncp
 LOGPATH ?= /var/spool/nncp/log
 
@@ -10,7 +10,7 @@ BINDIR = $(DESTDIR)$(PREFIX)/bin
 INFODIR = $(DESTDIR)$(PREFIX)/info
 DOCDIR = $(DESTDIR)$(PREFIX)/share/doc/nncp
 
-MOD = go.cypherpunks.ru/nncp/v4
+MOD = go.cypherpunks.ru/nncp/v5
 
 LDFLAGS = \
 	-X $(MOD).Version=$(VERSION) \

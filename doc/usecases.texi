@@ -260,14 +260,18 @@ devices, possibly by rewriting the data from USB/hard drives to CD-RWs.
 NNCP supports packets relying (transitioning) out-of-box.
 
 @verbatim
-neigh:
-  bob:
+neigh: {
+  bob: {
     [...]
-    addrs:
-      lan: [fe80::5400%igb0]:5400
+    addrs: {
+      lan: "[fe80::5400%igb0]:5400"
+    }
+  }
   bob-airgap:
     [...]
-    via: [bob]
+    via: ["bob"]
+  }
+}
 @end verbatim
 
 That @ref{Configuration, configuration file} tells that we have got two
@@ -352,28 +356,35 @@ configurations} for @ref{nncp-caller} command used in online
 communications.
 
 @verbatim
-neigh:
+neigh: {
   [...]
-  some-node:
+  some-node: {
     [...]
-    addrs:
+    addrs: {
       lan: "[fe80::be5f:f4ff:fedd:2752%igb0]:5400"
       wan: "some-node.com:5400"
-    calls:
-      -
+    }
+    calls: [
+      {
         cron: "*/1 * * * *"
         addr: lan
         nice: MAX
         onlinedeadline: 3600
-      -
+      },
+      {
         cron: "*/10 * * * *"
         addr: wan
         nice: PRIORITY
         xx: rx
-      -
+      },
+      {
         cron: "*/1 0-7 * * *"
         addr: wan
         nice: BULK
         onlinedeadline: 3600
         maxonlinetime: 3600
+      },
+    ]
+  }
+}
 @end verbatim
