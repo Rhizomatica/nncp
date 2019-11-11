@@ -24,8 +24,8 @@ import (
 	"log"
 	"os"
 
-	"go.cypherpunks.ru/nncp/v4"
-	"gopkg.in/yaml.v2"
+	"github.com/hjson/hjson-go"
+	"go.cypherpunks.ru/nncp/v5"
 )
 
 func usage() {
@@ -57,10 +57,10 @@ func main() {
 		log.Fatalln("Error during initialization:", err)
 	}
 
-	cfg := nncp.CfgYAML{
+	cfg := nncp.CfgJSON{
 		Spool: ctx.Spool,
 		Log:   ctx.LogPath,
-		Neigh: make(map[string]nncp.NodeYAML),
+		Neigh: make(map[string]nncp.NodeJSON),
 	}
 	for _, node := range ctx.Neigh {
 		var noisePub *string
@@ -68,14 +68,14 @@ func main() {
 			np := nncp.ToBase32(node.NoisePub[:])
 			noisePub = &np
 		}
-		cfg.Neigh[node.Name] = nncp.NodeYAML{
+		cfg.Neigh[node.Name] = nncp.NodeJSON{
 			Id:       node.Id.String(),
 			ExchPub:  nncp.ToBase32(node.ExchPub[:]),
 			SignPub:  nncp.ToBase32(node.SignPub[:]),
 			NoisePub: noisePub,
 		}
 	}
-	raw, err := yaml.Marshal(&cfg)
+	raw, err := hjson.Marshal(&cfg)
 	if err != nil {
 		panic(err)
 	}

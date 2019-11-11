@@ -25,7 +25,7 @@ import (
 	"log"
 	"os"
 
-	"go.cypherpunks.ru/nncp/v4"
+	"go.cypherpunks.ru/nncp/v5"
 )
 
 func usage() {

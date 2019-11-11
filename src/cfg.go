@@ -19,15 +19,16 @@ package nncp
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"log"
 	"os"
 	"path"
 
 	"github.com/gorhill/cronexpr"
+	"github.com/hjson/hjson-go"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/ssh/terminal"
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -37,74 +38,74 @@ const (
 )
 
 var (
-	DefaultCfgPath      string = "/usr/local/etc/nncp.yaml"
+	DefaultCfgPath      string = "/usr/local/etc/nncp.hjson"
 	DefaultSendmailPath string = "/usr/sbin/sendmail"
 	DefaultSpoolPath    string = "/var/spool/nncp"
 	DefaultLogPath      string = "/var/spool/nncp/log"
 )
 
-type NodeYAML struct {
-	Id          string
-	ExchPub     string
-	SignPub     string
-	NoisePub    *string             `yaml:"noisepub,omitempty"`
-	Exec        map[string][]string `yaml:"exec,omitempty"`
-	Incoming    *string             `yaml:"incoming,omitempty"`
-	Freq        *string             `yaml:"freq,omitempty"`
-	FreqChunked *uint64             `yaml:"freqchunked,omitempty"`
-	FreqMinSize *uint64             `yaml:"freqminsize,omitempty"`
-	Via         []string            `yaml:"via,omitempty"`
-	Calls       []CallYAML          `yaml:"calls,omitempty"`
+type NodeJSON struct {
+	Id          string              `json:"id"`
+	ExchPub     string              `json:"exchpub"`
+	SignPub     string              `json:"signpub"`
+	NoisePub    *string             `json:"noisepub,omitempty"`
+	Exec        map[string][]string `json:"exec,omitempty"`
+	Incoming    *string             `json:"incoming,omitempty"`
+	Freq        *string             `json:"freq,omitempty"`
+	FreqChunked *uint64             `json:"freqchunked,omitempty"`
+	FreqMinSize *uint64             `json:"freqminsize,omitempty"`
+	Via         []string            `json:"via,omitempty"`
+	Calls       []CallJSON          `json:"calls,omitempty"`
 
-	Addrs map[string]string `yaml:"addrs,omitempty"`
+	Addrs map[string]string `json:"addrs,omitempty"`
 
-	RxRate         *int  `yaml:"rxrate,omitempty"`
-	TxRate         *int  `yaml:"txrate,omitempty"`
-	OnlineDeadline *uint `yaml:"onlinedeadline,omitempty"`
-	MaxOnlineTime  *uint `yaml:"maxonlinetime,omitempty"`
+	RxRate         *int  `json:"rxrate,omitempty"`
+	TxRate         *int  `json:"txrate,omitempty"`
+	OnlineDeadline *uint `json:"onlinedeadline,omitempty"`
+	MaxOnlineTime  *uint `json:"maxonlinetime,omitempty"`
 }
 
-type CallYAML struct {
+type CallJSON struct {
 	Cron           string
-	Nice           *string `yaml:"nice,omitempty"`
-	Xx             string  `yaml:"xx,omitempty"`
-	RxRate         *int    `yaml:"rxrate,omitempty"`
-	TxRate         *int    `yaml:"txrate,omitempty"`
-	Addr           *string `yaml:"addr,omitempty"`
-	OnlineDeadline *uint   `yaml:"onlinedeadline,omitempty"`
-	MaxOnlineTime  *uint   `yaml:"maxonlinetime,omitempty"`
+	Nice           *string `json:"nice,omitempty"`
+	Xx             *string `json:"xx,omitempty"`
+	RxRate         *int    `json:"rxrate,omitempty"`
+	TxRate         *int    `json:"txrate,omitempty"`
+	Addr           *string `json:"addr,omitempty"`
+	OnlineDeadline *uint   `json:"onlinedeadline,omitempty"`
+	MaxOnlineTime  *uint   `json:"maxonlinetime,omitempty"`
 }
 
-type NodeOurYAML struct {
-	Id       string
-	ExchPub  string
-	ExchPrv  string
-	SignPub  string
-	SignPrv  string
-	NoisePrv string
-	NoisePub string
+type NodeOurJSON struct {
+	Id       string `json:"id"`
+	ExchPub  string `json:"exchpub"`
+	ExchPrv  string `json:"exchprv"`
+	SignPub  string `json:"signpub"`
+	SignPrv  string `json:"signprv"`
+	NoisePrv string `json:"noiseprv"`
+	NoisePub string `json:"noisepub"`
 }
 
-type FromToYAML struct {
+type FromToJSON struct {
 	From string
 	To   string
 }
 
-type NotifyYAML struct {
-	File *FromToYAML `yaml:"file,omitempty"`
-	Freq *FromToYAML `yaml:"freq,omitempty"`
+type NotifyJSON struct {
+	File *FromToJSON `json:"file,omitempty"`
+	Freq *FromToJSON `json:"freq,omitempty"`
 }
 
-type CfgYAML struct {
-	Self  *NodeOurYAML `yaml:"self,omitempty"`
-	Neigh map[string]NodeYAML
+type CfgJSON struct {
+	Spool  string      `json:"spool"`
+	Log    string      `json:"log"`
+	Notify *NotifyJSON `json:"notify,omitempty"`
 
-	Spool  string
-	Log    string
-	Notify *NotifyYAML `yaml:"notify,omitempty"`
+	Self  *NodeOurJSON        `json:"self"`
+	Neigh map[string]NodeJSON `json:"neigh"`
 }
 
-func NewNode(name string, yml NodeYAML) (*Node, error) {
+func NewNode(name string, yml NodeJSON) (*Node, error) {
 	nodeId, err := NodeIdFromString(yml.Id)
 	if err != nil {
 		return nil, err
@@ -203,14 +204,15 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 		}
 
 		var xx TRxTx
-		switch callYml.Xx {
-		case "rx":
-			xx = TRx
-		case "tx":
-			xx = TTx
-		case "":
-		default:
-			return nil, errors.New("xx field must be either \"rx\" or \"tx\"")
+		if callYml.Xx != nil {
+			switch *callYml.Xx {
+			case "rx":
+				xx = TRx
+			case "tx":
+				xx = TTx
+			default:
+				return nil, errors.New("xx field must be either \"rx\" or \"tx\"")
+			}
 		}
 
 		rxRate := defRxRate
@@ -281,7 +283,7 @@ func NewNode(name string, yml NodeYAML) (*Node, error) {
 	return &node, nil
 }
 
-func NewNodeOur(yml *NodeOurYAML) (*NodeOur, error) {
+func NewNodeOur(yml *NodeOurJSON) (*NodeOur, error) {
 	id, err := NodeIdFromString(yml.Id)
 	if err != nil {
 		return nil, err
@@ -351,23 +353,6 @@ func NewNodeOur(yml *NodeOurYAML) (*NodeOur, error) {
 	return &node, nil
 }
 
-func (nodeOur *NodeOur) ToYAML() string {
-	yml := NodeOurYAML{
-		Id:       nodeOur.Id.String(),
-		ExchPub:  ToBase32(nodeOur.ExchPub[:]),
-		ExchPrv:  ToBase32(nodeOur.ExchPrv[:]),
-		SignPub:  ToBase32(nodeOur.SignPub[:]),
-		SignPrv:  ToBase32(nodeOur.SignPrv[:]),
-		NoisePub: ToBase32(nodeOur.NoisePub[:]),
-		NoisePrv: ToBase32(nodeOur.NoisePrv[:]),
-	}
-	raw, err := yaml.Marshal(&yml)
-	if err != nil {
-		panic(err)
-	}
-	return string(raw)
-}
-
 func CfgParse(data []byte) (*Ctx, error) {
 	var err error
 	if bytes.Compare(data[:8], MagicNNCPBv3[:]) == 0 {
@@ -382,25 +367,33 @@ func CfgParse(data []byte) (*Ctx, error) {
 			return nil, err
 		}
 	}
-	var cfgYAML CfgYAML
-	if err = yaml.Unmarshal(data, &cfgYAML); err != nil {
+	var cfgGeneral map[string]interface{}
+	if err = hjson.Unmarshal(data, &cfgGeneral); err != nil {
 		return nil, err
 	}
-	if _, exists := cfgYAML.Neigh["self"]; !exists {
+	marshaled, err := json.Marshal(cfgGeneral)
+	if err != nil {
+		return nil, err
+	}
+	var cfgJSON CfgJSON
+	if err = json.Unmarshal(marshaled, &cfgJSON); err != nil {
+		return nil, err
+	}
+	if _, exists := cfgJSON.Neigh["self"]; !exists {
 		return nil, errors.New("self neighbour missing")
 	}
 	var self *NodeOur
-	if cfgYAML.Self != nil {
-		self, err = NewNodeOur(cfgYAML.Self)
+	if cfgJSON.Self != nil {
+		self, err = NewNodeOur(cfgJSON.Self)
 		if err != nil {
 			return nil, err
 		}
 	}
-	spoolPath := path.Clean(cfgYAML.Spool)
+	spoolPath := path.Clean(cfgJSON.Spool)
 	if !path.IsAbs(spoolPath) {
 		return nil, errors.New("Spool path must be absolute")
 	}
-	logPath := path.Clean(cfgYAML.Log)
+	logPath := path.Clean(cfgJSON.Log)
 	if !path.IsAbs(logPath) {
 		return nil, errors.New("Log path must be absolute")
 	}
@@ -408,20 +401,20 @@ func CfgParse(data []byte) (*Ctx, error) {
 		Spool:   spoolPath,
 		LogPath: logPath,
 		Self:    self,
-		Neigh:   make(map[NodeId]*Node, len(cfgYAML.Neigh)),
+		Neigh:   make(map[NodeId]*Node, len(cfgJSON.Neigh)),
 		Alias:   make(map[string]*NodeId),
 	}
-	if cfgYAML.Notify != nil {
-		if cfgYAML.Notify.File != nil {
-			ctx.NotifyFile = cfgYAML.Notify.File
+	if cfgJSON.Notify != nil {
+		if cfgJSON.Notify.File != nil {
+			ctx.NotifyFile = cfgJSON.Notify.File
 		}
-		if cfgYAML.Notify.Freq != nil {
-			ctx.NotifyFreq = cfgYAML.Notify.Freq
+		if cfgJSON.Notify.Freq != nil {
+			ctx.NotifyFreq = cfgJSON.Notify.Freq
 		}
 	}
 	vias := make(map[NodeId][]string)
-	for name, neighYAML := range cfgYAML.Neigh {
-		neigh, err := NewNode(name, neighYAML)
+	for name, neighJSON := range cfgJSON.Neigh {
+		neigh, err := NewNode(name, neighJSON)
 		if err != nil {
 			return nil, err
 		}
@@ -430,7 +423,7 @@ func CfgParse(data []byte) (*Ctx, error) {
 			return nil, errors.New("Node names conflict")
 		}
 		ctx.Alias[name] = neigh.Id
-		vias[*neigh.Id] = neighYAML.Via
+		vias[*neigh.Id] = neighJSON.Via
 	}
 	ctx.SelfId = ctx.Alias["self"]
 	for neighId, viasRaw := range vias {

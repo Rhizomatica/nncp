@@ -6,12 +6,10 @@ be buggy. It does not contain compiled documentation and dependent
 libraries source code. Because of that, it is recommended for porters
 to use @ref{Tarballs, tarballs} instead.
 
-You can obtain it and fetch dependent libraries source code as git submodules:
 @verbatim
 $ git clone git://git.cypherpunks.ru/nncp.git nncp
 $ cd nncp
 $ git checkout develop
-$ git submodule update --init
 @end verbatim
 
 Also there is mirror of dependent libraries for safety if their native
@@ -23,9 +21,9 @@ repositories will be unavailable (they are seldom updated):
 @item @code{github.com/dustin/go-humanize} @tab @url{git://git.cypherpunks.ru/go-humanize.git}
 @item @code{github.com/flynn/noise} @tab @url{git://git.cypherpunks.ru/noise.git}
 @item @code{github.com/gorhill/cronexpr} @tab @url{git://git.cypherpunks.ru/cronexpr.git}
+@item @code{github.com/hjson/hjson-go} @tab @url{git://git.cypherpunks.ru/hjson-go.git}
 @item @code{golang.org/x/crypto} @tab @url{git://git.cypherpunks.ru/crypto.git}
 @item @code{golang.org/x/net} @tab @url{git://git.cypherpunks.ru/net.git}
 @item @code{golang.org/x/sys} @tab @url{git://git.cypherpunks.ru/sys.git}
 @item @code{gopkg.in/check.v1} @tab @url{git://git.cypherpunks.ru/check.git}
-@item @code{gopkg.in/yaml.v2} @tab @url{git://git.cypherpunks.ru/yaml.git}
 @end multitable

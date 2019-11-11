@@ -275,7 +275,7 @@ remote node. But one wish to remotely initiate downloading. That can be
 easily solved with @ref{CfgExec, exec} handles.
 
 @verbatim
-exec:
+exec: {
   warcer: ["/bin/sh", "/path/to/warcer.sh"]
   wgeter: ["/bin/sh", "/path/to/wgeter.sh"]
   aria2c: [
@@ -283,6 +283,7 @@ exec:
     "--on-download-complete", "aria2-downloaded.sh",
     "--on-bt-download-complete", "aria2-downloaded.sh"
   ]
+}
 @end verbatim
 
 @file{warcer.sh} contents:

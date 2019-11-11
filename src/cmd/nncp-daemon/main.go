@@ -27,7 +27,7 @@ import (
 	"strconv"
 	"time"
 
-	"go.cypherpunks.ru/nncp/v4"
+	"go.cypherpunks.ru/nncp/v5"
 	"golang.org/x/net/netutil"
 )
 

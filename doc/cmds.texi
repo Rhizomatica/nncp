@@ -156,11 +156,11 @@ notification.
 @section nncp-cfgenc
 
 @verbatim
-$ nncp-cfgmin [options] [-s INT] [-t INT] [-p INT] cfg.yaml > cfg.yaml.eblob
-$ nncp-cfgmin [options] -d cfg.yaml.eblob > cfg.yaml
+$ nncp-cfgmin [options] [-s INT] [-t INT] [-p INT] cfg.hjson > cfg.hjson.eblob
+$ nncp-cfgmin [options] -d cfg.hjson.eblob > cfg.hjson
 @end verbatim
 
-This command allows you to encrypt provided @file{cfg.yaml} file with
+This command allows you to encrypt provided @file{cfg.hjson} file with
 the passphrase, producing @ref{EBlob, eblob}, to safely keep your
 configuration file with private keys. This utility was written for users
 who do not want (or can not) to use either @url{https://gnupg.org/,
@@ -184,7 +184,7 @@ if passphrase can not decrypt @file{eblob}.
 @option{-dump} options parses @file{eblob} and prints parameters used
 during its creation. For example:
 @verbatim
-$ nncp-cfgenc -dump /usr/local/etc/nncp.yaml.eblob
+$ nncp-cfgenc -dump /usr/local/etc/nncp.hjson.eblob
 Strengthening function: Balloon with BLAKE2b-256
 Memory space cost: 1048576 bytes
 Number of rounds: 16
@@ -196,7 +196,7 @@ Blob size: 2494
 @section nncp-cfgmin
 
 @verbatim
-$ nncp-cfgmin [options] > stripped.yaml
+$ nncp-cfgmin [options] > stripped.hjson
 @end verbatim
 
 Print out stripped configuration version: only path to @ref{Spool,
@@ -208,12 +208,13 @@ neighbours, without private keys involving.
 @section nncp-cfgnew
 
 @verbatim
-$ nncp-cfgnew [options] > new.yaml
+$ nncp-cfgnew [options] [-nocomments] > new.hjson
 @end verbatim
 
 Generate new node configuration: private keys, example configuration
 file and print it to stdout. You must use this command when you setup
-the new node.
+the new node. @option{-nocomments} will create configuration file
+without descriptive huge comments -- useful for advanced users.
 
 Pay attention that private keys generation consumes an entropy from your
 operating system.
@@ -269,9 +270,10 @@ For example, if remote side has following configuration file for your
 node:
 
 @verbatim
-exec:
+exec: {
   sendmail: [/usr/sbin/sendmail, "-t"]
   appender: ["/bin/sh", "-c", "cat >> /append"]
+}
 @end verbatim
 
 then executing @verb{|echo My message | nncp-exec -replynice 123 REMOTE

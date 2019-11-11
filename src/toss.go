@@ -43,7 +43,7 @@ const (
 	SeenSuffix = ".seen"
 )
 
-func newNotification(fromTo *FromToYAML, subject string) io.Reader {
+func newNotification(fromTo *FromToJSON, subject string) io.Reader {
 	return strings.NewReader(fmt.Sprintf(
 		"From: %s\nTo: %s\nSubject: %s\n",
 		fromTo.From,
