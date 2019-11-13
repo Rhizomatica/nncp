@@ -156,9 +156,9 @@ rm -f $texi
 mv doc/.well-known/openpgpkey/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY.asc
 rm -r doc/.gitignore doc/.well-known doc/nncp.html/.well-known
 
-find . -type d -exec chmod 700 {} \;
-find . -type f -exec chmod 600 {} \;
-find . -type f -name "*.sh" -exec chmod 700 {} \;
+find . -type d -exec chmod 755 {} \;
+find . -type f -exec chmod 644 {} \;
+find . -type f -name "*.sh" -exec chmod 755 {} \;
 
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
