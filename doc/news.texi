@@ -9,6 +9,10 @@ See also this page @ref{Новости, on russian}.
 @item @strong{Incompatible} configuration file format change: YAML is
     replaced with Hjson, due to its simplicity, without noticeable lack
     of either functionality or convenience.
+@strong{Incompatible} plain packet format changes. Older versions are
+    not supported. @code{zlib} compression is replaced with
+    @code{Zstandard}, due to its speed and efficiency, however library
+    version is not mature enough.
 @item @command{nncp-cfgnew} generates configuration file with many
     comments. @option{-nocomments} option can be used for an old
     behaviour.

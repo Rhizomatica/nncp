@@ -51,7 +51,7 @@ const (
 )
 
 var (
-	MagicNNCPPv2 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 2}
+	MagicNNCPPv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 3}
 	MagicNNCPEv4 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 4}
 	BadMagic     error   = errors.New("Unknown magic number")
 	BadPktType   error   = errors.New("Unknown packet type")
@@ -123,7 +123,7 @@ func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
 		return nil, errors.New("Too long path")
 	}
 	pkt := Pkt{
-		Magic:   MagicNNCPPv2,
+		Magic:   MagicNNCPPv3,
 		Type:    typ,
 		Nice:    nice,
 		PathLen: uint8(len(path)),

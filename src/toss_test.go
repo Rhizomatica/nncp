@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 	"testing/quick"
 
@@ -96,7 +97,7 @@ func TestTossExec(t *testing.T) {
 				replyNice,
 				handle,
 				[]string{"arg0", "arg1"},
-				[]byte("BODY\n"),
+				strings.NewReader("BODY\n"),
 				1<<15,
 			); err != nil {
 				t.Error(err)
@@ -441,7 +442,7 @@ func TestTossTrns(t *testing.T) {
 		os.MkdirAll(txPath, os.FileMode(0700))
 		for _, data := range datum {
 			pktTrans := Pkt{
-				Magic:   MagicNNCPPv2,
+				Magic:   MagicNNCPPv3,
 				Type:    PktTypeTrns,
 				PathLen: blake2b.Size256,
 				Path:    new([MaxPathSize]byte),

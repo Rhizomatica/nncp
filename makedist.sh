@@ -22,6 +22,7 @@ github.com/dustin/go-humanize
 github.com/flynn/noise
 github.com/gorhill/cronexpr
 github.com/hjson/hjson-go
+github.com/klauspost/compress
 go.cypherpunks.ru/balloon
 golang.org/x/crypto
 golang.org/x/net
@@ -74,6 +75,23 @@ EOF
 tar cfCI - src $tmp/includes | tar xfC - $tmp
 rm -fr src/golang.org $tmp/includes
 mv $tmp/golang.org src
+
+cat > $tmp/includes <<EOF
+compress/compressible.go
+compress/fse
+compress/huff0
+compress/LICENSE
+compress/README.md
+compress/zstd
+EOF
+cat > $tmp/excludes <<EOF
+*testdata*
+*_test.go
+snappy.go
+EOF
+tar cfCIX - src/github.com/klauspost $tmp/includes $tmp/excludes | tar xfC - $tmp
+rm -fr src/github.com/klauspost/compress $tmp/includes $tmp/excludes
+mv $tmp/compress src/github.com/klauspost
 
 find src -name .travis.yml -delete
 rm -fr src/github.com/davecgh/go-xdr/xdr
