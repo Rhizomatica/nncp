@@ -20,36 +20,35 @@ LDFLAGS = \
 	-X $(MOD).DefaultLogPath=$(LOGPATH)
 
 ALL = \
-	nncp-bundle \
-	nncp-call \
-	nncp-caller \
-	nncp-cfgenc \
-	nncp-cfgmin \
-	nncp-cfgnew \
-	nncp-check \
-	nncp-daemon \
-	nncp-exec \
-	nncp-file \
-	nncp-freq \
-	nncp-log \
-	nncp-pkt \
-	nncp-reass \
-	nncp-rm \
-	nncp-stat \
-	nncp-toss \
-	nncp-xfer
+	$(BIN)/nncp-bundle \
+	$(BIN)/nncp-call \
+	$(BIN)/nncp-caller \
+	$(BIN)/nncp-cfgenc \
+	$(BIN)/nncp-cfgmin \
+	$(BIN)/nncp-cfgnew \
+	$(BIN)/nncp-check \
+	$(BIN)/nncp-daemon \
+	$(BIN)/nncp-exec \
+	$(BIN)/nncp-file \
+	$(BIN)/nncp-freq \
+	$(BIN)/nncp-log \
+	$(BIN)/nncp-pkt \
+	$(BIN)/nncp-reass \
+	$(BIN)/nncp-rm \
+	$(BIN)/nncp-stat \
+	$(BIN)/nncp-toss \
+	$(BIN)/nncp-xfer
 
 SRC := $(PWD)/src
 BIN := $(PWD)/bin
 
 all: $(ALL)
 
-$(BIN):
+$(ALL):
 	mkdir -p $(BIN)
-
-$(ALL): $(BIN)
-	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) build -ldflags "$(LDFLAGS)" $(MOD)/cmd/$@
-	mv $(SRC)/$@ $(BIN)
+	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) build -ldflags "$(LDFLAGS)" \
+		$(MOD)/cmd/$$(basename $@)
+	mv $(SRC)/$$(basename $@) $(BIN)
 
 test:
 	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) test -failfast $(MOD)/...
@@ -64,8 +63,8 @@ doc:
 
 install: all doc
 	mkdir -p $(BINDIR)
-	(cd $(BIN) ; cp -f $(ALL) $(BINDIR))
-	for e in $(ALL) ; do chmod 755 $(BINDIR)/$$e ; done
+	cp -f $(ALL) $(BINDIR)
+	for e in $(ALL) ; do chmod 755 $(BINDIR)/$$(basename $$e) ; done
 	mkdir -p $(INFODIR)
 	cp -f doc/nncp.info $(INFODIR)
 	chmod 644 $(INFODIR)/nncp.info
@@ -74,4 +73,4 @@ install: all doc
 	chmod 644 $(DOCDIR)/*
 
 install-strip: install
-	for e in $(ALL) ; do strip $(BINDIR)/$$e ; done
+	for e in $(ALL) ; do strip $(BINDIR)/$$(basename $$e) ; done
