@@ -1,3 +1,6 @@
+GOPATH != pwd
+VERSION != cat VERSION
+
 GO ?= go
 PREFIX ?= /usr/local
 
