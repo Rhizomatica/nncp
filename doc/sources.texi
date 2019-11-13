@@ -7,7 +7,7 @@ libraries source code. Because of that, it is recommended for porters
 to use @ref{Tarballs, tarballs} instead.
 
 @verbatim
-$ git clone git://git.cypherpunks.ru/nncp.git nncp
+$ git clone git://git.cypherpunks.ru/nncp.git
 $ cd nncp
 $ git checkout develop
 @end verbatim
