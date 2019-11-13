@@ -22,7 +22,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -88,18 +87,13 @@ func main() {
 
 	nncp.ViaOverride(*viaOverride, ctx, node)
 
-	body, err := ioutil.ReadAll(bufio.NewReader(os.Stdin))
-	if err != nil {
-		log.Fatalln("Can not read body from stdin:", err)
-	}
-
 	if err = ctx.TxExec(
 		node,
 		nice,
 		replyNice,
 		flag.Args()[1],
 		flag.Args()[2:],
-		body,
+		bufio.NewReader(os.Stdin),
 		int64(*minSize)*1024,
 	); err != nil {
 		log.Fatalln(err)

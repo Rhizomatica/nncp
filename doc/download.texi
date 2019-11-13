@@ -13,6 +13,7 @@ Tarballs include all necessary required libraries:
 @item @code{github.com/flynn/noise} @tab BSD 3-Clause
 @item @code{github.com/gorhill/cronexpr} @tab GNU GPLv3
 @item @code{github.com/hjson/hjson-go} @tab MIT
+@item @code{github.com/klauspost/compress} @tab BSD 3-Clause
 @item @code{go.cypherpunks.ru/balloon} @tab GNU LGPLv3
 @item @code{golang.org/x/crypto} @tab BSD 3-Clause
 @item @code{golang.org/x/net} @tab BSD 3-Clause

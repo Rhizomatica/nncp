@@ -20,8 +20,10 @@ repositories will be unavailable (they are seldom updated):
 @item @code{github.com/davecgh/go-xdr} @tab @url{git://git.cypherpunks.ru/go-xdr.git}
 @item @code{github.com/dustin/go-humanize} @tab @url{git://git.cypherpunks.ru/go-humanize.git}
 @item @code{github.com/flynn/noise} @tab @url{git://git.cypherpunks.ru/noise.git}
+@item @code{github.com/google/go-cmp} @tab @url{git://git.cypherpunks.ru/go-cmp.git}
 @item @code{github.com/gorhill/cronexpr} @tab @url{git://git.cypherpunks.ru/cronexpr.git}
 @item @code{github.com/hjson/hjson-go} @tab @url{git://git.cypherpunks.ru/hjson-go.git}
+@item @code{github.com/klauspost/compress} @tab @url{git://git.cypherpunks.ru/compress.git}
 @item @code{golang.org/x/crypto} @tab @url{git://git.cypherpunks.ru/crypto.git}
 @item @code{golang.org/x/net} @tab @url{git://git.cypherpunks.ru/net.git}
 @item @code{golang.org/x/sys} @tab @url{git://git.cypherpunks.ru/sys.git}

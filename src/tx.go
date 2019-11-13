@@ -20,7 +20,6 @@ package nncp
 import (
 	"bufio"
 	"bytes"
-	"compress/zlib"
 	"crypto/rand"
 	"errors"
 	"hash"
@@ -32,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-xdr/xdr2"
+	"github.com/klauspost/compress/zstd"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/chacha20poly1305"
 )
@@ -381,7 +381,7 @@ func (ctx *Ctx) TxExec(
 	nice, replyNice uint8,
 	handle string,
 	args []string,
-	body []byte,
+	in io.Reader,
 	minSize int64,
 ) error {
 	path := make([][]byte, 0, 1+len(args))
@@ -394,14 +394,18 @@ func (ctx *Ctx) TxExec(
 		return err
 	}
 	var compressed bytes.Buffer
-	compressor, err := zlib.NewWriterLevel(&compressed, zlib.BestCompression)
+	compressor, err := zstd.NewWriter(
+		&compressed,
+		zstd.WithEncoderLevel(zstd.SpeedDefault),
+	)
 	if err != nil {
 		return err
 	}
-	if _, err = io.Copy(compressor, bytes.NewReader(body)); err != nil {
+	_, err = io.Copy(compressor, in)
+	compressor.Close()
+	if err != nil {
 		return err
 	}
-	compressor.Close()
 	size := int64(compressed.Len())
 	_, err = ctx.Tx(node, pkt, nice, size, minSize, &compressed)
 	sds := SDS{

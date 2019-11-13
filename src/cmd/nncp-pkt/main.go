@@ -21,7 +21,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"compress/zlib"
 	"flag"
 	"fmt"
 	"io"
@@ -29,6 +28,7 @@ import (
 	"os"
 
 	"github.com/davecgh/go-xdr/xdr2"
+	"github.com/klauspost/compress/zstd"
 	"go.cypherpunks.ru/nncp/v5"
 )
 
@@ -44,7 +44,7 @@ func main() {
 	var (
 		overheads  = flag.Bool("overheads", false, "Print packet overheads")
 		dump       = flag.Bool("dump", false, "Write decrypted/parsed payload to stdout")
-		decompress = flag.Bool("decompress", false, "Try to zlib decompress dumped data")
+		decompress = flag.Bool("decompress", false, "Try to zstd decompress dumped data")
 		cfgPath    = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		version    = flag.Bool("version", false, "Print version information")
 		warranty   = flag.Bool("warranty", false, "Print warranty information")
@@ -77,13 +77,13 @@ func main() {
 	}
 	var pkt nncp.Pkt
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pkt)
-	if err == nil && pkt.Magic == nncp.MagicNNCPPv2 {
+	if err == nil && pkt.Magic == nncp.MagicNNCPPv3 {
 		if *dump {
 			bufW := bufio.NewWriter(os.Stdout)
 			var r io.Reader
 			r = bufio.NewReader(os.Stdin)
 			if *decompress {
-				decompressor, err := zlib.NewReader(r)
+				decompressor, err := zstd.NewReader(r)
 				if err != nil {
 					log.Fatalln(err)
 				}

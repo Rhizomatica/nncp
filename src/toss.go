@@ -20,7 +20,6 @@ package nncp
 import (
 	"bufio"
 	"bytes"
-	"compress/zlib"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -35,6 +34,7 @@ import (
 
 	"github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
+	"github.com/klauspost/compress/zstd"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/poly1305"
 )
@@ -58,6 +58,11 @@ func (ctx *Ctx) Toss(
 	dryRun, doSeen, noFile, noFreq, noExec, noTrns bool,
 ) bool {
 	isBad := false
+	decompressor, err := zstd.NewReader(nil)
+	if err != nil {
+		panic(err)
+	}
+	defer decompressor.Close()
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Fd.Name())
 		sds := SDS{"node": job.PktEnc.Sender, "pkt": pktName}
@@ -117,16 +122,15 @@ func (ctx *Ctx) Toss(
 				"type": "exec",
 				"dst":  strings.Join(append([]string{handle}, args...), " "),
 			})
-			decompressor, err := zlib.NewReader(pipeR)
-			if err != nil {
-				log.Fatalln(err)
-			}
 			sender := ctx.Neigh[*job.PktEnc.Sender]
 			cmdline, exists := sender.Exec[handle]
 			if !exists || len(cmdline) == 0 {
 				ctx.LogE("rx", SdsAdd(sds, SDS{"err": "No handle found"}), "")
 				isBad = true
 				goto Closing
+			}
+			if err = decompressor.Reset(pipeR); err != nil {
+				log.Fatalln(err)
 			}
 			if !dryRun {
 				cmd := exec.Command(
