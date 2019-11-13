@@ -183,8 +183,8 @@ that will create @file{www.example.com} directory with all files
 necessary to view @file{page.html} web page. You can create single file
 compressed tarball with that directory and send it to remote node:
 @verbatim
-$ tar cf - www.example.com | xz -9 |
-    nncp-file - remote.node:www.example.com-page.tar.xz
+$ tar cf - www.example.com | zstd |
+    nncp-file - remote.node:www.example.com-page.tar.zst
 @end verbatim
 
 But there are multi-paged articles, there are the whole interesting
@@ -216,8 +216,9 @@ $ wget \
 That command will create uncompressed @file{www.example_com-XXX.warc}
 web archive. By default, WARCs are compressed using
 @url{https://en.wikipedia.org/wiki/Gzip, gzip}, but, in example above,
-we have disabled it to compress with stronger @command{xz}, before
-sending via @command{nncp-file}.
+we have disabled it to compress with stronger and faster
+@url{https://en.wikipedia.org/wiki/Zstd, zstd}, before sending via
+@command{nncp-file}.
 
 There are plenty of software acting like HTTP proxy for your browser,
 allowing to view that WARC files. However you can extract files from
