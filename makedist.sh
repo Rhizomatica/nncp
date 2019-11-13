@@ -28,7 +28,7 @@ golang.org/x/net
 golang.org/x/sys
 "
 for mod in $mods; do
-    mod_path=$(sed -n "s#^	\($mod\) \(.*\)\$#\1@\2#p" src/$mod_name/go.mod)
+    mod_path=$(sed -n "s# // indirect## ; s#^	\($mod\) \(.*\)\$#\1@\2#p" src/$mod_name/go.mod)
     [ -n "$mod_path" ]
     mkdir -p src/$mod
     ( cd $GOPATH/pkg/mod/$mod_path ; tar cf - --exclude ".git*" * ) | tar xfC - src/$mod
@@ -77,6 +77,8 @@ mv $tmp/golang.org src
 
 find src -name .travis.yml -delete
 rm -fr src/github.com/davecgh/go-xdr/xdr
+rm -r src/github.com/flynn/noise/vector*
+rm src/github.com/hjson/hjson-go/build_release.sh
 rm src/github.com/gorhill/cronexpr/APLv2
 rm -fr ports
 rm makedist.sh
