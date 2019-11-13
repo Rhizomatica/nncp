@@ -15,7 +15,6 @@ LICENSE_FILE=	${WRKSRC}/COPYING
 BUILD_DEPENDS=	go:lang/go
 
 USES=		tar:xz
-MAKEFILE=	BSDmakefile
 USE_RC_SUBR=	nncp-caller nncp-daemon nncp-toss
 INSTALL_TARGET=	install-strip
 
