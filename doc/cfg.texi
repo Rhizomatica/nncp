@@ -46,6 +46,7 @@ Example @url{https://hjson.org/, Hjson} configuration file:
       addrs: {
         lan: "[fe80::1234%igb0]:5400"
         internet: alice.com:3389
+        proxied: "|ssh remote.host nncp-daemon -inetd"
       }
       calls: [
         {
@@ -152,9 +153,12 @@ omitted if direct connection exists and no relaying is required.
 @anchor{CfgAddrs}
 @item addrs
 Dictionary containing known network addresses of the node. Each key is
-human-readable name of the link/address. Values are @verb{|addr:port|}
-pairs pointing to @ref{nncp-daemon}'s listening instance. May be omitted
-if either no direct connection exists, or @ref{nncp-call} is used with
+human-readable name of the address. For direct TCP connections use
+@verb{|host:port|} format, pointing to @ref{nncp-daemon}'s listening
+instance. Also you can pipe connection through the external command
+using @verb{#|some command#} format. @code{/bin/sh -c "some command"}
+will start and its stdin/stdout used as a connection. May be omitted if
+either no direct connection exists, or @ref{nncp-call} is used with
 forced address specifying.
 
 @anchor{CfgXxRate}

@@ -19,6 +19,10 @@ not supported. @code{zlib} compression is replaced with
 version is not mature enough.
 
 @item
+Ability to call remote nodes via pipe call of external command, not only
+through TCP.
+
+@item
 @command{nncp-cfgnew} generates configuration file with many
 comments. @option{-nocomments} option can be used for an old
 behaviour.
