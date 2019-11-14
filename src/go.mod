@@ -10,8 +10,8 @@ require (
 	github.com/klauspost/compress v1.9.2
 	github.com/kr/pretty v0.1.0 // indirect
 	go.cypherpunks.ru/balloon v1.1.0
-	golang.org/x/crypto v0.0.0-20191002192127-34f69633bfdc
-	golang.org/x/net v0.0.0-20191007182048-72f939374954
-	golang.org/x/sys v0.0.0-20191008105621-543471e840be
+	golang.org/x/crypto v0.0.0-20191112222119-e1110fd1c708
+	golang.org/x/net v0.0.0-20191112182307-2180aed22343
+	golang.org/x/sys v0.0.0-20191113165036-4c7a9d0fe056
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
