@@ -121,6 +121,21 @@ packets of remote node, without any transmission.
 You can specify what packets your want to download, by specifying
 @option{-pkts} option with comma-separated list of packets identifiers.
 
+Each @option{NODE} can contain several uniquely identified
+@option{ADDR}esses in @ref{CfgAddrs, configuration} file. If you do
+not specify the exact one, then all will be tried until the first
+success. Optionally you can force @option{FORCEADDR} address usage,
+instead of addresses taken from configuration file. You can specify both
+@verb{|host:port|} and @verb{#|some command#} formats.
+
+Pay attention that this command runs integrity check for each completely
+received packet in the background. This can be time consuming.
+Connection could be lost during that check and remote node won't be
+notified that file is done. But after successful integrity check that
+file is renamed from @file{.part} one and when you rerun
+@command{nncp-call} again, remote node will receive completion
+notification.
+
 @node nncp-caller
 @section nncp-caller
 
@@ -135,22 +150,7 @@ Optional number of @option{NODE}s tells to ignore other ones.
 Otherwise all nodes with specified @emph{calls} configuration
 field will be called.
 
-@option{-onlinedeadline} overrides @ref{CfgOnlineDeadline,
-@emph{onlinedeadline}} configuration option.
-
-Each @option{NODE} can contain several uniquely identified
-@option{ADDR}esses in @ref{CfgAddrs, configuration} file. If you do
-not specify the exact one, then all will be tried until the first
-success. Optionally you can force @option{FORCEADDR} address usage,
-instead of addresses taken from configuration file.
-
-Pay attention that this command runs integrity check for each completely
-received packet in the background. This can be time consuming.
-Connection could be lost during that check and remote node won't be
-notified that file is done. But after successful integrity check that
-file is renamed from @file{.part} one and when you rerun
-@command{nncp-call} again, remote node will receive completion
-notification.
+Look @ref{nncp-call} for more information.
 
 @node nncp-cfgenc
 @section nncp-cfgenc

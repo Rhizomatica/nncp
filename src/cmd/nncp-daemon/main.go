@@ -43,20 +43,24 @@ type InetdConn struct {
 	w *os.File
 }
 
-func (ic *InetdConn) Read(p []byte) (n int, err error) {
-	return ic.r.Read(p)
+func (c InetdConn) Read(p []byte) (n int, err error) {
+	return c.r.Read(p)
 }
 
-func (ic *InetdConn) Write(p []byte) (n int, err error) {
-	return ic.w.Write(p)
+func (c InetdConn) Write(p []byte) (n int, err error) {
+	return c.w.Write(p)
 }
 
-func (ic *InetdConn) SetReadDeadline(t time.Time) error {
-	return ic.r.SetReadDeadline(t)
+func (c InetdConn) SetReadDeadline(t time.Time) error {
+	return c.r.SetReadDeadline(t)
 }
 
-func (ic *InetdConn) SetWriteDeadline(t time.Time) error {
-	return ic.w.SetWriteDeadline(t)
+func (c InetdConn) SetWriteDeadline(t time.Time) error {
+	return c.w.SetWriteDeadline(t)
+}
+
+func (c InetdConn) Close() error {
+	return c.w.Close()
 }
 
 func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {

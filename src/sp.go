@@ -104,7 +104,7 @@ type FreqWithNice struct {
 }
 
 type ConnDeadlined interface {
-	io.ReadWriter
+	io.ReadWriteCloser
 	SetReadDeadline(t time.Time) error
 	SetWriteDeadline(t time.Time) error
 }

@@ -48,7 +48,13 @@ func (ctx *Ctx) CallNode(
 	for _, addr := range addrs {
 		sds := SDS{"node": node.Id, "addr": addr}
 		ctx.LogD("call", sds, "dialing")
-		conn, err := net.Dial("tcp", addr)
+		var conn ConnDeadlined
+		var err error
+		if addr[0] == '|' {
+			conn, err = NewPipeConn(addr[1:])
+		} else {
+			conn, err = net.Dial("tcp", addr)
+		}
 		if err != nil {
 			ctx.LogD("call", SdsAdd(sds, SDS{"err": err}), "dialing")
 			continue
