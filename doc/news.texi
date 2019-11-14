@@ -23,6 +23,8 @@ See also this page @ref{Новости, on russian}.
 @item Updated dependencies.
 @item Full usage of go modules for dependencies management
     (@code{go.cypherpunks.ru/nncp/v5} namespace is used).
+@item Forbid any later GNU GPL version autousage
+    (project's licence now is GNU GPLv3-only).
 @end itemize
 
 @node Release 4.1
