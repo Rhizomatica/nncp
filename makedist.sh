@@ -40,13 +40,13 @@ cat > $tmp/includes <<EOF
 golang.org/x/crypto/AUTHORS
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
+golang.org/x/crypto/chacha20
 golang.org/x/crypto/chacha20poly1305
 golang.org/x/crypto/CONTRIBUTORS
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/go.mod
 golang.org/x/crypto/go.sum
-golang.org/x/crypto/internal/chacha20
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/LICENSE
 golang.org/x/crypto/nacl
