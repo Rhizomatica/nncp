@@ -107,6 +107,7 @@ cat > doc/download.texi <<EOF
 You can obtain releases source code prepared tarballs on
 @url{http://www.nncpgo.org/}.
 EOF
+perl -i -ne 'print unless /include pedro/' doc/index.texi doc/about.ru.texi
 make -C doc
 
 ########################################################################
