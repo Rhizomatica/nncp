@@ -1,7 +1,7 @@
 # $FreeBSD: head/net/nncp/Makefile 484628 2018-11-10 18:12:57Z bapt $
 
 PORTNAME=	nncp
-DISTVERSION=	4.0
+DISTVERSION=	5.0.0
 PORTREVISION=	1
 CATEGORIES=	net
 MASTER_SITES=	http://www.nncpgo.org/download/
@@ -9,13 +9,12 @@ MASTER_SITES=	http://www.nncpgo.org/download/
 MAINTAINER=	stargrave@stargrave.org
 COMMENT=	Utilities for secure store-and-forward files, mail, command exchanging
 
-LICENSE=	GPLv3+
+LICENSE=	GPLv3
 LICENSE_FILE=	${WRKSRC}/COPYING
 
 BUILD_DEPENDS=	go:lang/go
 
 USES=		tar:xz
-MAKEFILE=	BSDmakefile
 USE_RC_SUBR=	nncp-caller nncp-daemon nncp-toss
 INSTALL_TARGET=	install-strip
 
