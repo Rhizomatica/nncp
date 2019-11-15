@@ -5,39 +5,48 @@ tmp=$(mktemp -d)
 release=$1
 [ -n "$release" ]
 
-vendor=src/cypherpunks.ru/nncp/vendor
-
 git clone . $tmp/nncp-$release
-repos="
-    cypherpunks.ru/balloon
-    github.com/davecgh/go-xdr
-    github.com/dustin/go-humanize
-    github.com/flynn/noise
-    github.com/gorhill/cronexpr
-    golang.org/x/crypto
-    golang.org/x/net
-    golang.org/x/sys
-    gopkg.in/check.v1
-    gopkg.in/yaml.v2
-"
-for repo in $repos; do
-    git clone $vendor/$repo $tmp/nncp-$release/$vendor/$repo
-done
 cd $tmp/nncp-$release
-git checkout $release
-git submodule update --init
+git checkout v$release
+rm -fr .git
+
+mod_name=go.cypherpunks.ru/nncp/v5
+mv src src.orig
+mkdir -p src/$mod_name
+mv src.orig/* src/$mod_name
+rmdir src.orig
+
+mods="
+github.com/davecgh/go-xdr
+github.com/dustin/go-humanize
+github.com/flynn/noise
+github.com/gorhill/cronexpr
+github.com/hjson/hjson-go
+github.com/klauspost/compress
+go.cypherpunks.ru/balloon
+golang.org/x/crypto
+golang.org/x/net
+golang.org/x/sys
+"
+for mod in $mods; do
+    mod_path=$(sed -n "s# // indirect## ; s#^	\($mod\) \(.*\)\$#\1@\2#p" src/$mod_name/go.mod)
+    [ -n "$mod_path" ]
+    mkdir -p src/$mod
+    ( cd $GOPATH/pkg/mod/$mod_path ; tar cf - --exclude ".git*" * ) | tar xfC - src/$mod
+    chmod -R +w src/$mod
+done
 
 cat > $tmp/includes <<EOF
 golang.org/x/crypto/AUTHORS
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
+golang.org/x/crypto/chacha20
 golang.org/x/crypto/chacha20poly1305
 golang.org/x/crypto/CONTRIBUTORS
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/go.mod
 golang.org/x/crypto/go.sum
-golang.org/x/crypto/internal/chacha20
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/LICENSE
 golang.org/x/crypto/nacl
@@ -63,14 +72,32 @@ golang.org/x/sys/PATENTS
 golang.org/x/sys/README.md
 golang.org/x/sys/unix
 EOF
-tar cfCI - $vendor $tmp/includes | tar xfC - $tmp
-rm -fr $vendor/golang.org
-mv $tmp/golang.org $vendor
-rm $tmp/includes
+tar cfCI - src $tmp/includes | tar xfC - $tmp
+rm -fr src/golang.org $tmp/includes
+mv $tmp/golang.org src
+
+cat > $tmp/includes <<EOF
+compress/compressible.go
+compress/fse
+compress/huff0
+compress/LICENSE
+compress/README.md
+compress/zstd
+EOF
+cat > $tmp/excludes <<EOF
+*testdata*
+*_test.go
+snappy.go
+EOF
+tar cfCIX - src/github.com/klauspost $tmp/includes $tmp/excludes | tar xfC - $tmp
+rm -fr src/github.com/klauspost/compress $tmp/includes $tmp/excludes
+mv $tmp/compress src/github.com/klauspost
 
 find src -name .travis.yml -delete
-rm -fr $vendor/github.com/davecgh/go-xdr/xdr
-rm $vendor/github.com/gorhill/cronexpr/APLv2
+rm -fr src/github.com/davecgh/go-xdr/xdr
+rm -r src/github.com/flynn/noise/vector*
+rm src/github.com/hjson/hjson-go/build_release.sh
+rm src/github.com/gorhill/cronexpr/APLv2
 rm -fr ports
 rm makedist.sh
 
@@ -80,13 +107,79 @@ cat > doc/download.texi <<EOF
 You can obtain releases source code prepared tarballs on
 @url{http://www.nncpgo.org/}.
 EOF
+perl -i -ne 'print unless /include pedro/' doc/index.texi doc/about.ru.texi
 make -C doc
-./supplementary_files.sh
-rm -r doc/.well-known doc/nncp.html/.well-known supplementary_files.sh
 
-find . -name .git | xargs rm -fr
-find . -name .gitignore -delete
-rm .gitmodules
+########################################################################
+# Supplementary files autogeneration
+########################################################################
+texi=`mktemp`
+
+cat > $texi <<EOF
+\input texinfo
+@documentencoding UTF-8
+@settitle NEWS
+
+@node News
+@unnumbered News
+
+`sed -n '5,$p' < doc/news.texi`
+
+@bye
+EOF
+makeinfo --plaintext -o NEWS $texi
+
+cat > $texi <<EOF
+\input texinfo
+@documentencoding UTF-8
+@settitle NEWS.RU
+
+@node Новости
+@unnumbered Новости
+
+`sed -n '3,$p' < doc/news.ru.texi | sed 's/^@subsection/@section/'`
+
+@bye
+EOF
+makeinfo --plaintext -o NEWS.RU $texi
+
+rm -f $texi
+
+texi=$(TMPDIR=doc mktemp)
+cat > $texi <<EOF
+\input texinfo
+@documentencoding UTF-8
+@settitle INSTALL
+
+@include install.texi
+
+@bye
+EOF
+makeinfo --plaintext -o INSTALL $texi
+rm -f $texi
+
+texi=`mktemp`
+
+cat > $texi <<EOF
+\input texinfo
+@documentencoding UTF-8
+@settitle THANKS
+
+`cat doc/thanks.texi`
+
+@bye
+EOF
+makeinfo --plaintext -o THANKS $texi
+rm -f $texi
+
+########################################################################
+
+mv doc/.well-known/openpgpkey/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY.asc
+rm -r doc/.gitignore doc/.well-known doc/nncp.html/.well-known
+
+find . -type d -exec chmod 755 {} \;
+find . -type f -exec chmod 644 {} \;
+find . -type f -name "*.sh" -exec chmod 755 {} \;
 
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"

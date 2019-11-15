@@ -8,13 +8,13 @@ Tarballs include all necessary required libraries:
 
 @multitable @columnfractions .50 .50
 @headitem Library @tab Licence
-@item @code{cypherpunks.ru/balloon} @tab GNU LGPLv3+
 @item @code{github.com/davecgh/go-xdr} @tab ISC
 @item @code{github.com/dustin/go-humanize} @tab MIT
 @item @code{github.com/flynn/noise} @tab BSD 3-Clause
-@item @code{github.com/go-check/check} @tab BSD 2-Clause
-@item @code{github.com/go-yaml/yaml} @tab Apache License 2.0 and MIT
 @item @code{github.com/gorhill/cronexpr} @tab GNU GPLv3
+@item @code{github.com/hjson/hjson-go} @tab MIT
+@item @code{github.com/klauspost/compress} @tab BSD 3-Clause
+@item @code{go.cypherpunks.ru/balloon} @tab GNU LGPLv3
 @item @code{golang.org/x/crypto} @tab BSD 3-Clause
 @item @code{golang.org/x/net} @tab BSD 3-Clause
 @item @code{golang.org/x/sys} @tab BSD 3-Clause
@@ -22,6 +22,10 @@ Tarballs include all necessary required libraries:
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
+
+@item @ref{Release 4.1, 4.1} @tab 2019-05-01 @tab 1227 KiB
+@tab @url{download/nncp-4.1.tar.xz, link} @url{download/nncp-4.1.tar.xz.sig, sign}
+@tab @code{29AEC53D EC914906 D7C47194 0955A32E 2BF470E6 9B8E09D3 AF3B62D8 CC8E541E}
 
 @item @ref{Release 4.0, 4.0} @tab 2019-04-28 @tab 1227 KiB
 @tab @url{download/nncp-4.0.tar.xz, link} @url{download/nncp-4.0.tar.xz.sig, sign}

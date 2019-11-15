@@ -1,69 +1,90 @@
 @node Configuration
 @unnumbered Configuration file
 
-Example YAML configuration file:
+Example @url{https://hjson.org/, Hjson} configuration file:
 
 @verbatim
-spool: /var/spool/nncp
-log: /var/spool/nncp/log
-notify:
-  file:
-    from: nncp@localhost
-    to: user+file@example.com
-  freq:
-    from: nncp@localhost
-    to: user+freq@example.com
-self:
-  id: TIJQL...2NGIA
-  exchpub: CYVGQ...PSEWQ
-  exchprv: 65PUY...MPZ3Q
-  signpub: 2NMVC...CMH5Q
-  signprv: 555JD...RGD6Y
-  noiseprv: D62XU...NKYPA
-  noisepub: KIBKK...ESM7Q
-neigh:
-  self:
+{
+  spool: /var/spool/nncp
+  log: /var/spool/nncp/log
+  umask: "022"
+
+  notify: {
+    file: {
+      from: nncp@localhost
+      to: user+file@example.com
+    }
+    freq: {
+      from: nncp@localhost
+      to: user+freq@example.com
+    }
+  }
+
+  self: {
     id: TIJQL...2NGIA
     exchpub: CYVGQ...PSEWQ
+    exchprv: 65PUY...MPZ3Q
     signpub: 2NMVC...CMH5Q
+    signprv: 555JD...RGD6Y
+    noiseprv: D62XU...NKYPA
     noisepub: KIBKK...ESM7Q
-    exec:
-      sendmail: [/usr/sbin/sendmail]
-  alice:
-    id: XJZBK...65IJQ
-    exchpub: MJACJ...FAI6A
-    signpub: T4AFC...N2FRQ
-    noisepub: UBM5K...VI42A
-    exec:
-      flag: ["/usr/bin/touch", "-t"]
-    incoming: /home/alice/incoming
-    onlinedeadline: 1800
-    maxonlinetime: 3600
-    addrs:
-      lan: "[fe80::1234%igb0]:5400"
-      internet: alice.com:3389
-    calls:
-      -
-        cron: "*/2 * * * *"
-  bob:
-    id: 2IZNP...UYGYA
-    exchpub: WFLMZ...B7NHA
-    signpub: GTGXG...IE3OA
-    exec:
-      sendmail: [/usr/sbin/sendmail]
-      warcer: [/path/to/warcer.sh]
-      wgeter: [/path/to/wgeter.sh]
-    freq: /home/bob/pub
-    freqchunked: 1024
-    freqminsize: 2048
-    via: [alice]
-    rxrate: 10
-    txrate: 20
+  }
+
+  neigh: {
+    self: {
+      id: TIJQL...2NGIA
+      exchpub: CYVGQ...PSEWQ
+      signpub: 2NMVC...CMH5Q
+      noisepub: KIBKK...ESM7Q
+      exec: {sendmail: ["/usr/sbin/sendmail"]}
+    }
+    alice: {
+      id: "XJZBK...65IJQ"
+      exchpub: MJACJ...FAI6A
+      signpub: T4AFC...N2FRQ
+      noisepub: UBM5K...VI42A
+      exec: {flag: ["/usr/bin/touch", "-t"]}
+      incoming: "/home/alice/incoming"
+      onlinedeadline: 1800
+      maxonlinetime: 3600
+      addrs: {
+        lan: "[fe80::1234%igb0]:5400"
+        internet: alice.com:3389
+        proxied: "|ssh remote.host nncp-daemon -inetd"
+      }
+      calls: [
+        {
+          cron: "*/2 * * * *"
+        },
+      ]
+    }
+    bob: {
+      id: 2IZNP...UYGYA
+      exchpub: WFLMZ...B7NHA
+      signpub: GTGXG...IE3OA
+      exec: {
+        sendmail: ["/usr/sbin/sendmail"]
+        warcer: ["/path/to/warcer.sh"]
+        wgeter: ["/path/to/wgeter.sh"]
+      }
+      freq: "/home/bob/pub"
+      freqchunked: 1024
+      freqminsize: 2048
+      via: ["alice"]
+      rxrate: 10
+      txrate: 20
+    }
+  }
+}
 @end verbatim
 
 @strong{spool} field contains an absolute path to @ref{Spool, spool}
 directory. @strong{log} field contains an absolute path to @ref{Log,
 log} file.
+
+Non-empty optional @strong{umask} will force all invoked commands to
+override their umask to specified octal mask. Useful for using with
+@ref{Shared spool, shared spool directories}.
 
 @anchor{CfgNotify}
 @strong{notify} section contains notification settings for successfully
@@ -105,12 +126,14 @@ arguments and the body fed to command's stdin.
 command, will execute:
 
 @verbatim
-echo hello world |
-    NNCP_SELF=OURNODE \
-    NNCP_SENDER=REMOTE \
-    NNCP_NICE=64 \
-    /usr/sbin/sendmail -t ARG0 ARG1 ARG2
+NNCP_SELF=OURNODE \
+NNCP_SENDER=REMOTE \
+NNCP_NICE=64 \
+/usr/sbin/sendmail -t ARG0 ARG1 ARG2
 @end verbatim
+
+feeding @verb{|hello world\n|} to that started @command{sendmail}
+process.
 
 @anchor{CfgIncoming}
 @item incoming
@@ -140,9 +163,12 @@ omitted if direct connection exists and no relaying is required.
 @anchor{CfgAddrs}
 @item addrs
 Dictionary containing known network addresses of the node. Each key is
-human-readable name of the link/address. Values are @verb{|addr:port|}
-pairs pointing to @ref{nncp-daemon}'s listening instance. May be omitted
-if either no direct connection exists, or @ref{nncp-call} is used with
+human-readable name of the address. For direct TCP connections use
+@verb{|host:port|} format, pointing to @ref{nncp-daemon}'s listening
+instance. Also you can pipe connection through the external command
+using @verb{#|some command#} format. @code{/bin/sh -c "some command"}
+will start and its stdin/stdout used as a connection. May be omitted if
+either no direct connection exists, or @ref{nncp-call} is used with
 forced address specifying.
 
 @anchor{CfgXxRate}
@@ -173,3 +199,22 @@ List of @ref{Call, call configuration}s. Can be omitted if
 @ref{nncp-caller} won't be used to call that node.
 
 @end table
+
+@menu
+* Shared spool directory: Shared spool.
+@end menu
+
+@node Shared spool
+@section Shared spool directory
+
+If you want to share single spool directory with multiple grouped Unix
+users, then you can @command{setgid} it and assure that umask is group
+friendly. For convenience you can set @option{umask} globally for
+invoked NNCP commands in the configuration file. For example:
+
+@verbatim
+$ chgrp nncp /usr/local/etc/nncp.hjson /var/spool/nncp
+$ chmod g+r /usr/local/etc/nncp.hjson
+$ chmod g+rwxs /var/spool/nncp
+$ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
+@end verbatim
