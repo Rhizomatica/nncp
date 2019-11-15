@@ -226,7 +226,7 @@ online TCP daemon with full-duplex resumable data transmission exists.
 
 The main improvements for that release are:
 
-$(git cat-file -p $release | sed -n '6,/^.*BEGIN/p' | sed '$d')
+$(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 
 ------------------------ >8 ------------------------
 
@@ -274,7 +274,7 @@ NNCP (Node to Node copy) это набор утилит упрощающий б�
 
 Основные усовершенствования в этом релизе:
 
-$(git cat-file -p $release | sed -n '6,/^.*BEGIN/p' | sed '$d')
+$(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 
 ------------------------ >8 ------------------------
 
