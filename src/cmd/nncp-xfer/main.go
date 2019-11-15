@@ -90,6 +90,7 @@ func main() {
 		}
 	}
 
+	ctx.Umask()
 	selfPath := filepath.Join(flag.Arg(0), ctx.SelfId.String())
 	isBad := false
 	var dir *os.File

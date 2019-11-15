@@ -66,6 +66,7 @@ func main() {
 	if ctx.Self == nil {
 		log.Fatalln("Config lacks private keys")
 	}
+	ctx.Umask()
 
 	var nodes []*nncp.Node
 	if flag.NArg() > 0 {

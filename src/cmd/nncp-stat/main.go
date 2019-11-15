@@ -77,6 +77,7 @@ func main() {
 	}
 	sort.Strings(nodeNames)
 
+	ctx.Umask()
 	var node *nncp.Node
 	for _, nodeName := range nodeNames {
 		node = nodeNameToNode[nodeName]

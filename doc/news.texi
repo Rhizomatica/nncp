@@ -32,6 +32,9 @@ Duplicate filenames have @file{.CTR} suffix, instead of @file{CTR}, to
 avoid possible collisions with @file{.nncp.chunkCTR}.
 
 @item
+Ability to override process umask through configuration file option.
+
+@item
 Files and directories are created with 666/777 permissions by default,
 allowing control with @command{umask}.
 

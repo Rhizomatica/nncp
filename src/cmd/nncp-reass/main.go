@@ -317,6 +317,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	ctx.Umask()
+
 	if flag.NArg() > 0 {
 		if process(ctx, flag.Arg(0), *keep, *dryRun, *stdout, *dumpMeta) {
 			return

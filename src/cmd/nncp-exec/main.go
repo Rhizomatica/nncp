@@ -86,6 +86,7 @@ func main() {
 	}
 
 	nncp.ViaOverride(*viaOverride, ctx, node)
+	ctx.Umask()
 
 	if err = ctx.TxExec(
 		node,

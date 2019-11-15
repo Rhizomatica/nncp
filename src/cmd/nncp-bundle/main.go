@@ -102,6 +102,8 @@ func main() {
 		nodeIds[*node.Id] = struct{}{}
 	}
 
+	ctx.Umask()
+
 	sds := nncp.SDS{}
 	if *doTx {
 		sds["xx"] = string(nncp.TTx)
