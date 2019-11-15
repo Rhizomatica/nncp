@@ -118,12 +118,14 @@ arguments and the body fed to command's stdin.
 command, will execute:
 
 @verbatim
-echo hello world |
-    NNCP_SELF=OURNODE \
-    NNCP_SENDER=REMOTE \
-    NNCP_NICE=64 \
-    /usr/sbin/sendmail -t ARG0 ARG1 ARG2
+NNCP_SELF=OURNODE \
+NNCP_SENDER=REMOTE \
+NNCP_NICE=64 \
+/usr/sbin/sendmail -t ARG0 ARG1 ARG2
 @end verbatim
+
+feeding @verb{|hello world\n|} to that started @command{sendmail}
+process.
 
 @anchor{CfgIncoming}
 @item incoming
