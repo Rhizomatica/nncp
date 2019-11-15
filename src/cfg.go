@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 
 	"github.com/gorhill/cronexpr"
 	"github.com/hjson/hjson-go"
@@ -97,8 +98,10 @@ type NotifyJSON struct {
 }
 
 type CfgJSON struct {
-	Spool  string      `json:"spool"`
-	Log    string      `json:"log"`
+	Spool string `json:"spool"`
+	Log   string `json:"log"`
+	Umask string `json:"umask",omitempty`
+
 	Notify *NotifyJSON `json:"notify,omitempty"`
 
 	Self  *NodeOurJSON        `json:"self"`
@@ -397,12 +400,22 @@ func CfgParse(data []byte) (*Ctx, error) {
 	if !path.IsAbs(logPath) {
 		return nil, errors.New("Log path must be absolute")
 	}
+	var umaskForce *int
+	if cfgJSON.Umask != "" {
+		r, err := strconv.ParseUint(cfgJSON.Umask, 8, 16)
+		if err != nil {
+			return nil, err
+		}
+		rInt := int(r)
+		umaskForce = &rInt
+	}
 	ctx := Ctx{
-		Spool:   spoolPath,
-		LogPath: logPath,
-		Self:    self,
-		Neigh:   make(map[NodeId]*Node, len(cfgJSON.Neigh)),
-		Alias:   make(map[string]*NodeId),
+		Spool:      spoolPath,
+		LogPath:    logPath,
+		UmaskForce: umaskForce,
+		Self:       self,
+		Neigh:      make(map[NodeId]*Node, len(cfgJSON.Neigh)),
+		Alias:      make(map[string]*NodeId),
 	}
 	if cfgJSON.Notify != nil {
 		if cfgJSON.Notify.File != nil {

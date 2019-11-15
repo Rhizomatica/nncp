@@ -68,6 +68,7 @@ func main() {
     noiseprv: %s
     noisepub: %s
   }
+
   neigh: {
     self: {
       id: %s
@@ -99,6 +100,8 @@ func main() {
   spool: %s
   # Path to log file
   log: %s
+  # Enforce specified umask usage
+  # umask: "022"
 
   # Enable notification email sending
   # notify: {
@@ -122,6 +125,7 @@ func main() {
     noiseprv: %s
     noisepub: %s
   }
+
   neigh: {
     self: {
       # You should give public keys below to your neighbours

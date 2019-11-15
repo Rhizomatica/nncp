@@ -85,6 +85,8 @@ func main() {
 		}
 	}
 
+	ctx.Umask()
+
 Cycle:
 	isBad := false
 	for nodeId, node := range ctx.Neigh {

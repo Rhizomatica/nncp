@@ -93,6 +93,7 @@ func main() {
 	}
 
 	nncp.ViaOverride(*viaOverride, ctx, node)
+	ctx.Umask()
 
 	var dst string
 	if flag.NArg() == 2 {

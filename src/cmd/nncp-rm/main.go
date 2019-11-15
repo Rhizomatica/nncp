@@ -74,6 +74,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Error during initialization:", err)
 	}
+	ctx.Umask()
 
 	if *doTmp {
 		err = filepath.Walk(filepath.Join(ctx.Spool, "tmp"), func(path string, info os.FileInfo, err error) error {

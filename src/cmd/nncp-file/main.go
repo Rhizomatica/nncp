@@ -93,6 +93,7 @@ func main() {
 	}
 
 	nncp.ViaOverride(*viaOverride, ctx, node)
+	ctx.Umask()
 
 	var minSize int64
 	if *argMinSize < 0 {

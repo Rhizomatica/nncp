@@ -25,6 +25,7 @@ import (
 	"path/filepath"
 
 	"golang.org/x/sys/unix"
+	"syscall"
 )
 
 type Ctx struct {
@@ -35,6 +36,7 @@ type Ctx struct {
 
 	Spool      string
 	LogPath    string
+	UmaskForce *int
 	Quiet      bool
 	Debug      bool
 	NotifyFile *FromToJSON
@@ -112,4 +114,10 @@ func (ctx *Ctx) IsEnoughSpace(want int64) bool {
 		log.Fatalln(err)
 	}
 	return int64(s.Bavail)*int64(s.Bsize) > want
+}
+
+func (ctx *Ctx) Umask() {
+	if ctx.UmaskForce != nil {
+		syscall.Umask(*ctx.UmaskForce)
+	}
 }

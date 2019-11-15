@@ -60,6 +60,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Error during initialization:", err)
 	}
+	ctx.Umask()
 
 	var nodeOnly *nncp.Node
 	if *nodeRaw != "" {

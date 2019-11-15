@@ -139,6 +139,7 @@ func main() {
 		}
 	}
 
+	ctx.Umask()
 	if !ctx.CallNode(
 		node,
 		addrs,

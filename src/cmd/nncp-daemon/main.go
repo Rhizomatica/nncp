@@ -124,6 +124,7 @@ func main() {
 	if ctx.Self == nil {
 		log.Fatalln("Config lacks private keys")
 	}
+	ctx.Umask()
 
 	if *inetd {
 		os.Stderr.Close()

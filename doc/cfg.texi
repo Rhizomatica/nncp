@@ -7,6 +7,8 @@ Example @url{https://hjson.org/, Hjson} configuration file:
 {
   spool: /var/spool/nncp
   log: /var/spool/nncp/log
+  umask: "022"
+
   notify: {
     file: {
       from: nncp@localhost
@@ -17,6 +19,7 @@ Example @url{https://hjson.org/, Hjson} configuration file:
       to: user+freq@example.com
     }
   }
+
   self: {
     id: TIJQL...2NGIA
     exchpub: CYVGQ...PSEWQ
@@ -26,6 +29,7 @@ Example @url{https://hjson.org/, Hjson} configuration file:
     noiseprv: D62XU...NKYPA
     noisepub: KIBKK...ESM7Q
   }
+
   neigh: {
     self: {
       id: TIJQL...2NGIA
@@ -77,6 +81,10 @@ Example @url{https://hjson.org/, Hjson} configuration file:
 @strong{spool} field contains an absolute path to @ref{Spool, spool}
 directory. @strong{log} field contains an absolute path to @ref{Log,
 log} file.
+
+Non-empty optional @strong{umask} will force all invoked commands to
+override their umask to specified octal mask. Useful for using with
+@ref{Shared spool, shared spool directories}.
 
 @anchor{CfgNotify}
 @strong{notify} section contains notification settings for successfully
@@ -191,3 +199,22 @@ List of @ref{Call, call configuration}s. Can be omitted if
 @ref{nncp-caller} won't be used to call that node.
 
 @end table
+
+@menu
+* Shared spool directory: Shared spool.
+@end menu
+
+@node Shared spool
+@section Shared spool directory
+
+If you want to share single spool directory with multiple grouped Unix
+users, then you can @command{setgid} it and assure that umask is group
+friendly. For convenience you can set @option{umask} globally for
+invoked NNCP commands in the configuration file. For example:
+
+@verbatim
+$ chgrp nncp /usr/local/etc/nncp.hjson /var/spool/nncp
+$ chmod g+r /usr/local/etc/nncp.hjson
+$ chmod g+rwxs /var/spool/nncp
+$ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
+@end verbatim
