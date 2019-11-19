@@ -24,7 +24,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"go.cypherpunks.ru/nncp/v5"
@@ -41,7 +40,7 @@ func main() {
 	var (
 		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw      = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFreq), "Outbound packet niceness")
-		replyNiceRaw = flag.String("replynice", strconv.Itoa(nncp.DefaultNiceFile), "Reply file packet niceness")
+		replyNiceRaw = flag.String("replynice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Reply file packet niceness")
 		minSize      = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
 		viaOverride  = flag.String("via", "", "Override Via path to destination node")
 		spoolPath    = flag.String("spool", "", "Override path to spool")
