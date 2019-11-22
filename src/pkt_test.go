@@ -22,7 +22,7 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/davecgh/go-xdr/xdr2"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 )
 
 func TestPktEncWrite(t *testing.T) {

@@ -22,7 +22,7 @@ import (
 	"crypto/rand"
 	"hash"
 
-	"github.com/davecgh/go-xdr/xdr2"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 	"go.cypherpunks.ru/balloon"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/chacha20poly1305"

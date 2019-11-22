@@ -27,7 +27,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/davecgh/go-xdr/xdr2"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/klauspost/compress/zstd"
 	"go.cypherpunks.ru/nncp/v5"
 )
