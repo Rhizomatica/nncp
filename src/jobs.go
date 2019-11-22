@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/davecgh/go-xdr/xdr2"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 )
 
 type TRxTx string

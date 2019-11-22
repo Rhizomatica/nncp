@@ -32,7 +32,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/davecgh/go-xdr/xdr2"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
 	"github.com/klauspost/compress/zstd"
 	"golang.org/x/crypto/blake2b"
