@@ -50,10 +50,6 @@ func (ctx *Ctx) Tx(
 	size, minSize int64,
 	src io.Reader,
 ) (*Node, error) {
-	tmp, err := ctx.NewTmpFileWHash()
-	if err != nil {
-		return nil, err
-	}
 	hops := make([]*Node, 0, 1+len(node.Via))
 	hops = append(hops, node)
 	lastNode := node
@@ -69,6 +65,14 @@ func (ctx *Ctx) Tx(
 	if padSize < 0 {
 		padSize = 0
 	}
+	if !ctx.IsEnoughSpace(size + padSize) {
+		return nil, errors.New("is not enough space")
+	}
+	tmp, err := ctx.NewTmpFileWHash()
+	if err != nil {
+		return nil, err
+	}
+
 	errs := make(chan error)
 	curSize := size
 	pipeR, pipeW := io.Pipe()
@@ -559,6 +563,11 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 		"size": strconv.FormatInt(size, 10),
 	}
 	ctx.LogD("tx", sds, "taken")
+	if !ctx.IsEnoughSpace(size) {
+		err := errors.New("is not enough space")
+		ctx.LogE("tx", sds, err.Error())
+		return err
+	}
 	tmp, err := ctx.NewTmpFileWHash()
 	if err != nil {
 		return err
