@@ -19,6 +19,10 @@ Free disk space is checked during outbound packets creation.
 file options replaced with the structure:
 @option{freq: @{path: ..., minsize: ..., chunked: ...@}}.
 
+@item
+Added @option{freq.maxsize} configuration file option, forbidding of
+freq sending larger than specified size.
+
 @end itemize
 
 @node Release 5.0.0

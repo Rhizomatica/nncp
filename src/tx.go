@@ -286,7 +286,7 @@ func (ctx *Ctx) TxFile(
 	nice uint8,
 	srcPath, dstPath string,
 	chunkSize int64,
-	minSize int64,
+	minSize, maxSize int64,
 ) error {
 	dstPathSpecified := false
 	if dstPath == "" {
@@ -307,6 +307,9 @@ func (ctx *Ctx) TxFile(
 	}
 	if err != nil {
 		return err
+	}
+	if fileSize > maxSize {
+		return errors.New("Too big than allowed")
 	}
 	if archived && !dstPathSpecified {
 		dstPath += TarExt
