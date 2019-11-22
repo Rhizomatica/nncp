@@ -329,8 +329,7 @@ func (ctx *Ctx) TxFile(
 		if err == nil {
 			ctx.LogI("tx", sds, "sent")
 		} else {
-			sds["err"] = err
-			ctx.LogE("tx", sds, "sent")
+			ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 		}
 		return err
 	}
@@ -385,8 +384,7 @@ func (ctx *Ctx) TxFile(
 		if err == nil {
 			ctx.LogI("tx", sds, "sent")
 		} else {
-			sds["err"] = err
-			ctx.LogE("tx", sds, "sent")
+			ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 			return err
 		}
 		hsh.Sum(metaPkt.Checksums[chunkNum][:0])
@@ -419,8 +417,7 @@ func (ctx *Ctx) TxFile(
 	if err == nil {
 		ctx.LogI("tx", sds, "sent")
 	} else {
-		sds["err"] = err
-		ctx.LogE("tx", sds, "sent")
+		ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
 	return err
 }
@@ -456,8 +453,7 @@ func (ctx *Ctx) TxFreq(
 	if err == nil {
 		ctx.LogI("tx", sds, "sent")
 	} else {
-		sds["err"] = err
-		ctx.LogE("tx", sds, "sent")
+		ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
 	return err
 }
@@ -505,8 +501,7 @@ func (ctx *Ctx) TxExec(
 	if err == nil {
 		ctx.LogI("tx", sds, "sent")
 	} else {
-		sds["err"] = err
-		ctx.LogE("tx", sds, "sent")
+		ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
 	return err
 }
@@ -521,7 +516,7 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	ctx.LogD("tx", sds, "taken")
 	if !ctx.IsEnoughSpace(size) {
 		err := errors.New("is not enough space")
-		ctx.LogE("tx", sds, err.Error())
+		ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), err.Error())
 		return err
 	}
 	tmp, err := ctx.NewTmpFileWHash()
@@ -536,8 +531,7 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	if err == nil {
 		ctx.LogI("tx", sds, "sent")
 	} else {
-		sds["err"] = err
-		ctx.LogI("tx", sds, "sent")
+		ctx.LogI("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
 	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name))
 	return err
