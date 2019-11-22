@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.1.0
+@subsection Релиз 5.1.0
+@itemize
+
+@item
+@command{nncp-file} может отправлять директории, автоматически на лету
+создавая pax архив.
+
+@end itemize
+
 @node Релиз 5.0.0
 @subsection Релиз 5.0.0
 @itemize

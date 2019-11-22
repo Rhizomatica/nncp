@@ -3,6 +3,16 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.1.0
+@section Release 5.1.0
+@itemize
+
+@item
+@command{nncp-file} can send directories, automatically creating pax
+archive on the fly.
+
+@end itemize
+
 @node Release 5.0.0
 @section Release 5.0.0
 @itemize
