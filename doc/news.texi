@@ -11,6 +11,9 @@ See also this page @ref{Новости, on russian}.
 @command{nncp-file} can send directories, automatically creating pax
 archive on the fly.
 
+@item
+Free disk space is checked during outbound packets creation.
+
 @end itemize
 
 @node Release 5.0.0
