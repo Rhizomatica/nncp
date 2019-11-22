@@ -199,6 +199,7 @@ func TestTossFile(t *testing.T) {
 				DefaultNiceFile,
 				src,
 				fileName,
+				MaxFileSize,
 				1<<15,
 			); err != nil {
 				t.Error(err)
@@ -273,6 +274,7 @@ func TestTossFileSameName(t *testing.T) {
 				DefaultNiceFile,
 				srcPath,
 				"samefile",
+				MaxFileSize,
 				1<<15,
 			); err != nil {
 				t.Error(err)

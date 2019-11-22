@@ -109,25 +109,14 @@ func main() {
 		chunkSize = *argChunkSize * 1024
 	}
 
-	if chunkSize == 0 {
-		err = ctx.TxFile(
-			node,
-			nice,
-			flag.Arg(0),
-			splitted[1],
-			minSize,
-		)
-	} else {
-		err = ctx.TxFileChunked(
-			node,
-			nice,
-			flag.Arg(0),
-			splitted[1],
-			minSize,
-			chunkSize,
-		)
-	}
-	if err != nil {
+	if err = ctx.TxFile(
+		node,
+		nice,
+		flag.Arg(0),
+		splitted[1],
+		chunkSize,
+		minSize,
+	); err != nil {
 		log.Fatalln(err)
 	}
 }
