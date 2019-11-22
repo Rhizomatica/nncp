@@ -201,6 +201,7 @@ func TestTossFile(t *testing.T) {
 				fileName,
 				MaxFileSize,
 				1<<15,
+				MaxFileSize,
 			); err != nil {
 				t.Error(err)
 				return false
@@ -276,6 +277,7 @@ func TestTossFileSameName(t *testing.T) {
 				"samefile",
 				MaxFileSize,
 				1<<15,
+				MaxFileSize,
 			); err != nil {
 				t.Error(err)
 				return false

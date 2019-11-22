@@ -294,6 +294,7 @@ func (ctx *Ctx) Toss(
 					dst,
 					sender.FreqChunked,
 					sender.FreqMinSize,
+					sender.FreqMaxSize,
 				)
 				if err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "tx file")

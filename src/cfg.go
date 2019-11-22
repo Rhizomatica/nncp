@@ -68,6 +68,7 @@ type NodeFreqJSON struct {
 	Path    *string `json:"path,omitempty"`
 	Chunked *uint64 `json:"chunked,omitempty"`
 	MinSize *uint64 `json:"minsize,omitempty"`
+	MaxSize *uint64 `json:"maxsize,omitempty"`
 }
 
 type CallJSON struct {
@@ -157,6 +158,7 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 	var freqPath *string
 	freqChunked := int64(MaxFileSize)
 	var freqMinSize int64
+	freqMaxSize := int64(MaxFileSize)
 	if yml.Freq != nil {
 		f := yml.Freq
 		if f.Path != nil {
@@ -174,6 +176,9 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 		}
 		if f.MinSize != nil {
 			freqMinSize = int64(*f.MinSize) * 1024
+		}
+		if f.MaxSize != nil {
+			freqMaxSize = int64(*f.MaxSize) * 1024
 		}
 	}
 
@@ -278,6 +283,7 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 		FreqPath:       freqPath,
 		FreqChunked:    freqChunked,
 		FreqMinSize:    freqMinSize,
+		FreqMaxSize:    freqMaxSize,
 		Calls:          calls,
 		Addrs:          yml.Addrs,
 		RxRate:         defRxRate,

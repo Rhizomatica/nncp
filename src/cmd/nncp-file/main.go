@@ -116,6 +116,7 @@ func main() {
 		splitted[1],
 		chunkSize,
 		minSize,
+		nncp.MaxFileSize,
 	); err != nil {
 		log.Fatalln(err)
 	}

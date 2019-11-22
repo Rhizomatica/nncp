@@ -45,6 +45,7 @@ type Node struct {
 	FreqPath       *string
 	FreqChunked    int64
 	FreqMinSize    int64
+	FreqMaxSize    int64
 	Via            []*NodeId
 	Addrs          map[string]string
 	RxRate         int
@@ -105,6 +106,7 @@ func (nodeOur *NodeOur) Their() *Node {
 		ExchPub:     nodeOur.ExchPub,
 		SignPub:     nodeOur.SignPub,
 		FreqChunked: MaxFileSize,
+		FreqMaxSize: MaxFileSize,
 	}
 }
 
