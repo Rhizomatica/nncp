@@ -14,6 +14,11 @@ archive on the fly.
 @item
 Free disk space is checked during outbound packets creation.
 
+@item
+@option{freq}, @option{freqminsize}, @option{freqchunked} configuration
+file options replaced with the structure:
+@option{freq: @{path: ..., minsize: ..., chunked: ...@}}.
+
 @end itemize
 
 @node Release 5.0.0

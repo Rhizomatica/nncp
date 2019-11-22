@@ -42,7 +42,7 @@ type Node struct {
 	NoisePub       *[32]byte
 	Exec           map[string][]string
 	Incoming       *string
-	Freq           *string
+	FreqPath       *string
 	FreqChunked    int64
 	FreqMinSize    int64
 	Via            []*NodeId

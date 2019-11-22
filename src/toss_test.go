@@ -357,7 +357,7 @@ func TestTossFreq(t *testing.T) {
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
 		}
-		ctx.Neigh[*nodeOur.Id].Freq = &spool
+		ctx.Neigh[*nodeOur.Id].FreqPath = &spool
 		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false, false, false, false, false)
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
