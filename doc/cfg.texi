@@ -67,9 +67,11 @@ Example @url{https://hjson.org/, Hjson} configuration file:
         warcer: ["/path/to/warcer.sh"]
         wgeter: ["/path/to/wgeter.sh"]
       }
-      freq: "/home/bob/pub"
-      freqchunked: 1024
-      freqminsize: 2048
+      freq: {
+        path: "/home/bob/pub"
+        chunked: 1024
+        minsize: 2048
+      }
       via: ["alice"]
       rxrate: 10
       txrate: 20
@@ -141,15 +143,15 @@ Full path to directory where all file uploads will be saved. May be
 omitted to forbid file uploading on that node.
 
 @anchor{CfgFreq}
-@item freq
+@item freq.path
 Full path to directory from where file requests will queue files for
 transmission. May be omitted to forbid freqing from that node.
 
-@item freqchunked
+@item freq.chunked
 If set, then enable @ref{Chunked, chunked} file transmission during
 freqing. This is the desired chunk size in KiBs.
 
-@item freqminsize
+@item freq.minsize
 If set, then apply @ref{OptMinSize, -minsize} option during file
 transmission.
 

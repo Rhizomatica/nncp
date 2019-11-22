@@ -13,6 +13,11 @@
 Во время создания исходящих сообщений проверяется наличие свободного
 места на файловой системе.
 
+@item
+@option{freq}, @option{freqminsize}, @option{freqchunked} опции
+конфигурационного файла заменены на структуру
+@option{freq: @{path: ..., minsize: ..., chunked: ...@}}.
+
 @end itemize
 
 @node Релиз 5.0.0

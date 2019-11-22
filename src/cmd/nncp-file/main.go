@@ -36,7 +36,7 @@ func usage() {
 	fmt.Fprint(os.Stderr, `
 If SRC equals to -, then read data from stdin to temporary file.
 
--minsize/-chunked take NODE's FreqMinSize/FreqChunked configuration
+-minsize/-chunked take NODE's freq.minsize/freq.chunked configuration
 options by default. You can forcefully turn them off by specifying 0 value.
 `)
 }

@@ -280,8 +280,8 @@ func (ctx *Ctx) Toss(
 			dst := string(dstRaw)
 			sds["dst"] = dst
 			sender := ctx.Neigh[*job.PktEnc.Sender]
-			freq := sender.Freq
-			if freq == nil {
+			freqPath := sender.FreqPath
+			if freqPath == nil {
 				ctx.LogE("rx", sds, "freqing is not allowed")
 				isBad = true
 				goto Closing
@@ -291,7 +291,7 @@ func (ctx *Ctx) Toss(
 					err = ctx.TxFile(
 						sender,
 						pkt.Nice,
-						filepath.Join(*freq, src),
+						filepath.Join(*freqPath, src),
 						dst,
 						sender.FreqMinSize,
 					)
@@ -299,7 +299,7 @@ func (ctx *Ctx) Toss(
 					err = ctx.TxFileChunked(
 						sender,
 						pkt.Nice,
-						filepath.Join(*freq, src),
+						filepath.Join(*freqPath, src),
 						dst,
 						sender.FreqMinSize,
 						sender.FreqChunked,
