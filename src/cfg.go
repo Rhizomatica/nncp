@@ -155,7 +155,7 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 	}
 
 	var freqPath *string
-	var freqChunked int64
+	freqChunked := int64(MaxFileSize)
 	var freqMinSize int64
 	if yml.Freq != nil {
 		f := yml.Freq

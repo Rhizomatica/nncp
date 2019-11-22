@@ -100,10 +100,11 @@ func NewNodeGenerate() (*NodeOur, error) {
 
 func (nodeOur *NodeOur) Their() *Node {
 	return &Node{
-		Name:    "self",
-		Id:      nodeOur.Id,
-		ExchPub: nodeOur.ExchPub,
-		SignPub: nodeOur.SignPub,
+		Name:        "self",
+		Id:          nodeOur.Id,
+		ExchPub:     nodeOur.ExchPub,
+		SignPub:     nodeOur.SignPub,
+		FreqChunked: MaxFileSize,
 	}
 }
 

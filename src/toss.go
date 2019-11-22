@@ -287,24 +287,14 @@ func (ctx *Ctx) Toss(
 				goto Closing
 			}
 			if !dryRun {
-				if sender.FreqChunked == 0 {
-					err = ctx.TxFile(
-						sender,
-						pkt.Nice,
-						filepath.Join(*freqPath, src),
-						dst,
-						sender.FreqMinSize,
-					)
-				} else {
-					err = ctx.TxFileChunked(
-						sender,
-						pkt.Nice,
-						filepath.Join(*freqPath, src),
-						dst,
-						sender.FreqMinSize,
-						sender.FreqChunked,
-					)
-				}
+				err = ctx.TxFile(
+					sender,
+					pkt.Nice,
+					filepath.Join(*freqPath, src),
+					dst,
+					sender.FreqChunked,
+					sender.FreqMinSize,
+				)
 				if err != nil {
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "tx file")
 					isBad = true

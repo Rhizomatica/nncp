@@ -39,6 +39,8 @@ import (
 )
 
 const (
+	MaxFileSize = 1 << 62
+
 	TarBlockSize = 512
 	TarExt       = ".tar"
 )
@@ -279,58 +281,12 @@ func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize
 	return
 }
 
-func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize int64) error {
-	dstPathSpecified := false
-	if dstPath == "" {
-		if srcPath == "-" {
-			return errors.New("Must provide destination filename")
-		}
-		dstPath = filepath.Base(srcPath)
-	} else {
-		dstPathSpecified = true
-	}
-	dstPath = filepath.Clean(dstPath)
-	if filepath.IsAbs(dstPath) {
-		return errors.New("Relative destination path required")
-	}
-	reader, closer, fileSize, archived, err := prepareTxFile(srcPath)
-	if closer != nil {
-		defer closer.Close()
-	}
-	if err != nil {
-		return err
-	}
-	if archived && !dstPathSpecified {
-		dstPath += TarExt
-	}
-	pkt, err := NewPkt(PktTypeFile, nice, []byte(dstPath))
-	if err != nil {
-		return err
-	}
-	_, err = ctx.Tx(node, pkt, nice, fileSize, minSize, reader)
-	sds := SDS{
-		"type": "file",
-		"node": node.Id,
-		"nice": strconv.Itoa(int(nice)),
-		"src":  srcPath,
-		"dst":  dstPath,
-		"size": strconv.FormatInt(fileSize, 10),
-	}
-	if err == nil {
-		ctx.LogI("tx", sds, "sent")
-	} else {
-		sds["err"] = err
-		ctx.LogE("tx", sds, "sent")
-	}
-	return err
-}
-
-func (ctx *Ctx) TxFileChunked(
+func (ctx *Ctx) TxFile(
 	node *Node,
 	nice uint8,
 	srcPath, dstPath string,
-	minSize int64,
 	chunkSize int64,
+	minSize int64,
 ) error {
 	dstPathSpecified := false
 	if dstPath == "" {
