@@ -18,6 +18,16 @@ Example @url{https://hjson.org/, Hjson} configuration file:
       from: nncp@localhost
       to: user+freq@example.com
     }
+    exec: {
+      "*.warcer": {
+        from: nncp@localhost
+        to: user+warcer@example.com
+      }
+      "eve.warcer": {
+        from: nncp@localhost
+        to: user+warcer-overriden@example.com
+      }
+    }
   }
 
   self: {
@@ -90,11 +100,17 @@ override their umask to specified octal mask. Useful for using with
 
 @anchor{CfgNotify}
 @strong{notify} section contains notification settings for successfully
-tossed file and freq packets. Corresponding @strong{from} and
+tossed file, freq and exec packets. Corresponding @strong{from} and
 @strong{to} fields will be substituted in notification email message.
-@emph{neigh/self/exec/sendmail} will be used as a local mailer. You can
-omit either of those two @emph{from}/@emph{to} sections to omit
+@code{neigh.self.exec.sendmail} will be used as a local mailer. You can
+omit either of those two @code{from}/@code{to} sections to omit
 corresponding notifications, or the whole section at once.
+
+@code{notify.exec} section is a mapping of exec handles and
+corresponding @code{from}/@code{to} sections. Each handle has either
+@code{NODE.HANDLE} or @code{*.HANDLE} syntax. You can override
+notification options for some node with the first type of name.
+Handle command's output will be included in notification messages.
 
 @strong{self} section contains our node's private keypairs.
 @strong{exch*} and @strong{sign*} are used during @ref{Encrypted,
@@ -106,7 +122,7 @@ always has @strong{self} neighbour that is copy of our node's public
 data (public keys). It is useful for copy-paste sharing with your
 friends. Each section's key is a human-readable name of the neighbour.
 
-Except for @emph{id}, @emph{exchpub} and @emph{signpub} each neighbour
+Except for @code{id}, @code{exchpub} and @code{signpub} each neighbour
 node has the following fields:
 
 @table @strong
@@ -158,9 +174,9 @@ transmission.
 @anchor{CfgVia}
 @item via
 An array of node identifiers that will be used as a relay to that node.
-For example @verb{|[foo,bar]|} means that packet can reach current node
-by transitioning through @emph{foo} and then @emph{bar} nodes. May be
-omitted if direct connection exists and no relaying is required.
+For example @verb{|["foo","bar"]|} means that packet can reach current
+node by transitioning through @code{foo} and then @code{bar} nodes. May
+be omitted if direct connection exists and no relaying is required.
 
 @anchor{CfgAddrs}
 @item addrs

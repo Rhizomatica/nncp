@@ -42,6 +42,7 @@ type Ctx struct {
 	Debug      bool
 	NotifyFile *FromToJSON
 	NotifyFreq *FromToJSON
+	NotifyExec map[string]*FromToJSON
 }
 
 func (ctx *Ctx) FindNode(id string) (*Node, error) {

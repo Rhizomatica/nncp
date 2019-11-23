@@ -113,6 +113,19 @@ func main() {
   #     from: nncp@localhost
   #     to: user+freq@example.com
   #   }
+  #   # Send some exec commands execution notifications
+  #   exec: {
+  #     # bob neighbour's "somehandle" notification
+  #     bob.somehandle: {
+  #       from: nncp+bob@localhost
+  #       to: user+somehandle@example.com
+  #     }
+  #     # Any neighboor's "anotherhandle"
+  #     *.anotherhandle: {
+  #       from: nncp@localhost
+  #       to: user+anotherhandle@example.com
+  #     }
+  #   }
   # }
 
   self: {
@@ -148,50 +161,55 @@ func main() {
     #   noisepub: UBM5K...VI42A
     #
     #   # He is allowed to send email
-    #   exec: {sendmail: ["/usr/sbin/sendmail"]}
+    #   # exec: {sendmail: ["%s"]}
     #
     #   # Allow incoming files saving in that directory
-    #   incoming: "/home/alice/incoming"
+    #   # incoming: "/home/alice/incoming"
     #
     #   # Transitional nodes path
-    #   via: ["bob", "eve"]
+    #   # via: ["bob", "eve"]
     #
     #   # Inactivity timeout when session with remote peer should be terminated
-    #   onlinedeadline: 1800
+    #   # onlinedeadline: 1800
     #
     #   # Maximal online session lifetime
-    #   maxonlinetime: 3600
+    #   # maxonlinetime: 3600
     #
-    #   # Allow freqing from that directory
-    #   freq: "/home/bob/pub"
-    #   # Send freqed files with chunks
-    #   freqchunked: 1024
-    #   # Send freqed files with minumal chunk size
-    #   freqminsize: 2048
+    #   # If neither freq section, nor freq.path exist, then no freqing allowed
+    #   # freq: {
+    #   #   # Allow freqing from that directory
+    #   #   path: "/home/bob/pub"
+    #   #   # Send freqed files with chunks
+    #   #   # chunked: 1024
+    #   #   # Send freqed files with minumal chunk size
+    #   #   # minsize: 2048
+    #   #   # Maximal allowable freqing file size
+    #   #   # maxsize: 4096
+    #   # }
     #
     #   # Set maximal packets per second receive and transmit rates
-    #   rxrate: 10
-    #   txrate: 20
+    #   # rxrate: 10
+    #   # txrate: 20
     #
     #   # Address aliases
-    #   addrs: {
-    #     lan: "[fe80::1234%%igb0]:5400"
-    #     internet: alice.com:3389
-    #   }
+    #   # addrs: {
+    #   #   lan: "[fe80::1234%%igb0]:5400"
+    #   #   internet: alice.com:3389
+    #   # }
     #
     #   # Calls configuration
-    #   calls: [
-    #     {
-    #       cron: "*/2 * * * *"
-    #       onlinedeadline: 1800
-    #       maxonlinetime: 1750
-    #       nice: PRIORITY+10
-    #       rxrate: 10
-    #       txrate: 20
-    #       xx: rx
-    #       addr: lan
-    #     },
-    #   ]
+    #   # calls: [
+    #   #   {
+    #   #     cron: "*/2 * * * *"
+    #   #     onlinedeadline: 1800
+    #   #     maxonlinetime: 1750
+    #   #     nice: PRIORITY+10
+    #   #     rxrate: 10
+    #   #     txrate: 20
+    #   #     xx: rx
+    #   #     addr: lan
+    #   #   },
+    #   # ]
     # }
   }
 }`,
@@ -208,6 +226,7 @@ func main() {
 			nncp.ToBase32(nodeOur.ExchPub[:]),
 			nncp.ToBase32(nodeOur.SignPub[:]),
 			nncp.ToBase32(nodeOur.NoisePub[:]),
+			nncp.DefaultSendmailPath,
 			nncp.DefaultSendmailPath,
 		)
 	}

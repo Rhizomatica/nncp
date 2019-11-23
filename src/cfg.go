@@ -98,8 +98,9 @@ type FromToJSON struct {
 }
 
 type NotifyJSON struct {
-	File *FromToJSON `json:"file,omitempty"`
-	Freq *FromToJSON `json:"freq,omitempty"`
+	File *FromToJSON            `json:"file,omitempty"`
+	Freq *FromToJSON            `json:"freq,omitempty"`
+	Exec map[string]*FromToJSON `json:"exec,omitempty"`
 }
 
 type CfgJSON struct {
@@ -436,6 +437,9 @@ func CfgParse(data []byte) (*Ctx, error) {
 		}
 		if cfgJSON.Notify.Freq != nil {
 			ctx.NotifyFreq = cfgJSON.Notify.Freq
+		}
+		if cfgJSON.Notify.Exec != nil {
+			ctx.NotifyExec = cfgJSON.Notify.Exec
 		}
 	}
 	vias := make(map[NodeId][]string)

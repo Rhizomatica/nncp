@@ -287,6 +287,9 @@ echo My message |
     /usr/sbin/sendmail -t root@localhost
 @end verbatim
 
+If @ref{CfgNotify, notification} is enabled on the remote side for exec
+handles, then it will sent simple letter after successful command
+execution with its output in message body.
 
 @node nncp-file
 @section nncp-file
