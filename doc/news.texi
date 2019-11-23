@@ -23,6 +23,10 @@ file options replaced with the structure:
 Added @option{freq.maxsize} configuration file option, forbidding of
 freq sending larger than specified size.
 
+@item
+Ability to notify about successfully executed commands (exec) with
+@option{notify.exec} configuration file option.
+
 @end itemize
 
 @node Release 5.0.0
