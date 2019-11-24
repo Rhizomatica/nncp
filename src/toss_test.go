@@ -30,7 +30,7 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/davecgh/go-xdr/xdr2"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -199,7 +199,9 @@ func TestTossFile(t *testing.T) {
 				DefaultNiceFile,
 				src,
 				fileName,
+				MaxFileSize,
 				1<<15,
+				MaxFileSize,
 			); err != nil {
 				t.Error(err)
 				return false
@@ -273,7 +275,9 @@ func TestTossFileSameName(t *testing.T) {
 				DefaultNiceFile,
 				srcPath,
 				"samefile",
+				MaxFileSize,
 				1<<15,
+				MaxFileSize,
 			); err != nil {
 				t.Error(err)
 				return false
@@ -357,7 +361,7 @@ func TestTossFreq(t *testing.T) {
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
 		}
-		ctx.Neigh[*nodeOur.Id].Freq = &spool
+		ctx.Neigh[*nodeOur.Id].FreqPath = &spool
 		ctx.Toss(ctx.Self.Id, DefaultNiceFreq, false, false, false, false, false, false)
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false

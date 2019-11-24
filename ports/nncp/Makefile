@@ -1,8 +1,7 @@
-# $FreeBSD: head/net/nncp/Makefile 484628 2018-11-10 18:12:57Z bapt $
+# $FreeBSD: head/net/nncp/Makefile 517819 2019-11-17 11:51:56Z dmgk $
 
 PORTNAME=	nncp
-DISTVERSION=	5.0.0
-PORTREVISION=	1
+DISTVERSION=	5.1.0
 CATEGORIES=	net
 MASTER_SITES=	http://www.nncpgo.org/download/
 
@@ -12,19 +11,19 @@ COMMENT=	Utilities for secure store-and-forward files, mail, command exchanging
 LICENSE=	GPLv3
 LICENSE_FILE=	${WRKSRC}/COPYING
 
-BUILD_DEPENDS=	go:lang/go
+USES=		go:no_targets tar:xz
 
-USES=		tar:xz
 USE_RC_SUBR=	nncp-caller nncp-daemon nncp-toss
+
+MAKE_ARGS=	INFODIR=${STAGEDIR}${PREFIX}/${INFO_PATH}
 INSTALL_TARGET=	install-strip
 
 SUB_FILES=	pkg-message pkg-install pkg-deinstall
 
-OPTIONS_DEFINE=	DOCS
-
-PORTDOCS=	AUTHORS NEWS NEWS.RU README README.RU THANKS
 INFO=		nncp
-MAKE_ARGS=	INFODIR=${STAGEDIR}${PREFIX}/${INFO_PATH}
+PORTDOCS=	AUTHORS NEWS NEWS.RU README README.RU THANKS
+
+OPTIONS_DEFINE=	DOCS
 
 post-install:
 	${INSTALL_DATA} ${FILESDIR}/nncp.newsyslog.conf.sample ${STAGEDIR}${PREFIX}/etc/nncp.conf.sample

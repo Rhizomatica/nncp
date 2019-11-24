@@ -42,9 +42,10 @@ type Node struct {
 	NoisePub       *[32]byte
 	Exec           map[string][]string
 	Incoming       *string
-	Freq           *string
+	FreqPath       *string
 	FreqChunked    int64
 	FreqMinSize    int64
+	FreqMaxSize    int64
 	Via            []*NodeId
 	Addrs          map[string]string
 	RxRate         int
@@ -100,10 +101,12 @@ func NewNodeGenerate() (*NodeOur, error) {
 
 func (nodeOur *NodeOur) Their() *Node {
 	return &Node{
-		Name:    "self",
-		Id:      nodeOur.Id,
-		ExchPub: nodeOur.ExchPub,
-		SignPub: nodeOur.SignPub,
+		Name:        "self",
+		Id:          nodeOur.Id,
+		ExchPub:     nodeOur.ExchPub,
+		SignPub:     nodeOur.SignPub,
+		FreqChunked: MaxFileSize,
+		FreqMaxSize: MaxFileSize,
 	}
 }
 

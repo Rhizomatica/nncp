@@ -36,7 +36,7 @@ func usage() {
 	fmt.Fprint(os.Stderr, `
 If SRC equals to -, then read data from stdin to temporary file.
 
--minsize/-chunked take NODE's FreqMinSize/FreqChunked configuration
+-minsize/-chunked take NODE's freq.minsize/freq.chunked configuration
 options by default. You can forcefully turn them off by specifying 0 value.
 `)
 }
@@ -109,25 +109,15 @@ func main() {
 		chunkSize = *argChunkSize * 1024
 	}
 
-	if chunkSize == 0 {
-		err = ctx.TxFile(
-			node,
-			nice,
-			flag.Arg(0),
-			splitted[1],
-			minSize,
-		)
-	} else {
-		err = ctx.TxFileChunked(
-			node,
-			nice,
-			flag.Arg(0),
-			splitted[1],
-			minSize,
-			chunkSize,
-		)
-	}
-	if err != nil {
+	if err = ctx.TxFile(
+		node,
+		nice,
+		flag.Arg(0),
+		splitted[1],
+		chunkSize,
+		minSize,
+		nncp.MaxFileSize,
+	); err != nil {
 		log.Fatalln(err)
 	}
 }

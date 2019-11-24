@@ -48,8 +48,8 @@ can contain mix of various recipients.
 
 @end itemize
 
-Technically bundle is valid POSIX.1-2001 (pax)
-@url{http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html, tar archive},
+Technically bundle is valid POSIX.1-2001
+@url{https://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html#tag_20_92_13_01, pax archive}
 with directory/files hierarchy identical to that is used in
 @ref{nncp-xfer}: @file{NNCP/RECIPIENT/SENDER/PACKET}. So bundle can also
 be created by manual tar-ing of @command{nncp-xfer} resulting directory.

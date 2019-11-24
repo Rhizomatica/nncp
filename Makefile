@@ -49,9 +49,10 @@ all: $(ALL)
 
 $(ALL):
 	mkdir -p $(BIN)
-	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) build -ldflags "$(LDFLAGS)" \
+	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) build \
+		-o $(BIN)/$$(basename $@) \
+		-ldflags "$(LDFLAGS)" \
 		$(MOD)/cmd/$$(basename $@)
-	mv $(SRC)/$$(basename $@) $(BIN)
 
 test:
 	cd $(SRC) ; GOPATH=$(GOPATH) $(GO) test -failfast $(MOD)/...
