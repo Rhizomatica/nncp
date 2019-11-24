@@ -3,6 +3,32 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.1.0
+@section Release 5.1.0
+@itemize
+
+@item
+@command{nncp-file} can send directories, automatically creating pax
+archive on the fly.
+
+@item
+Free disk space is checked during outbound packets creation.
+
+@item
+@option{freq}, @option{freqminsize}, @option{freqchunked} configuration
+file options replaced with the structure:
+@option{freq: @{path: ..., minsize: ..., chunked: ...@}}.
+
+@item
+Added @option{freq.maxsize} configuration file option, forbidding of
+freq sending larger than specified size.
+
+@item
+Ability to notify about successfully executed commands (exec) with
+@option{notify.exec} configuration file option.
+
+@end itemize
+
 @node Release 5.0.0
 @section Release 5.0.0
 @itemize

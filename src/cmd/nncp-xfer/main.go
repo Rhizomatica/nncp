@@ -28,7 +28,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/davecgh/go-xdr/xdr2"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 	"go.cypherpunks.ru/nncp/v5"
 )
 

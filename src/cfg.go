@@ -46,17 +46,15 @@ var (
 )
 
 type NodeJSON struct {
-	Id          string              `json:"id"`
-	ExchPub     string              `json:"exchpub"`
-	SignPub     string              `json:"signpub"`
-	NoisePub    *string             `json:"noisepub,omitempty"`
-	Exec        map[string][]string `json:"exec,omitempty"`
-	Incoming    *string             `json:"incoming,omitempty"`
-	Freq        *string             `json:"freq,omitempty"`
-	FreqChunked *uint64             `json:"freqchunked,omitempty"`
-	FreqMinSize *uint64             `json:"freqminsize,omitempty"`
-	Via         []string            `json:"via,omitempty"`
-	Calls       []CallJSON          `json:"calls,omitempty"`
+	Id       string              `json:"id"`
+	ExchPub  string              `json:"exchpub"`
+	SignPub  string              `json:"signpub"`
+	NoisePub *string             `json:"noisepub,omitempty"`
+	Exec     map[string][]string `json:"exec,omitempty"`
+	Incoming *string             `json:"incoming,omitempty"`
+	Freq     *NodeFreqJSON       `json:"freq,omitempty"`
+	Via      []string            `json:"via,omitempty"`
+	Calls    []CallJSON          `json:"calls,omitempty"`
 
 	Addrs map[string]string `json:"addrs,omitempty"`
 
@@ -64,6 +62,13 @@ type NodeJSON struct {
 	TxRate         *int  `json:"txrate,omitempty"`
 	OnlineDeadline *uint `json:"onlinedeadline,omitempty"`
 	MaxOnlineTime  *uint `json:"maxonlinetime,omitempty"`
+}
+
+type NodeFreqJSON struct {
+	Path    *string `json:"path,omitempty"`
+	Chunked *uint64 `json:"chunked,omitempty"`
+	MinSize *uint64 `json:"minsize,omitempty"`
+	MaxSize *uint64 `json:"maxsize,omitempty"`
 }
 
 type CallJSON struct {
@@ -93,8 +98,9 @@ type FromToJSON struct {
 }
 
 type NotifyJSON struct {
-	File *FromToJSON `json:"file,omitempty"`
-	Freq *FromToJSON `json:"freq,omitempty"`
+	File *FromToJSON            `json:"file,omitempty"`
+	Freq *FromToJSON            `json:"freq,omitempty"`
+	Exec map[string]*FromToJSON `json:"exec,omitempty"`
 }
 
 type CfgJSON struct {
@@ -150,24 +156,31 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 		incoming = &inc
 	}
 
-	var freq *string
-	if yml.Freq != nil {
-		fr := path.Clean(*yml.Freq)
-		if !path.IsAbs(fr) {
-			return nil, errors.New("Freq path must be absolute")
-		}
-		freq = &fr
-	}
-	var freqChunked int64
-	if yml.FreqChunked != nil {
-		if *yml.FreqChunked == 0 {
-			return nil, errors.New("freqchunked value must be greater than zero")
-		}
-		freqChunked = int64(*yml.FreqChunked) * 1024
-	}
+	var freqPath *string
+	freqChunked := int64(MaxFileSize)
 	var freqMinSize int64
-	if yml.FreqMinSize != nil {
-		freqMinSize = int64(*yml.FreqMinSize) * 1024
+	freqMaxSize := int64(MaxFileSize)
+	if yml.Freq != nil {
+		f := yml.Freq
+		if f.Path != nil {
+			fPath := path.Clean(*f.Path)
+			if !path.IsAbs(fPath) {
+				return nil, errors.New("freq.path path must be absolute")
+			}
+			freqPath = &fPath
+		}
+		if f.Chunked != nil {
+			if *f.Chunked == 0 {
+				return nil, errors.New("freq.chunked value must be greater than zero")
+			}
+			freqChunked = int64(*f.Chunked) * 1024
+		}
+		if f.MinSize != nil {
+			freqMinSize = int64(*f.MinSize) * 1024
+		}
+		if f.MaxSize != nil {
+			freqMaxSize = int64(*f.MaxSize) * 1024
+		}
 	}
 
 	defRxRate := 0
@@ -268,9 +281,10 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 		SignPub:        ed25519.PublicKey(signPub),
 		Exec:           yml.Exec,
 		Incoming:       incoming,
-		Freq:           freq,
+		FreqPath:       freqPath,
 		FreqChunked:    freqChunked,
 		FreqMinSize:    freqMinSize,
+		FreqMaxSize:    freqMaxSize,
 		Calls:          calls,
 		Addrs:          yml.Addrs,
 		RxRate:         defRxRate,
@@ -423,6 +437,9 @@ func CfgParse(data []byte) (*Ctx, error) {
 		}
 		if cfgJSON.Notify.Freq != nil {
 			ctx.NotifyFreq = cfgJSON.Notify.Freq
+		}
+		if cfgJSON.Notify.Exec != nil {
+			ctx.NotifyExec = cfgJSON.Notify.Exec
 		}
 	}
 	vias := make(map[NodeId][]string)

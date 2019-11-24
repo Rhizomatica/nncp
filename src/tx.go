@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"archive/tar"
 	"bufio"
 	"bytes"
 	"crypto/rand"
@@ -29,11 +30,19 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/davecgh/go-xdr/xdr2"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/klauspost/compress/zstd"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/chacha20poly1305"
+)
+
+const (
+	MaxFileSize = 1 << 62
+
+	TarBlockSize = 512
+	TarExt       = ".tar"
 )
 
 func (ctx *Ctx) Tx(
@@ -43,10 +52,6 @@ func (ctx *Ctx) Tx(
 	size, minSize int64,
 	src io.Reader,
 ) (*Node, error) {
-	tmp, err := ctx.NewTmpFileWHash()
-	if err != nil {
-		return nil, err
-	}
 	hops := make([]*Node, 0, 1+len(node.Via))
 	hops = append(hops, node)
 	lastNode := node
@@ -62,6 +67,14 @@ func (ctx *Ctx) Tx(
 	if padSize < 0 {
 		padSize = 0
 	}
+	if !ctx.IsEnoughSpace(size + padSize) {
+		return nil, errors.New("is not enough space")
+	}
+	tmp, err := ctx.NewTmpFileWHash()
+	if err != nil {
+		return nil, err
+	}
+
 	errs := make(chan error)
 	curSize := size
 	pipeR, pipeW := io.Pipe()
@@ -109,121 +122,197 @@ func (ctx *Ctx) Tx(
 	return lastNode, err
 }
 
-func prepareTxFile(srcPath string) (io.Reader, *os.File, int64, error) {
-	var reader io.Reader
-	var src *os.File
-	var fileSize int64
-	var err error
+type DummyCloser struct{}
+
+func (dc DummyCloser) Close() error { return nil }
+
+func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize int64, archived bool, rerr error) {
 	if srcPath == "-" {
-		src, err = ioutil.TempFile("", "nncp-file")
+		// Read content from stdin, saving to temporary file, encrypting
+		// on the fly
+		src, err := ioutil.TempFile("", "nncp-file")
 		if err != nil {
-			return nil, nil, 0, err
+			rerr = err
+			return
 		}
 		os.Remove(src.Name())
 		tmpW := bufio.NewWriter(src)
 		tmpKey := make([]byte, chacha20poly1305.KeySize)
-		if _, err = rand.Read(tmpKey[:]); err != nil {
-			return nil, nil, 0, err
+		if _, rerr = rand.Read(tmpKey[:]); rerr != nil {
+			return
 		}
 		aead, err := chacha20poly1305.New(tmpKey)
 		if err != nil {
-			return nil, nil, 0, err
+			rerr = err
+			return
 		}
 		nonce := make([]byte, aead.NonceSize())
 		written, err := aeadProcess(aead, nonce, true, bufio.NewReader(os.Stdin), tmpW)
 		if err != nil {
-			return nil, nil, 0, err
+			rerr = err
+			return
 		}
 		fileSize = int64(written)
 		if err = tmpW.Flush(); err != nil {
-			return nil, nil, 0, err
+			return
 		}
 		src.Seek(0, io.SeekStart)
 		r, w := io.Pipe()
 		go func() {
 			if _, err := aeadProcess(aead, nonce, false, bufio.NewReader(src), w); err != nil {
-				panic(err)
+				w.CloseWithError(err)
 			}
 		}()
 		reader = r
-	} else {
-		src, err = os.Open(srcPath)
+		closer = src
+		return
+	}
+
+	srcStat, err := os.Stat(srcPath)
+	if err != nil {
+		rerr = err
+		return
+	}
+	mode := srcStat.Mode()
+
+	if mode.IsRegular() {
+		// It is regular file, just send it
+		src, err := os.Open(srcPath)
 		if err != nil {
-			return nil, nil, 0, err
-		}
-		srcStat, err := src.Stat()
-		if err != nil {
-			return nil, nil, 0, err
+			rerr = err
+			return
 		}
 		fileSize = srcStat.Size()
 		reader = bufio.NewReader(src)
+		closer = src
+		return
 	}
-	return reader, src, fileSize, nil
-}
 
-func (ctx *Ctx) TxFile(node *Node, nice uint8, srcPath, dstPath string, minSize int64) error {
-	if dstPath == "" {
-		if srcPath == "-" {
-			return errors.New("Must provide destination filename")
+	if !mode.IsDir() {
+		rerr = errors.New("unsupported file type")
+		return
+	}
+
+	// It is directory, create PAX archive with its contents
+	archived = true
+	basePath := filepath.Base(srcPath)
+	rootPath, err := filepath.Abs(srcPath)
+	if err != nil {
+		rerr = err
+		return
+	}
+	type einfo struct {
+		path    string
+		modTime time.Time
+		size    int64
+	}
+	dirs := make([]einfo, 0, 1<<10)
+	files := make([]einfo, 0, 1<<10)
+	rerr = filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
 		}
-		dstPath = filepath.Base(srcPath)
+		if info.IsDir() {
+			// directory header, PAX record header+contents
+			fileSize += TarBlockSize + 2*TarBlockSize
+			dirs = append(dirs, einfo{path: path, modTime: info.ModTime()})
+		} else {
+			// file header, PAX record header+contents, file content
+			fileSize += TarBlockSize + 2*TarBlockSize + info.Size()
+			if n := info.Size() % TarBlockSize; n != 0 {
+				fileSize += TarBlockSize - n // padding
+			}
+			files = append(files, einfo{
+				path:    path,
+				modTime: info.ModTime(),
+				size:    info.Size(),
+			})
+		}
+		return nil
+	})
+	if rerr != nil {
+		return
 	}
-	dstPath = filepath.Clean(dstPath)
-	if filepath.IsAbs(dstPath) {
-		return errors.New("Relative destination path required")
-	}
-	pkt, err := NewPkt(PktTypeFile, nice, []byte(dstPath))
-	if err != nil {
-		return err
-	}
-	reader, src, fileSize, err := prepareTxFile(srcPath)
-	if src != nil {
-		defer src.Close()
-	}
-	if err != nil {
-		return err
-	}
-	_, err = ctx.Tx(node, pkt, nice, fileSize, minSize, reader)
-	sds := SDS{
-		"type": "file",
-		"node": node.Id,
-		"nice": strconv.Itoa(int(nice)),
-		"src":  srcPath,
-		"dst":  dstPath,
-		"size": strconv.FormatInt(fileSize, 10),
-	}
-	if err == nil {
-		ctx.LogI("tx", sds, "sent")
-	} else {
-		sds["err"] = err
-		ctx.LogE("tx", sds, "sent")
-	}
-	return err
+
+	r, w := io.Pipe()
+	reader = r
+	closer = DummyCloser{}
+	fileSize += 2 * TarBlockSize // termination block
+
+	go func() {
+		tarWr := tar.NewWriter(w)
+		hdr := tar.Header{
+			Typeflag: tar.TypeDir,
+			Mode:     0777,
+			PAXRecords: map[string]string{
+				"comment": "Autogenerated by " + VersionGet(),
+			},
+			Format: tar.FormatPAX,
+		}
+		for _, e := range dirs {
+			hdr.Name = basePath + e.path[len(rootPath):]
+			hdr.ModTime = e.modTime
+			if err = tarWr.WriteHeader(&hdr); err != nil {
+				w.CloseWithError(err)
+			}
+		}
+		hdr.Typeflag = tar.TypeReg
+		hdr.Mode = 0666
+		for _, e := range files {
+			hdr.Name = basePath + e.path[len(rootPath):]
+			hdr.ModTime = e.modTime
+			hdr.Size = e.size
+			if err = tarWr.WriteHeader(&hdr); err != nil {
+				w.CloseWithError(err)
+			}
+			fd, err := os.Open(e.path)
+			if err != nil {
+				w.CloseWithError(err)
+			}
+			_, err = io.Copy(tarWr, bufio.NewReader(fd))
+			if err != nil {
+				w.CloseWithError(err)
+			}
+			fd.Close()
+		}
+		tarWr.Close()
+		w.Close()
+	}()
+	return
 }
 
-func (ctx *Ctx) TxFileChunked(
+func (ctx *Ctx) TxFile(
 	node *Node,
 	nice uint8,
 	srcPath, dstPath string,
-	minSize int64,
 	chunkSize int64,
+	minSize, maxSize int64,
 ) error {
+	dstPathSpecified := false
 	if dstPath == "" {
 		if srcPath == "-" {
 			return errors.New("Must provide destination filename")
 		}
 		dstPath = filepath.Base(srcPath)
+	} else {
+		dstPathSpecified = true
 	}
 	dstPath = filepath.Clean(dstPath)
 	if filepath.IsAbs(dstPath) {
 		return errors.New("Relative destination path required")
 	}
-	reader, src, fileSize, err := prepareTxFile(srcPath)
-	if src != nil {
-		defer src.Close()
+	reader, closer, fileSize, archived, err := prepareTxFile(srcPath)
+	if closer != nil {
+		defer closer.Close()
 	}
 	if err != nil {
 		return err
+	}
+	if fileSize > maxSize {
+		return errors.New("Too big than allowed")
+	}
+	if archived && !dstPathSpecified {
+		dstPath += TarExt
 	}
 
 	if fileSize <= chunkSize {
@@ -243,8 +332,7 @@ func (ctx *Ctx) TxFileChunked(
 		if err == nil {
 			ctx.LogI("tx", sds, "sent")
 		} else {
-			sds["err"] = err
-			ctx.LogE("tx", sds, "sent")
+			ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 		}
 		return err
 	}
@@ -299,8 +387,7 @@ func (ctx *Ctx) TxFileChunked(
 		if err == nil {
 			ctx.LogI("tx", sds, "sent")
 		} else {
-			sds["err"] = err
-			ctx.LogE("tx", sds, "sent")
+			ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 			return err
 		}
 		hsh.Sum(metaPkt.Checksums[chunkNum][:0])
@@ -333,8 +420,7 @@ func (ctx *Ctx) TxFileChunked(
 	if err == nil {
 		ctx.LogI("tx", sds, "sent")
 	} else {
-		sds["err"] = err
-		ctx.LogE("tx", sds, "sent")
+		ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
 	return err
 }
@@ -370,8 +456,7 @@ func (ctx *Ctx) TxFreq(
 	if err == nil {
 		ctx.LogI("tx", sds, "sent")
 	} else {
-		sds["err"] = err
-		ctx.LogE("tx", sds, "sent")
+		ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
 	return err
 }
@@ -419,8 +504,7 @@ func (ctx *Ctx) TxExec(
 	if err == nil {
 		ctx.LogI("tx", sds, "sent")
 	} else {
-		sds["err"] = err
-		ctx.LogE("tx", sds, "sent")
+		ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
 	return err
 }
@@ -433,6 +517,11 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 		"size": strconv.FormatInt(size, 10),
 	}
 	ctx.LogD("tx", sds, "taken")
+	if !ctx.IsEnoughSpace(size) {
+		err := errors.New("is not enough space")
+		ctx.LogE("tx", SdsAdd(sds, SDS{"err": err}), err.Error())
+		return err
+	}
 	tmp, err := ctx.NewTmpFileWHash()
 	if err != nil {
 		return err
@@ -445,8 +534,7 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	if err == nil {
 		ctx.LogI("tx", sds, "sent")
 	} else {
-		sds["err"] = err
-		ctx.LogI("tx", sds, "sent")
+		ctx.LogI("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
 	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name))
 	return err
