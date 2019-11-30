@@ -5,6 +5,7 @@ Here is some examples of how you can solve popular tasks with NNCP,
 making them store-and-forward friendly.
 
 @menu
+* Index files for freqing: FreqIndex.
 * Postfix::
 * Web feeds: Feeds.
 * Web pages: WARCs.
@@ -13,6 +14,22 @@ making them store-and-forward friendly.
 * Git::
 * Multimedia streaming: Multimedia.
 @end menu
+
+@node FreqIndex
+@section Index files for freqing
+
+In many cases you do not know exact files list on remote machine you
+want to freq from. Because files can be updated there. It is useful to
+run cron-ed job on it to create files listing you can freq and search
+for files in it:
+
+@verbatim
+0  4  *  *  *  cd /storage ; tmp=`mktemp` ; \
+    tree -f -h -N --du --timefmt \%Y-\%m-\%d |
+    zstdmt -19 > $tmp && chmod 644 $tmp && mv $tmp TREE.txt.zst ; \
+    tree -J -f --timefmt \%Y-\%m-\%d |
+    zstdmt -19 > $tmp && chmod 644 $tmp && mv $tmp TREE.json.zst
+@end verbatim
 
 @node Postfix
 @section Integration with Postfix
