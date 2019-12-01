@@ -332,7 +332,8 @@ If @option{-chunked} is specified, then source file will be split
 KiBs. This mode is more CPU hungry. Pay attention that chunk is saved in
 spool directory immediately and it is not deleted if any error occurs.
 @option{-minsize} option is applied per each chunk. Do not forget about
-@ref{ChunkedZFS, possible} ZFS deduplication issues.
+@ref{ChunkedZFS, possible} ZFS deduplication issues. Zero
+@option{-chunked} disables chunked transmission.
 
 If @ref{CfgNotify, notification} is enabled on the remote side for
 file transmissions, then it will sent simple letter after successful
