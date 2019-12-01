@@ -108,6 +108,9 @@ func main() {
 	} else if *argChunkSize > 0 {
 		chunkSize = *argChunkSize * 1024
 	}
+	if chunkSize == 0 {
+		chunkSize = nncp.MaxFileSize
+	}
 
 	if err = ctx.TxFile(
 		node,

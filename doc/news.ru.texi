@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.1.1
+@subsection Релиз 5.1.1
+@itemize
+
+@item
+Исправлена работоспособность @command{nncp-file} с @option{-chunked 0} опцией.
+
+@end itemize
+
 @node Релиз 5.1.0
 @subsection Релиз 5.1.0
 @itemize
