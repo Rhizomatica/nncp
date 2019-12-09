@@ -330,6 +330,11 @@ Tx:
 				isBad = true
 				continue
 			}
+			if err = nncp.DirSync(dstPath); err != nil {
+				ctx.LogE("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "sync")
+				isBad = true
+				continue
+			}
 			os.Remove(filepath.Join(dstPath, pktName+".part"))
 			delete(sds, "tmp")
 			ctx.LogI("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{

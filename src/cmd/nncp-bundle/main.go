@@ -378,6 +378,9 @@ func main() {
 					if err = os.Rename(tmp.Name(), dstPath); err != nil {
 						log.Fatalln("Error during renaming:", err)
 					}
+					if err = nncp.DirSync(selfPath); err != nil {
+						log.Fatalln("Error during syncing:", err)
+					}
 				}
 			}
 			ctx.LogI("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{
