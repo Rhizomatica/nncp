@@ -838,12 +838,12 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			sdsp["xx"] = string(TRx)
 			sdsp["hash"] = ToBase32(file.Hash[:])
 			sdsp["size"] = strconv.Itoa(len(file.Payload))
-			filePath := filepath.Join(
+			dirToSync := filepath.Join(
 				state.Ctx.Spool,
 				state.Node.Id.String(),
 				string(TRx),
-				ToBase32(file.Hash[:]),
 			)
+			filePath := filepath.Join(dirToSync, ToBase32(file.Hash[:]))
 			state.Ctx.LogD("sp-file", sdsp, "opening part")
 			fd, err := os.OpenFile(
 				filePath+PartSuffix,
@@ -901,7 +901,14 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					return
 				}
 				state.Ctx.LogI("sp-done", SdsAdd(sdsp, SDS{"xx": string(TRx)}), "")
-				os.Rename(filePath+PartSuffix, filePath)
+				if err = os.Rename(filePath+PartSuffix, filePath); err != nil {
+					state.Ctx.LogE("sp-file", SdsAdd(sdsp, SDS{"err": err}), "rename")
+					return
+				}
+				if err = DirSync(dirToSync); err != nil {
+					state.Ctx.LogE("sp-file", SdsAdd(sdsp, SDS{"err": err}), "sync")
+					return
+				}
 				state.Lock()
 				delete(state.infosTheir, *file.Hash)
 				state.Unlock()

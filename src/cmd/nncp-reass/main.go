@@ -238,6 +238,9 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	if err = os.Rename(tmp.Name(), dstPath); err != nil {
 		log.Fatalln(err)
 	}
+	if err = nncp.DirSync(mainDir); err != nil {
+		log.Fatalln(err)
+	}
 	ctx.LogI("nncp-reass", nncp.SDS{"path": path}, "done")
 	return !hasErrors
 }

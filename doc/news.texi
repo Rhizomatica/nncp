@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.1.2
+@section Release 5.1.2
+@itemize
+
+@item
+Explicit directories fsync-ing for guaranteed files renaming.
+
+@end itemize
+
 @node Release 5.1.1
 @section Release 5.1.1
 @itemize
