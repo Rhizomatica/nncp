@@ -4,7 +4,7 @@
 You @strong{have to} check downloaded archives integrity and verify
 their signature to be sure that you have got trusted, untampered
 software. For integrity and authentication of downloaded binaries
-@url{https://www.gnupg.org/, The GNU Privacy Guard} is used. You must
+@url{https://www.gnupg.org/, GNU Privacy Guard} is used. You must
 download signature (@file{.sig}) provided with the tarball.
 
 For the very first time you need to import signing public key. It is
