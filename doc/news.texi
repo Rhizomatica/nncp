@@ -8,6 +8,10 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+Bugfix: private and public Noise keys were swapped in newly created
+configuration files, that lead to inability to authenticate online peers.
+
+@item
 Explicit directories fsync-ing for guaranteed files renaming.
 
 @end itemize
