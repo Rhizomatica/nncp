@@ -261,6 +261,10 @@ func (ctx *Ctx) Toss(
 					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "rename")
 					isBad = true
 				}
+				if err = DirSync(*incoming); err != nil {
+					ctx.LogE("rx", SdsAdd(sds, SDS{"err": err}), "sync")
+					isBad = true
+				}
 				delete(sds, "tmp")
 			}
 			ctx.LogI("rx", sds, "")

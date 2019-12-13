@@ -79,6 +79,19 @@ func (tmp *TmpFileWHash) Cancel() {
 	os.Remove(tmp.Fd.Name())
 }
 
+func DirSync(dirPath string) error {
+	fd, err := os.Open(dirPath)
+	if err != nil {
+		return err
+	}
+	err = fd.Sync()
+	if err != nil {
+		fd.Close()
+		return err
+	}
+	return fd.Close()
+}
+
 func (tmp *TmpFileWHash) Commit(dir string) error {
 	var err error
 	if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
@@ -95,5 +108,8 @@ func (tmp *TmpFileWHash) Commit(dir string) error {
 	tmp.Fd.Close()
 	checksum := ToBase32(tmp.Hsh.Sum(nil))
 	tmp.ctx.LogD("tmp", SDS{"src": tmp.Fd.Name(), "dst": checksum}, "commit")
-	return os.Rename(tmp.Fd.Name(), filepath.Join(dir, checksum))
+	if err = os.Rename(tmp.Fd.Name(), filepath.Join(dir, checksum)); err != nil {
+		return err
+	}
+	return DirSync(dir)
 }
