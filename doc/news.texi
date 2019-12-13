@@ -8,6 +8,11 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+@strong{Critical} vulnerability: remote peers authentication could lead
+to incorrect identification of remote side, allowing foreign encrypted
+packets downloading.
+
+@item
 Bugfix: private and public Noise keys were swapped in newly created
 configuration files, that lead to inability to authenticate online peers.
 
