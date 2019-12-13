@@ -231,6 +231,10 @@ func (state *SPState) ReadSP(src io.Reader) ([]byte, error) {
 	var sp SPRaw
 	n, err := xdr.UnmarshalLimited(src, &sp, 1<<17)
 	if err != nil {
+		ue := err.(*xdr.UnmarshalError)
+		if ue.Err == io.EOF {
+			return nil, ue.Err
+		}
 		return nil, err
 	}
 	state.RxLastSeen = time.Now()
