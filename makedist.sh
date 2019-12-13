@@ -10,7 +10,7 @@ cd $tmp/nncp-$release
 git checkout v$release
 rm -fr .git
 
-mod_name=go.cypherpunks.ru/nncp/v5
+mod_name=$(sed -n 's/^module //p' src/go.mod)
 mv src src.orig
 mkdir -p src/$mod_name
 mv src.orig/* src/$mod_name

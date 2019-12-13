@@ -173,7 +173,10 @@ func (ctx *Ctx) Humanize(s string) string {
 	case "nncp-rm":
 		msg += "removing " + sds["file"]
 	case "call-start":
-		msg = fmt.Sprintf("Connected to %s", nodeS)
+		msg = fmt.Sprintf("Connection to %s", nodeS)
+		if err, exists := sds["err"]; exists {
+			msg += ": " + err
+		}
 	case "call-finish":
 		rx, err := strconv.ParseUint(sds["rxbytes"], 10, 64)
 		if err != nil {
@@ -197,6 +200,26 @@ func (ctx *Ctx) Humanize(s string) string {
 			humanize.IBytes(uint64(rx)), humanize.IBytes(uint64(rxs)),
 			humanize.IBytes(uint64(tx)), humanize.IBytes(uint64(txs)),
 		)
+	case "sp-start":
+		if nodeS == "" {
+			msg += "SP"
+			if peer, exists := sds["peer"]; exists {
+				msg += fmt.Sprintf(": %s", peer)
+			}
+		} else {
+			nice, err := NicenessParse(sds["nice"])
+			if err != nil {
+				return s
+			}
+			msg += fmt.Sprintf("SP with %s (nice %s)", nodeS, NicenessFmt(nice))
+		}
+		if len(rem) > 0 {
+			msg += ": " + rem
+		}
+		if err, exists := sds["err"]; exists {
+			msg += ": " + err
+		}
+
 	case "sp-info":
 		nice, err := NicenessParse(sds["nice"])
 		if err != nil {
