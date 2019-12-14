@@ -39,6 +39,7 @@ type Ctx struct {
 	LogPath    string
 	UmaskForce *int
 	Quiet      bool
+	ShowPrgrs  bool
 	Debug      bool
 	NotifyFile *FromToJSON
 	NotifyFreq *FromToJSON
@@ -64,22 +65,30 @@ func (ctx *Ctx) FindNode(id string) (*Node, error) {
 func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
 	dirPath := filepath.Join(ctx.Spool, nodeId.String(), string(TRx))
 	if err := os.MkdirAll(dirPath, os.FileMode(0777)); err != nil {
-		ctx.LogE("dir-ensure", SDS{"dir": dirPath, "err": err}, "")
+		ctx.LogE("dir-ensure", SDS{"dir": dirPath}, err, "")
 		return err
 	}
 	fd, err := os.Open(dirPath)
 	if err != nil {
-		ctx.LogE("dir-ensure", SDS{"dir": dirPath, "err": err}, "")
+		ctx.LogE("dir-ensure", SDS{"dir": dirPath}, err, "")
 		return err
 	}
 	fd.Close()
 	return nil
 }
 
-func CtxFromCmdline(cfgPath, spoolPath, logPath string, quiet, debug bool) (*Ctx, error) {
+func CtxFromCmdline(
+	cfgPath,
+	spoolPath,
+	logPath string,
+	quiet, showPrgrs, omitPrgrs, debug bool,
+) (*Ctx, error) {
 	env := os.Getenv(CfgPathEnv)
 	if env != "" {
 		cfgPath = env
+	}
+	if showPrgrs && omitPrgrs {
+		return nil, errors.New("simultaneous -progress and -noprogress")
 	}
 	cfgRaw, err := ioutil.ReadFile(cfgPath)
 	if err != nil {
@@ -104,6 +113,12 @@ func CtxFromCmdline(cfgPath, spoolPath, logPath string, quiet, debug bool) (*Ctx
 		}
 	} else {
 		ctx.LogPath = logPath
+	}
+	if showPrgrs {
+		ctx.ShowPrgrs = true
+	}
+	if quiet || omitPrgrs {
+		ctx.ShowPrgrs = false
 	}
 	ctx.Quiet = quiet
 	ctx.Debug = debug

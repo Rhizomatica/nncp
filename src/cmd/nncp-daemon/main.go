@@ -24,7 +24,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"strconv"
 	"time"
 
 	"go.cypherpunks.ru/nncp/v5"
@@ -73,18 +72,18 @@ func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
 		state.Wait()
 		ctx.LogI("call-finish", nncp.SDS{
 			"node":     state.Node.Id,
-			"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
-			"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
-			"txbytes":  strconv.FormatInt(state.TxBytes, 10),
-			"rxspeed":  strconv.FormatInt(state.RxSpeed, 10),
-			"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
+			"duration": state.Duration.Seconds(),
+			"rxbytes":  state.RxBytes,
+			"txbytes":  state.TxBytes,
+			"rxspeed":  state.RxSpeed,
+			"txspeed":  state.TxSpeed,
 		}, "")
 	} else {
 		nodeId := "unknown"
 		if state.Node != nil {
 			nodeId = state.Node.Id.String()
 		}
-		ctx.LogE("call-start", nncp.SDS{"node": nodeId, "err": err}, "")
+		ctx.LogE("call-start", nncp.SDS{"node": nodeId}, err, "")
 	}
 }
 
@@ -98,6 +97,8 @@ func main() {
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
+		showPrgrs = flag.Bool("progress", false, "Force progress showing")
+		omitPrgrs = flag.Bool("noprogress", false, "Omit progress showing")
 		debug     = flag.Bool("debug", false, "Print debug messages")
 		version   = flag.Bool("version", false, "Print version information")
 		warranty  = flag.Bool("warranty", false, "Print warranty information")
@@ -117,7 +118,15 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
+	ctx, err := nncp.CtxFromCmdline(
+		*cfgPath,
+		*spoolPath,
+		*logPath,
+		*quiet,
+		*showPrgrs,
+		*omitPrgrs,
+		*debug,
+	)
 	if err != nil {
 		log.Fatalln("Error during initialization:", err)
 	}
