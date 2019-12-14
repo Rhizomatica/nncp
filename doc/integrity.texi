@@ -19,10 +19,10 @@ uid   NNCP releases <releases at nncpgo dot org>
 @itemize
 
 @item
-@verbatim
+@example
 $ gpg --auto-key-locate dane --locate-keys releases at nncpgo dot org
 $ gpg --auto-key-locate wkd --locate-keys releases at nncpgo dot org
-@end verbatim
+@end example
 
 @item
 @verbatiminclude .well-known/openpgpkey/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc
