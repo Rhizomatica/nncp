@@ -37,7 +37,7 @@ func Check(src io.Reader, checksum []byte) (bool, error) {
 	return bytes.Compare(hsh.Sum(nil), checksum) == 0, nil
 }
 
-func (ctx *Ctx) checkXx(nodeId *NodeId, xx TRxTx) bool {
+func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, xx) {
 		sds := SDS{
@@ -50,7 +50,7 @@ func (ctx *Ctx) checkXx(nodeId *NodeId, xx TRxTx) bool {
 		job.Fd.Close()
 		if err != nil {
 			ctx.LogE("check", SdsAdd(sds, SDS{"err": err}), "")
-			return false
+			return true
 		}
 		if !gut {
 			isBad = true
@@ -61,5 +61,5 @@ func (ctx *Ctx) checkXx(nodeId *NodeId, xx TRxTx) bool {
 }
 
 func (ctx *Ctx) Check(nodeId *NodeId) bool {
-	return ctx.checkXx(nodeId, TRx) || ctx.checkXx(nodeId, TTx)
+	return !(ctx.checkXxIsBad(nodeId, TRx) || ctx.checkXxIsBad(nodeId, TTx))
 }
