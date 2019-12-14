@@ -22,6 +22,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"flag"
 	"fmt"
 	"hash"
@@ -57,21 +58,18 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	}
 	var metaPkt nncp.ChunkedMeta
 	if _, err = xdr.Unmarshal(fd, &metaPkt); err != nil {
-		ctx.LogE("nncp-reass", nncp.SDS{"path": path, "err": err}, "bad meta file")
+		ctx.LogE("nncp-reass", nncp.SDS{"path": path}, err, "bad meta file")
 		return false
 	}
 	fd.Close()
 	if metaPkt.Magic != nncp.MagicNNCPMv1 {
-		ctx.LogE("nncp-reass", nncp.SDS{"path": path, "err": nncp.BadMagic}, "")
+		ctx.LogE("nncp-reass", nncp.SDS{"path": path}, nncp.BadMagic, "")
 		return false
 	}
 
 	metaName := filepath.Base(path)
 	if !strings.HasSuffix(metaName, nncp.ChunkedSuffixMeta) {
-		ctx.LogE("nncp-reass", nncp.SDS{
-			"path": path,
-			"err":  "invalid filename suffix",
-		}, "")
+		ctx.LogE("nncp-reass", nncp.SDS{"path": path}, errors.New("invalid filename suffix"), "")
 		return false
 	}
 	mainName := strings.TrimSuffix(metaName, nncp.ChunkedSuffixMeta)
@@ -108,10 +106,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	for chunkNum, chunkPath := range chunksPaths {
 		fi, err := os.Stat(chunkPath)
 		if err != nil && os.IsNotExist(err) {
-			ctx.LogI("nncp-reass", nncp.SDS{
-				"path":  path,
-				"chunk": strconv.Itoa(chunkNum),
-			}, "missing")
+			ctx.LogI("nncp-reass", nncp.SDS{"path": path, "chunk": chunkNum}, "missing")
 			allChunksExist = false
 			continue
 		}
@@ -122,10 +117,11 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			badSize = uint64(fi.Size()) != metaPkt.ChunkSize
 		}
 		if badSize {
-			ctx.LogE("nncp-reass", nncp.SDS{
-				"path":  path,
-				"chunk": strconv.Itoa(chunkNum),
-			}, "invalid size")
+			ctx.LogE(
+				"nncp-reass",
+				nncp.SDS{"path": path, "chunk": chunkNum},
+				errors.New("invalid size"), "",
+			)
 			allChunksExist = false
 		}
 	}
@@ -140,19 +136,27 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		if err != nil {
 			log.Fatalln("Can not open file:", err)
 		}
+		fi, err := fd.Stat()
+		if err != nil {
+			log.Fatalln("Can not stat file:", err)
+		}
 		hsh, err = blake2b.New256(nil)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		if _, err = io.Copy(hsh, bufio.NewReader(fd)); err != nil {
+		if _, err = nncp.CopyProgressed(hsh, bufio.NewReader(fd), nncp.SDS{
+			"pkt":      chunkPath,
+			"fullsize": fi.Size(),
+		}, ctx.ShowPrgrs); err != nil {
 			log.Fatalln(err)
 		}
 		fd.Close()
 		if bytes.Compare(hsh.Sum(nil), metaPkt.Checksums[chunkNum][:]) != 0 {
-			ctx.LogE("nncp-reass", nncp.SDS{
-				"path":  path,
-				"chunk": strconv.Itoa(chunkNum),
-			}, "checksum is bad")
+			ctx.LogE(
+				"nncp-reass",
+				nncp.SDS{"path": path, "chunk": chunkNum},
+				errors.New("checksum is bad"), "",
+			)
 			allChecksumsGood = false
 		}
 	}
@@ -187,16 +191,20 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		if err != nil {
 			log.Fatalln("Can not open file:", err)
 		}
-		if _, err = io.Copy(dstW, bufio.NewReader(fd)); err != nil {
+		fi, err := fd.Stat()
+		if err != nil {
+			log.Fatalln("Can not stat file:", err)
+		}
+		if _, err = nncp.CopyProgressed(dstW, bufio.NewReader(fd), nncp.SDS{
+			"pkt":      chunkPath,
+			"fullsize": fi.Size(),
+		}, ctx.ShowPrgrs); err != nil {
 			log.Fatalln(err)
 		}
 		fd.Close()
 		if !keep {
 			if err = os.Remove(chunkPath); err != nil {
-				ctx.LogE("nncp-reass", nncp.SdsAdd(sds, nncp.SDS{
-					"chunk": strconv.Itoa(chunkNum),
-					"err":   err,
-				}), "")
+				ctx.LogE("nncp-reass", nncp.SdsAdd(sds, nncp.SDS{"chunk": chunkNum}), err, "")
 				hasErrors = true
 			}
 		}
@@ -213,7 +221,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	ctx.LogD("nncp-reass", sds, "written")
 	if !keep {
 		if err = os.Remove(path); err != nil {
-			ctx.LogE("nncp-reass", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "")
+			ctx.LogE("nncp-reass", sds, err, "")
 			hasErrors = true
 		}
 	}
@@ -249,13 +257,13 @@ func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 	dir, err := os.Open(dirPath)
 	defer dir.Close()
 	if err != nil {
-		ctx.LogE("nncp-reass", nncp.SDS{"path": dirPath, "err": err}, "")
+		ctx.LogE("nncp-reass", nncp.SDS{"path": dirPath}, err, "")
 		return nil
 	}
 	fis, err := dir.Readdir(0)
 	dir.Close()
 	if err != nil {
-		ctx.LogE("nncp-reass", nncp.SDS{"path": dirPath, "err": err}, "")
+		ctx.LogE("nncp-reass", nncp.SDS{"path": dirPath}, err, "")
 		return nil
 	}
 	metaPaths := make([]string, 0)
@@ -279,6 +287,8 @@ func main() {
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
+		showPrgrs = flag.Bool("progress", false, "Force progress showing")
+		omitPrgrs = flag.Bool("noprogress", false, "Omit progress showing")
 		debug     = flag.Bool("debug", false, "Print debug messages")
 		version   = flag.Bool("version", false, "Print version information")
 		warranty  = flag.Bool("warranty", false, "Print warranty information")
@@ -294,7 +304,15 @@ func main() {
 		return
 	}
 
-	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
+	ctx, err := nncp.CtxFromCmdline(
+		*cfgPath,
+		*spoolPath,
+		*logPath,
+		*quiet,
+		*showPrgrs,
+		*omitPrgrs,
+		*debug,
+	)
 	if err != nil {
 		log.Fatalln("Error during initialization:", err)
 	}

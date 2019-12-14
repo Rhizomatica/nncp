@@ -34,6 +34,8 @@ Nearly all commands have the following common options:
     Print only errors, omit simple informational messages. In any case
     those messages are logged, so you can reread them using
     @ref{nncp-log} command.
+@item -progress, -noprogress
+    Either force progress showing, or disable it.
 @item -version
     Print version information.
 @item -warranty

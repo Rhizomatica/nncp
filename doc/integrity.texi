@@ -30,6 +30,7 @@ $ gpg --auto-key-locate wkd --locate-keys releases at nncpgo dot org
 @end itemize
 
 Then you could verify tarballs signature:
-@verbatim
-$ gpg --verify nncp-5.1.2.tar.xz.sig nncp-5.1.2.tar.xz
-@end verbatim
+
+@example
+$ gpg --verify nncp-@value{VERSION}.tar.xz.sig nncp-@value{VERSION}.tar.xz
+@end example

@@ -20,18 +20,19 @@ package nncp
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"io"
 	"log"
 
 	"golang.org/x/crypto/blake2b"
 )
 
-func Check(src io.Reader, checksum []byte) (bool, error) {
+func Check(src io.Reader, checksum []byte, sds SDS, showPrgrs bool) (bool, error) {
 	hsh, err := blake2b.New256(nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if _, err = io.Copy(hsh, bufio.NewReader(src)); err != nil {
+	if _, err = CopyProgressed(hsh, bufio.NewReader(src), sds, showPrgrs); err != nil {
 		return false, err
 	}
 	return bytes.Compare(hsh.Sum(nil), checksum) == 0, nil
@@ -41,20 +42,20 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, xx) {
 		sds := SDS{
-			"xx":   string(xx),
-			"node": nodeId,
-			"pkt":  ToBase32(job.HshValue[:]),
+			"xx":       string(xx),
+			"node":     nodeId,
+			"pkt":      ToBase32(job.HshValue[:]),
+			"fullsize": job.Size,
 		}
-		ctx.LogP("check", sds, "")
-		gut, err := Check(job.Fd, job.HshValue[:])
+		gut, err := Check(job.Fd, job.HshValue[:], sds, ctx.ShowPrgrs)
 		job.Fd.Close()
 		if err != nil {
-			ctx.LogE("check", SdsAdd(sds, SDS{"err": err}), "")
+			ctx.LogE("check", sds, err, "")
 			return true
 		}
 		if !gut {
 			isBad = true
-			ctx.LogE("check", sds, "bad")
+			ctx.LogE("check", sds, errors.New("bad"), "")
 		}
 	}
 	return isBad

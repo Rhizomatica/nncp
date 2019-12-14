@@ -8,6 +8,7 @@ Example @url{https://hjson.org/, Hjson} configuration file:
   spool: /var/spool/nncp
   log: /var/spool/nncp/log
   umask: "022"
+  noprogress: true
 
   notify: {
     file: {
@@ -97,6 +98,10 @@ log} file.
 Non-empty optional @strong{umask} will force all invoked commands to
 override their umask to specified octal mask. Useful for using with
 @ref{Shared spool, shared spool directories}.
+
+Enabled @strong{noprogress} option disabled progress showing for many
+commands by default. You can always force its showing with
+@option{-progress} command line option anyway.
 
 @anchor{CfgNotify}
 @strong{notify} section contains notification settings for successfully
