@@ -239,6 +239,10 @@ func main() {
 				ctx.LogD("nncp-bundle", sds, "Too small packet")
 				continue
 			}
+			if !ctx.IsEnoughSpace(entry.Size) {
+				ctx.LogE("nncp-bundle", sds, errors.New("not enough spool space"), "")
+				continue
+			}
 			pktName = filepath.Base(entry.Name)
 			if _, err = nncp.FromBase32(pktName); err != nil {
 				ctx.LogD("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{"err": "bad packet name"}), "")

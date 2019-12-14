@@ -16,6 +16,9 @@ Most commands by default show oneline operations progress.
 Fixed incorrect @command{nncp-check} command return code, that returned
 bad code when everything is good.
 
+@item
+Free disk space check during @command{nncp-bundle -rx} call.
+
 @end itemize
 
 @node Release 5.1.2
