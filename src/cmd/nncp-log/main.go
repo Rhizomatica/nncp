@@ -54,7 +54,7 @@ func main() {
 		return
 	}
 
-	ctx, err := nncp.CtxFromCmdline(*cfgPath, "", *logPath, false, *debug)
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, "", *logPath, false, false, false, *debug)
 	if err != nil {
 		log.Fatalln("Error during initialization:", err)
 	}

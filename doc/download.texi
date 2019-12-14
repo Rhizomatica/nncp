@@ -12,6 +12,7 @@ Tarballs include all necessary required libraries:
 @item @code{github.com/dustin/go-humanize} @tab MIT
 @item @code{github.com/flynn/noise} @tab BSD 3-Clause
 @item @code{github.com/gorhill/cronexpr} @tab GNU GPLv3
+@item @code{github.com/gosuri/uilive} @tab MIT
 @item @code{github.com/hjson/hjson-go} @tab MIT
 @item @code{github.com/klauspost/compress} @tab BSD 3-Clause
 @item @code{go.cypherpunks.ru/balloon} @tab GNU LGPLv3
@@ -22,6 +23,10 @@ Tarballs include all necessary required libraries:
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
+
+@item @ref{Release 5.1.2, 5.1.2} @tab 2019-12-13 @tab 1106 KiB
+@tab @url{download/nncp-5.1.2.tar.xz, link} @url{download/nncp-5.1.2.tar.xz.sig, sign}
+@tab @code{52B2043B 1B22D20F C44698EC AFE5FF46 F99B4DD5 2C392D4D 25FE1580 993263B3}
 
 @item @ref{Release 5.1.1, 5.1.1} @tab 2019-12-01 @tab 1103 KiB
 @tab @url{download/nncp-5.1.1.tar.xz, link} @url{download/nncp-5.1.1.tar.xz.sig, sign}

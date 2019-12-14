@@ -49,6 +49,8 @@ func main() {
 		spoolPath   = flag.String("spool", "", "Override path to spool")
 		logPath     = flag.String("log", "", "Override path to logfile")
 		quiet       = flag.Bool("quiet", false, "Print only errors")
+		showPrgrs   = flag.Bool("progress", false, "Force progress showing")
+		omitPrgrs   = flag.Bool("noprogress", false, "Omit progress showing")
 		debug       = flag.Bool("debug", false, "Print debug messages")
 		version     = flag.Bool("version", false, "Print version information")
 		warranty    = flag.Bool("warranty", false, "Print warranty information")
@@ -78,7 +80,15 @@ func main() {
 		log.Fatalln("-rx and -tx can not be set simultaneously")
 	}
 
-	ctx, err := nncp.CtxFromCmdline(*cfgPath, *spoolPath, *logPath, *quiet, *debug)
+	ctx, err := nncp.CtxFromCmdline(
+		*cfgPath,
+		*spoolPath,
+		*logPath,
+		*quiet,
+		*showPrgrs,
+		*omitPrgrs,
+		*debug,
+	)
 	if err != nil {
 		log.Fatalln("Error during initialization:", err)
 	}

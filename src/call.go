@@ -19,7 +19,6 @@ package nncp
 
 import (
 	"net"
-	"strconv"
 
 	"github.com/gorhill/cronexpr"
 )
@@ -77,17 +76,17 @@ func (ctx *Ctx) CallNode(
 			state.Wait()
 			ctx.LogI("call-finish", SDS{
 				"node":     state.Node.Id,
-				"duration": strconv.FormatInt(int64(state.Duration.Seconds()), 10),
-				"rxbytes":  strconv.FormatInt(state.RxBytes, 10),
-				"txbytes":  strconv.FormatInt(state.TxBytes, 10),
-				"rxspeed":  strconv.FormatInt(state.RxSpeed, 10),
-				"txspeed":  strconv.FormatInt(state.TxSpeed, 10),
+				"duration": int64(state.Duration.Seconds()),
+				"rxbytes":  state.RxBytes,
+				"txbytes":  state.TxBytes,
+				"rxspeed":  state.RxSpeed,
+				"txspeed":  state.TxSpeed,
 			}, "")
 			isGood = true
 			conn.Close()
 			break
 		} else {
-			ctx.LogE("call-start", SdsAdd(sds, SDS{"err": err}), "")
+			ctx.LogE("call-start", sds, err, "")
 			conn.Close()
 		}
 	}

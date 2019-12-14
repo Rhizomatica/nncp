@@ -54,6 +54,7 @@ just an unsigned integer telling what body structure follows.
     Actually @emph{HALT} packet does not have any body, only the header
     with the type. It is also used in the first payload for padding to
     the maximum size.
+
 @verbatim
 +------+
 | HALT |
@@ -62,11 +63,13 @@ just an unsigned integer telling what body structure follows.
 
 @item INFO
     Information about the file we have for transmission.
+
 @verbatim
 +------+--------------------+
 | INFO | NICE | SIZE | HASH |
 +------+--------------------+
 @end verbatim
+
     @multitable @columnfractions 0.2 0.3 0.5
     @headitem @tab XDR type @tab Value
     @item Niceness @tab
@@ -83,11 +86,13 @@ just an unsigned integer telling what body structure follows.
 @item FREQ
     File transmission request. Ask remote side to queue the file for
     transmission.
+
 @verbatim
 +------+---------------+
 | FREQ | HASH | OFFSET |
 +------+---------------+
 @end verbatim
+
     @multitable @columnfractions 0.2 0.3 0.5
     @headitem @tab XDR type @tab Value
     @item Hash @tab
@@ -100,11 +105,13 @@ just an unsigned integer telling what body structure follows.
 
 @item FILE
     Chunk of file.
+
 @verbatim
 +------+-------------------------+
 | FILE | HASH | OFFSET | PAYLOAD |
 +------+-------------------------+
 @end verbatim
+
     @multitable @columnfractions 0.2 0.3 0.5
     @headitem @tab XDR type @tab Value
     @item Hash @tab
@@ -120,11 +127,13 @@ just an unsigned integer telling what body structure follows.
 
 @item DONE
     Signal remote side that we have successfully downloaded the file.
+
 @verbatim
 +------+------+
 | DONE | HASH |
 +------+------+
 @end verbatim
+
     @multitable @columnfractions 0.2 0.3 0.5
     @headitem @tab XDR type @tab Value
     @item Hash @tab

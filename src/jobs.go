@@ -21,7 +21,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 )
@@ -73,8 +72,8 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 				"xx":   string(xx),
 				"node": pktEnc.Sender,
 				"name": fi.Name(),
-				"nice": strconv.Itoa(int(pktEnc.Nice)),
-				"size": strconv.FormatInt(fi.Size(), 10),
+				"nice": int(pktEnc.Nice),
+				"size": fi.Size(),
 			}, "taken")
 			job := Job{
 				PktEnc:   &pktEnc,
