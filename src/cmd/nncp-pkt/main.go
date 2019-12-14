@@ -132,7 +132,7 @@ func main() {
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc)
 	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv4 {
 		if *dump {
-			ctx, err := nncp.CtxFromCmdline(*cfgPath, "", "", false, false)
+			ctx, err := nncp.CtxFromCmdline(*cfgPath, "", "", false, false, false, false)
 			if err != nil {
 				log.Fatalln("Error during initialization:", err)
 			}

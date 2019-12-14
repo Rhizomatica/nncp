@@ -108,6 +108,8 @@ type CfgJSON struct {
 	Log   string `json:"log"`
 	Umask string `json:"umask",omitempty`
 
+	OmitPrgrs bool `json:"noprogress",omitempty`
+
 	Notify *NotifyJSON `json:"notify,omitempty"`
 
 	Self  *NodeOurJSON        `json:"self"`
@@ -423,10 +425,15 @@ func CfgParse(data []byte) (*Ctx, error) {
 		rInt := int(r)
 		umaskForce = &rInt
 	}
+	showPrgrs := true
+	if cfgJSON.OmitPrgrs {
+		showPrgrs = false
+	}
 	ctx := Ctx{
 		Spool:      spoolPath,
 		LogPath:    logPath,
 		UmaskForce: umaskForce,
+		ShowPrgrs:  showPrgrs,
 		Self:       self,
 		Neigh:      make(map[NodeId]*Node, len(cfgJSON.Neigh)),
 		Alias:      make(map[string]*NodeId),

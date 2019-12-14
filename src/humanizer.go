@@ -227,7 +227,7 @@ func (ctx *Ctx) Humanize(s string) string {
 		}
 		msg = fmt.Sprintf(
 			"Packet %s (%s) (nice %s)",
-			sds["hash"],
+			sds["pkt"],
 			size,
 			NicenessFmt(nice),
 		)
@@ -254,7 +254,7 @@ func (ctx *Ctx) Humanize(s string) string {
 		}
 		msg += fmt.Sprintf("%s packets, %s", sds["pkts"], size)
 	case "sp-process":
-		msg = fmt.Sprintf("%s has %s (%s): %s", nodeS, sds["hash"], size, rem)
+		msg = fmt.Sprintf("%s has %s (%s): %s", nodeS, sds["pkt"], size, rem)
 	case "sp-file":
 		switch sds["xx"] {
 		case "rx":
@@ -274,7 +274,7 @@ func (ctx *Ctx) Humanize(s string) string {
 		}
 		msg += fmt.Sprintf(
 			"%s %d%% (%s / %s)",
-			sds["hash"],
+			sds["pkt"],
 			100*sizeParsed/fullsize,
 			humanize.IBytes(uint64(sizeParsed)),
 			humanize.IBytes(uint64(fullsize)),
@@ -282,9 +282,9 @@ func (ctx *Ctx) Humanize(s string) string {
 	case "sp-done":
 		switch sds["xx"] {
 		case "rx":
-			msg = fmt.Sprintf("Packet %s is retreived (%s)", sds["hash"], size)
+			msg = fmt.Sprintf("Packet %s is retreived (%s)", sds["pkt"], size)
 		case "tx":
-			msg = fmt.Sprintf("Packet %s is sent", sds["hash"])
+			msg = fmt.Sprintf("Packet %s is sent", sds["pkt"])
 		default:
 			return s
 		}

@@ -102,6 +102,8 @@ func main() {
   log: %s
   # Enforce specified umask usage
   # umask: "022"
+  # Omit progress showing by default
+  # noprogress: true
 
   # Enable notification email sending
   # notify: {
