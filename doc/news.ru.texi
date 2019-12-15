@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.2.1
+@subsection Релиз 5.2.1
+@itemize
+
+@item
+Исправлена обработка ошибки SP протокола, иногда вызывающая панику программы.
+
+@end itemize
+
 @node Релиз 5.2.0
 @subsection Релиз 5.2.0
 @itemize

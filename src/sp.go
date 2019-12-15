@@ -680,6 +680,9 @@ func (state *SPState) StartWorkers(
 			conn.SetReadDeadline(time.Now().Add(DefaultDeadline * time.Second))
 			payload, err := state.ReadSP(conn)
 			if err != nil {
+				if err == io.EOF {
+					break
+				}
 				unmarshalErr := err.(*xdr.UnmarshalError)
 				netErr, ok := unmarshalErr.Err.(net.Error)
 				if ok && netErr.Timeout() {
