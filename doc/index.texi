@@ -2,8 +2,6 @@
 @documentencoding UTF-8
 @settitle NNCP
 
-@set VERSION 5.2.0
-
 @copying
 This manual is for NNCP (Node to Node copy) --  collection of utilities
 simplifying secure store-and-forward files and mail exchanging.
