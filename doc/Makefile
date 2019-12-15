@@ -1,6 +1,6 @@
-all: nncp.info nncp.html
-
 MAKEINFO ?= makeinfo
+
+all: nncp.info nncp.html
 
 sp.utxt: sp.txt
 	plantuml -tutxt sp.txt
