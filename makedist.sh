@@ -108,23 +108,23 @@ You can obtain releases source code prepared tarballs on
 @url{http://www.nncpgo.org/}.
 EOF
 perl -i -ne 'print unless /include pedro/' doc/index.texi doc/about.ru.texi
+perl -p -i -e 's/^(.verbatiminclude) .*$/$1 PUBKEY.asc/g' doc/integrity.texi
+mv doc/.well-known/openpgpkey/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY.asc
+ln -s ../PUBKEY.asc doc
 make -C doc
 
 ########################################################################
 # Supplementary files autogeneration
 ########################################################################
-texi=`mktemp`
+texi=$(TMPDIR=doc mktemp)
 
 cat > $texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle NEWS
-
 @node News
 @unnumbered News
-
 `sed -n '5,$p' < doc/news.texi`
-
 @bye
 EOF
 makeinfo --plaintext -o NEWS $texi
@@ -133,40 +133,30 @@ cat > $texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle NEWS.RU
-
 @node Новости
 @unnumbered Новости
-
 `sed -n '3,$p' < doc/news.ru.texi | sed 's/^@subsection/@section/'`
-
 @bye
 EOF
 makeinfo --plaintext -o NEWS.RU $texi
 
 rm -f $texi
 
-texi=$(TMPDIR=doc mktemp)
 cat > $texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle INSTALL
-
 @include install.texi
-
 @bye
 EOF
 makeinfo --plaintext -o INSTALL $texi
 rm -f $texi
 
-texi=`mktemp`
-
 cat > $texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle THANKS
-
 `cat doc/thanks.texi`
-
 @bye
 EOF
 makeinfo --plaintext -o THANKS $texi
@@ -174,7 +164,6 @@ rm -f $texi
 
 ########################################################################
 
-mv doc/.well-known/openpgpkey/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY.asc
 rm -r doc/.gitignore doc/.well-known doc/nncp.html/.well-known
 
 find . -type d -exec chmod 755 {} \;
