@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.3.0
+@section Release 5.3.0
+@itemize
+
+@item
+Progress messages contain prefix, describing the running action.
+
+@end itemize
+
 @node Release 5.2.1
 @section Release 5.2.1
 @itemize

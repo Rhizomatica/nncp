@@ -32,7 +32,7 @@ func Check(src io.Reader, checksum []byte, sds SDS, showPrgrs bool) (bool, error
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if _, err = CopyProgressed(hsh, bufio.NewReader(src), sds, showPrgrs); err != nil {
+	if _, err = CopyProgressed(hsh, bufio.NewReader(src), "check", sds, showPrgrs); err != nil {
 		return false, err
 	}
 	return bytes.Compare(hsh.Sum(nil), checksum) == 0, nil

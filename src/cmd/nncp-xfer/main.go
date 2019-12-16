@@ -215,10 +215,14 @@ func main() {
 				ctx.LogE("nncp-xfer", sds, err, "copy")
 				w.CloseWithError(err)
 			}()
-			if _, err = nncp.CopyProgressed(tmp.W, r, nncp.SdsAdd(sds, nncp.SDS{
-				"pkt":      filename,
-				"fullsize": sds["size"],
-			}), ctx.ShowPrgrs); err != nil {
+			if _, err = nncp.CopyProgressed(
+				tmp.W, r, "Rx",
+				nncp.SdsAdd(sds, nncp.SDS{
+					"pkt":      filename,
+					"fullsize": sds["size"],
+				}),
+				ctx.ShowPrgrs,
+			); err != nil {
 				ctx.LogE("nncp-xfer", sds, err, "copy")
 				isBad = true
 			}
@@ -333,8 +337,7 @@ Tx:
 			ctx.LogD("nncp-xfer", sds, "created")
 			bufW := bufio.NewWriter(tmp)
 			copied, err := nncp.CopyProgressed(
-				bufW,
-				bufio.NewReader(job.Fd),
+				bufW, bufio.NewReader(job.Fd), "Tx",
 				nncp.SdsAdd(sds, nncp.SDS{"fullsize": job.Size}),
 				ctx.ShowPrgrs,
 			)

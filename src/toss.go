@@ -224,8 +224,7 @@ func (ctx *Ctx) Toss(
 				ctx.LogD("rx", sds, "created")
 				bufW := bufio.NewWriter(tmp)
 				if _, err = CopyProgressed(
-					bufW,
-					pipeR,
+					bufW, pipeR, "Rx file",
 					SdsAdd(sds, SDS{"fullsize": sds["size"]}),
 					ctx.ShowPrgrs,
 				); err != nil {

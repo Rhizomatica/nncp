@@ -144,10 +144,14 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		if err != nil {
 			log.Fatalln(err)
 		}
-		if _, err = nncp.CopyProgressed(hsh, bufio.NewReader(fd), nncp.SDS{
-			"pkt":      chunkPath,
-			"fullsize": fi.Size(),
-		}, ctx.ShowPrgrs); err != nil {
+		if _, err = nncp.CopyProgressed(
+			hsh, bufio.NewReader(fd), "check",
+			nncp.SDS{
+				"pkt":      chunkPath,
+				"fullsize": fi.Size(),
+			},
+			ctx.ShowPrgrs,
+		); err != nil {
 			log.Fatalln(err)
 		}
 		fd.Close()
@@ -195,10 +199,14 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		if err != nil {
 			log.Fatalln("Can not stat file:", err)
 		}
-		if _, err = nncp.CopyProgressed(dstW, bufio.NewReader(fd), nncp.SDS{
-			"pkt":      chunkPath,
-			"fullsize": fi.Size(),
-		}, ctx.ShowPrgrs); err != nil {
+		if _, err = nncp.CopyProgressed(
+			dstW, bufio.NewReader(fd), "reass",
+			nncp.SDS{
+				"pkt":      chunkPath,
+				"fullsize": fi.Size(),
+			},
+			ctx.ShowPrgrs,
+		); err != nil {
 			log.Fatalln(err)
 		}
 		fd.Close()
