@@ -634,7 +634,7 @@ func (state *SPState) StartWorkers(
 				sdsp["size"] = int64(ourSize)
 				sdsp["fullsize"] = fullSize
 				if state.Ctx.ShowPrgrs {
-					Progress(sdsp)
+					Progress("Tx", sdsp)
 				}
 				state.Lock()
 				if len(state.queueTheir) > 0 && *state.queueTheir[0].freq.Hash == *freq.Hash {
@@ -878,7 +878,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			sdsp["size"] = int64(ourSize)
 			sdsp["fullsize"] = int64(state.infosTheir[*file.Hash].Size)
 			if state.Ctx.ShowPrgrs {
-				Progress(sdsp)
+				Progress("Rx", sdsp)
 			}
 			if state.infosTheir[*file.Hash].Size != ourSize {
 				state.RUnlock()

@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.3.0
+@subsection Релиз 5.3.0
+@itemize
+
+@item
+Сообщения прогресса содержат префикс, поясняющий выполняемое действие.
+
+@end itemize
+
 @node Релиз 5.2.1
 @subsection Релиз 5.2.1
 @itemize
