@@ -13,6 +13,9 @@ Progress messages contain prefix, describing the running action.
 @item
 Fixed not occurring handshake messages padding.
 
+@item
+Finish all SP protocol related goroutines, less memory leak.
+
 @end itemize
 
 @node Release 5.2.1
