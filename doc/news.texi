@@ -10,6 +10,9 @@ See also this page @ref{Новости, on russian}.
 @item
 Progress messages contain prefix, describing the running action.
 
+@item
+Fixed not occurring handshake messages padding.
+
 @end itemize
 
 @node Release 5.2.1
