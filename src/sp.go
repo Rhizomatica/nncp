@@ -569,7 +569,6 @@ func (state *SPState) StartWorkers(
 			if payload == nil {
 				state.RLock()
 				if len(state.queueTheir) == 0 {
-					state.Ctx.LogD("sp-xmit", sds, "file queue is empty")
 					state.RUnlock()
 					time.Sleep(100 * time.Millisecond)
 					continue
