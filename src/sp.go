@@ -37,12 +37,13 @@ const (
 	MaxSPSize       = 1<<16 - 256
 	PartSuffix      = ".part"
 	DefaultDeadline = 10
+
+	SPHeadOverhead  = 4
 )
 
 var (
 	MagicNNCPLv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'S', 0, 0, 1}
 
-	SPHeadOverhead    int
 	SPInfoOverhead    int
 	SPFreqOverhead    int
 	SPFileOverhead    int
@@ -114,8 +115,8 @@ func init() {
 	if _, err := xdr.Marshal(&buf, spHead); err != nil {
 		panic(err)
 	}
+	SPHaltMarshalized = make([]byte, SPHeadOverhead)
 	copy(SPHaltMarshalized, buf.Bytes())
-	SPHeadOverhead = buf.Len()
 	buf.Reset()
 
 	spInfo := SPInfo{Nice: 123, Size: 123, Hash: new([32]byte)}
