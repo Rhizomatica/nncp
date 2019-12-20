@@ -649,11 +649,7 @@ func (state *SPState) StartWorkers(
 						break
 					}
 					buf = buf[:n]
-					state.Ctx.LogD(
-						"sp-file",
-						SdsAdd(sdsp, SDS{"size": n}),
-						"read",
-					)
+					state.Ctx.LogD("sp-file", SdsAdd(sdsp, SDS{"size": n}), "read")
 				}
 				fd.Close()
 				payload = MarshalSP(SPTypeFile, SPFile{
