@@ -51,7 +51,7 @@ type Node struct {
 	Addrs          map[string]string
 	RxRate         int
 	TxRate         int
-	OnlineDeadline uint
+	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
 	Calls          []*Call
 

@@ -56,8 +56,8 @@ func main() {
 		version     = flag.Bool("version", false, "Print version information")
 		warranty    = flag.Bool("warranty", false, "Print warranty information")
 
-		onlineDeadline   = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
-		maxOnlineTimeSec = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
+		onlineDeadlineSec = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
+		maxOnlineTimeSec  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -106,13 +106,12 @@ func main() {
 		log.Fatalln("Node does not have online communication capability")
 	}
 
-	if *onlineDeadline == 0 {
-		onlineDeadline = &node.OnlineDeadline
+	onlineDeadline := node.OnlineDeadline
+	if *onlineDeadlineSec != 0 {
+		onlineDeadline = time.Duration(*onlineDeadlineSec) * time.Second
 	}
-	var maxOnlineTime time.Duration
-	if *maxOnlineTimeSec == 0 {
-		maxOnlineTime = node.MaxOnlineTime
-	} else {
+	maxOnlineTime := node.MaxOnlineTime
+	if *maxOnlineTimeSec != 0 {
 		maxOnlineTime = time.Duration(*maxOnlineTimeSec) * time.Second
 	}
 
@@ -161,7 +160,7 @@ func main() {
 		xxOnly,
 		*rxRate,
 		*txRate,
-		*onlineDeadline,
+		onlineDeadline,
 		maxOnlineTime,
 		*listOnly,
 		onlyPkts,

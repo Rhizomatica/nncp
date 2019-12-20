@@ -31,7 +31,7 @@ type Call struct {
 	RxRate         int
 	TxRate         int
 	Addr           *string
-	OnlineDeadline uint
+	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
 }
 
@@ -41,8 +41,7 @@ func (ctx *Ctx) CallNode(
 	nice uint8,
 	xxOnly TRxTx,
 	rxRate, txRate int,
-	onlineDeadline uint,
-	maxOnlineTime time.Duration,
+	onlineDeadline, maxOnlineTime time.Duration,
 	listOnly bool,
 	onlyPkts map[[32]byte]bool,
 ) (isGood bool) {

@@ -34,10 +34,8 @@ import (
 )
 
 const (
-	MaxSPSize       = 1<<16 - 256
-	PartSuffix      = ".part"
-	DefaultDeadline = 10
-
+	MaxSPSize      = 1<<16 - 256
+	PartSuffix     = ".part"
 	SPHeadOverhead = 4
 )
 
@@ -54,6 +52,8 @@ var (
 		noise.CipherChaChaPoly,
 		noise.HashBLAKE2b,
 	)
+
+	DefaultDeadline = 10 * time.Second
 
 	spWorkersGroup sync.WaitGroup
 )
@@ -171,7 +171,7 @@ type SPState struct {
 	Ctx            *Ctx
 	Node           *Node
 	Nice           uint8
-	onlineDeadline uint
+	onlineDeadline time.Duration
 	maxOnlineTime  time.Duration
 	hs             *noise.HandshakeState
 	csOur          *noise.CipherState
@@ -375,14 +375,14 @@ func (state *SPState) StartI(conn ConnDeadlined) error {
 	}
 	sds := SDS{"node": nodeId, "nice": int(state.Nice)}
 	state.Ctx.LogD("sp-start", sds, "sending first message")
-	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline * time.Second))
+	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline))
 	if err = state.WriteSP(conn, buf); err != nil {
 		state.Ctx.LogE("sp-start", sds, err, "")
 		state.dirUnlock()
 		return err
 	}
 	state.Ctx.LogD("sp-start", sds, "waiting for first message")
-	conn.SetReadDeadline(time.Now().Add(DefaultDeadline * time.Second))
+	conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
 	if buf, err = state.ReadSP(conn); err != nil {
 		state.Ctx.LogE("sp-start", sds, err, "")
 		state.dirUnlock()
@@ -428,7 +428,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	var buf []byte
 	var payload []byte
 	state.Ctx.LogD("sp-start", SDS{"nice": int(state.Nice)}, "waiting for first message")
-	conn.SetReadDeadline(time.Now().Add(DefaultDeadline * time.Second))
+	conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
 	if buf, err = state.ReadSP(conn); err != nil {
 		state.Ctx.LogE("sp-start", SDS{}, err, "")
 		return err
@@ -496,7 +496,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 		state.dirUnlock()
 		return err
 	}
-	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline * time.Second))
+	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline))
 	if err = state.WriteSP(conn, buf); err != nil {
 		state.Ctx.LogE("sp-start", sds, err, "")
 		state.dirUnlock()
@@ -574,8 +574,8 @@ func (state *SPState) StartWorkers(
 					return
 				}
 			case now := <-ticker.C:
-				if (uint(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline &&
-					uint(now.Sub(state.TxLastSeen).Seconds()) >= state.onlineDeadline) ||
+				if (now.Sub(state.RxLastSeen) >= state.onlineDeadline &&
+					now.Sub(state.TxLastSeen) >= state.onlineDeadline) ||
 					(state.maxOnlineTime > 0 && state.mustFinishAt.Before(now)) {
 					state.SetDead()
 					conn.Close()
@@ -737,7 +737,7 @@ func (state *SPState) StartWorkers(
 				break
 			}
 			state.Ctx.LogD("sp-recv", sds, "waiting for payload")
-			conn.SetReadDeadline(time.Now().Add(DefaultDeadline * time.Second))
+			conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
 			payload, err := state.ReadSP(conn)
 			if err != nil {
 				if err == io.EOF {
