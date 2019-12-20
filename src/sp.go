@@ -907,19 +907,23 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				fd.Close()
 				return nil, err
 			}
-			ourSize := file.Offset + uint64(len(file.Payload))
+			ourSize := int64(file.Offset + uint64(len(file.Payload)))
+			sdsp["size"] = ourSize
+			fullsize := int64(0)
 			state.RLock()
-			sdsp["size"] = int64(ourSize)
-			sdsp["fullsize"] = int64(state.infosTheir[*file.Hash].Size)
+			infoTheir, ok := state.infosTheir[*file.Hash]
+			state.RUnlock()
+			if ok {
+				fullsize = int64(infoTheir.Size)
+			}
+			sdsp["fullsize"] = fullsize
 			if state.Ctx.ShowPrgrs {
 				Progress("Rx", sdsp)
 			}
-			if state.infosTheir[*file.Hash].Size != ourSize {
-				state.RUnlock()
+			if fullsize != ourSize {
 				fd.Close()
 				continue
 			}
-			state.RUnlock()
 			spWorkersGroup.Wait()
 			spWorkersGroup.Add(1)
 			go func() {
