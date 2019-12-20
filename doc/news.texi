@@ -16,6 +16,10 @@ Fixed not occurring handshake messages padding.
 @item
 Finish all SP protocol related goroutines, less memory leak.
 
+@item
+SP protocol generates less socket write calls, thus generating less TCP
+packets.
+
 @end itemize
 
 @node Release 5.2.1

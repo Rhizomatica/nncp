@@ -142,11 +142,10 @@ func init() {
 
 func MarshalSP(typ SPType, sp interface{}) []byte {
 	var buf bytes.Buffer
-	var err error
-	if _, err = xdr.Marshal(&buf, SPHead{typ}); err != nil {
+	if _, err := xdr.Marshal(&buf, SPHead{typ}); err != nil {
 		panic(err)
 	}
-	if _, err = xdr.Marshal(&buf, sp); err != nil {
+	if _, err := xdr.Marshal(&buf, sp); err != nil {
 		panic(err)
 	}
 	return buf.Bytes()
@@ -198,6 +197,7 @@ type SPState struct {
 	isDead         chan struct{}
 	listOnly       bool
 	onlyPkts       map[[32]byte]bool
+	writeSPBuf     bytes.Buffer
 	sync.RWMutex
 }
 
@@ -241,8 +241,15 @@ func (state *SPState) dirUnlock() {
 }
 
 func (state *SPState) WriteSP(dst io.Writer, payload []byte) error {
-	n, err := xdr.Marshal(dst, SPRaw{Magic: MagicNNCPLv1, Payload: payload})
-	if err == nil {
+	state.writeSPBuf.Reset()
+	n, err := xdr.Marshal(&state.writeSPBuf, SPRaw{
+		Magic:   MagicNNCPLv1,
+		Payload: payload,
+	})
+	if err != nil {
+		return err
+	}
+	if n, err = dst.Write(state.writeSPBuf.Bytes()); err == nil {
 		state.TxLastSeen = time.Now()
 		state.TxBytes += int64(n)
 	}
