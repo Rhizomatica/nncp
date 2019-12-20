@@ -195,12 +195,12 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		defTxRate = *cfg.TxRate
 	}
 
-	defOnlineDeadline := uint(DefaultDeadline)
+	defOnlineDeadline := DefaultDeadline
 	if cfg.OnlineDeadline != nil {
 		if *cfg.OnlineDeadline <= 0 {
 			return nil, errors.New("OnlineDeadline must be at least 1 second")
 		}
-		defOnlineDeadline = *cfg.OnlineDeadline
+		defOnlineDeadline = time.Duration(*cfg.OnlineDeadline) * time.Second
 	}
 	var defMaxOnlineTime time.Duration
 	if cfg.MaxOnlineTime != nil {
@@ -257,7 +257,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 			if *callCfg.OnlineDeadline == 0 {
 				return nil, errors.New("OnlineDeadline must be at least 1 second")
 			}
-			onlineDeadline = *callCfg.OnlineDeadline
+			onlineDeadline = time.Duration(*callCfg.OnlineDeadline) * time.Second
 		}
 
 		var maxOnlineTime time.Duration
