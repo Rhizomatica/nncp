@@ -374,7 +374,6 @@ func (state *SPState) StartI(conn ConnDeadlined) error {
 	if err != nil {
 		state.Ctx.LogE("sp-start", sds, err, "")
 		state.dirUnlock()
-		return err
 	}
 	return err
 }
@@ -482,7 +481,6 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	err = state.StartWorkers(conn, infosPayloads, payload)
 	if err != nil {
 		state.dirUnlock()
-		return err
 	}
 	return err
 }
