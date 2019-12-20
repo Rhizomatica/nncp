@@ -172,7 +172,7 @@ type SPState struct {
 	Node           *Node
 	Nice           uint8
 	onlineDeadline uint
-	maxOnlineTime  uint
+	maxOnlineTime  time.Duration
 	hs             *noise.HandshakeState
 	csOur          *noise.CipherState
 	csTheir        *noise.CipherState
@@ -228,7 +228,7 @@ func (state *SPState) NotAlive() bool {
 	default:
 	}
 	now := time.Now()
-	if state.maxOnlineTime > 0 && state.started.Add(time.Duration(state.maxOnlineTime)*time.Second).Before(now) {
+	if state.maxOnlineTime > 0 && state.started.Add(state.maxOnlineTime).Before(now) {
 		return true
 	}
 	return uint(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline &&

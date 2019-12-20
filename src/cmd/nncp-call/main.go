@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"go.cypherpunks.ru/nncp/v5"
 )
@@ -55,8 +56,8 @@ func main() {
 		version     = flag.Bool("version", false, "Print version information")
 		warranty    = flag.Bool("warranty", false, "Print warranty information")
 
-		onlineDeadline = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
-		maxOnlineTime  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
+		onlineDeadline   = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
+		maxOnlineTimeSec = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -108,8 +109,11 @@ func main() {
 	if *onlineDeadline == 0 {
 		onlineDeadline = &node.OnlineDeadline
 	}
-	if *maxOnlineTime == 0 {
-		maxOnlineTime = &node.MaxOnlineTime
+	var maxOnlineTime time.Duration
+	if *maxOnlineTimeSec == 0 {
+		maxOnlineTime = node.MaxOnlineTime
+	} else {
+		maxOnlineTime = time.Duration(*maxOnlineTimeSec) * time.Second
 	}
 
 	var xxOnly nncp.TRxTx
@@ -158,7 +162,7 @@ func main() {
 		*rxRate,
 		*txRate,
 		*onlineDeadline,
-		*maxOnlineTime,
+		maxOnlineTime,
 		*listOnly,
 		onlyPkts,
 	) {

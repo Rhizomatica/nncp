@@ -21,6 +21,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"sync"
+	"time"
 
 	"github.com/flynn/noise"
 	"golang.org/x/crypto/blake2b"
@@ -51,7 +52,7 @@ type Node struct {
 	RxRate         int
 	TxRate         int
 	OnlineDeadline uint
-	MaxOnlineTime  uint
+	MaxOnlineTime  time.Duration
 	Calls          []*Call
 
 	Busy bool

@@ -25,6 +25,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"time"
 
 	"github.com/gorhill/cronexpr"
 	"github.com/hjson/hjson-go"
@@ -201,9 +202,9 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		}
 		defOnlineDeadline = *cfg.OnlineDeadline
 	}
-	var defMaxOnlineTime uint
-	if yml.MaxOnlineTime != nil {
-		defMaxOnlineTime = *yml.MaxOnlineTime
+	var defMaxOnlineTime time.Duration
+	if cfg.MaxOnlineTime != nil {
+		defMaxOnlineTime = time.Duration(*cfg.MaxOnlineTime) * time.Second
 	}
 
 	var calls []*Call
@@ -259,9 +260,9 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 			onlineDeadline = *callCfg.OnlineDeadline
 		}
 
-		var maxOnlineTime uint
+		var maxOnlineTime time.Duration
 		if callCfg.MaxOnlineTime != nil {
-			maxOnlineTime = *callCfg.MaxOnlineTime
+			maxOnlineTime = time.Duration(*callCfg.MaxOnlineTime) * time.Second
 		}
 
 		calls = append(calls, &Call{
