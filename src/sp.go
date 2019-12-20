@@ -186,6 +186,7 @@ type SPState struct {
 	TxBytes        int64
 	TxLastSeen     time.Time
 	started        time.Time
+	mustFinishAt   time.Time
 	Duration       time.Duration
 	RxSpeed        int64
 	TxSpeed        int64
@@ -227,12 +228,7 @@ func (state *SPState) NotAlive() bool {
 		}
 	default:
 	}
-	now := time.Now()
-	if state.maxOnlineTime > 0 && state.started.Add(state.maxOnlineTime).Before(now) {
-		return true
-	}
-	return uint(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline &&
-		uint(now.Sub(state.TxLastSeen).Seconds()) >= state.onlineDeadline
+	return false
 }
 
 func (state *SPState) dirUnlock() {
@@ -519,9 +515,13 @@ func (state *SPState) StartWorkers(
 	infosPayloads [][]byte,
 	payload []byte,
 ) error {
-	state.isDead = make(chan struct{})
 	sds := SDS{"node": state.Node.Id, "nice": int(state.Nice)}
+	state.isDead = make(chan struct{})
+	if state.maxOnlineTime > 0 {
+		state.mustFinishAt = state.started.Add(state.maxOnlineTime)
+	}
 
+	// Remaining handshake payload sending
 	if len(infosPayloads) > 1 {
 		state.wg.Add(1)
 		go func() {
@@ -536,6 +536,8 @@ func (state *SPState) StartWorkers(
 			state.wg.Done()
 		}()
 	}
+
+	// Processing of first payload and queueing its responses
 	state.Ctx.LogD(
 		"sp-work",
 		SdsAdd(sds, SDS{"size": len(payload)}),
@@ -546,7 +548,6 @@ func (state *SPState) StartWorkers(
 		state.Ctx.LogE("sp-work", sds, err, "")
 		return err
 	}
-
 	state.wg.Add(1)
 	go func() {
 		for _, reply := range replies {
@@ -560,6 +561,31 @@ func (state *SPState) StartWorkers(
 		state.wg.Done()
 	}()
 
+	// Deadline checker
+	state.wg.Add(1)
+	go func() {
+		ticker := time.NewTicker(time.Second)
+		defer ticker.Stop()
+		defer state.wg.Done()
+		for {
+			select {
+			case _, ok := <-state.isDead:
+				if !ok {
+					return
+				}
+			case now := <-ticker.C:
+				if (uint(now.Sub(state.RxLastSeen).Seconds()) >= state.onlineDeadline &&
+					uint(now.Sub(state.TxLastSeen).Seconds()) >= state.onlineDeadline) ||
+					(state.maxOnlineTime > 0 && state.mustFinishAt.Before(now)) {
+					state.SetDead()
+					conn.Close()
+					return
+				}
+			}
+		}
+	}()
+
+	// Spool checker and INFOs sender of appearing files
 	if !state.listOnly && (state.xxOnly == "" || state.xxOnly == TTx) {
 		state.wg.Add(1)
 		go func() {
@@ -590,6 +616,7 @@ func (state *SPState) StartWorkers(
 		}()
 	}
 
+	// Sender
 	state.wg.Add(1)
 	go func() {
 		for {
@@ -702,6 +729,7 @@ func (state *SPState) StartWorkers(
 		state.wg.Done()
 	}()
 
+	// Receiver
 	state.wg.Add(1)
 	go func() {
 		for {
