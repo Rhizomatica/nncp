@@ -19,6 +19,7 @@ package nncp
 
 import (
 	"net"
+	"time"
 
 	"github.com/gorhill/cronexpr"
 )
@@ -31,7 +32,7 @@ type Call struct {
 	TxRate         int
 	Addr           *string
 	OnlineDeadline uint
-	MaxOnlineTime  uint
+	MaxOnlineTime  time.Duration
 }
 
 func (ctx *Ctx) CallNode(
@@ -40,7 +41,8 @@ func (ctx *Ctx) CallNode(
 	nice uint8,
 	xxOnly TRxTx,
 	rxRate, txRate int,
-	onlineDeadline, maxOnlineTime uint,
+	onlineDeadline uint,
+	maxOnlineTime time.Duration,
 	listOnly bool,
 	onlyPkts map[[32]byte]bool,
 ) (isGood bool) {
