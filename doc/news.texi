@@ -20,6 +20,10 @@ Finish all SP protocol related goroutines, less memory leak.
 SP protocol generates less socket write calls, thus generating less TCP
 packets.
 
+@item
+Check @option{onlinedeadline} and @option{maxonlinetime} options every
+second, independently from socket reads (up to 10 seconds).
+
 @end itemize
 
 @node Release 5.2.1
