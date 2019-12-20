@@ -116,13 +116,13 @@ type CfgJSON struct {
 	Neigh map[string]NodeJSON `json:"neigh"`
 }
 
-func NewNode(name string, yml NodeJSON) (*Node, error) {
-	nodeId, err := NodeIdFromString(yml.Id)
+func NewNode(name string, cfg NodeJSON) (*Node, error) {
+	nodeId, err := NodeIdFromString(cfg.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	exchPub, err := FromBase32(yml.ExchPub)
+	exchPub, err := FromBase32(cfg.ExchPub)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 		return nil, errors.New("Invalid exchPub size")
 	}
 
-	signPub, err := FromBase32(yml.SignPub)
+	signPub, err := FromBase32(cfg.SignPub)
 	if err != nil {
 		return nil, err
 	}
@@ -139,8 +139,8 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 	}
 
 	var noisePub []byte
-	if yml.NoisePub != nil {
-		noisePub, err = FromBase32(*yml.NoisePub)
+	if cfg.NoisePub != nil {
+		noisePub, err = FromBase32(*cfg.NoisePub)
 		if err != nil {
 			return nil, err
 		}
@@ -150,8 +150,8 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 	}
 
 	var incoming *string
-	if yml.Incoming != nil {
-		inc := path.Clean(*yml.Incoming)
+	if cfg.Incoming != nil {
+		inc := path.Clean(*cfg.Incoming)
 		if !path.IsAbs(inc) {
 			return nil, errors.New("Incoming path must be absolute")
 		}
@@ -162,8 +162,8 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 	freqChunked := int64(MaxFileSize)
 	var freqMinSize int64
 	freqMaxSize := int64(MaxFileSize)
-	if yml.Freq != nil {
-		f := yml.Freq
+	if cfg.Freq != nil {
+		f := cfg.Freq
 		if f.Path != nil {
 			fPath := path.Clean(*f.Path)
 			if !path.IsAbs(fPath) {
@@ -186,20 +186,20 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 	}
 
 	defRxRate := 0
-	if yml.RxRate != nil && *yml.RxRate > 0 {
-		defRxRate = *yml.RxRate
+	if cfg.RxRate != nil && *cfg.RxRate > 0 {
+		defRxRate = *cfg.RxRate
 	}
 	defTxRate := 0
-	if yml.TxRate != nil && *yml.TxRate > 0 {
-		defTxRate = *yml.TxRate
+	if cfg.TxRate != nil && *cfg.TxRate > 0 {
+		defTxRate = *cfg.TxRate
 	}
 
 	defOnlineDeadline := uint(DefaultDeadline)
-	if yml.OnlineDeadline != nil {
-		if *yml.OnlineDeadline <= 0 {
+	if cfg.OnlineDeadline != nil {
+		if *cfg.OnlineDeadline <= 0 {
 			return nil, errors.New("OnlineDeadline must be at least 1 second")
 		}
-		defOnlineDeadline = *yml.OnlineDeadline
+		defOnlineDeadline = *cfg.OnlineDeadline
 	}
 	var defMaxOnlineTime uint
 	if yml.MaxOnlineTime != nil {
@@ -207,23 +207,23 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 	}
 
 	var calls []*Call
-	for _, callYml := range yml.Calls {
-		expr, err := cronexpr.Parse(callYml.Cron)
+	for _, callCfg := range cfg.Calls {
+		expr, err := cronexpr.Parse(callCfg.Cron)
 		if err != nil {
 			return nil, err
 		}
 
 		nice := uint8(255)
-		if callYml.Nice != nil {
-			nice, err = NicenessParse(*callYml.Nice)
+		if callCfg.Nice != nil {
+			nice, err = NicenessParse(*callCfg.Nice)
 			if err != nil {
 				return nil, err
 			}
 		}
 
 		var xx TRxTx
-		if callYml.Xx != nil {
-			switch *callYml.Xx {
+		if callCfg.Xx != nil {
+			switch *callCfg.Xx {
 			case "rx":
 				xx = TRx
 			case "tx":
@@ -234,34 +234,34 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 		}
 
 		rxRate := defRxRate
-		if callYml.RxRate != nil {
-			rxRate = *callYml.RxRate
+		if callCfg.RxRate != nil {
+			rxRate = *callCfg.RxRate
 		}
 		txRate := defTxRate
-		if callYml.TxRate != nil {
-			txRate = *callYml.TxRate
+		if callCfg.TxRate != nil {
+			txRate = *callCfg.TxRate
 		}
 
 		var addr *string
-		if callYml.Addr != nil {
-			if a, exists := yml.Addrs[*callYml.Addr]; exists {
+		if callCfg.Addr != nil {
+			if a, exists := cfg.Addrs[*callCfg.Addr]; exists {
 				addr = &a
 			} else {
-				addr = callYml.Addr
+				addr = callCfg.Addr
 			}
 		}
 
 		onlineDeadline := defOnlineDeadline
-		if callYml.OnlineDeadline != nil {
-			if *callYml.OnlineDeadline == 0 {
+		if callCfg.OnlineDeadline != nil {
+			if *callCfg.OnlineDeadline == 0 {
 				return nil, errors.New("OnlineDeadline must be at least 1 second")
 			}
-			onlineDeadline = *callYml.OnlineDeadline
+			onlineDeadline = *callCfg.OnlineDeadline
 		}
 
 		var maxOnlineTime uint
-		if callYml.MaxOnlineTime != nil {
-			maxOnlineTime = *callYml.MaxOnlineTime
+		if callCfg.MaxOnlineTime != nil {
+			maxOnlineTime = *callCfg.MaxOnlineTime
 		}
 
 		calls = append(calls, &Call{
@@ -281,14 +281,14 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 		Id:             nodeId,
 		ExchPub:        new([32]byte),
 		SignPub:        ed25519.PublicKey(signPub),
-		Exec:           yml.Exec,
+		Exec:           cfg.Exec,
 		Incoming:       incoming,
 		FreqPath:       freqPath,
 		FreqChunked:    freqChunked,
 		FreqMinSize:    freqMinSize,
 		FreqMaxSize:    freqMaxSize,
 		Calls:          calls,
-		Addrs:          yml.Addrs,
+		Addrs:          cfg.Addrs,
 		RxRate:         defRxRate,
 		TxRate:         defTxRate,
 		OnlineDeadline: defOnlineDeadline,
@@ -302,13 +302,13 @@ func NewNode(name string, yml NodeJSON) (*Node, error) {
 	return &node, nil
 }
 
-func NewNodeOur(yml *NodeOurJSON) (*NodeOur, error) {
-	id, err := NodeIdFromString(yml.Id)
+func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
+	id, err := NodeIdFromString(cfg.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	exchPub, err := FromBase32(yml.ExchPub)
+	exchPub, err := FromBase32(cfg.ExchPub)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +316,7 @@ func NewNodeOur(yml *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid exchPub size")
 	}
 
-	exchPrv, err := FromBase32(yml.ExchPrv)
+	exchPrv, err := FromBase32(cfg.ExchPrv)
 	if err != nil {
 		return nil, err
 	}
@@ -324,7 +324,7 @@ func NewNodeOur(yml *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid exchPrv size")
 	}
 
-	signPub, err := FromBase32(yml.SignPub)
+	signPub, err := FromBase32(cfg.SignPub)
 	if err != nil {
 		return nil, err
 	}
@@ -332,7 +332,7 @@ func NewNodeOur(yml *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid signPub size")
 	}
 
-	signPrv, err := FromBase32(yml.SignPrv)
+	signPrv, err := FromBase32(cfg.SignPrv)
 	if err != nil {
 		return nil, err
 	}
@@ -340,7 +340,7 @@ func NewNodeOur(yml *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid signPrv size")
 	}
 
-	noisePub, err := FromBase32(yml.NoisePub)
+	noisePub, err := FromBase32(cfg.NoisePub)
 	if err != nil {
 		return nil, err
 	}
@@ -348,7 +348,7 @@ func NewNodeOur(yml *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid noisePub size")
 	}
 
-	noisePrv, err := FromBase32(yml.NoisePrv)
+	noisePrv, err := FromBase32(cfg.NoisePrv)
 	if err != nil {
 		return nil, err
 	}
