@@ -9,10 +9,10 @@ require (
 	github.com/hjson/hjson-go v3.0.1+incompatible
 	github.com/klauspost/compress v1.9.2
 	github.com/kr/pretty v0.1.0 // indirect
-	go.cypherpunks.ru/balloon v1.1.0
-	golang.org/x/crypto v0.0.0-20191112222119-e1110fd1c708
-	golang.org/x/net v0.0.0-20191112182307-2180aed22343
-	golang.org/x/sys v0.0.0-20191113165036-4c7a9d0fe056
+	go.cypherpunks.ru/balloon v1.1.1
+	golang.org/x/crypto v0.0.0-20191219195013-becbf705a915
+	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
+	golang.org/x/sys v0.0.0-20191219235734-af0d71d358ab
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
 
