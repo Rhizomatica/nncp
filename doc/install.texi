@@ -9,6 +9,7 @@ Possibly NNCP package already exists for your distribution:
 @item @url{https://www.freshports.org/net/nncp/, FreeBSD ports}
 @item @url{https://github.com/DragonFlyBSD/DPorts/tree/master/net/nncp, DragonFly BSD ports}
 @item @url{https://github.com/void-linux/void-packages/blob/master/srcpkgs/nncp/template, Void Linux}
+@item @url{https://qa.debian.org/developer.php?login=jgoerzen@@complete.org, Debian packages} (pending inclusion, maintainer's page)
 @end itemize
 
 NNCP should run on any POSIX-compatible operating system.
