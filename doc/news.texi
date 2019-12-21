@@ -24,6 +24,10 @@ packets.
 Check @option{onlinedeadline} and @option{maxonlinetime} options every
 second, independently from socket reads (up to 10 seconds).
 
+@item
+Once per minute, if no other traffic exists, PING packets are sent in
+SP-connection. That allows faster determining of connection unworkability.
+
 @end itemize
 
 @node Release 5.2.1

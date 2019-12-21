@@ -61,6 +61,15 @@ just an unsigned integer telling what body structure follows.
 +------+
 @end verbatim
 
+@item PING
+    Dummy packet only used for determining workability of the connection.
+
+@verbatim
++------+
+| PING |
++------+
+@end verbatim
+
 @item INFO
     Information about the file we have for transmission.
 
@@ -195,13 +204,20 @@ then run background integrity checker on it. If check succeeds, then
 delete @file{.part} suffix from file's name and send @emph{DONE} packet.
 
 @item When @emph{DONE} packet received, delete corresponding file.
+
 @item When @emph{HALT} packet received, empty file sending queue.
 
 @item Each second, node checks: are there any new @emph{tx} packets
 appeared and queues corresponding @emph{INFO} packets.
 
-@item If no packets are sent and received during @ref{CfgOnlineDeadline,
-onlinedeadline} duration, then close the connection. There is no
-explicit indication that session is over.
+@item Each minute, if no packets were sent, node sends @emph{PING}
+packet.
+
+@item If no non-PING packets are sent and received during
+@ref{CfgOnlineDeadline, onlinedeadline} duration, then close the
+connection. There is no explicit indication that session is over.
+
+@item If no packets are received during two minutes (two PING timeouts),
+then close the connection.
 
 @end enumerate

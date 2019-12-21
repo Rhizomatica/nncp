@@ -59,6 +59,10 @@ func (c InetdConn) SetWriteDeadline(t time.Time) error {
 }
 
 func (c InetdConn) Close() error {
+	if err := c.r.Close(); err != nil {
+		c.w.Close()
+		return err
+	}
 	return c.w.Close()
 }
 
@@ -139,6 +143,7 @@ func main() {
 		os.Stderr.Close()
 		conn := &InetdConn{os.Stdin, os.Stdout}
 		performSP(ctx, conn, nice)
+		conn.Close()
 		return
 	}
 
