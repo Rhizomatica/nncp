@@ -10,6 +10,7 @@ spool/tmp/
 spool/2WHB...OABQ/rx.lock
 spool/2WHB...OABQ/rx/5ZIB...UMKW.part
 spool/2WHB...OABQ/tx.lock
+spool/2WHB...OABQ/toss.lock
 spool/BYRR...CG6Q/rx.lock
 spool/BYRR...CG6Q/rx/
 spool/BYRR...CG6Q/tx.lock

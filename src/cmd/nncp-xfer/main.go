@@ -262,7 +262,7 @@ Tx:
 			ctx.LogD("nncp-xfer", sds, "skip")
 			continue
 		}
-		dirLock, err := ctx.LockDir(&nodeId, nncp.TTx)
+		dirLock, err := ctx.LockDir(&nodeId, string(nncp.TTx))
 		if err != nil {
 			continue
 		}

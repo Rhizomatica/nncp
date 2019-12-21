@@ -24,9 +24,9 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func (ctx *Ctx) LockDir(nodeId *NodeId, xx TRxTx) (*os.File, error) {
+func (ctx *Ctx) LockDir(nodeId *NodeId, lockCtx string) (*os.File, error) {
 	ctx.ensureRxDir(nodeId)
-	lockPath := filepath.Join(ctx.Spool, nodeId.String(), string(xx)) + ".lock"
+	lockPath := filepath.Join(ctx.Spool, nodeId.String(), lockCtx) + ".lock"
 	dirLock, err := os.OpenFile(
 		lockPath,
 		os.O_CREATE|os.O_WRONLY,

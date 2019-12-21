@@ -68,6 +68,12 @@ func (ctx *Ctx) Toss(
 	nice uint8,
 	dryRun, doSeen, noFile, noFreq, noExec, noTrns bool,
 ) bool {
+	dirLock, err := ctx.LockDir(nodeId, "toss")
+	if err != nil {
+		ctx.LogE("rx", SDS{}, err, "lock")
+		return false
+	}
+	defer ctx.UnlockDir(dirLock)
 	isBad := false
 	sendmail := ctx.Neigh[*ctx.SelfId].Exec["sendmail"]
 	decompressor, err := zstd.NewReader(nil)

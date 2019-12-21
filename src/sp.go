@@ -335,14 +335,14 @@ func (state *SPState) StartI(conn ConnDeadlined) error {
 	}
 	var rxLock *os.File
 	if !state.listOnly && (state.xxOnly == "" || state.xxOnly == TRx) {
-		rxLock, err = state.Ctx.LockDir(nodeId, TRx)
+		rxLock, err = state.Ctx.LockDir(nodeId, string(TRx))
 		if err != nil {
 			return err
 		}
 	}
 	var txLock *os.File
 	if !state.listOnly && (state.xxOnly == "" || state.xxOnly == TTx) {
-		txLock, err = state.Ctx.LockDir(nodeId, TTx)
+		txLock, err = state.Ctx.LockDir(nodeId, string(TTx))
 		if err != nil {
 			return err
 		}
@@ -481,7 +481,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	}
 	var rxLock *os.File
 	if xxOnly == "" || xxOnly == TRx {
-		rxLock, err = state.Ctx.LockDir(node.Id, TRx)
+		rxLock, err = state.Ctx.LockDir(node.Id, string(TRx))
 		if err != nil {
 			return err
 		}
@@ -489,7 +489,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	state.rxLock = rxLock
 	var txLock *os.File
 	if xxOnly == "" || xxOnly == TTx {
-		txLock, err = state.Ctx.LockDir(node.Id, TTx)
+		txLock, err = state.Ctx.LockDir(node.Id, string(TTx))
 		if err != nil {
 			return err
 		}
