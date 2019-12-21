@@ -72,7 +72,7 @@ func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
 		state.Wait()
 		ctx.LogI("call-finish", nncp.SDS{
 			"node":     state.Node.Id,
-			"duration": state.Duration.Seconds(),
+			"duration": int64(state.Duration.Seconds()),
 			"rxbytes":  state.RxBytes,
 			"txbytes":  state.TxBytes,
 			"rxspeed":  state.RxSpeed,
