@@ -250,10 +250,12 @@ can handle. @option{-bind} option specifies @option{addr:port} it must
 bind to and listen.
 
 It could be run as @command{inetd} service, by specifying
-@option{-inetd} option. Example inetd-entry:
+@option{-inetd} option. Pay attention that because it uses stdin/stdout,
+it can not effectively work with IO timeouts and connection closing can
+propagate up to 5 minutes in practice. Example inetd-entry:
 
 @verbatim
-uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -inetd
+uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -inetd
 @end verbatim
 
 @node nncp-exec
