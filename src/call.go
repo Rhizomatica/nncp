@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package nncp
 
 import (
 	"net"
+	"time"
 
 	"github.com/gorhill/cronexpr"
 )
@@ -30,8 +31,8 @@ type Call struct {
 	RxRate         int
 	TxRate         int
 	Addr           *string
-	OnlineDeadline uint
-	MaxOnlineTime  uint
+	OnlineDeadline time.Duration
+	MaxOnlineTime  time.Duration
 }
 
 func (ctx *Ctx) CallNode(
@@ -40,7 +41,7 @@ func (ctx *Ctx) CallNode(
 	nice uint8,
 	xxOnly TRxTx,
 	rxRate, txRate int,
-	onlineDeadline, maxOnlineTime uint,
+	onlineDeadline, maxOnlineTime time.Duration,
 	listOnly bool,
 	onlyPkts map[[32]byte]bool,
 ) (isGood bool) {

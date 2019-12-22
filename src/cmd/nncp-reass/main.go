@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -144,10 +144,14 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		if err != nil {
 			log.Fatalln(err)
 		}
-		if _, err = nncp.CopyProgressed(hsh, bufio.NewReader(fd), nncp.SDS{
-			"pkt":      chunkPath,
-			"fullsize": fi.Size(),
-		}, ctx.ShowPrgrs); err != nil {
+		if _, err = nncp.CopyProgressed(
+			hsh, bufio.NewReader(fd), "check",
+			nncp.SDS{
+				"pkt":      chunkPath,
+				"fullsize": fi.Size(),
+			},
+			ctx.ShowPrgrs,
+		); err != nil {
 			log.Fatalln(err)
 		}
 		fd.Close()
@@ -195,10 +199,14 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		if err != nil {
 			log.Fatalln("Can not stat file:", err)
 		}
-		if _, err = nncp.CopyProgressed(dstW, bufio.NewReader(fd), nncp.SDS{
-			"pkt":      chunkPath,
-			"fullsize": fi.Size(),
-		}, ctx.ShowPrgrs); err != nil {
+		if _, err = nncp.CopyProgressed(
+			dstW, bufio.NewReader(fd), "reass",
+			nncp.SDS{
+				"pkt":      chunkPath,
+				"fullsize": fi.Size(),
+			},
+			ctx.ShowPrgrs,
+		); err != nil {
 			log.Fatalln(err)
 		}
 		fd.Close()

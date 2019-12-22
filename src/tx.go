@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -108,8 +108,8 @@ func (ctx *Ctx) Tx(
 	}
 	go func() {
 		_, err := CopyProgressed(
-			tmp.W, pipeR,
-			SDS{"xx": string(TTx), "pkt": pktName, "fullsize": curSize},
+			tmp.W, pipeR, "Tx",
+			SDS{"pkt": pktName, "fullsize": curSize},
 			ctx.ShowPrgrs,
 		)
 		errs <- err
@@ -532,11 +532,11 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	if err != nil {
 		return err
 	}
-	if _, err = CopyProgressed(tmp.W, src, SDS{
-		"xx":       string(TTx),
-		"pkt":      node.Id.String(),
-		"fullsize": size,
-	}, ctx.ShowPrgrs); err != nil {
+	if _, err = CopyProgressed(
+		tmp.W, src, "Tx trns",
+		SDS{"pkt": node.Id.String(), "fullsize": size},
+		ctx.ShowPrgrs,
+	); err != nil {
 		return err
 	}
 	nodePath := filepath.Join(ctx.Spool, node.Id.String())

@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"sync"
+	"time"
 
 	"github.com/flynn/noise"
 	"golang.org/x/crypto/blake2b"
@@ -50,8 +51,8 @@ type Node struct {
 	Addrs          map[string]string
 	RxRate         int
 	TxRate         int
-	OnlineDeadline uint
-	MaxOnlineTime  uint
+	OnlineDeadline time.Duration
+	MaxOnlineTime  time.Duration
 	Calls          []*Call
 
 	Busy bool

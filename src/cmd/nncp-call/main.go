@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"go.cypherpunks.ru/nncp/v5"
 )
@@ -55,8 +56,8 @@ func main() {
 		version     = flag.Bool("version", false, "Print version information")
 		warranty    = flag.Bool("warranty", false, "Print warranty information")
 
-		onlineDeadline = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
-		maxOnlineTime  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
+		onlineDeadlineSec = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
+		maxOnlineTimeSec  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -105,11 +106,13 @@ func main() {
 		log.Fatalln("Node does not have online communication capability")
 	}
 
-	if *onlineDeadline == 0 {
-		onlineDeadline = &node.OnlineDeadline
+	onlineDeadline := node.OnlineDeadline
+	if *onlineDeadlineSec != 0 {
+		onlineDeadline = time.Duration(*onlineDeadlineSec) * time.Second
 	}
-	if *maxOnlineTime == 0 {
-		maxOnlineTime = &node.MaxOnlineTime
+	maxOnlineTime := node.MaxOnlineTime
+	if *maxOnlineTimeSec != 0 {
+		maxOnlineTime = time.Duration(*maxOnlineTimeSec) * time.Second
 	}
 
 	var xxOnly nncp.TRxTx
@@ -157,8 +160,8 @@ func main() {
 		xxOnly,
 		*rxRate,
 		*txRate,
-		*onlineDeadline,
-		*maxOnlineTime,
+		onlineDeadline,
+		maxOnlineTime,
 		*listOnly,
 		onlyPkts,
 	) {

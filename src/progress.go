@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
@@ -82,6 +81,7 @@ func (pb ProgressBar) Kill() {
 func CopyProgressed(
 	dst io.Writer,
 	src io.Reader,
+	prgrsPrefix string,
 	sds SDS,
 	showPrgrs bool,
 ) (written int64, err error) {
@@ -96,7 +96,7 @@ func CopyProgressed(
 				written += int64(nw)
 				if showPrgrs {
 					sds["size"] = written
-					Progress(sds)
+					Progress(prgrsPrefix, sds)
 				}
 			}
 			if ew != nil {
@@ -118,13 +118,13 @@ func CopyProgressed(
 	return
 }
 
-func Progress(sds SDS) {
-	pkt := sds["pkt"].(string)
+func Progress(prefix string, sds SDS) {
 	var size int64
 	if sizeI, exists := sds["size"]; exists {
 		size = sizeI.(int64)
 	}
 	fullsize := sds["fullsize"].(int64)
+	pkt := sds["pkt"].(string)
 	progressBarsLock.RLock()
 	pb, exists := progressBars[pkt]
 	progressBarsLock.RUnlock()
@@ -138,9 +138,7 @@ func Progress(sds SDS) {
 	if len(what) >= 52 { // Base32 encoded
 		what = what[:16] + ".." + what[len(what)-16:]
 	}
-	if xx, exists := sds["xx"]; exists {
-		what = strings.Title(xx.(string)) + " " + what
-	}
+	what = prefix + " " + what
 	pb.Render(what, size)
 	if size >= fullsize {
 		pb.Kill()
