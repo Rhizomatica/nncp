@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,6 +68,12 @@ func (ctx *Ctx) Toss(
 	nice uint8,
 	dryRun, doSeen, noFile, noFreq, noExec, noTrns bool,
 ) bool {
+	dirLock, err := ctx.LockDir(nodeId, "toss")
+	if err != nil {
+		ctx.LogE("rx", SDS{}, err, "lock")
+		return false
+	}
+	defer ctx.UnlockDir(dirLock)
 	isBad := false
 	sendmail := ctx.Neigh[*ctx.SelfId].Exec["sendmail"]
 	decompressor, err := zstd.NewReader(nil)
@@ -224,8 +230,7 @@ func (ctx *Ctx) Toss(
 				ctx.LogD("rx", sds, "created")
 				bufW := bufio.NewWriter(tmp)
 				if _, err = CopyProgressed(
-					bufW,
-					pipeR,
+					bufW, pipeR, "Rx file",
 					SdsAdd(sds, SDS{"fullsize": sds["size"]}),
 					ctx.ShowPrgrs,
 				); err != nil {

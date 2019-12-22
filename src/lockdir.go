@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func (ctx *Ctx) LockDir(nodeId *NodeId, xx TRxTx) (*os.File, error) {
+func (ctx *Ctx) LockDir(nodeId *NodeId, lockCtx string) (*os.File, error) {
 	ctx.ensureRxDir(nodeId)
-	lockPath := filepath.Join(ctx.Spool, nodeId.String(), string(xx)) + ".lock"
+	lockPath := filepath.Join(ctx.Spool, nodeId.String(), lockCtx) + ".lock"
 	dirLock, err := os.OpenFile(
 		lockPath,
 		os.O_CREATE|os.O_WRONLY,

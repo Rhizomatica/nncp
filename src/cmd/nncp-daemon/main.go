@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -59,6 +59,10 @@ func (c InetdConn) SetWriteDeadline(t time.Time) error {
 }
 
 func (c InetdConn) Close() error {
+	if err := c.r.Close(); err != nil {
+		c.w.Close()
+		return err
+	}
 	return c.w.Close()
 }
 
@@ -72,7 +76,7 @@ func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
 		state.Wait()
 		ctx.LogI("call-finish", nncp.SDS{
 			"node":     state.Node.Id,
-			"duration": state.Duration.Seconds(),
+			"duration": int64(state.Duration.Seconds()),
 			"rxbytes":  state.RxBytes,
 			"txbytes":  state.TxBytes,
 			"rxspeed":  state.RxSpeed,
@@ -139,6 +143,7 @@ func main() {
 		os.Stderr.Close()
 		conn := &InetdConn{os.Stdin, os.Stdout}
 		performSP(ctx, conn, nice)
+		conn.Close()
 		return
 	}
 

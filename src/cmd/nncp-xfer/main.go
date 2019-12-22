@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -215,10 +215,14 @@ func main() {
 				ctx.LogE("nncp-xfer", sds, err, "copy")
 				w.CloseWithError(err)
 			}()
-			if _, err = nncp.CopyProgressed(tmp.W, r, nncp.SdsAdd(sds, nncp.SDS{
-				"pkt":      filename,
-				"fullsize": sds["size"],
-			}), ctx.ShowPrgrs); err != nil {
+			if _, err = nncp.CopyProgressed(
+				tmp.W, r, "Rx",
+				nncp.SdsAdd(sds, nncp.SDS{
+					"pkt":      filename,
+					"fullsize": sds["size"],
+				}),
+				ctx.ShowPrgrs,
+			); err != nil {
 				ctx.LogE("nncp-xfer", sds, err, "copy")
 				isBad = true
 			}
@@ -258,7 +262,7 @@ Tx:
 			ctx.LogD("nncp-xfer", sds, "skip")
 			continue
 		}
-		dirLock, err := ctx.LockDir(&nodeId, nncp.TTx)
+		dirLock, err := ctx.LockDir(&nodeId, string(nncp.TTx))
 		if err != nil {
 			continue
 		}
@@ -333,8 +337,7 @@ Tx:
 			ctx.LogD("nncp-xfer", sds, "created")
 			bufW := bufio.NewWriter(tmp)
 			copied, err := nncp.CopyProgressed(
-				bufW,
-				bufio.NewReader(job.Fd),
+				bufW, bufio.NewReader(job.Fd), "Tx",
 				nncp.SdsAdd(sds, nncp.SDS{"fullsize": job.Size}),
 				ctx.ShowPrgrs,
 			)

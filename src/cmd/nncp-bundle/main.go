@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2019 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -153,7 +153,7 @@ func main() {
 					log.Fatalln("Error writing tar header:", err)
 				}
 				if _, err = nncp.CopyProgressed(
-					tarWr, job.Fd,
+					tarWr, job.Fd, "Tx",
 					nncp.SdsAdd(sds, nncp.SDS{
 						"pkt":      nncp.ToBase32(job.HshValue[:]),
 						"fullsize": job.Size,
@@ -293,7 +293,7 @@ func main() {
 					log.Fatalln("Error during writing:", err)
 				}
 				if _, err = nncp.CopyProgressed(
-					hsh, tarR,
+					hsh, tarR, "Rx",
 					nncp.SdsAdd(sds, nncp.SDS{"fullsize": entry.Size}),
 					ctx.ShowPrgrs,
 				); err != nil {
@@ -341,7 +341,7 @@ func main() {
 					if _, err = hsh.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}
-					if _, err = nncp.CopyProgressed(hsh, tarR, sds, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(hsh, tarR, "check", sds, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 					if nncp.ToBase32(hsh.Sum(nil)) != pktName {
@@ -356,7 +356,7 @@ func main() {
 					if _, err = tmp.W.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}
-					if _, err = nncp.CopyProgressed(tmp.W, tarR, sds, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(tmp.W, tarR, "check", sds, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 					if err = tmp.W.Flush(); err != nil {
@@ -374,7 +374,7 @@ func main() {
 				}
 			} else {
 				if *dryRun {
-					if _, err = nncp.CopyProgressed(ioutil.Discard, tarR, sds, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(ioutil.Discard, tarR, "Rx", sds, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 				} else {
@@ -386,7 +386,7 @@ func main() {
 					if _, err = bufTmp.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}
-					if _, err = nncp.CopyProgressed(bufTmp, tarR, sds, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(bufTmp, tarR, "Rx", sds, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 					if err = bufTmp.Flush(); err != nil {
