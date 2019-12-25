@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.3.1
+@subsection Релиз 5.3.1
+@itemize
+
+@item
+Исправлена работоспособность @option{onlinedeadline} с адресами вызова
+использующими внешние команды (@verb{#"|somecmd"#}).
+
+@end itemize
+
 @node Релиз 5.3.0
 @subsection Релиз 5.3.0
 @itemize
