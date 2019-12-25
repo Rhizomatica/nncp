@@ -22,7 +22,6 @@ import (
 	"crypto/subtle"
 	"errors"
 	"io"
-	"net"
 	"os"
 	"path/filepath"
 	"sort"
@@ -606,7 +605,6 @@ func (state *SPState) StartWorkers(
 					go func() {
 						state.pings <- struct{}{}
 						state.wg.Done()
-						state.Ctx.LogD("HERE", SDS{}, "PING GOROUTINE QUIT")
 					}()
 				}
 			}
@@ -768,8 +766,7 @@ func (state *SPState) StartWorkers(
 					break
 				}
 				unmarshalErr := err.(*xdr.UnmarshalError)
-				netErr, ok := unmarshalErr.Err.(net.Error)
-				if ok && netErr.Timeout() {
+				if os.IsTimeout(unmarshalErr.Err) {
 					continue
 				}
 				if unmarshalErr.ErrorCode == xdr.ErrIO {
