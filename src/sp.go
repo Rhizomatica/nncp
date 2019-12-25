@@ -606,7 +606,6 @@ func (state *SPState) StartWorkers(
 					go func() {
 						state.pings <- struct{}{}
 						state.wg.Done()
-						state.Ctx.LogD("HERE", SDS{}, "PING GOROUTINE QUIT")
 					}()
 				}
 			}
