@@ -9,6 +9,10 @@
 Исправлена работоспособность @option{onlinedeadline} с адресами вызова
 использующими внешние команды (@verb{#"|somecmd"#}).
 
+@item
+@command{nncp-stat} имеет опцию @option{-pkt} показывающую информацию по
+каждому пакету в spool.
+
 @end itemize
 
 @node Релиз 5.3.0
