@@ -502,13 +502,14 @@ ones. If @option{-seen} option is specified, then delete only
 @section nncp-stat
 
 @example
-$ nncp-stat [options] [-node NODE]
+$ nncp-stat [options] [-pkt] [-node NODE]
 @end example
 
 Print current @ref{Spool, spool} statistics about unsent and unprocessed
 packets. For each node (unless @option{-node} specified) and each
 niceness level there will be printed how many packets (with the total
-size) are in inbound (Rx) and outbound (Tx) queues.
+size) are in inbound (Rx) and outbound (Tx) queues. @option{-pkt} option
+show information about each packet.
 
 @node nncp-toss
 @section nncp-toss
