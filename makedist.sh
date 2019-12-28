@@ -140,8 +140,6 @@ cat > $texi <<EOF
 EOF
 makeinfo --plaintext -o NEWS.RU $texi
 
-rm -f $texi
-
 cat > $texi <<EOF
 \input texinfo
 @documentencoding UTF-8
@@ -150,7 +148,6 @@ cat > $texi <<EOF
 @bye
 EOF
 makeinfo --plaintext -o INSTALL $texi
-rm -f $texi
 
 cat > $texi <<EOF
 \input texinfo
@@ -160,6 +157,7 @@ cat > $texi <<EOF
 @bye
 EOF
 makeinfo --plaintext -o THANKS $texi
+
 rm -f $texi
 
 ########################################################################
