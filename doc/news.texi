@@ -3,6 +3,17 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.3.2
+@section Release 5.3.2
+@itemize
+
+@item
+Fixed incorrect logic of @option{onlinedeadline} timeout, where
+connection won't take into account incoming packets events and will
+forcefully disconnect.
+
+@end itemize
+
 @node Release 5.3.1
 @section Release 5.3.1
 @itemize

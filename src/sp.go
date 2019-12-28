@@ -851,6 +851,9 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.Ctx.LogE("sp-process", sds, err, "")
 			return nil, err
 		}
+		if head.Type != SPTypePing {
+			state.RxLastNonPing = state.RxLastSeen
+		}
 		switch head.Type {
 		case SPTypeHalt:
 			state.Ctx.LogD("sp-process", SdsAdd(sds, SDS{"type": "halt"}), "")
@@ -1085,9 +1088,6 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				"",
 			)
 			return nil, BadPktType
-		}
-		if head.Type != SPTypePing {
-			state.RxLastNonPing = state.RxLastSeen
 		}
 	}
 	if infosGot {

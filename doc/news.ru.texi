@@ -1,6 +1,17 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.3.2
+@subsection Релиз 5.3.2
+@itemize
+
+@item
+Исправлена некорректная логика @option{onlinedeadline} timeout-а, при
+котором соединение могло не учитывать факты прихода пакетов и обрывать
+связь.
+
+@end itemize
+
 @node Релиз 5.3.1
 @subsection Релиз 5.3.1
 @itemize
