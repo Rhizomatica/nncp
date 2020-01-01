@@ -54,7 +54,7 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 			return
 		}
 		for _, fi := range fis {
-			hshValue, err := FromBase32(fi.Name())
+			hshValue, err := Base32Codec.DecodeString(fi.Name())
 			if err != nil {
 				continue
 			}

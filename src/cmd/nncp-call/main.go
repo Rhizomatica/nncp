@@ -142,7 +142,7 @@ func main() {
 		splitted = strings.Split(*onlyPktsRaw, ",")
 		onlyPkts = make(map[[32]byte]bool, len(splitted))
 		for _, pktIdRaw := range splitted {
-			pktId, err := nncp.FromBase32(pktIdRaw)
+			pktId, err := nncp.Base32Codec.DecodeString(pktIdRaw)
 			if err != nil {
 				log.Fatalln("Invalid packet specified: ", err)
 			}
