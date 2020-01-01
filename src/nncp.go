@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"encoding/base32"
 	"runtime"
 )
 
@@ -38,6 +39,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.`
 
 var (
 	Version string = "UNKNOWN"
+
+	Base32Codec *base32.Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)
 )
 
 func VersionGet() string {

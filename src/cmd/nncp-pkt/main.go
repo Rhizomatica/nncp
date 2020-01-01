@@ -118,7 +118,7 @@ func main() {
 				-1,
 			))
 		case nncp.PktTypeTrns:
-			path = nncp.ToBase32(pkt.Path[:pkt.PathLen])
+			path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
 		default:
 			path = string(pkt.Path[:pkt.PathLen])
 		}

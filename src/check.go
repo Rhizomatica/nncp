@@ -44,7 +44,7 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 		sds := SDS{
 			"xx":       string(xx),
 			"node":     nodeId,
-			"pkt":      ToBase32(job.HshValue[:]),
+			"pkt":      Base32Codec.EncodeToString(job.HshValue[:]),
 			"fullsize": job.Size,
 		}
 		gut, err := Check(job.Fd, job.HshValue[:], sds, ctx.ShowPrgrs)

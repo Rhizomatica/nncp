@@ -155,7 +155,7 @@ func main() {
 				if _, err = nncp.CopyProgressed(
 					tarWr, job.Fd, "Tx",
 					nncp.SdsAdd(sds, nncp.SDS{
-						"pkt":      nncp.ToBase32(job.HshValue[:]),
+						"pkt":      nncp.Base32Codec.EncodeToString(job.HshValue[:]),
 						"fullsize": job.Size,
 					}),
 					ctx.ShowPrgrs,
@@ -244,7 +244,7 @@ func main() {
 				continue
 			}
 			pktName = filepath.Base(entry.Name)
-			if _, err = nncp.FromBase32(pktName); err != nil {
+			if _, err = nncp.Base32Codec.DecodeString(pktName); err != nil {
 				ctx.LogD("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{"err": "bad packet name"}), "")
 				continue
 			}
@@ -271,7 +271,7 @@ func main() {
 						continue
 					}
 				}
-				nodeId32 := nncp.ToBase32(pktEnc.Recipient[:])
+				nodeId32 := nncp.Base32Codec.EncodeToString(pktEnc.Recipient[:])
 				sds["xx"] = string(nncp.TTx)
 				sds["node"] = nodeId32
 				sds["pkt"] = pktName
@@ -299,7 +299,7 @@ func main() {
 				); err != nil {
 					log.Fatalln("Error during copying:", err)
 				}
-				if nncp.ToBase32(hsh.Sum(nil)) == pktName {
+				if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) == pktName {
 					ctx.LogI("nncp-bundle", sds, "removed")
 					if !*dryRun {
 						os.Remove(dstPath)
@@ -319,7 +319,7 @@ func main() {
 					continue
 				}
 			}
-			sds["node"] = nncp.ToBase32(pktEnc.Recipient[:])
+			sds["node"] = nncp.Base32Codec.EncodeToString(pktEnc.Recipient[:])
 			sds["pkt"] = pktName
 			sds["fullsize"] = entry.Size
 			selfPath = filepath.Join(ctx.Spool, ctx.SelfId.String(), string(nncp.TRx))
@@ -344,7 +344,7 @@ func main() {
 					if _, err = nncp.CopyProgressed(hsh, tarR, "check", sds, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
-					if nncp.ToBase32(hsh.Sum(nil)) != pktName {
+					if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) != pktName {
 						ctx.LogE("nncp-bundle", sds, errors.New("bad checksum"), "")
 						continue
 					}
@@ -362,7 +362,7 @@ func main() {
 					if err = tmp.W.Flush(); err != nil {
 						log.Fatalln("Error during flusing:", err)
 					}
-					if nncp.ToBase32(tmp.Hsh.Sum(nil)) == pktName {
+					if nncp.Base32Codec.EncodeToString(tmp.Hsh.Sum(nil)) == pktName {
 						if err = tmp.Commit(selfPath); err != nil {
 							log.Fatalln("Error during commiting:", err)
 						}

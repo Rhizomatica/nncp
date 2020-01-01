@@ -40,7 +40,7 @@ func jobPrint(xx nncp.TRxTx, job nncp.Job) {
 	fmt.Printf(
 		"\t%s %s %s (nice: %s)\n",
 		string(xx),
-		nncp.ToBase32(job.HshValue[:]),
+		nncp.Base32Codec.EncodeToString(job.HshValue[:]),
 		humanize.IBytes(uint64(job.Size)),
 		nncp.NicenessFmt(job.PktEnc.Nice),
 	)
