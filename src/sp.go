@@ -475,7 +475,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	state.maxOnlineTime = node.MaxOnlineTime
 	sds := SDS{"node": node.Id, "nice": int(state.Nice)}
 
-	if state.Ctx.ensureRxDir(node.Id); err != nil {
+	if err = state.Ctx.ensureRxDir(node.Id); err != nil {
 		return err
 	}
 	var rxLock *os.File
@@ -999,7 +999,11 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				}
 				state.wg.Add(1)
 				defer state.wg.Done()
-				fd.Seek(0, io.SeekStart)
+				if _, err = fd.Seek(0, io.SeekStart); err != nil {
+					fd.Close() // #nosec G104
+					state.Ctx.LogE("sp-file", sdsp, err, "")
+					return
+				}
 				state.Ctx.LogD("sp-file", sdsp, "checking")
 				gut, err := Check(fd, file.Hash[:], sdsp, state.Ctx.ShowPrgrs)
 				fd.Close() // #nosec G104

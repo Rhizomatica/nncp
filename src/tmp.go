@@ -105,7 +105,9 @@ func (tmp *TmpFileWHash) Commit(dir string) error {
 		tmp.Fd.Close() // #nosec G104
 		return err
 	}
-	tmp.Fd.Close()
+	if err = tmp.Fd.Close(); err != nil {
+		return err
+	}
 	checksum := Base32Codec.EncodeToString(tmp.Hsh.Sum(nil))
 	tmp.ctx.LogD("tmp", SDS{"src": tmp.Fd.Name(), "dst": checksum}, "commit")
 	if err = os.Rename(tmp.Fd.Name(), filepath.Join(dir, checksum)); err != nil {
