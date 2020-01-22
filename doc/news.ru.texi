@@ -1,6 +1,18 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.3.3
+@subsection Релиз 5.3.3
+@itemize
+
+@item
+Больше различных проверок в коде на ошибки.
+
+@item
+Обновлены зависимые библиотеки.
+
+@end itemize
+
 @node Релиз 5.3.2
 @subsection Релиз 5.3.2
 @itemize

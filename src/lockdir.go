@@ -25,7 +25,10 @@ import (
 )
 
 func (ctx *Ctx) LockDir(nodeId *NodeId, lockCtx string) (*os.File, error) {
-	ctx.ensureRxDir(nodeId)
+	if err := ctx.ensureRxDir(nodeId); err != nil {
+		ctx.LogE("lockdir", SDS{}, err, "")
+		return nil, err
+	}
 	lockPath := filepath.Join(ctx.Spool, nodeId.String(), lockCtx) + ".lock"
 	dirLock, err := os.OpenFile(
 		lockPath,

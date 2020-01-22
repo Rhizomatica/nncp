@@ -159,9 +159,13 @@ func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize
 		}
 		fileSize = int64(written)
 		if err = tmpW.Flush(); err != nil {
+			rerr = err
 			return
 		}
-		src.Seek(0, io.SeekStart)
+		if _, err = src.Seek(0, io.SeekStart); err != nil {
+			rerr = err
+			return
+		}
 		r, w := io.Pipe()
 		go func() {
 			if _, err := aeadProcess(aead, nonce, false, bufio.NewReader(src), w); err != nil {
@@ -272,16 +276,19 @@ func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize
 			}
 			fd, err := os.Open(e.path)
 			if err != nil {
-				w.CloseWithError(err)
+				fd.Close() // #nosec G104
+				return w.CloseWithError(err)
 			}
-			_, err = io.Copy(tarWr, bufio.NewReader(fd))
-			if err != nil {
-				w.CloseWithError(err)
+			if _, err = io.Copy(tarWr, bufio.NewReader(fd)); err != nil {
+				fd.Close() // #nosec G104
+				return w.CloseWithError(err)
 			}
-			fd.Close()
+			fd.Close() // #nosec G104
 		}
-		tarWr.Close()
-		w.Close()
+		if err = tarWr.Close(); err != nil {
+			return w.CloseWithError(err)
+		}
+		return w.Close()
 	}()
 	return
 }
@@ -492,9 +499,11 @@ func (ctx *Ctx) TxExec(
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(compressor, in)
-	compressor.Close()
-	if err != nil {
+	if _, err = io.Copy(compressor, in); err != nil {
+		compressor.Close() // #nosec G104
+		return err
+	}
+	if err = compressor.Close(); err != nil {
 		return err
 	}
 	size := int64(compressed.Len())
