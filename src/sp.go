@@ -290,7 +290,7 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]uint8) [
 	var infos []*SPInfo
 	var totalSize int64
 	for job := range ctx.Jobs(nodeId, TTx) {
-		job.Fd.Close()
+		job.Fd.Close() // #nosec G104
 		if job.PktEnc.Nice > nice {
 			continue
 		}
@@ -392,14 +392,14 @@ func (state *SPState) StartI(conn ConnDeadlined) error {
 	}
 	sds := SDS{"node": nodeId, "nice": int(state.Nice)}
 	state.Ctx.LogD("sp-start", sds, "sending first message")
-	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline))
+	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 	if err = state.WriteSP(conn, buf, false); err != nil {
 		state.Ctx.LogE("sp-start", sds, err, "")
 		state.dirUnlock()
 		return err
 	}
 	state.Ctx.LogD("sp-start", sds, "waiting for first message")
-	conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
+	conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 	if buf, err = state.ReadSP(conn); err != nil {
 		state.Ctx.LogE("sp-start", sds, err, "")
 		state.dirUnlock()
@@ -446,7 +446,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	var buf []byte
 	var payload []byte
 	state.Ctx.LogD("sp-start", SDS{"nice": int(state.Nice)}, "waiting for first message")
-	conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
+	conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 	if buf, err = state.ReadSP(conn); err != nil {
 		state.Ctx.LogE("sp-start", SDS{}, err, "")
 		return err
@@ -514,7 +514,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 		state.dirUnlock()
 		return err
 	}
-	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline))
+	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 	if err = state.WriteSP(conn, buf, false); err != nil {
 		state.Ctx.LogE("sp-start", sds, err, "")
 		state.dirUnlock()
@@ -597,7 +597,7 @@ func (state *SPState) StartWorkers(
 					(state.maxOnlineTime > 0 && state.mustFinishAt.Before(now)) ||
 					(now.Sub(state.RxLastSeen) >= 2*PingTimeout) {
 					state.SetDead()
-					conn.Close()
+					conn.Close() // #nosec G104
 				}
 			case now := <-pingTicker.C:
 				if now.After(state.TxLastSeen.Add(PingTimeout)) {
@@ -713,7 +713,7 @@ func (state *SPState) StartWorkers(
 					buf = buf[:n]
 					state.Ctx.LogD("sp-file", SdsAdd(sdsp, SDS{"size": n}), "read")
 				}
-				fd.Close()
+				fd.Close() // #nosec G104
 				payload = MarshalSP(SPTypeFile, SPFile{
 					Hash:    freq.Hash,
 					Offset:  freq.Offset,
@@ -743,7 +743,7 @@ func (state *SPState) StartWorkers(
 				state.Unlock()
 			}
 			state.Ctx.LogD("sp-xmit", SdsAdd(sds, SDS{"size": len(payload)}), "sending")
-			conn.SetWriteDeadline(time.Now().Add(DefaultDeadline))
+			conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 			if err := state.WriteSP(conn, state.csOur.Encrypt(nil, nil, payload), ping); err != nil {
 				state.Ctx.LogE("sp-xmit", sds, err, "")
 				return
@@ -759,7 +759,7 @@ func (state *SPState) StartWorkers(
 				break
 			}
 			state.Ctx.LogD("sp-recv", sds, "waiting for payload")
-			conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
+			conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 			payload, err := state.ReadSP(conn)
 			if err != nil {
 				if err == io.EOF {
@@ -814,7 +814,7 @@ func (state *SPState) StartWorkers(
 		state.SetDead()
 		state.wg.Done()
 		state.SetDead()
-		conn.Close()
+		conn.Close() // #nosec G104
 	}()
 
 	return nil
@@ -962,14 +962,14 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			)
 			if _, err = fd.Seek(int64(file.Offset), io.SeekStart); err != nil {
 				state.Ctx.LogE("sp-file", sdsp, err, "")
-				fd.Close()
+				fd.Close() // #nosec G104
 				return nil, err
 			}
 			state.Ctx.LogD("sp-file", sdsp, "writing")
 			_, err = fd.Write(file.Payload)
 			if err != nil {
 				state.Ctx.LogE("sp-file", sdsp, err, "")
-				fd.Close()
+				fd.Close() // #nosec G104
 				return nil, err
 			}
 			ourSize := int64(file.Offset + uint64(len(file.Payload)))
@@ -986,7 +986,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				Progress("Rx", sdsp)
 			}
 			if fullsize != ourSize {
-				fd.Close()
+				fd.Close() // #nosec G104
 				continue
 			}
 			spWorkersGroup.Wait()
@@ -994,7 +994,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			go func() {
 				if err := fd.Sync(); err != nil {
 					state.Ctx.LogE("sp-file", sdsp, err, "sync")
-					fd.Close()
+					fd.Close() // #nosec G104
 					return
 				}
 				state.wg.Add(1)
@@ -1002,7 +1002,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				fd.Seek(0, io.SeekStart)
 				state.Ctx.LogD("sp-file", sdsp, "checking")
 				gut, err := Check(fd, file.Hash[:], sdsp, state.Ctx.ShowPrgrs)
-				fd.Close()
+				fd.Close() // #nosec G104
 				if err != nil || !gut {
 					state.Ctx.LogE("sp-file", sdsp, errors.New("checksum mismatch"), "")
 					return

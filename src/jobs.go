@@ -49,7 +49,7 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 			return
 		}
 		fis, err := dir.Readdir(0)
-		dir.Close()
+		dir.Close() // #nosec G104
 		if err != nil {
 			return
 		}
@@ -64,10 +64,13 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 			}
 			var pktEnc PktEnc
 			if _, err = xdr.Unmarshal(fd, &pktEnc); err != nil || pktEnc.Magic != MagicNNCPEv4 {
-				fd.Close()
+				fd.Close() // #nosec G104
 				continue
 			}
-			fd.Seek(0, io.SeekStart)
+			if _, err = fd.Seek(0, io.SeekStart); err != nil {
+				fd.Close() // #nosec G104
+				continue
+			}
 			ctx.LogD("jobs", SDS{
 				"xx":   string(xx),
 				"node": pktEnc.Sender,

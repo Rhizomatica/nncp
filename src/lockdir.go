@@ -39,7 +39,7 @@ func (ctx *Ctx) LockDir(nodeId *NodeId, lockCtx string) (*os.File, error) {
 	err = unix.Flock(int(dirLock.Fd()), unix.LOCK_EX|unix.LOCK_NB)
 	if err != nil {
 		ctx.LogE("lockdir", SDS{"path": lockPath}, err, "")
-		dirLock.Close()
+		dirLock.Close() // #nosec G104
 		return nil, err
 	}
 	return dirLock, nil
@@ -47,7 +47,7 @@ func (ctx *Ctx) LockDir(nodeId *NodeId, lockCtx string) (*os.File, error) {
 
 func (ctx *Ctx) UnlockDir(fd *os.File) {
 	if fd != nil {
-		unix.Flock(int(fd.Fd()), unix.LOCK_UN)
-		fd.Close()
+		unix.Flock(int(fd.Fd()), unix.LOCK_UN) // #nosec G104
+		fd.Close() // #nosec G104
 	}
 }

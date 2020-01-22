@@ -84,11 +84,11 @@ func (ctx *Ctx) CallNode(
 				"txspeed":  state.TxSpeed,
 			}, "")
 			isGood = true
-			conn.Close()
+			conn.Close() // #nosec G104
 			break
 		} else {
 			ctx.LogE("call-start", sds, err, "")
-			conn.Close()
+			conn.Close() // #nosec G104
 		}
 	}
 	return
