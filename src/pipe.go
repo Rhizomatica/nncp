@@ -65,9 +65,11 @@ func (c PipeConn) SetWriteDeadline(t time.Time) error {
 }
 
 func (c PipeConn) Close() (err error) {
-	c.r.Close()
+	err = c.r.Close()
 	err = c.w.Close()
 	go c.cmd.Wait()
-	time.AfterFunc(time.Duration(10*time.Second), func() { c.cmd.Process.Kill() })
+	time.AfterFunc(time.Duration(10*time.Second), func() {
+		c.cmd.Process.Kill() // #nosec G104
+	})
 	return
 }

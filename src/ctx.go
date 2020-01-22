@@ -73,8 +73,7 @@ func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
 		ctx.LogE("dir-ensure", SDS{"dir": dirPath}, err, "")
 		return err
 	}
-	fd.Close()
-	return nil
+	return fd.Close()
 }
 
 func CtxFromCmdline(

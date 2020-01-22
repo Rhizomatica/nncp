@@ -91,8 +91,8 @@ func (ctx *Ctx) Log(msg string) {
 		fmt.Fprintln(os.Stderr, "Can not open log:", err)
 		return
 	}
-	fd.WriteString(msg)
-	fd.Close()
+	fd.WriteString(msg) // #nosec G104
+	fd.Close()          // #nosec G104
 }
 
 func (ctx *Ctx) LogD(who string, sds SDS, msg string) {

@@ -127,7 +127,7 @@ func main() {
 				sds["pkt"] = pktName
 				if job.PktEnc.Nice > nice {
 					ctx.LogD("nncp-bundle", sds, "too nice")
-					job.Fd.Close()
+					job.Fd.Close() // #nosec G104
 					continue
 				}
 				if err = tarWr.WriteHeader(&tar.Header{
@@ -162,7 +162,7 @@ func main() {
 				); err != nil {
 					log.Fatalln("Error during copying to tar:", err)
 				}
-				job.Fd.Close()
+				job.Fd.Close() // #nosec G104
 				if err = tarWr.Flush(); err != nil {
 					log.Fatalln("Error during tar flushing:", err)
 				}
@@ -194,11 +194,13 @@ func main() {
 				if err == io.EOF {
 					break
 				}
-				bufStdin.Discard(bufStdin.Buffered() - (len(nncp.NNCPBundlePrefix) - 1))
+				bufStdin.Discard(bufStdin.Buffered() - (len(nncp.NNCPBundlePrefix) - 1)) // #nosec G104
 				continue
 			}
-			bufStdin.Discard(prefixIdx)
-			tarR = tar.NewReader(bufStdin)
+			if _, err = bufStdin.Discard(prefixIdx); err != nil {
+				panic(err)
+			}
+			tarR := tar.NewReader(bufStdin)
 			sds["xx"] = string(nncp.TRx)
 			entry, err := tarR.Next()
 			if err != nil {
@@ -294,7 +296,7 @@ func main() {
 				if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) == pktName {
 					ctx.LogI("nncp-bundle", sds, "removed")
 					if !*dryRun {
-						os.Remove(dstPath)
+						os.Remove(dstPath) // #nosec G104
 					}
 				} else {
 					ctx.LogE("nncp-bundle", sds, errors.New("bad checksum"), "")
@@ -387,7 +389,9 @@ func main() {
 					if err = tmp.Sync(); err != nil {
 						log.Fatalln("Error during syncing:", err)
 					}
-					tmp.Close()
+					if err = tmp.Close(); err != nil {
+						log.Fatalln("Error during closing:", err)
+					}
 					if err = os.MkdirAll(selfPath, os.FileMode(0777)); err != nil {
 						log.Fatalln("Error during mkdir:", err)
 					}

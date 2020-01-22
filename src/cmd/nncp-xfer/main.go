@@ -128,7 +128,7 @@ func main() {
 		goto Tx
 	}
 	fis, err = dir.Readdir(0)
-	dir.Close()
+	dir.Close() // #nosec G104
 	if err != nil {
 		ctx.LogE("nncp-xfer", sds, err, "read")
 		isBad = true
@@ -159,7 +159,7 @@ func main() {
 			continue
 		}
 		fisInt, err := dir.Readdir(0)
-		dir.Close()
+		dir.Close() // #nosec G104
 		if err != nil {
 			ctx.LogE("nncp-xfer", sds, err, "read")
 			isBad = true
@@ -186,21 +186,23 @@ func main() {
 			_, err = xdr.Unmarshal(fd, &pktEnc)
 			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv4 {
 				ctx.LogD("nncp-xfer", sds, "is not a packet")
-				fd.Close()
+				fd.Close() // #nosec G104
 				continue
 			}
 			if pktEnc.Nice > nice {
 				ctx.LogD("nncp-xfer", sds, "too nice")
-				fd.Close()
+				fd.Close() // #nosec G104
 				continue
 			}
 			sds["size"] = fiInt.Size()
 			if !ctx.IsEnoughSpace(fiInt.Size()) {
 				ctx.LogE("nncp-xfer", sds, errors.New("is not enough space"), "")
-				fd.Close()
+				fd.Close() // #nosec G104
 				continue
 			}
-			fd.Seek(0, 0)
+			if _, err = fd.Seek(0, 0); err != nil {
+				log.Fatalln(err)
+			}
 			tmp, err := ctx.NewTmpFileWHash()
 			if err != nil {
 				log.Fatalln(err)
@@ -209,11 +211,12 @@ func main() {
 			go func() {
 				_, err := io.CopyN(w, bufio.NewReader(fd), fiInt.Size())
 				if err == nil {
-					w.Close()
-					return
+					err = w.Close()
 				}
-				ctx.LogE("nncp-xfer", sds, err, "copy")
-				w.CloseWithError(err)
+				if err != nil {
+					ctx.LogE("nncp-xfer", sds, err, "copy")
+					w.CloseWithError(err) // #nosec G104
+				}
 			}()
 			if _, err = nncp.CopyProgressed(
 				tmp.W, r, "Rx",
@@ -226,7 +229,7 @@ func main() {
 				ctx.LogE("nncp-xfer", sds, err, "copy")
 				isBad = true
 			}
-			fd.Close()
+			fd.Close() // #nosec G104
 			if isBad {
 				tmp.Cancel()
 				continue
@@ -313,23 +316,23 @@ Tx:
 			sds["pkt"] = pktName
 			if job.PktEnc.Nice > nice {
 				ctx.LogD("nncp-xfer", sds, "too nice")
-				job.Fd.Close()
+				job.Fd.Close() // #nosec G104
 				continue
 			}
 			if _, err = os.Stat(filepath.Join(dstPath, pktName)); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("nncp-xfer", sds, "already exists")
-				job.Fd.Close()
+				job.Fd.Close() // #nosec G104
 				continue
 			}
 			if _, err = os.Stat(filepath.Join(dstPath, pktName+nncp.SeenSuffix)); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("nncp-xfer", sds, "already exists")
-				job.Fd.Close()
+				job.Fd.Close() // #nosec G104
 				continue
 			}
 			tmp, err := nncp.TempFile(dstPath, "xfer")
 			if err != nil {
 				ctx.LogE("nncp-xfer", sds, err, "mktemp")
-				job.Fd.Close()
+				job.Fd.Close() // #nosec G104
 				isBad = true
 				break
 			}
@@ -341,26 +344,28 @@ Tx:
 				nncp.SdsAdd(sds, nncp.SDS{"fullsize": job.Size}),
 				ctx.ShowPrgrs,
 			)
-			job.Fd.Close()
+			job.Fd.Close() // #nosec G104
 			if err != nil {
 				ctx.LogE("nncp-xfer", sds, err, "copy")
-				tmp.Close()
+				tmp.Close() // #nosec G104
 				isBad = true
 				continue
 			}
 			if err = bufW.Flush(); err != nil {
-				tmp.Close()
+				tmp.Close() // #nosec G104
 				ctx.LogE("nncp-xfer", sds, err, "flush")
 				isBad = true
 				continue
 			}
 			if err = tmp.Sync(); err != nil {
-				tmp.Close()
+				tmp.Close() // #nosec G104
 				ctx.LogE("nncp-xfer", sds, err, "sync")
 				isBad = true
 				continue
 			}
-			tmp.Close()
+			if err = tmp.Close(); err != nil {
+				ctx.LogE("nncp-xfer", sds, err, "sync")
+			}
 			if err = os.Rename(tmp.Name(), filepath.Join(dstPath, pktName)); err != nil {
 				ctx.LogE("nncp-xfer", sds, err, "rename")
 				isBad = true
@@ -371,7 +376,7 @@ Tx:
 				isBad = true
 				continue
 			}
-			os.Remove(filepath.Join(dstPath, pktName+".part"))
+			os.Remove(filepath.Join(dstPath, pktName+".part")) // #nosec G104
 			delete(sds, "tmp")
 			ctx.LogI("nncp-xfer", nncp.SdsAdd(sds, nncp.SDS{"size": copied}), "")
 			if !*keep {

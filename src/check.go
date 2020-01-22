@@ -48,7 +48,7 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 			"fullsize": job.Size,
 		}
 		gut, err := Check(job.Fd, job.HshValue[:], sds, ctx.ShowPrgrs)
-		job.Fd.Close()
+		job.Fd.Close() // #nosec G104
 		if err != nil {
 			ctx.LogE("check", sds, err, "")
 			return true

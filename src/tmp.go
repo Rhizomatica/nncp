@@ -74,9 +74,9 @@ func (ctx *Ctx) NewTmpFileWHash() (*TmpFileWHash, error) {
 }
 
 func (tmp *TmpFileWHash) Cancel() {
-	tmp.Fd.Truncate(0)
-	tmp.Fd.Close()
-	os.Remove(tmp.Fd.Name())
+	tmp.Fd.Truncate(0) // #nosec G104
+	tmp.Fd.Close() // #nosec G104
+	os.Remove(tmp.Fd.Name()) // #nosec G104
 }
 
 func DirSync(dirPath string) error {
@@ -86,7 +86,7 @@ func DirSync(dirPath string) error {
 	}
 	err = fd.Sync()
 	if err != nil {
-		fd.Close()
+		fd.Close() // #nosec G104
 		return err
 	}
 	return fd.Close()
@@ -98,11 +98,11 @@ func (tmp *TmpFileWHash) Commit(dir string) error {
 		return err
 	}
 	if err = tmp.W.Flush(); err != nil {
-		tmp.Fd.Close()
+		tmp.Fd.Close() // #nosec G104
 		return err
 	}
 	if err = tmp.Fd.Sync(); err != nil {
-		tmp.Fd.Close()
+		tmp.Fd.Close() // #nosec G104
 		return err
 	}
 	tmp.Fd.Close()

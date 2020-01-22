@@ -376,12 +376,12 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 func CfgParse(data []byte) (*Ctx, error) {
 	var err error
 	if bytes.Compare(data[:8], MagicNNCPBv3[:]) == 0 {
-		os.Stderr.WriteString("Passphrase:")
+		os.Stderr.WriteString("Passphrase:") // #nosec G104
 		password, err := terminal.ReadPassword(0)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		os.Stderr.WriteString("\n")
+		os.Stderr.WriteString("\n") // #nosec G104
 		data, err = DeEBlob(data, password)
 		if err != nil {
 			return nil, err

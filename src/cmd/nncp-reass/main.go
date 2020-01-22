@@ -61,7 +61,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		ctx.LogE("nncp-reass", nncp.SDS{"path": path}, err, "bad meta file")
 		return false
 	}
-	fd.Close()
+	fd.Close() // #nosec G104
 	if metaPkt.Magic != nncp.MagicNNCPMv1 {
 		ctx.LogE("nncp-reass", nncp.SDS{"path": path}, nncp.BadMagic, "")
 		return false
@@ -154,7 +154,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		); err != nil {
 			log.Fatalln(err)
 		}
-		fd.Close()
+		fd.Close() // #nosec G104
 		if bytes.Compare(hsh.Sum(nil), metaPkt.Checksums[chunkNum][:]) != 0 {
 			ctx.LogE(
 				"nncp-reass",
@@ -209,7 +209,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		); err != nil {
 			log.Fatalln(err)
 		}
-		fd.Close()
+		fd.Close() // #nosec G104
 		if !keep {
 			if err = os.Remove(chunkPath); err != nil {
 				ctx.LogE("nncp-reass", nncp.SdsAdd(sds, nncp.SDS{"chunk": chunkNum}), err, "")
@@ -224,7 +224,9 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		if err = tmp.Sync(); err != nil {
 			log.Fatalln("Can not sync:", err)
 		}
-		tmp.Close()
+		if err = tmp.Close(); err != nil {
+			log.Fatalln("Can not close:", err)
+		}
 	}
 	ctx.LogD("nncp-reass", sds, "written")
 	if !keep {
@@ -269,7 +271,7 @@ func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 		return nil
 	}
 	fis, err := dir.Readdir(0)
-	dir.Close()
+	dir.Close() // #nosec G104
 	if err != nil {
 		ctx.LogE("nncp-reass", nncp.SDS{"path": dirPath}, err, "")
 		return nil

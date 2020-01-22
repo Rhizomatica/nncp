@@ -188,7 +188,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
-						fd.Close()
+						fd.Close() // #nosec G104
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
@@ -239,13 +239,13 @@ func (ctx *Ctx) Toss(
 					goto Closing
 				}
 				if err = bufW.Flush(); err != nil {
-					tmp.Close()
+					tmp.Close() // #nosec G104
 					ctx.LogE("rx", sds, err, "copy")
 					isBad = true
 					goto Closing
 				}
 				if err = tmp.Sync(); err != nil {
-					tmp.Close()
+					tmp.Close() // #nosec G104
 					ctx.LogE("rx", sds, err, "copy")
 					isBad = true
 					goto Closing
@@ -280,7 +280,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
-						fd.Close()
+						fd.Close() // #nosec G104
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
@@ -347,7 +347,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
-						fd.Close()
+						fd.Close() // #nosec G104
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
@@ -391,7 +391,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
-						fd.Close()
+						fd.Close() // #nosec G104
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
@@ -404,7 +404,7 @@ func (ctx *Ctx) Toss(
 			isBad = true
 		}
 	Closing:
-		pipeR.Close()
+		pipeR.Close() // #nosec G104
 	}
 	return isBad
 }
