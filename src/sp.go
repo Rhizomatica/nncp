@@ -226,11 +226,11 @@ func (state *SPState) SetDead() {
 	}
 	close(state.isDead)
 	go func() {
-		for _ = range state.payloads {
+		for range state.payloads {
 		}
 	}()
 	go func() {
-		for _ = range state.pings {
+		for range state.pings {
 		}
 	}()
 }
