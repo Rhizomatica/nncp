@@ -123,7 +123,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		return nil, err
 	}
 
-	exchPub, err := FromBase32(cfg.ExchPub)
+	exchPub, err := Base32Codec.DecodeString(cfg.ExchPub)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		return nil, errors.New("Invalid exchPub size")
 	}
 
-	signPub, err := FromBase32(cfg.SignPub)
+	signPub, err := Base32Codec.DecodeString(cfg.SignPub)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 
 	var noisePub []byte
 	if cfg.NoisePub != nil {
-		noisePub, err = FromBase32(*cfg.NoisePub)
+		noisePub, err = Base32Codec.DecodeString(*cfg.NoisePub)
 		if err != nil {
 			return nil, err
 		}
@@ -309,7 +309,7 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 		return nil, err
 	}
 
-	exchPub, err := FromBase32(cfg.ExchPub)
+	exchPub, err := Base32Codec.DecodeString(cfg.ExchPub)
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +317,7 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid exchPub size")
 	}
 
-	exchPrv, err := FromBase32(cfg.ExchPrv)
+	exchPrv, err := Base32Codec.DecodeString(cfg.ExchPrv)
 	if err != nil {
 		return nil, err
 	}
@@ -325,7 +325,7 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid exchPrv size")
 	}
 
-	signPub, err := FromBase32(cfg.SignPub)
+	signPub, err := Base32Codec.DecodeString(cfg.SignPub)
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +333,7 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid signPub size")
 	}
 
-	signPrv, err := FromBase32(cfg.SignPrv)
+	signPrv, err := Base32Codec.DecodeString(cfg.SignPrv)
 	if err != nil {
 		return nil, err
 	}
@@ -341,7 +341,7 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid signPrv size")
 	}
 
-	noisePub, err := FromBase32(cfg.NoisePub)
+	noisePub, err := Base32Codec.DecodeString(cfg.NoisePub)
 	if err != nil {
 		return nil, err
 	}
@@ -349,7 +349,7 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 		return nil, errors.New("Invalid noisePub size")
 	}
 
-	noisePrv, err := FromBase32(cfg.NoisePrv)
+	noisePrv, err := Base32Codec.DecodeString(cfg.NoisePrv)
 	if err != nil {
 		return nil, err
 	}
@@ -376,12 +376,12 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 func CfgParse(data []byte) (*Ctx, error) {
 	var err error
 	if bytes.Compare(data[:8], MagicNNCPBv3[:]) == 0 {
-		os.Stderr.WriteString("Passphrase:")
+		os.Stderr.WriteString("Passphrase:") // #nosec G104
 		password, err := terminal.ReadPassword(0)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		os.Stderr.WriteString("\n")
+		os.Stderr.WriteString("\n") // #nosec G104
 		data, err = DeEBlob(data, password)
 		if err != nil {
 			return nil, err

@@ -86,7 +86,7 @@ func (ctx *Ctx) Tx(
 			"size": size,
 		}, "wrote")
 		errs <- PktEncWrite(ctx.Self, hops[0], pkt, nice, size, padSize, src, dst)
-		dst.Close()
+		dst.Close() // #nosec G104
 	}(curSize, src, pipeW)
 	curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize) + padSize
 
@@ -102,7 +102,7 @@ func (ctx *Ctx) Tx(
 				"size": size,
 			}, "trns wrote")
 			errs <- PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
-			dst.Close()
+			dst.Close() // #nosec G104
 		}(hops[i], pktTrns, curSize, pipeRPrev, pipeW)
 		curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize)
 	}
@@ -117,13 +117,13 @@ func (ctx *Ctx) Tx(
 	for i := 0; i <= len(hops); i++ {
 		err = <-errs
 		if err != nil {
-			tmp.Fd.Close()
+			tmp.Fd.Close() // #nosec G104
 			return nil, err
 		}
 	}
 	nodePath := filepath.Join(ctx.Spool, lastNode.Id.String())
 	err = tmp.Commit(filepath.Join(nodePath, string(TTx)))
-	os.Symlink(nodePath, filepath.Join(ctx.Spool, lastNode.Name))
+	os.Symlink(nodePath, filepath.Join(ctx.Spool, lastNode.Name)) // #nosec G104
 	return lastNode, err
 }
 
@@ -140,7 +140,7 @@ func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize
 			rerr = err
 			return
 		}
-		os.Remove(src.Name())
+		os.Remove(src.Name()) // #nosec G104
 		tmpW := bufio.NewWriter(src)
 		tmpKey := make([]byte, chacha20poly1305.KeySize)
 		if _, rerr = rand.Read(tmpKey[:]); rerr != nil {
@@ -159,13 +159,17 @@ func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize
 		}
 		fileSize = int64(written)
 		if err = tmpW.Flush(); err != nil {
+			rerr = err
 			return
 		}
-		src.Seek(0, io.SeekStart)
+		if _, err = src.Seek(0, io.SeekStart); err != nil {
+			rerr = err
+			return
+		}
 		r, w := io.Pipe()
 		go func() {
 			if _, err := aeadProcess(aead, nonce, false, bufio.NewReader(src), w); err != nil {
-				w.CloseWithError(err)
+				w.CloseWithError(err) // #nosec G104
 			}
 		}()
 		reader = r
@@ -244,7 +248,7 @@ func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize
 	closer = DummyCloser{}
 	fileSize += 2 * TarBlockSize // termination block
 
-	go func() {
+	go func() error {
 		tarWr := tar.NewWriter(w)
 		hdr := tar.Header{
 			Typeflag: tar.TypeDir,
@@ -258,7 +262,7 @@ func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize
 			hdr.Name = basePath + e.path[len(rootPath):]
 			hdr.ModTime = e.modTime
 			if err = tarWr.WriteHeader(&hdr); err != nil {
-				w.CloseWithError(err)
+				return w.CloseWithError(err)
 			}
 		}
 		hdr.Typeflag = tar.TypeReg
@@ -268,20 +272,23 @@ func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize
 			hdr.ModTime = e.modTime
 			hdr.Size = e.size
 			if err = tarWr.WriteHeader(&hdr); err != nil {
-				w.CloseWithError(err)
+				return w.CloseWithError(err)
 			}
 			fd, err := os.Open(e.path)
 			if err != nil {
-				w.CloseWithError(err)
+				fd.Close() // #nosec G104
+				return w.CloseWithError(err)
 			}
-			_, err = io.Copy(tarWr, bufio.NewReader(fd))
-			if err != nil {
-				w.CloseWithError(err)
+			if _, err = io.Copy(tarWr, bufio.NewReader(fd)); err != nil {
+				fd.Close() // #nosec G104
+				return w.CloseWithError(err)
 			}
-			fd.Close()
+			fd.Close() // #nosec G104
 		}
-		tarWr.Close()
-		w.Close()
+		if err = tarWr.Close(); err != nil {
+			return w.CloseWithError(err)
+		}
+		return w.Close()
 	}()
 	return
 }
@@ -492,9 +499,11 @@ func (ctx *Ctx) TxExec(
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(compressor, in)
-	compressor.Close()
-	if err != nil {
+	if _, err = io.Copy(compressor, in); err != nil {
+		compressor.Close() // #nosec G104
+		return err
+	}
+	if err = compressor.Close(); err != nil {
 		return err
 	}
 	size := int64(compressed.Len())
@@ -546,6 +555,6 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	} else {
 		ctx.LogI("tx", SdsAdd(sds, SDS{"err": err}), "sent")
 	}
-	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name))
+	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name)) // #nosec G104
 	return err
 }

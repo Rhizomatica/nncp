@@ -60,7 +60,7 @@ func (c InetdConn) SetWriteDeadline(t time.Time) error {
 
 func (c InetdConn) Close() error {
 	if err := c.r.Close(); err != nil {
-		c.w.Close()
+		c.w.Close() // #nosec G104
 		return err
 	}
 	return c.w.Close()
@@ -140,10 +140,10 @@ func main() {
 	ctx.Umask()
 
 	if *inetd {
-		os.Stderr.Close()
+		os.Stderr.Close() // #nosec G104
 		conn := &InetdConn{os.Stdin, os.Stdout}
 		performSP(ctx, conn, nice)
-		conn.Close()
+		conn.Close() // #nosec G104
 		return
 	}
 
@@ -160,7 +160,7 @@ func main() {
 		ctx.LogD("daemon", nncp.SDS{"addr": conn.RemoteAddr()}, "accepted")
 		go func(conn net.Conn) {
 			performSP(ctx, conn, nice)
-			conn.Close()
+			conn.Close() // #nosec G104
 		}(conn)
 	}
 }
