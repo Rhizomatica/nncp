@@ -65,13 +65,13 @@ func main() {
 	for _, node := range ctx.Neigh {
 		var noisePub *string
 		if node.NoisePub != nil {
-			np := nncp.ToBase32(node.NoisePub[:])
+			np := nncp.Base32Codec.EncodeToString(node.NoisePub[:])
 			noisePub = &np
 		}
 		cfg.Neigh[node.Name] = nncp.NodeJSON{
 			Id:       node.Id.String(),
-			ExchPub:  nncp.ToBase32(node.ExchPub[:]),
-			SignPub:  nncp.ToBase32(node.SignPub[:]),
+			ExchPub:  nncp.Base32Codec.EncodeToString(node.ExchPub[:]),
+			SignPub:  nncp.Base32Codec.EncodeToString(node.SignPub[:]),
 			NoisePub: noisePub,
 		}
 	}

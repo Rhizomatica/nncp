@@ -89,8 +89,7 @@ func (ctx *Ctx) Toss(
 			continue
 		}
 		pipeR, pipeW := io.Pipe()
-		errs := make(chan error, 1)
-		go func(job Job) {
+		go func(job Job) error {
 			pipeWB := bufio.NewWriter(pipeW)
 			_, _, err := PktEncRead(
 				ctx.Self,
@@ -98,13 +97,16 @@ func (ctx *Ctx) Toss(
 				bufio.NewReader(job.Fd),
 				pipeWB,
 			)
-			errs <- err
-			pipeWB.Flush()
-			pipeW.Close()
-			job.Fd.Close()
+			job.Fd.Close() // #nosec G104
 			if err != nil {
 				ctx.LogE("rx", sds, err, "decryption")
+				return pipeW.CloseWithError(err)
 			}
+			if err = pipeWB.Flush(); err != nil {
+				ctx.LogE("rx", sds, err, "decryption flush")
+				return pipeW.CloseWithError(err)
+			}
+			return pipeW.Close()
 		}(job)
 		var pkt Pkt
 		var err error
@@ -180,7 +182,9 @@ func (ctx *Ctx) Toss(
 						cmd.Stdin = newNotification(notify, fmt.Sprintf(
 							"Exec from %s: %s", sender.Name, argsStr,
 						), output)
-						cmd.Run()
+						if err = cmd.Run(); err != nil {
+							ctx.LogE("rx", sds, err, "notify")
+						}
 					}
 				}
 			}
@@ -188,7 +192,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
-						fd.Close()
+						fd.Close() // #nosec G104
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
@@ -239,18 +243,22 @@ func (ctx *Ctx) Toss(
 					goto Closing
 				}
 				if err = bufW.Flush(); err != nil {
-					tmp.Close()
+					tmp.Close() // #nosec G104
 					ctx.LogE("rx", sds, err, "copy")
 					isBad = true
 					goto Closing
 				}
 				if err = tmp.Sync(); err != nil {
-					tmp.Close()
+					tmp.Close() // #nosec G104
 					ctx.LogE("rx", sds, err, "copy")
 					isBad = true
 					goto Closing
 				}
-				tmp.Close()
+				if err = tmp.Close(); err != nil {
+					ctx.LogE("rx", sds, err, "copy")
+					isBad = true
+					goto Closing
+				}
 				dstPathOrig := filepath.Join(*incoming, dst)
 				dstPath := dstPathOrig
 				dstPathCtr := 0
@@ -280,7 +288,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
-						fd.Close()
+						fd.Close() // #nosec G104
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
@@ -298,7 +306,9 @@ func (ctx *Ctx) Toss(
 						dst,
 						humanize.IBytes(uint64(pktSize)),
 					), nil)
-					cmd.Run()
+					if err = cmd.Run(); err != nil {
+						ctx.LogE("rx", sds, err, "notify")
+					}
 				}
 			}
 		case PktTypeFreq:
@@ -347,7 +357,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
-						fd.Close()
+						fd.Close() // #nosec G104
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
@@ -362,7 +372,9 @@ func (ctx *Ctx) Toss(
 					cmd.Stdin = newNotification(ctx.NotifyFreq, fmt.Sprintf(
 						"Freq from %s: %s", sender.Name, src,
 					), nil)
-					cmd.Run()
+					if err = cmd.Run(); err != nil {
+						ctx.LogE("rx", sds, err, "notify")
+					}
 				}
 			}
 		case PktTypeTrns:
@@ -391,7 +403,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
-						fd.Close()
+						fd.Close() // #nosec G104
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
@@ -404,7 +416,7 @@ func (ctx *Ctx) Toss(
 			isBad = true
 		}
 	Closing:
-		pipeR.Close()
+		pipeR.Close() // #nosec G104
 	}
 	return isBad
 }

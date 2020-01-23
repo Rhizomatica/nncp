@@ -127,7 +127,7 @@ func main() {
 				sds["pkt"] = pktName
 				if job.PktEnc.Nice > nice {
 					ctx.LogD("nncp-bundle", sds, "too nice")
-					job.Fd.Close()
+					job.Fd.Close() // #nosec G104
 					continue
 				}
 				if err = tarWr.WriteHeader(&tar.Header{
@@ -155,14 +155,14 @@ func main() {
 				if _, err = nncp.CopyProgressed(
 					tarWr, job.Fd, "Tx",
 					nncp.SdsAdd(sds, nncp.SDS{
-						"pkt":      nncp.ToBase32(job.HshValue[:]),
+						"pkt":      nncp.Base32Codec.EncodeToString(job.HshValue[:]),
 						"fullsize": job.Size,
 					}),
 					ctx.ShowPrgrs,
 				); err != nil {
 					log.Fatalln("Error during copying to tar:", err)
 				}
-				job.Fd.Close()
+				job.Fd.Close() // #nosec G104
 				if err = tarWr.Flush(); err != nil {
 					log.Fatalln("Error during tar flushing:", err)
 				}
@@ -182,33 +182,27 @@ func main() {
 		}
 	} else {
 		bufStdin := bufio.NewReaderSize(os.Stdin, CopyBufSize*2)
-		var peeked []byte
-		var prefixIdx int
-		var tarR *tar.Reader
-		var entry *tar.Header
-		var exists bool
 		pktEncBuf := make([]byte, nncp.PktEncOverhead)
 		var pktEnc *nncp.PktEnc
-		var pktName string
-		var selfPath string
-		var dstPath string
 		for {
-			peeked, err = bufStdin.Peek(CopyBufSize)
+			peeked, err := bufStdin.Peek(CopyBufSize)
 			if err != nil && err != io.EOF {
 				log.Fatalln("Error during reading:", err)
 			}
-			prefixIdx = bytes.Index(peeked, []byte(nncp.NNCPBundlePrefix))
+			prefixIdx := bytes.Index(peeked, []byte(nncp.NNCPBundlePrefix))
 			if prefixIdx == -1 {
 				if err == io.EOF {
 					break
 				}
-				bufStdin.Discard(bufStdin.Buffered() - (len(nncp.NNCPBundlePrefix) - 1))
+				bufStdin.Discard(bufStdin.Buffered() - (len(nncp.NNCPBundlePrefix) - 1)) // #nosec G104
 				continue
 			}
-			bufStdin.Discard(prefixIdx)
-			tarR = tar.NewReader(bufStdin)
+			if _, err = bufStdin.Discard(prefixIdx); err != nil {
+				panic(err)
+			}
+			tarR := tar.NewReader(bufStdin)
 			sds["xx"] = string(nncp.TRx)
-			entry, err = tarR.Next()
+			entry, err := tarR.Next()
 			if err != nil {
 				if err != io.EOF {
 					ctx.LogD(
@@ -243,8 +237,8 @@ func main() {
 				ctx.LogE("nncp-bundle", sds, errors.New("not enough spool space"), "")
 				continue
 			}
-			pktName = filepath.Base(entry.Name)
-			if _, err = nncp.FromBase32(pktName); err != nil {
+			pktName := filepath.Base(entry.Name)
+			if _, err = nncp.Base32Codec.DecodeString(pktName); err != nil {
 				ctx.LogD("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{"err": "bad packet name"}), "")
 				continue
 			}
@@ -266,16 +260,16 @@ func main() {
 			}
 			if *pktEnc.Sender == *ctx.SelfId && *doDelete {
 				if len(nodeIds) > 0 {
-					if _, exists = nodeIds[*pktEnc.Recipient]; !exists {
+					if _, exists := nodeIds[*pktEnc.Recipient]; !exists {
 						ctx.LogD("nncp-bundle", sds, "Recipient is not requested")
 						continue
 					}
 				}
-				nodeId32 := nncp.ToBase32(pktEnc.Recipient[:])
+				nodeId32 := nncp.Base32Codec.EncodeToString(pktEnc.Recipient[:])
 				sds["xx"] = string(nncp.TTx)
 				sds["node"] = nodeId32
 				sds["pkt"] = pktName
-				dstPath = filepath.Join(
+				dstPath := filepath.Join(
 					ctx.Spool,
 					nodeId32,
 					string(nncp.TTx),
@@ -299,10 +293,10 @@ func main() {
 				); err != nil {
 					log.Fatalln("Error during copying:", err)
 				}
-				if nncp.ToBase32(hsh.Sum(nil)) == pktName {
+				if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) == pktName {
 					ctx.LogI("nncp-bundle", sds, "removed")
 					if !*dryRun {
-						os.Remove(dstPath)
+						os.Remove(dstPath) // #nosec G104
 					}
 				} else {
 					ctx.LogE("nncp-bundle", sds, errors.New("bad checksum"), "")
@@ -314,16 +308,16 @@ func main() {
 				continue
 			}
 			if len(nodeIds) > 0 {
-				if _, exists = nodeIds[*pktEnc.Sender]; !exists {
+				if _, exists := nodeIds[*pktEnc.Sender]; !exists {
 					ctx.LogD("nncp-bundle", sds, "Sender is not requested")
 					continue
 				}
 			}
-			sds["node"] = nncp.ToBase32(pktEnc.Recipient[:])
+			sds["node"] = nncp.Base32Codec.EncodeToString(pktEnc.Recipient[:])
 			sds["pkt"] = pktName
 			sds["fullsize"] = entry.Size
-			selfPath = filepath.Join(ctx.Spool, ctx.SelfId.String(), string(nncp.TRx))
-			dstPath = filepath.Join(selfPath, pktName)
+			selfPath := filepath.Join(ctx.Spool, ctx.SelfId.String(), string(nncp.TRx))
+			dstPath := filepath.Join(selfPath, pktName)
 			if _, err = os.Stat(dstPath); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("nncp-bundle", sds, "Packet already exists")
 				continue
@@ -344,7 +338,7 @@ func main() {
 					if _, err = nncp.CopyProgressed(hsh, tarR, "check", sds, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
-					if nncp.ToBase32(hsh.Sum(nil)) != pktName {
+					if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) != pktName {
 						ctx.LogE("nncp-bundle", sds, errors.New("bad checksum"), "")
 						continue
 					}
@@ -362,7 +356,7 @@ func main() {
 					if err = tmp.W.Flush(); err != nil {
 						log.Fatalln("Error during flusing:", err)
 					}
-					if nncp.ToBase32(tmp.Hsh.Sum(nil)) == pktName {
+					if nncp.Base32Codec.EncodeToString(tmp.Hsh.Sum(nil)) == pktName {
 						if err = tmp.Commit(selfPath); err != nil {
 							log.Fatalln("Error during commiting:", err)
 						}
@@ -395,7 +389,9 @@ func main() {
 					if err = tmp.Sync(); err != nil {
 						log.Fatalln("Error during syncing:", err)
 					}
-					tmp.Close()
+					if err = tmp.Close(); err != nil {
+						log.Fatalln("Error during closing:", err)
+					}
 					if err = os.MkdirAll(selfPath, os.FileMode(0777)); err != nil {
 						log.Fatalln("Error during mkdir:", err)
 					}

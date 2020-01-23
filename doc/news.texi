@@ -3,6 +3,18 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.3.3
+@section Release 5.3.3
+@itemize
+
+@item
+More various error checks.
+
+@item
+Updated dependencies.
+
+@end itemize
+
 @node Release 5.3.2
 @section Release 5.3.2
 @itemize

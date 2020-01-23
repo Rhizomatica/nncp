@@ -32,7 +32,7 @@ import (
 type NodeId [blake2b.Size256]byte
 
 func (id NodeId) String() string {
-	return ToBase32(id[:])
+	return Base32Codec.EncodeToString(id[:])
 }
 
 type Node struct {
@@ -112,7 +112,7 @@ func (nodeOur *NodeOur) Their() *Node {
 }
 
 func NodeIdFromString(raw string) (*NodeId, error) {
-	decoded, err := FromBase32(raw)
+	decoded, err := Base32Codec.DecodeString(raw)
 	if err != nil {
 		return nil, err
 	}
