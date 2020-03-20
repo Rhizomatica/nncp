@@ -6,9 +6,6 @@
 // * By default it uses stderr
 // * By default it uses 10ms refresh period
 // * defer-s are removed for less CPU usage
-// * By default it uses stderr
-// * By default it uses stderr
-// * By default it uses stderr
 // * Removed newline/bypass related code. No Windows support
 
 package uilive
