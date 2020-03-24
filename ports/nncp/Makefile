@@ -26,6 +26,7 @@ PORTDOCS=	AUTHORS NEWS NEWS.RU README README.RU THANKS
 OPTIONS_DEFINE=	DOCS
 
 post-install:
+	${MKDIR} ${STAGEDIR}${PREFIX}/etc/newsyslog.conf.d
 	${INSTALL_DATA} ${FILESDIR}/nncp.newsyslog.conf.sample ${STAGEDIR}${PREFIX}/etc/nncp.conf.sample
 
 .include <bsd.port.mk>
