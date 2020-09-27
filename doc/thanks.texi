@@ -8,6 +8,9 @@ There are people deserving to be thanked for helping this project:
 @item Shawn K. Quinn for his descriptive instructions about building
 NNCP under Ubuntu GNU/Linux distributions and bug reports.
 
+@item @url{mailto:nncp@@woffs.de, Frank Doepper} for his bug reports
+feedback and NixOS package maintenance.
+
 @item @url{mailto:jgoerzen@@complete.org, John Goerzen} for his feature
 suggestions and Debian package maintenance.
 
