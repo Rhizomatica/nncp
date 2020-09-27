@@ -8,9 +8,10 @@ release=$1
 git clone . $tmp/nncp-$release
 cd $tmp/nncp-$release
 git checkout v$release
+redo module-name VERSION
+mod_name=`cat module-name`
 rm -fr .git
 
-mod_name=$(sed -n 's/^module //p' src/go.mod)
 mv src src.orig
 mkdir -p src/$mod_name
 mv src.orig/* src/$mod_name
@@ -67,6 +68,7 @@ golang.org/x/sys/AUTHORS
 golang.org/x/sys/CONTRIBUTORS
 golang.org/x/sys/cpu
 golang.org/x/sys/go.mod
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/LICENSE
 golang.org/x/sys/PATENTS
 golang.org/x/sys/README.md
@@ -99,7 +101,14 @@ rm -r src/github.com/flynn/noise/vector*
 rm src/github.com/hjson/hjson-go/build_release.sh
 rm src/github.com/gorhill/cronexpr/APLv2
 rm -fr ports
-rm makedist.sh
+find . -name .gitignore -delete
+rm makedist.sh module-name.do VERSION.do
+
+mkdir contrib
+cp ~/work/redo/minimal/do contrib/do
+echo echo GOPATH=\`pwd\` > gopath.do
+
+perl -p -i -e "s#src/#src/$mod_name/#g" bin/default.do
 
 cat > doc/download.texi <<EOF
 @node Tarballs
@@ -111,12 +120,19 @@ perl -i -ne 'print unless /include pedro/' doc/index.texi doc/about.ru.texi
 perl -p -i -e 's/^(.verbatiminclude) .*$/$1 PUBKEY.asc/g' doc/integrity.texi
 mv doc/.well-known/openpgpkey/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY.asc
 ln -s ../PUBKEY.asc doc
-make -C doc
+redo doc
 
 ########################################################################
 # Supplementary files autogeneration
 ########################################################################
 texi=$(TMPDIR=doc mktemp)
+
+mkinfo() {
+    ${MAKEINFO:-makeinfo} --plaintext \
+        --set-customization-variable CLOSE_QUOTE_SYMBOL=\" \
+        --set-customization-variable OPEN_QUOTE_SYMBOL=\" \
+        -D "VERSION `cat VERSION`" $@
+}
 
 cat > $texi <<EOF
 \input texinfo
@@ -127,7 +143,7 @@ cat > $texi <<EOF
 `sed -n '5,$p' < doc/news.texi`
 @bye
 EOF
-makeinfo --plaintext -o NEWS $texi
+mkinfo --output NEWS $texi
 
 cat > $texi <<EOF
 \input texinfo
@@ -138,7 +154,7 @@ cat > $texi <<EOF
 `sed -n '3,$p' < doc/news.ru.texi | sed 's/^@subsection/@section/'`
 @bye
 EOF
-makeinfo --plaintext -o NEWS.RU $texi
+mkinfo --output NEWS.RU $texi
 
 cat > $texi <<EOF
 \input texinfo
@@ -147,7 +163,7 @@ cat > $texi <<EOF
 @include install.texi
 @bye
 EOF
-makeinfo --plaintext -o INSTALL $texi
+mkinfo --output INSTALL $texi
 
 cat > $texi <<EOF
 \input texinfo
@@ -156,25 +172,26 @@ cat > $texi <<EOF
 `cat doc/thanks.texi`
 @bye
 EOF
-makeinfo --plaintext -o THANKS $texi
+mkinfo --output THANKS $texi
 
 rm -f $texi
+rm -r doc/.well-known doc/nncp.html/.well-known
 
 ########################################################################
 
-rm -r doc/.gitignore doc/.well-known doc/nncp.html/.well-known
-
+rm -r .redo
 find . -type d -exec chmod 755 {} \;
 find . -type f -exec chmod 644 {} \;
 find . -type f -name "*.sh" -exec chmod 755 {} \;
+chmod 755 contrib/do
 
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
 xz -9v nncp-"$release".tar
 gpg --detach-sign --sign --local-user releases@nncpgo.org nncp-"$release".tar.xz
-mv -v $tmp/nncp-"$release".tar.xz $tmp/nncp-"$release".tar.xz.sig $cur/doc/nncp.html/download
+mv -v $tmp/nncp-"$release".tar.xz $tmp/nncp-"$release".tar.xz.sig $cur/doc/download
 
-tarball=$cur/doc/nncp.html/download/nncp-"$release".tar.xz
+tarball=$cur/doc/download/nncp-"$release".tar.xz
 size=$(( $(stat -f %z $tarball) / 1024 ))
 hash=$(gpg --print-md SHA256 < $tarball)
 release_date=$(date "+%Y-%m-%d")

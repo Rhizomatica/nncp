@@ -75,6 +75,7 @@ func (ctx *Ctx) Log(msg string) {
 		fmt.Fprintln(os.Stderr, "Can not open lock for log:", err)
 		return
 	}
+	defer fdLock.Close()
 	fdLockFd := int(fdLock.Fd())
 	err = unix.Flock(fdLockFd, unix.LOCK_EX)
 	if err != nil {

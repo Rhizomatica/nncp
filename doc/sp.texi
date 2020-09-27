@@ -154,7 +154,7 @@ just an unsigned integer telling what body structure follows.
 
 Typical peer's behaviour is following:
 
-@verbatiminclude sp.utxt
+@verbatiminclude sp.plantuml.txt
 
 @enumerate
 @item Perform @emph{Noise-IK} handshake:
