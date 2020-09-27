@@ -167,7 +167,7 @@ $ r2e new rss-robot@@address.com
 and add feeds you want to retrieve:
 
 @example
-$ r2e add https://git.cypherpunks.ru/cgit.cgi/nncp.git/atom/?h=master
+$ r2e add http://git.cypherpunks.ru/cgit.cgi/nncp.git/atom/?h=master
 @end example
 
 and run the process:
