@@ -1,6 +1,20 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.4.0
+@subsection Релиз 5.4.0
+@itemize
+
+@item
+Обновлены зависимые библиотеки.
+
+@item
+Система сборки переведена с Makefile-ов на @url{http://cr.yp.to/redo.html, redo}.
+Это не должно повлиять на мейнтейнеров пакетов, так как минимальная
+реализация @command{redo} включена в tarball.
+
+@end itemize
+
 @node Релиз 5.3.3
 @subsection Релиз 5.3.3
 @itemize

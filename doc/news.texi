@@ -3,6 +3,20 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.4.0
+@section Release 5.4.0
+@itemize
+
+@item
+Updated dependencies.
+
+@item
+Build system is moved from Makefiles to @url{http://cr.yp.to/redo.html, redo}.
+This should not influence package maintainers, because minimal @command{redo}
+implementation is included in tarball.
+
+@end itemize
+
 @node Release 5.3.3
 @section Release 5.3.3
 @itemize

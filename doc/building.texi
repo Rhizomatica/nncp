@@ -15,12 +15,19 @@ $ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz
 $ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz.sig
 $ gpg --verify nncp-@value{VERSION}.tar.xz.sig nncp-@value{VERSION}.tar.xz
 $ xz --decompress --stdout nncp-@value{VERSION}.tar.xz | tar xf -
-$ make -C nncp-@value{VERSION} all
+$ cd nncp-@value{VERSION}
+$ redo all
 @end example
+
+It uses @url{http://cr.yp.to/redo.html, redo} build system for that
+examples. You can use either dozen of various implementations, or at
+least minimalistic POSIX shell @command{contrib/do} (just replace
+@command{redo} with @command{contrib/do} in the example above) included
+in tarball.
 
 There is @command{install} make-target respecting @env{DESTDIR}. It will
 install binaries and info-documentation:
 
 @example
-# make -C nncp-@value{VERSION} install PREFIX=/usr/local
+# PREFIX=/usr/local redo install
 @end example

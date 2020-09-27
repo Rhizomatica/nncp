@@ -3,7 +3,7 @@
 @settitle NNCP
 
 @copying
-This manual is for NNCP (Node to Node copy) --  collection of utilities
+This manual is for NNCP (Node to Node copy) -- collection of utilities
 simplifying secure store-and-forward files and mail exchanging.
 
 Copyright @copyright{} 2016-2020 @email{stargrave@@stargrave.org, Sergey Matveev}
