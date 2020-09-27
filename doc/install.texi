@@ -1,8 +1,6 @@
 @node Installation
 @unnumbered Installation
 
-@set VERSION 5.3.3
-
 Possibly NNCP package already exists for your distribution:
 
 @itemize
