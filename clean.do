@@ -1,2 +1,2 @@
 redo bin/clean
-rm gopath module-name VERSION
+rm -f gopath module-name VERSION
