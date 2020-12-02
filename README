@@ -25,6 +25,6 @@ patches to nncp-devel mailing list:
 https://lists.cypherpunks.ru/pipermail/nncp-devel/
 
 Development Git source code repository currently is located here:
-http://git.cypherpunks.ru/cgit.cgi/nncp.git/
+http://git.cypherpunks.ru/?p=nncp.git;a=summary
 
 For further information please read either doc/nncp.info or doc/nncp.texi.
