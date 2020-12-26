@@ -11,3 +11,5 @@ $ git clone git://git.cypherpunks.ru/nncp.git
 $ cd nncp
 $ git checkout develop
 @end example
+
+You can also use @url{https://git.cypherpunks.ru/nncp.git}.
