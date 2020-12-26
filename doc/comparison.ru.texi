@@ -12,7 +12,7 @@
 
 @item Простота настройки @tab Средне @tab Сложно @tab Легко @tab Сложно
 @item Передача почты @tab @strong{Да} @tab @strong{Да} @tab @strong{Да} @tab @strong{Да}
-@item Передача новостей @tab @strong{Да} @tab @strong{Да} @tab Нет @tab Нет
+@item Передача новостей @tab @strong{Да} @tab @strong{Да} @tab @strong{Да} @tab Нет
 @item Передача файлов @tab @strong{Да} @tab @strong{Да} @tab @strong{Да} @tab Нет
 @item Разбиение файлов на части @tab Нет @tab @strong{Да} @tab @strong{Да} @tab Нет
 @item Удалённое исполнение команд @tab @strong{Да} @tab Нет @tab @strong{Да} @tab Нет
@@ -50,10 +50,6 @@
 
     NNCP требует редактирование единственного Hjson @ref{Configuration,
     конфигурационного файла}.
-
-@item Передача новостей
-    SMTP ничего не знает о новостях, NNTP и тому подобному. NNCP тоже не
-    знает, потому что на текущий день они уже мало используются.
 
 @item Передача файлов
     SMTP может передавать файлы только в Base64 кодировке -- это очень

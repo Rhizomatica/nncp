@@ -11,7 +11,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 
 @item Ease of setup @tab Medium @tab Hard @tab Easy @tab Hard
 @item Mail transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes}
-@item News transmission @tab @strong{Yes} @tab @strong{Yes} @tab No @tab No
+@item News transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item File transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Chunked files @tab No @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Remote command execution @tab @strong{Yes} @tab No @tab @strong{Yes} @tab No
@@ -47,10 +47,6 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 
     NNCP requires editing of single Hjson @ref{Configuration,
     configuration file}.
-
-@item News transmission
-    SMTP does not know anything about news, NNTP and so forth. Neither
-    does NNCP, because they are not used very much nowadays.
 
 @item File transmission
     SMTP could transfer files only Base64-encoding them -- this is very
