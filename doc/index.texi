@@ -23,6 +23,13 @@ A copy of the license is included in the section entitled "Copying conditions".
 
 @include about.texi
 
+There are also articles about its usage outside this website:
+
+@itemize
+@item @url{https://habr.com/en/post/330712/, NNCP: лечение online- и цензуро- зависимости store-and-forward методом} (on russian)
+@item @url{https://changelog.complete.org/archives/tag/nncp, Series of descriptive articles} by John Goerzen
+@end itemize
+
 @center Interested? @ref{Tarballs, @strong{Download it}}!
 
 @menu
