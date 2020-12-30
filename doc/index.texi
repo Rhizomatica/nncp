@@ -28,6 +28,8 @@ There are also articles about its usage outside this website:
 @itemize
 @item @url{https://habr.com/en/post/330712/, NNCP: лечение online- и цензуро- зависимости store-and-forward методом} (on russian)
 @item @url{https://changelog.complete.org/archives/tag/nncp, Series of descriptive articles} by John Goerzen
+@item @url{https://www.youtube.com/watch?v=0i3r63pnyHM, Presentation of NNCP on Internet Freedom Conference 2019} (on russian)
+    (@url{http://www.stargrave.org/20191207-Internet_Freedom_Conference-NNCP.webm.torrent, torrent})
 @end itemize
 
 @center Interested? @ref{Tarballs, @strong{Download it}}!
