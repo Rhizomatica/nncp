@@ -74,8 +74,8 @@ func (ctx *Ctx) NewTmpFileWHash() (*TmpFileWHash, error) {
 }
 
 func (tmp *TmpFileWHash) Cancel() {
-	tmp.Fd.Truncate(0) // #nosec G104
-	tmp.Fd.Close() // #nosec G104
+	tmp.Fd.Truncate(0)       // #nosec G104
+	tmp.Fd.Close()           // #nosec G104
 	os.Remove(tmp.Fd.Name()) // #nosec G104
 }
 
