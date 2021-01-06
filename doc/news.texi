@@ -8,8 +8,8 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
-Bugfixes in @command{nncp-call(er)}/@command{nncp-daemon} and
-@command{nncp-bundle}.
+Bugfixes in @command{nncp-call(er)}/@command{nncp-daemon},
+@command{nncp-bundle} and @command{nncp-stat}.
 
 @item
 @command{nncp-rm} has @option{-dryrun} and @option{-older} options now.

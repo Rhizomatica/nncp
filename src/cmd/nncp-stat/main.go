@@ -111,7 +111,7 @@ func main() {
 		for job := range ctx.Jobs(node.Id, nncp.TTx) {
 			job.Fd.Close() // #nosec G104
 			if *showPkt {
-				jobPrint(nncp.TRx, job)
+				jobPrint(nncp.TTx, job)
 			}
 			txNums[job.PktEnc.Nice] = txNums[job.PktEnc.Nice] + 1
 			txBytes[job.PktEnc.Nice] = txBytes[job.PktEnc.Nice] + job.Size
