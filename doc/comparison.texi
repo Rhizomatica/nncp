@@ -64,9 +64,9 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     gigabytes files are queued in parallel.
 
 @item SMTP integration
-    Mail servers like @url{http://www.postfix.org/, Postfix} offers
-    documentation and configuration file examples how to use it with
-    UUCP. @url{http://www.exim.org/, Exim} and
+    Mail servers like @url{http://www.postfix.org/, Postfix} and
+    @url{http://www.exim.org/, Exim} offers documentation and
+    configuration file examples how to use it with UUCP.
     @url{http://www.sendmail.com/sm/open_source/, Sendmail} could be
     integrated with UUCP rather easily too. For using NNCP, just replace
     UUCP commands with NNCP ones.

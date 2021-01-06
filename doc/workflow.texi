@@ -13,9 +13,9 @@ neighbours. Add their keys to your configuration file and do any other
 required configuration about their reachability, permissions of file or
 freq transmission.
 @item Use @ref{nncp-file}, @ref{nncp-freq}, @ref{nncp-exec}
-(@ref{Postfix, look how} Postfix SMTP server could be configured)
-commands to queue file, freq and exec transmissions. Repeat as
-many times any time as you wish.
+(look @ref{Postfix, how} Postfix and @ref{Exim, how} Exim SMTP servers
+could be configured) commands to queue file, freq and exec
+transmissions. Repeat as many times any time as you wish.
 @item Depending on connection methods, either:
     @itemize
     @item run @ref{nncp-daemon} to accept remotely initiated connections
