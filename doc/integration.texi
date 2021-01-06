@@ -257,12 +257,12 @@ configurations for both.
 @section Integration with Web feeds
 
 RSS and Atom feeds could be collected using
-@url{https://github.com/wking/rss2email, rss2email} program. It
-converts all incoming feed entries to email messages. Read about how to
-integration @ref{Postfix} with email. @command{rss2email} could be run
-in a cron, to collect feeds without any user interaction. Also this
-program supports ETags and won't pollute the channel if remote server
-supports them too.
+@url{https://github.com/wking/rss2email, rss2email} program. It converts
+all incoming feed entries to email messages. Read about how to integrate
+@ref{Postfix}/@ref{Exim} with email. @command{rss2email} could be run in
+a cron, to collect feeds without any user interaction. Also this program
+supports ETags and won't pollute the channel if remote server supports
+them too.
 
 After installing @command{rss2email}, create configuration file:
 
