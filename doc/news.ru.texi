@@ -6,8 +6,8 @@
 @itemize
 
 @item
-Исправления ошибок в @command{nncp-call(er)}/@command{nncp-daemon} и
-@command{nncp-bundle} командах.
+Исправления ошибок в @command{nncp-call(er)}/@command{nncp-daemon},
+@command{nncp-bundle}, @command{nncp-stat} командах.
 
 @item
 У команды @command{nncp-rm} появились @option{-dryrun} и @option{-older} опции.
