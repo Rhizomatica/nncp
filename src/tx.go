@@ -131,49 +131,63 @@ type DummyCloser struct{}
 
 func (dc DummyCloser) Close() error { return nil }
 
-func prepareTxFile(srcPath string) (reader io.Reader, closer io.Closer, fileSize int64, archived bool, rerr error) {
+func throughTmpFile(r io.Reader) (
+	reader io.Reader,
+	closer io.Closer,
+	fileSize int64,
+	rerr error,
+) {
+	src, err := ioutil.TempFile("", "nncp-file")
+	if err != nil {
+		rerr = err
+		return
+	}
+	os.Remove(src.Name()) // #nosec G104
+	tmpW := bufio.NewWriter(src)
+	tmpKey := make([]byte, chacha20poly1305.KeySize)
+	if _, rerr = rand.Read(tmpKey[:]); rerr != nil {
+		return
+	}
+	aead, err := chacha20poly1305.New(tmpKey)
+	if err != nil {
+		rerr = err
+		return
+	}
+	nonce := make([]byte, aead.NonceSize())
+	written, err := aeadProcess(aead, nonce, true, r, tmpW)
+	if err != nil {
+		rerr = err
+		return
+	}
+	fileSize = int64(written)
+	if err = tmpW.Flush(); err != nil {
+		rerr = err
+		return
+	}
+	if _, err = src.Seek(0, io.SeekStart); err != nil {
+		rerr = err
+		return
+	}
+	r, w := io.Pipe()
+	go func() {
+		if _, err := aeadProcess(aead, nonce, false, bufio.NewReader(src), w); err != nil {
+			w.CloseWithError(err) // #nosec G104
+		}
+	}()
+	reader = r
+	closer = src
+	return
+}
+
+func prepareTxFile(srcPath string) (
+	reader io.Reader,
+	closer io.Closer,
+	fileSize int64,
+	archived bool,
+	rerr error,
+) {
 	if srcPath == "-" {
-		// Read content from stdin, saving to temporary file, encrypting
-		// on the fly
-		src, err := ioutil.TempFile("", "nncp-file")
-		if err != nil {
-			rerr = err
-			return
-		}
-		os.Remove(src.Name()) // #nosec G104
-		tmpW := bufio.NewWriter(src)
-		tmpKey := make([]byte, chacha20poly1305.KeySize)
-		if _, rerr = rand.Read(tmpKey[:]); rerr != nil {
-			return
-		}
-		aead, err := chacha20poly1305.New(tmpKey)
-		if err != nil {
-			rerr = err
-			return
-		}
-		nonce := make([]byte, aead.NonceSize())
-		written, err := aeadProcess(aead, nonce, true, bufio.NewReader(os.Stdin), tmpW)
-		if err != nil {
-			rerr = err
-			return
-		}
-		fileSize = int64(written)
-		if err = tmpW.Flush(); err != nil {
-			rerr = err
-			return
-		}
-		if _, err = src.Seek(0, io.SeekStart); err != nil {
-			rerr = err
-			return
-		}
-		r, w := io.Pipe()
-		go func() {
-			if _, err := aeadProcess(aead, nonce, false, bufio.NewReader(src), w); err != nil {
-				w.CloseWithError(err) // #nosec G104
-			}
-		}()
-		reader = r
-		closer = src
+		reader, closer, fileSize, rerr = throughTmpFile(bufio.NewReader(os.Stdin))
 		return
 	}
 
@@ -481,33 +495,94 @@ func (ctx *Ctx) TxExec(
 	args []string,
 	in io.Reader,
 	minSize int64,
+	useTmp bool,
+	noCompress bool,
 ) error {
 	path := make([][]byte, 0, 1+len(args))
 	path = append(path, []byte(handle))
 	for _, arg := range args {
 		path = append(path, []byte(arg))
 	}
-	pkt, err := NewPkt(PktTypeExec, replyNice, bytes.Join(path, []byte{0}))
+	pktType := PktTypeExec
+	if noCompress {
+		pktType = PktTypeExecFat
+	}
+	pkt, err := NewPkt(pktType, replyNice, bytes.Join(path, []byte{0}))
 	if err != nil {
 		return err
 	}
-	var compressed bytes.Buffer
-	compressor, err := zstd.NewWriter(
-		&compressed,
-		zstd.WithEncoderLevel(zstd.SpeedDefault),
-	)
-	if err != nil {
-		return err
+	var size int64
+
+	if !noCompress && !useTmp {
+		var compressed bytes.Buffer
+		compressor, err := zstd.NewWriter(
+			&compressed,
+			zstd.WithEncoderLevel(zstd.SpeedDefault),
+		)
+		if err != nil {
+			return err
+		}
+		if _, err = io.Copy(compressor, in); err != nil {
+			compressor.Close() // #nosec G104
+			return err
+		}
+		if err = compressor.Close(); err != nil {
+			return err
+		}
+		size = int64(compressed.Len())
+		_, err = ctx.Tx(node, pkt, nice, size, minSize, &compressed, handle)
 	}
-	if _, err = io.Copy(compressor, in); err != nil {
-		compressor.Close() // #nosec G104
-		return err
+	if noCompress && !useTmp {
+		var data bytes.Buffer
+		if _, err = io.Copy(&data, in); err != nil {
+			return err
+		}
+		size = int64(data.Len())
+		_, err = ctx.Tx(node, pkt, nice, size, minSize, &data, handle)
 	}
-	if err = compressor.Close(); err != nil {
-		return err
+	if !noCompress && useTmp {
+		r, w := io.Pipe()
+		compressor, err := zstd.NewWriter(w, zstd.WithEncoderLevel(zstd.SpeedDefault))
+		if err != nil {
+			return err
+		}
+		copyErr := make(chan error)
+		go func() {
+			_, err := io.Copy(compressor, in)
+			if err != nil {
+				compressor.Close() // #nosec G104
+				copyErr <- err
+			}
+			err = compressor.Close()
+			w.Close()
+			copyErr <- err
+		}()
+		tmpReader, closer, fileSize, err := throughTmpFile(r)
+		if closer != nil {
+			defer closer.Close()
+		}
+		if err != nil {
+			return err
+		}
+		err = <-copyErr
+		if err != nil {
+			return err
+		}
+		size = fileSize
+		_, err = ctx.Tx(node, pkt, nice, size, minSize, tmpReader, handle)
 	}
-	size := int64(compressed.Len())
-	_, err = ctx.Tx(node, pkt, nice, size, minSize, &compressed, handle)
+	if noCompress && useTmp {
+		tmpReader, closer, fileSize, err := throughTmpFile(in)
+		if closer != nil {
+			defer closer.Close()
+		}
+		if err != nil {
+			return err
+		}
+		size = fileSize
+		_, err = ctx.Tx(node, pkt, nice, size, minSize, tmpReader, handle)
+	}
+
 	sds := SDS{
 		"type":      "exec",
 		"node":      node.Id,

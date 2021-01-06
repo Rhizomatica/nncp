@@ -15,6 +15,11 @@ Bugfixes in @command{nncp-call(er)}/@command{nncp-daemon},
 @command{nncp-rm} has @option{-dryrun} and @option{-older} options now.
 
 @item
+@command{nncp-exec} has @option{-use-tmp} and @option{-nocompress}
+options now. Uncompressed packets are not compatible with previous NNCP
+versions.
+
+@item
 Updated dependencies.
 
 @end itemize

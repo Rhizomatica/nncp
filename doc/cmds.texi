@@ -262,12 +262,14 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -
 @section nncp-exec
 
 @example
-$ nncp-exec [options] NODE HANDLE [ARG0 ARG1 ...]
+$ nncp-exec [options] [-use-tmp] [-nocompress] NODE HANDLE [ARG0 ARG1 ...]
 @end example
 
 Send execution command to @option{NODE} for specified @option{HANDLE}.
-Body is read from stdin and compressed. After receiving, remote side
-will execute specified @ref{CfgExec, handle} command with @option{ARG*}
+Body is read from stdin (either into memory, or into encrypted temporary
+file if @option{-use-tmp} is specified) and compressed (unless
+@option{-nocompress} is specified}. After receiving, remote side will
+execute specified @ref{CfgExec, handle} command with @option{ARG*}
 appended and decompressed body fed to command's stdin.
 
 For example, if remote side has following configuration file for your
@@ -295,7 +297,7 @@ If @ref{CfgNotify, notification} is enabled on the remote side for exec
 handles, then it will sent simple letter after successful command
 execution with its output in message body.
 
-@strong{Pay attention} that packet generated with this command can not
+@strong{Pay attention} that packet generated with this command won't be
 be chunked.
 
 @node nncp-file
