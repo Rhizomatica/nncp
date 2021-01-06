@@ -1,6 +1,22 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.5.0
+@subsection Релиз 5.5.0
+@itemize
+
+@item
+Исправления ошибок в @command{nncp-call(er)}/@command{nncp-daemon} и
+@command{nncp-bundle} командах.
+
+@item
+У команды @command{nncp-rm} появились @option{-dryrun} и @option{-older} опции.
+
+@item
+Обновлены зависимые библиотеки.
+
+@end itemize
+
 @node Релиз 5.4.1
 @subsection Релиз 5.4.1
 @itemize
