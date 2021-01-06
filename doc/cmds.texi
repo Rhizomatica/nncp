@@ -152,14 +152,14 @@ Optional number of @option{NODE}s tells to ignore other ones.
 Otherwise all nodes with specified @emph{calls} configuration
 field will be called.
 
-Look @ref{nncp-call} for more information.
+Look at @ref{nncp-call} for more information.
 
 @node nncp-cfgenc
 @section nncp-cfgenc
 
 @example
-$ nncp-cfgmin [options] [-s INT] [-t INT] [-p INT] cfg.hjson > cfg.hjson.eblob
-$ nncp-cfgmin [options] -d cfg.hjson.eblob > cfg.hjson
+$ nncp-cfgenc [options] [-s INT] [-t INT] [-p INT] cfg.hjson > cfg.hjson.eblob
+$ nncp-cfgenc [options] -d cfg.hjson.eblob > cfg.hjson
 @end example
 
 This command allows you to encrypt provided @file{cfg.hjson} file with
@@ -294,6 +294,9 @@ echo My message |
 If @ref{CfgNotify, notification} is enabled on the remote side for exec
 handles, then it will sent simple letter after successful command
 execution with its output in message body.
+
+@strong{Pay attention} that packet generated with this command can not
+be chunked.
 
 @node nncp-file
 @section nncp-file
