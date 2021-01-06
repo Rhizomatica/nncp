@@ -50,8 +50,9 @@ drive.
 
 Path has fixed size because of hiding its actual length -- it is
 valuable metadata. Payload is appended to the header -- it is not stored
-as XDR field, because most XDR libraries will store all that data in the
-memory.
+as XDR field, because XDR has no ability to pass more than 4 GiB of
+opaque data. Moreover most XDR libraries store fields in the memory in
+practice.
 
 Depending on the packet's type, payload could store:
 
