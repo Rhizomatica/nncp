@@ -105,12 +105,14 @@ func main() {
 			payloadType = "file request"
 		case nncp.PktTypeExec:
 			payloadType = "exec"
+		case nncp.PktTypeExecFat:
+			payloadType = "exec uncompressed"
 		case nncp.PktTypeTrns:
 			payloadType = "transitional"
 		}
 		var path string
 		switch pkt.Type {
-		case nncp.PktTypeExec:
+		case nncp.PktTypeExec, nncp.PktTypeExecFat:
 			path = string(bytes.Replace(
 				pkt.Path[:pkt.PathLen],
 				[]byte{0},

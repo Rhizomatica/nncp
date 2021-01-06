@@ -99,6 +99,8 @@ func TestTossExec(t *testing.T) {
 				[]string{"arg0", "arg1"},
 				strings.NewReader("BODY\n"),
 				1<<15,
+				false,
+				false,
 			); err != nil {
 				t.Error(err)
 				return false
@@ -449,7 +451,6 @@ func TestTossTrns(t *testing.T) {
 				Magic:   MagicNNCPPv3,
 				Type:    PktTypeTrns,
 				PathLen: blake2b.Size256,
-				Path:    new([MaxPathSize]byte),
 			}
 			copy(pktTrans.Path[:], nodeOur.Id[:])
 			var dst bytes.Buffer

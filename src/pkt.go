@@ -40,10 +40,11 @@ const (
 	EncBlkSize = 128 * (1 << 10)
 	KDFXOFSize = chacha20poly1305.KeySize * 2
 
-	PktTypeFile PktType = iota
-	PktTypeFreq PktType = iota
-	PktTypeExec PktType = iota
-	PktTypeTrns PktType = iota
+	PktTypeFile    PktType = iota
+	PktTypeFreq    PktType = iota
+	PktTypeExec    PktType = iota
+	PktTypeTrns    PktType = iota
+	PktTypeExecFat PktType = iota
 
 	MaxPathSize = 1<<8 - 1
 

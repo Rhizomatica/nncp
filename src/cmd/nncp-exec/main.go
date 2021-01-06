@@ -37,6 +37,8 @@ func usage() {
 
 func main() {
 	var (
+		useTmp       = flag.Bool("use-tmp", false, "Use temporary file, instead of memory buffer")
+		noCompress   = flag.Bool("nocompress", false, "Do not compress input data")
 		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw      = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceExec), "Outbound packet niceness")
 		replyNiceRaw = flag.String("replynice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Possible reply packet niceness")
@@ -106,6 +108,8 @@ func main() {
 		flag.Args()[2:],
 		bufio.NewReader(os.Stdin),
 		int64(*minSize)*1024,
+		*useTmp,
+		*noCompress,
 	); err != nil {
 		log.Fatalln(err)
 	}

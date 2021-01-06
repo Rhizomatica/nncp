@@ -13,6 +13,11 @@
 У команды @command{nncp-rm} появились @option{-dryrun} и @option{-older} опции.
 
 @item
+У команды @command{nncp-exec} появились @option{-use-tmp} и
+@option{-nocompress} опции. Несжатые пакеты не совместимы с предыдущими
+версиями NNCP.
+
+@item
 Обновлены зависимые библиотеки.
 
 @end itemize
