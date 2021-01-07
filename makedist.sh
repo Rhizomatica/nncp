@@ -9,6 +9,7 @@ git clone . $tmp/nncp-$release
 cd $tmp/nncp-$release
 git checkout v$release
 redo module-name VERSION
+rm -r .redo
 mod_name=`cat module-name`
 rm -fr .git
 
@@ -28,9 +29,13 @@ go.cypherpunks.ru/balloon
 golang.org/x/crypto
 golang.org/x/net
 golang.org/x/sys
+golang.org/x/term
 "
 for mod in $mods; do
     mod_path=$(sed -n "s# // indirect## ; s#^	\($mod\) \(.*\)\$#\1@\2#p" src/$mod_name/go.mod)
+    [ -n "$mod_path" ] || {
+        mod_path=$(sed -n "s#\($mod\) \([^/]*\) .*\$#\1@\2#p" src/$mod_name/go.sum)
+    }
     [ -n "$mod_path" ]
     mkdir -p src/$mod
     ( cd $GOPATH/pkg/mod/$mod_path ; tar cf - --exclude ".git*" * ) | tar xfC - src/$mod
@@ -73,6 +78,7 @@ golang.org/x/sys/LICENSE
 golang.org/x/sys/PATENTS
 golang.org/x/sys/README.md
 golang.org/x/sys/unix
+golang.org/x/term
 EOF
 tar cfCI - src $tmp/includes | tar xfC - $tmp
 rm -fr src/golang.org $tmp/includes
@@ -179,7 +185,7 @@ rm -r doc/.well-known doc/nncp.html/.well-known
 
 ########################################################################
 
-rm -r .redo
+rm -r .redo doc/.redo
 find . -type d -exec chmod 755 {} \;
 find . -type f -exec chmod 644 {} \;
 find . -type f -name "*.sh" -exec chmod 755 {} \;
