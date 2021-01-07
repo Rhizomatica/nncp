@@ -18,6 +18,10 @@
 версиями NNCP.
 
 @item
+У команд @command{nncp-call}, @command{nncp-caller} и @command{nncp-daemon}
+появились @option{-autotoss*} опции для запуска tosser после завершения звонка.
+
+@item
 Обновлены зависимые библиотеки.
 
 @end itemize

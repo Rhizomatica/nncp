@@ -101,6 +101,7 @@ $ nncp-call [options]
     [-pkts PKT,PKT,...]
     [-rxrate INT]
     [-txrate INT]
+    [-autotoss*]
     NODE[:ADDR] [FORCEADDR]
 @end example
 
@@ -137,6 +138,10 @@ notified that file is done. But after successful integrity check that
 file is renamed from @file{.part} one and when you rerun
 @command{nncp-call} again, remote node will receive completion
 notification.
+
+@option{-autotoss} options runs tosser on node's spool after call
+is finished. All @option{-autotoss-*} options is the same as in
+@ref{nncp-toss} command.
 
 @node nncp-caller
 @section nncp-caller
@@ -237,7 +242,7 @@ not used often in practice, if ever.
 @section nncp-daemon
 
 @example
-$ nncp-daemon [options] [-maxconn INT] [-bind ADDR] [-inetd]
+$ nncp-daemon [options] [-maxconn INT] [-bind ADDR] [-inetd] [-autotoss*]
 @end example
 
 Start listening TCP daemon, wait for incoming connections and run
@@ -257,6 +262,10 @@ propagate up to 5 minutes in practice. Example inetd-entry:
 @verbatim
 uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -inetd
 @end verbatim
+
+@option{-autotoss} options runs tosser on node's spool after call
+is finished. All @option{-autotoss-*} options is the same as in
+@ref{nncp-toss} command.
 
 @node nncp-exec
 @section nncp-exec
