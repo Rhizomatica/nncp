@@ -268,7 +268,7 @@ $ nncp-exec [options] [-use-tmp] [-nocompress] NODE HANDLE [ARG0 ARG1 ...]
 Send execution command to @option{NODE} for specified @option{HANDLE}.
 Body is read from stdin (either into memory, or into encrypted temporary
 file if @option{-use-tmp} is specified) and compressed (unless
-@option{-nocompress} is specified}. After receiving, remote side will
+@option{-nocompress} is specified). After receiving, remote side will
 execute specified @ref{CfgExec, handle} command with @option{ARG*}
 appended and decompressed body fed to command's stdin.
 

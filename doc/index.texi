@@ -45,6 +45,7 @@ There are also articles about its usage outside this website:
 * Call configuration: Call.
 * Integration::
 * Commands::
+* Administration::
 * Niceness::
 * Chunked files: Chunked.
 * Bundles::
@@ -68,6 +69,7 @@ There are also articles about its usage outside this website:
 @include call.texi
 @include integration.texi
 @include cmds.texi
+@include admin.texi
 @include niceness.texi
 @include chunked.texi
 @include bundles.texi
