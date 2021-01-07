@@ -19,10 +19,15 @@ Tarballs include all necessary required libraries:
 @item @code{golang.org/x/crypto} @tab BSD 3-Clause
 @item @code{golang.org/x/net} @tab BSD 3-Clause
 @item @code{golang.org/x/sys} @tab BSD 3-Clause
+@item @code{golang.org/x/term} @tab BSD 3-Clause
 @end multitable
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
+
+@item @ref{Release 5.5.0, 5.5.0} @tab 2021-01-07 @tab 1161 KiB
+@tab @url{download/nncp-5.5.0.tar.xz, link} @url{download/nncp-5.5.0.tar.xz.sig, sign}
+@tab @code{EF0CBEE1 520BE97D A210794C 172BF444 E6F75DB2 84F5BD05 66919193 326AED77}
 
 @item @ref{Release 5.4.1, 5.4.1} @tab 2020-09-28 @tab 1143 KiB
 @tab @url{download/nncp-5.4.1.tar.xz, link} @url{download/nncp-5.4.1.tar.xz.sig, sign}
