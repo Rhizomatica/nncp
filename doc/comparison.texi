@@ -11,7 +11,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 
 @item Ease of setup @tab Medium @tab Hard @tab Easy @tab Hard
 @item Mail transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes}
-@item News transmission @tab @strong{Yes} @tab @strong{Yes} @tab No @tab No
+@item News transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item File transmission @tab @strong{Yes} @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Chunked files @tab No @tab @strong{Yes} @tab @strong{Yes} @tab No
 @item Remote command execution @tab @strong{Yes} @tab No @tab @strong{Yes} @tab No
@@ -48,10 +48,6 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     NNCP requires editing of single Hjson @ref{Configuration,
     configuration file}.
 
-@item News transmission
-    SMTP does not know anything about news, NNTP and so forth. Neither
-    does NNCP, because they are not used very much nowadays.
-
 @item File transmission
     SMTP could transfer files only Base64-encoding them -- this is very
     inefficient.
@@ -68,9 +64,9 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     gigabytes files are queued in parallel.
 
 @item SMTP integration
-    Mail servers like @url{http://www.postfix.org/, Postfix} offers
-    documentation and configuration file examples how to use it with
-    UUCP. @url{http://www.exim.org/, Exim} and
+    Mail servers like @url{http://www.postfix.org/, Postfix} and
+    @url{http://www.exim.org/, Exim} offers documentation and
+    configuration file examples how to use it with UUCP.
     @url{http://www.sendmail.com/sm/open_source/, Sendmail} could be
     integrated with UUCP rather easily too. For using NNCP, just replace
     UUCP commands with NNCP ones.
@@ -110,3 +106,37 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     requires more manual work to do so.
 
 @end table
+
+Also there is
+@url{https://changelog.complete.org/archives/10165-asynchronous-email-exim-over-nncp-or-uucp, copy of}
+comparable commands of UUCP and NNCP, just for the interest:
+
+@multitable @columnfractions 0.5 0.25 0.25
+@headitem Purpose @tab UUCP @tab NNCP
+
+@item Connect to remote system
+    @tab @command{uucico -s}, @command{uupoll}
+    @tab @command{nncp-call}, @command{nncp-caller}
+@item Receive connection (pipe, daemon, etc)
+    @tab @command{uucico} (@option{-l} or similar)
+    @tab @command{nncp-daemon}
+@item Request remote execution, stdin piped in
+    @tab @command{uux}
+    @tab @command{nncp-exec}
+@item Copy file to remote machine
+    @tab @command{uucp}
+    @tab @command{nncp-file}
+@item Copy file from remote machine
+    @tab @command{uucp}
+    @tab @command{nncp-freq}
+@item Process received requests
+    @tab @command{uuxqt}
+    @tab @command{nncp-toss}
+@item Move outbound requests to dir (for USB stick, airgap, etc)
+    @tab N/A
+    @tab @command{nncp-xfer}
+@item Create streaming package of outbound requests
+    @tab N/A
+    @tab @command{nncp-bundle}
+
+@end multitable

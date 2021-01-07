@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -51,6 +51,6 @@ func (ctx *Ctx) LockDir(nodeId *NodeId, lockCtx string) (*os.File, error) {
 func (ctx *Ctx) UnlockDir(fd *os.File) {
 	if fd != nil {
 		unix.Flock(int(fd.Fd()), unix.LOCK_UN) // #nosec G104
-		fd.Close() // #nosec G104
+		fd.Close()                             // #nosec G104
 	}
 }

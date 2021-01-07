@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -313,11 +313,12 @@ func main() {
 					continue
 				}
 			}
-			sds["node"] = nncp.Base32Codec.EncodeToString(pktEnc.Recipient[:])
+			sender := nncp.Base32Codec.EncodeToString(pktEnc.Sender[:])
+			sds["node"] = sender
 			sds["pkt"] = pktName
 			sds["fullsize"] = entry.Size
-			selfPath := filepath.Join(ctx.Spool, ctx.SelfId.String(), string(nncp.TRx))
-			dstPath := filepath.Join(selfPath, pktName)
+			dstDirPath := filepath.Join(ctx.Spool, sender, string(nncp.TRx))
+			dstPath := filepath.Join(dstDirPath, pktName)
 			if _, err = os.Stat(dstPath); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("nncp-bundle", sds, "Packet already exists")
 				continue
@@ -357,7 +358,7 @@ func main() {
 						log.Fatalln("Error during flusing:", err)
 					}
 					if nncp.Base32Codec.EncodeToString(tmp.Hsh.Sum(nil)) == pktName {
-						if err = tmp.Commit(selfPath); err != nil {
+						if err = tmp.Commit(dstDirPath); err != nil {
 							log.Fatalln("Error during commiting:", err)
 						}
 					} else {
@@ -392,13 +393,13 @@ func main() {
 					if err = tmp.Close(); err != nil {
 						log.Fatalln("Error during closing:", err)
 					}
-					if err = os.MkdirAll(selfPath, os.FileMode(0777)); err != nil {
+					if err = os.MkdirAll(dstDirPath, os.FileMode(0777)); err != nil {
 						log.Fatalln("Error during mkdir:", err)
 					}
 					if err = os.Rename(tmp.Name(), dstPath); err != nil {
 						log.Fatalln("Error during renaming:", err)
 					}
-					if err = nncp.DirSync(selfPath); err != nil {
+					if err = nncp.DirSync(dstDirPath); err != nil {
 						log.Fatalln("Error during syncing:", err)
 					}
 				}

@@ -1,4 +1,5 @@
 redo-ifchange config gopath module-name
+exec >&2
 . ./config
 . ./gopath
 mod=`cat module-name`

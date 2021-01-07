@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ func (ctx *Ctx) Toss(
 		sds["size"] = pktSize
 		ctx.LogD("rx", sds, "taken")
 		switch pkt.Type {
-		case PktTypeExec:
+		case PktTypeExec, PktTypeExecFat:
 			if noExec {
 				goto Closing
 			}
@@ -148,8 +148,10 @@ func (ctx *Ctx) Toss(
 				isBad = true
 				goto Closing
 			}
-			if err = decompressor.Reset(pipeR); err != nil {
-				log.Fatalln(err)
+			if pkt.Type == PktTypeExec {
+				if err = decompressor.Reset(pipeR); err != nil {
+					log.Fatalln(err)
+				}
 			}
 			if !dryRun {
 				cmd := exec.Command(
@@ -162,7 +164,11 @@ func (ctx *Ctx) Toss(
 					"NNCP_SENDER="+sender.Id.String(),
 					"NNCP_NICE="+strconv.Itoa(int(pkt.Nice)),
 				)
-				cmd.Stdin = decompressor
+				if pkt.Type == PktTypeExec {
+					cmd.Stdin = decompressor
+				} else {
+					cmd.Stdin = pipeR
+				}
 				output, err := cmd.Output()
 				if err != nil {
 					ctx.LogE("rx", sds, err, "handle")

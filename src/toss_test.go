@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -99,6 +99,8 @@ func TestTossExec(t *testing.T) {
 				[]string{"arg0", "arg1"},
 				strings.NewReader("BODY\n"),
 				1<<15,
+				false,
+				false,
 			); err != nil {
 				t.Error(err)
 				return false
@@ -449,7 +451,6 @@ func TestTossTrns(t *testing.T) {
 				Magic:   MagicNNCPPv3,
 				Type:    PktTypeTrns,
 				PathLen: blake2b.Size256,
-				Path:    new([MaxPathSize]byte),
 			}
 			copy(pktTrans.Path[:], nodeOur.Id[:])
 			var dst bytes.Buffer

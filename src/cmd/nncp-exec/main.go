@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,6 +37,8 @@ func usage() {
 
 func main() {
 	var (
+		useTmp       = flag.Bool("use-tmp", false, "Use temporary file, instead of memory buffer")
+		noCompress   = flag.Bool("nocompress", false, "Do not compress input data")
 		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw      = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceExec), "Outbound packet niceness")
 		replyNiceRaw = flag.String("replynice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Possible reply packet niceness")
@@ -106,6 +108,8 @@ func main() {
 		flag.Args()[2:],
 		bufio.NewReader(os.Stdin),
 		int64(*minSize)*1024,
+		*useTmp,
+		*noCompress,
 	); err != nil {
 		log.Fatalln(err)
 	}

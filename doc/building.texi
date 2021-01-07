@@ -23,7 +23,10 @@ It uses @url{http://cr.yp.to/redo.html, redo} build system for that
 examples. You can use either dozen of various implementations, or at
 least minimalistic POSIX shell @command{contrib/do} (just replace
 @command{redo} with @command{contrib/do} in the example above) included
-in tarball.
+in tarball. Following ones are tested to work with:
+@url{http://www.goredo.cypherpunks.ru/, goredo} (NNCP's author creation),
+@url{https://redo.readthedocs.io/, apenwarr/redo} (@code{contrib/do} is
+from that project), @url{https://github.com/leahneukirchen/redo-c, redo-c}.
 
 There is @command{install} make-target respecting @env{DESTDIR}. It will
 install binaries and info-documentation:

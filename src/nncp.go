@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.`
 )
 
 var (
-	Version string = "5.4.1"
+	Version string = "5.5.0"
 
 	Base32Codec *base32.Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)
 )
@@ -49,7 +49,7 @@ func VersionGet() string {
 
 func UsageHeader() string {
 	return VersionGet() + `
-Copyright (C) 2016-2020 Sergey Matveev
+Copyright (C) 2016-2021 Sergey Matveev
 License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.

@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -74,8 +74,8 @@ func (ctx *Ctx) NewTmpFileWHash() (*TmpFileWHash, error) {
 }
 
 func (tmp *TmpFileWHash) Cancel() {
-	tmp.Fd.Truncate(0) // #nosec G104
-	tmp.Fd.Close() // #nosec G104
+	tmp.Fd.Truncate(0)       // #nosec G104
+	tmp.Fd.Close()           // #nosec G104
 	os.Remove(tmp.Fd.Name()) // #nosec G104
 }
 

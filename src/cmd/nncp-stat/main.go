@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ func main() {
 		for job := range ctx.Jobs(node.Id, nncp.TTx) {
 			job.Fd.Close() // #nosec G104
 			if *showPkt {
-				jobPrint(nncp.TRx, job)
+				jobPrint(nncp.TTx, job)
 			}
 			txNums[job.PktEnc.Nice] = txNums[job.PktEnc.Nice] + 1
 			txBytes[job.PktEnc.Nice] = txBytes[job.PktEnc.Nice] + job.Size
