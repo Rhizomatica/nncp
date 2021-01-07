@@ -20,6 +20,10 @@ options now. Uncompressed packets are not compatible with previous NNCP
 versions.
 
 @item
+@command{nncp-call}, @command{nncp-caller} and @command{nncp-daemon} commands
+have @option{-autotoss*} options for running tosser after call is ended.
+
+@item
 Updated dependencies.
 
 @end itemize
