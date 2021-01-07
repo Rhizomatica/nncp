@@ -30,7 +30,7 @@ NNCP это свободное программное обеспечением: 
 https://lists.cypherpunks.ru/pipermail/nncp-devel/
 
 Исходный код для разработчика находится в Git репозитории:
-http://git.cypherpunks.ru/cgit.cgi/nncp.git/
+http://www.git.cypherpunks.ru/?p=nncp.git;a=summary
 
 Для дополнительной информации пожалуйста читайте или doc/nncp.info
 или doc/nncp.texi.

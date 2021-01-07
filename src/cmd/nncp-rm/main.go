@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"go.cypherpunks.ru/nncp/v5"
 )
@@ -38,6 +41,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE -seen\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE {-rx|-tx}\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -node NODE -pkt PKT\n", os.Args[0])
+	fmt.Fprintln(os.Stderr, "-older option's time units are: (s)econds, (m)inutes, (h)ours, (d)ays")
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }
@@ -52,6 +56,8 @@ func main() {
 		doTx      = flag.Bool("tx", false, "Process transfered packets")
 		doPart    = flag.Bool("part", false, "Remove only .part files")
 		doSeen    = flag.Bool("seen", false, "Remove only .seen files")
+		older     = flag.String("older", "", "XXX{smhd}: only older than XXX number of time units")
+		dryRun    = flag.Bool("dryrun", false, "Do not actually remove files")
 		pktRaw    = flag.String("pkt", "", "Packet to remove")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -76,6 +82,31 @@ func main() {
 	}
 	ctx.Umask()
 
+	var oldBoundaryRaw int
+	if *older != "" {
+		olderRe := regexp.MustCompile(`^(\d+)([smhd])$`)
+		matches := olderRe.FindStringSubmatch(*older)
+		if len(matches) != 1+2 {
+			log.Fatalln("can not parse -older")
+		}
+		oldBoundaryRaw, err = strconv.Atoi(matches[1])
+		if err != nil {
+			log.Fatalln("can not parse -older:", err)
+		}
+		switch matches[2] {
+		case "s":
+			break
+		case "m":
+			oldBoundaryRaw *= 60
+		case "h":
+			oldBoundaryRaw *= 60 * 60
+		case "d":
+			oldBoundaryRaw *= 60 * 60 * 24
+		}
+	}
+	oldBoundary := time.Second * time.Duration(oldBoundaryRaw)
+
+	now := time.Now()
 	if *doTmp {
 		err = filepath.Walk(
 			filepath.Join(ctx.Spool, "tmp"),
@@ -86,7 +117,14 @@ func main() {
 				if info.IsDir() {
 					return nil
 				}
+				if now.Sub(info.ModTime()) < oldBoundary {
+					ctx.LogD("nncp-rm", nncp.SDS{"file": path}, "too fresh, skipping")
+					return nil
+				}
 				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				if *dryRun {
+					return nil
+				}
 				return os.Remove(path)
 			})
 		if err != nil {
@@ -104,6 +142,9 @@ func main() {
 			}
 			if strings.HasSuffix(info.Name(), ".lock") {
 				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				if *dryRun {
+					return nil
+				}
 				return os.Remove(path)
 			}
 			return nil
@@ -131,16 +172,29 @@ func main() {
 				if info.IsDir() {
 					return nil
 				}
+				if now.Sub(info.ModTime()) < oldBoundary {
+					ctx.LogD("nncp-rm", nncp.SDS{"file": path}, "too fresh, skipping")
+					return nil
+				}
 				if *doSeen && strings.HasSuffix(info.Name(), nncp.SeenSuffix) {
 					ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+					if *dryRun {
+						return nil
+					}
 					return os.Remove(path)
 				}
 				if *doPart && strings.HasSuffix(info.Name(), nncp.PartSuffix) {
 					ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+					if *dryRun {
+						return nil
+					}
 					return os.Remove(path)
 				}
 				if *pktRaw != "" && filepath.Base(info.Name()) == *pktRaw {
 					ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+					if *dryRun {
+						return nil
+					}
 					return os.Remove(path)
 				}
 				if !*doSeen &&
@@ -148,6 +202,9 @@ func main() {
 					(*doRx || *doTx) &&
 					((*doRx && xx == nncp.TRx) || (*doTx && xx == nncp.TTx)) {
 					ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+					if *dryRun {
+						return nil
+					}
 					return os.Remove(path)
 				}
 				return nil

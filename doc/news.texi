@@ -3,6 +3,31 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.5.0
+@section Release 5.5.0
+@itemize
+
+@item
+Bugfixes in @command{nncp-call(er)}/@command{nncp-daemon},
+@command{nncp-bundle} and @command{nncp-stat}.
+
+@item
+@command{nncp-rm} has @option{-dryrun} and @option{-older} options now.
+
+@item
+@command{nncp-exec} has @option{-use-tmp} and @option{-nocompress}
+options now. Uncompressed packets are not compatible with previous NNCP
+versions.
+
+@item
+@command{nncp-call}, @command{nncp-caller} and @command{nncp-daemon} commands
+have @option{-autotoss*} options for running tosser after call is ended.
+
+@item
+Updated dependencies.
+
+@end itemize
+
 @node Release 5.4.1
 @section Release 5.4.1
 @itemize

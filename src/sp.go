@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ var (
 	DefaultDeadline = 10 * time.Second
 	PingTimeout     = time.Minute
 
-	spWorkersGroup sync.WaitGroup
+	spCheckerToken chan struct{}
 )
 
 type SPType uint8
@@ -148,6 +148,8 @@ func init() {
 		panic(err)
 	}
 	SPFileOverhead = buf.Len()
+	spCheckerToken = make(chan struct{}, 1)
+	spCheckerToken <- struct{}{}
 }
 
 func MarshalSP(typ SPType, sp interface{}) []byte {
@@ -989,9 +991,11 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				fd.Close() // #nosec G104
 				continue
 			}
-			spWorkersGroup.Wait()
-			spWorkersGroup.Add(1)
+			<-spCheckerToken
 			go func() {
+				defer func() {
+					spCheckerToken <- struct{}{}
+				}()
 				if err := fd.Sync(); err != nil {
 					state.Ctx.LogE("sp-file", sdsp, err, "sync")
 					fd.Close() // #nosec G104
@@ -1023,7 +1027,6 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				state.Lock()
 				delete(state.infosTheir, *file.Hash)
 				state.Unlock()
-				spWorkersGroup.Done()
 				state.wg.Add(1)
 				go func() {
 					state.payloads <- MarshalSP(SPTypeDone, SPDone{file.Hash})

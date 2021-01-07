@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,14 +40,17 @@ const (
 	EncBlkSize = 128 * (1 << 10)
 	KDFXOFSize = chacha20poly1305.KeySize * 2
 
-	PktTypeFile PktType = iota
-	PktTypeFreq PktType = iota
-	PktTypeExec PktType = iota
-	PktTypeTrns PktType = iota
+	PktTypeFile    PktType = iota
+	PktTypeFreq    PktType = iota
+	PktTypeExec    PktType = iota
+	PktTypeTrns    PktType = iota
+	PktTypeExecFat PktType = iota
 
 	MaxPathSize = 1<<8 - 1
 
 	NNCPBundlePrefix = "NNCP"
+
+	PktSizeOverhead = 8 + poly1305.TagSize
 )
 
 var (
@@ -56,9 +59,8 @@ var (
 	BadMagic     error   = errors.New("Unknown magic number")
 	BadPktType   error   = errors.New("Unknown packet type")
 
-	PktOverhead     int64
-	PktEncOverhead  int64
-	PktSizeOverhead int64 = 8 + poly1305.TagSize
+	PktOverhead    int64
+	PktEncOverhead int64
 )
 
 type Pkt struct {
@@ -66,7 +68,7 @@ type Pkt struct {
 	Type    PktType
 	Nice    uint8
 	PathLen uint8
-	Path    *[MaxPathSize]byte
+	Path    [MaxPathSize]byte
 }
 
 type PktTbs struct {
@@ -74,7 +76,7 @@ type PktTbs struct {
 	Nice      uint8
 	Sender    *NodeId
 	Recipient *NodeId
-	ExchPub   *[32]byte
+	ExchPub   [32]byte
 }
 
 type PktEnc struct {
@@ -82,15 +84,12 @@ type PktEnc struct {
 	Nice      uint8
 	Sender    *NodeId
 	Recipient *NodeId
-	ExchPub   *[32]byte
-	Sign      *[ed25519.SignatureSize]byte
+	ExchPub   [32]byte
+	Sign      [ed25519.SignatureSize]byte
 }
 
 func init() {
-	pkt := Pkt{
-		Type: PktTypeFile,
-		Path: new([MaxPathSize]byte),
-	}
+	pkt := Pkt{Type: PktTypeFile}
 	var buf bytes.Buffer
 	n, err := xdr.Marshal(&buf, pkt)
 	if err != nil {
@@ -105,11 +104,8 @@ func init() {
 	}
 	pktEnc := PktEnc{
 		Magic:     MagicNNCPEv4,
-		Nice:      123,
 		Sender:    dummyId,
 		Recipient: dummyId,
-		ExchPub:   new([32]byte),
-		Sign:      new([ed25519.SignatureSize]byte),
 	}
 	n, err = xdr.Marshal(&buf, pktEnc)
 	if err != nil {
@@ -127,7 +123,6 @@ func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
 		Type:    typ,
 		Nice:    nice,
 		PathLen: uint8(len(path)),
-		Path:    new([MaxPathSize]byte),
 	}
 	copy(pkt.Path[:], path)
 	return &pkt, nil
@@ -211,7 +206,7 @@ func PktEncWrite(
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
-		ExchPub:   pubEph,
+		ExchPub:   *pubEph,
 	}
 	var tbsBuf bytes.Buffer
 	if _, err = xdr.Marshal(&tbsBuf, &tbs); err != nil {
@@ -224,8 +219,8 @@ func PktEncWrite(
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
-		ExchPub:   pubEph,
-		Sign:      signature,
+		ExchPub:   *pubEph,
+		Sign:      *signature,
 	}
 	if _, err = xdr.Marshal(out, &pktEnc); err != nil {
 		return err
@@ -325,7 +320,7 @@ func PktEncRead(
 		return their, 0, errors.New("Invalid signature")
 	}
 	sharedKey := new([32]byte)
-	curve25519.ScalarMult(sharedKey, our.ExchPrv, pktEnc.ExchPub)
+	curve25519.ScalarMult(sharedKey, our.ExchPrv, &pktEnc.ExchPub)
 	kdf, err := blake2b.NewXOF(KDFXOFSize, sharedKey[:])
 	if err != nil {
 		return their, 0, err

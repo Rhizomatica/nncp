@@ -31,7 +31,7 @@ drive.
     @verb{|N N C P P 0x00 0x00 0x03|}
 @item Payload type @tab
     unsigned integer @tab
-    0 (file), 1 (freq), 2 (exec), 3 (transition)
+    0 (file), 1 (freq), 2 (exec), 3 (transition), 4 (exec-fat)
 @item Niceness @tab
     unsigned integer @tab
     1-255, preferred packet @ref{Niceness, niceness} level
@@ -50,8 +50,9 @@ drive.
 
 Path has fixed size because of hiding its actual length -- it is
 valuable metadata. Payload is appended to the header -- it is not stored
-as XDR field, because most XDR libraries will store all that data in the
-memory.
+as XDR field, because XDR has no ability to pass more than 4 GiB of
+opaque data. Moreover most XDR libraries store fields in the memory in
+practice.
 
 Depending on the packet's type, payload could store:
 
@@ -60,6 +61,7 @@ Depending on the packet's type, payload could store:
 @item Destination path for freq
 @item @url{https://facebook.github.io/zstd/, Zstandard} compressed exec body
 @item Whole encrypted packet we need to relay on
+@item Uncompressed exec body
 @end itemize
 
 Also depending on packet's type, niceness level means:

@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2020 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ func (c InetdConn) Close() error {
 	return c.w.Close()
 }
 
-func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
+func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) *nncp.SPState {
 	state := nncp.SPState{
 		Ctx:  ctx,
 		Nice: nice,
@@ -89,6 +89,7 @@ func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) {
 		}
 		ctx.LogE("call-start", nncp.SDS{"node": nodeId}, err, "")
 	}
+	return &state
 }
 
 func main() {
@@ -106,6 +107,13 @@ func main() {
 		debug     = flag.Bool("debug", false, "Print debug messages")
 		version   = flag.Bool("version", false, "Print version information")
 		warranty  = flag.Bool("warranty", false, "Print warranty information")
+
+		autotoss       = flag.Bool("autotoss", false, "Toss after call is finished")
+		autotossDoSeen = flag.Bool("autotoss-seen", false, "Create .seen files during tossing")
+		autotossNoFile = flag.Bool("autotoss-nofile", false, "Do not process \"file\" packets during tossing")
+		autotossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
+		autotossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
+		autotossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -159,8 +167,20 @@ func main() {
 		}
 		ctx.LogD("daemon", nncp.SDS{"addr": conn.RemoteAddr()}, "accepted")
 		go func(conn net.Conn) {
-			performSP(ctx, conn, nice)
+			state := performSP(ctx, conn, nice)
 			conn.Close() // #nosec G104
+			if *autotoss && state.Node != nil {
+				ctx.Toss(
+					state.Node.Id,
+					nice,
+					false,
+					*autotossDoSeen,
+					*autotossNoFile,
+					*autotossNoFreq,
+					*autotossNoExec,
+					*autotossNoTrns,
+				)
+			}
 		}(conn)
 	}
 }
