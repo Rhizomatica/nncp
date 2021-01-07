@@ -222,22 +222,3 @@ List of @ref{Call, call configuration}s. Can be omitted if
 @ref{nncp-caller} won't be used to call that node.
 
 @end table
-
-@menu
-* Shared spool directory: Shared spool.
-@end menu
-
-@node Shared spool
-@section Shared spool directory
-
-If you want to share single spool directory with multiple grouped Unix
-users, then you can @command{setgid} it and assure that umask is group
-friendly. For convenience you can set @option{umask} globally for
-invoked NNCP commands in the configuration file. For example:
-
-@example
-$ chgrp nncp /usr/local/etc/nncp.hjson /var/spool/nncp
-$ chmod g+r /usr/local/etc/nncp.hjson
-$ chmod g+rwxs /var/spool/nncp
-$ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
-@end example
