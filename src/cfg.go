@@ -107,9 +107,9 @@ type NotifyJSON struct {
 type CfgJSON struct {
 	Spool string `json:"spool"`
 	Log   string `json:"log"`
-	Umask string `json:"umask",omitempty`
+	Umask string `json:"umask,omitempty"`
 
-	OmitPrgrs bool `json:"noprogress",omitempty`
+	OmitPrgrs bool `json:"noprogress,omitempty"`
 
 	Notify *NotifyJSON `json:"notify,omitempty"`
 
