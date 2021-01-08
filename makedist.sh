@@ -33,9 +33,6 @@ golang.org/x/term
 "
 for mod in $mods; do
     mod_path=$(sed -n "s# // indirect## ; s#^	\($mod\) \(.*\)\$#\1@\2#p" src/$mod_name/go.mod)
-    [ -n "$mod_path" ] || {
-        mod_path=$(sed -n "s#\($mod\) \([^/]*\) .*\$#\1@\2#p" src/$mod_name/go.sum)
-    }
     [ -n "$mod_path" ]
     mkdir -p src/$mod
     ( cd $GOPATH/pkg/mod/$mod_path ; tar cf - --exclude ".git*" * ) | tar xfC - src/$mod
@@ -60,7 +57,6 @@ golang.org/x/crypto/PATENTS
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/README.md
 golang.org/x/crypto/salsa20
-golang.org/x/crypto/ssh/terminal
 golang.org/x/net/AUTHORS
 golang.org/x/net/CONTRIBUTORS
 golang.org/x/net/go.mod

@@ -30,7 +30,7 @@ import (
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"go.cypherpunks.ru/nncp/v5"
 	"golang.org/x/crypto/blake2b"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 func usage() {
@@ -90,7 +90,7 @@ func main() {
 	}
 
 	os.Stderr.WriteString("Passphrase:") // #nosec G104
-	password, err := terminal.ReadPassword(0)
+	password, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -105,13 +105,13 @@ func main() {
 		return
 	}
 
-	password1, err := terminal.ReadPassword(0)
+	password1, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	os.Stderr.WriteString("\n")                 // #nosec G104
 	os.Stderr.WriteString("Repeat passphrase:") // #nosec G104
-	password2, err := terminal.ReadPassword(0)
+	password2, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)
 	}
