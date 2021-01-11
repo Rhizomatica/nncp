@@ -30,7 +30,7 @@ import (
 	"github.com/gorhill/cronexpr"
 	"github.com/hjson/hjson-go"
 	"golang.org/x/crypto/ed25519"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 const (
@@ -107,9 +107,9 @@ type NotifyJSON struct {
 type CfgJSON struct {
 	Spool string `json:"spool"`
 	Log   string `json:"log"`
-	Umask string `json:"umask",omitempty`
+	Umask string `json:"umask,omitempty"`
 
-	OmitPrgrs bool `json:"noprogress",omitempty`
+	OmitPrgrs bool `json:"noprogress,omitempty"`
 
 	Notify *NotifyJSON `json:"notify,omitempty"`
 
@@ -377,7 +377,7 @@ func CfgParse(data []byte) (*Ctx, error) {
 	var err error
 	if bytes.Compare(data[:8], MagicNNCPBv3[:]) == 0 {
 		os.Stderr.WriteString("Passphrase:") // #nosec G104
-		password, err := terminal.ReadPassword(0)
+		password, err := term.ReadPassword(0)
 		if err != nil {
 			log.Fatalln(err)
 		}
