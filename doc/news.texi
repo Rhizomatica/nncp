@@ -3,6 +3,16 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.5.1
+@section Release 5.5.1
+@itemize
+
+@item
+Respect for @env{BINDIR}, @env{INFODIR} and @env{DOCDIR} environment
+variables in @file{config} during installation.
+
+@end itemize
+
 @node Release 5.5.0
 @section Release 5.5.0
 @itemize
@@ -24,7 +34,7 @@ versions.
 have @option{-autotoss*} options for running tosser after call is ended.
 
 @item
-Updated dependencies.
+Updated dependencies. Minimal required Go version is 1.12.
 
 @end itemize
 

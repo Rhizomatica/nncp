@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.5.1
+@subsection Релиз 5.5.1
+@itemize
+
+@item
+Уважать @env{BINDIR}, @env{INFODIR} и @env{DOCDIR} переменные окружения
+в @file{config} во время установки.
+
+@end itemize
+
 @node Релиз 5.5.0
 @subsection Релиз 5.5.0
 @itemize
@@ -22,7 +32,7 @@
 появились @option{-autotoss*} опции для запуска tosser после завершения звонка.
 
 @item
-Обновлены зависимые библиотеки.
+Обновлены зависимые библиотеки. Минимальная требуемая версия Go 1.12.
 
 @end itemize
 
