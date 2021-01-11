@@ -9,6 +9,6 @@ CFGPATH=${CFGPATH:-$PREFIX/etc/nncp.hjson}
 SPOOLPATH=${SPOOLPATH:-/var/spool/nncp}
 LOGPATH=${LOGPATH:-/var/spool/nncp/log}
 
-BINDIR=${DESTDIR}${PREFIX}/bin
-INFODIR=${DESTDIR}${PREFIX}/info
-DOCDIR=${DESTDIR}${PREFIX}/share/doc/nncp
+BINDIR=${BINDIR:-${DESTDIR}${PREFIX}/bin}
+INFODIR=${INFODIR:-${DESTDIR}${PREFIX}/info}
+DOCDIR=${DOCDIR:-${DESTDIR}${PREFIX}/share/doc/nncp}
