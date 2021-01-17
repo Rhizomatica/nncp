@@ -276,11 +276,15 @@ $ nncp-exec [options] [-use-tmp] [-nocompress] NODE HANDLE [ARG0 ARG1 ...]
 @end example
 
 Send execution command to @option{NODE} for specified @option{HANDLE}.
-Body is read from stdin (either into memory, or into encrypted temporary
-file if @option{-use-tmp} is specified) and compressed (unless
+Body is read from @code{stdin} into memory and compressed (unless
 @option{-nocompress} is specified). After receiving, remote side will
 execute specified @ref{CfgExec, handle} command with @option{ARG*}
-appended and decompressed body fed to command's stdin.
+appended and decompressed body fed to command's @code{stdin}.
+
+If @option{-use-tmp} option is specified, then @code{stdin} data is read
+into temporary file first, requiring twice more disk space, but no
+memory requirements. @ref{StdinTmpFile, Same temporary file} rules
+applies as with @ref{nncp-file -} command.
 
 For example, if remote side has following configuration file for your
 node:
@@ -326,16 +330,19 @@ This command queues file in @ref{Spool, spool} directory immediately
 (through the temporary file of course) -- so pay attention that sending
 2 GiB file will create 2 GiB outbound encrypted packet.
 
+@anchor{StdinTmpFile}
 If @file{SRC} equals to @file{-}, then create an encrypted temporary
 file and copy everything taken from @code{stdin} to it and use for outbound
 packet creation. Pay attention that if you want to send 1 GiB of data
 taken from @code{stdin}, then you have to have more than 2 GiB of disk space
 for that temporary file and resulting encrypted packet. You can control
-where temporary file will be stored using @env{TMPDIR} environment
+temporary file location directory with @env{TMPDIR} environment
 variable. Encryption is performed in AEAD mode with
 @url{https://cr.yp.to/chacha.html, ChaCha20}-@url{https://en.wikipedia.org/wiki/Poly1305, Poly1305}
 algorithms. Data is splitted on 128 KiB blocks. Each block is encrypted
-with increasing nonce counter.
+with increasing nonce counter. File is deletes immediately after
+creation, so even if program crashes -- disk space will be reclaimed, no
+need in cleaning it up later.
 
 If @file{SRC} points to directory, then
 @url{https://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html#tag_20_92_13_01, pax archive}
