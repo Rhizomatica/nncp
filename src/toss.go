@@ -155,7 +155,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				cmd := exec.Command(
 					cmdline[0],
-					append(cmdline[1:len(cmdline)], args...)...,
+					append(cmdline[1:], args...)...,
 				)
 				cmd.Env = append(
 					cmd.Env,
@@ -182,7 +182,7 @@ func (ctx *Ctx) Toss(
 					if exists {
 						cmd := exec.Command(
 							sendmail[0],
-							append(sendmail[1:len(sendmail)], notify.To)...,
+							append(sendmail[1:], notify.To)...,
 						)
 						cmd.Stdin = newNotification(notify, fmt.Sprintf(
 							"Exec from %s: %s", sender.Name, argsStr,
@@ -303,7 +303,7 @@ func (ctx *Ctx) Toss(
 				if len(sendmail) > 0 && ctx.NotifyFile != nil {
 					cmd := exec.Command(
 						sendmail[0],
-						append(sendmail[1:len(sendmail)], ctx.NotifyFile.To)...,
+						append(sendmail[1:], ctx.NotifyFile.To)...,
 					)
 					cmd.Stdin = newNotification(ctx.NotifyFile, fmt.Sprintf(
 						"File from %s: %s (%s)",
@@ -372,7 +372,7 @@ func (ctx *Ctx) Toss(
 				if len(sendmail) > 0 && ctx.NotifyFreq != nil {
 					cmd := exec.Command(
 						sendmail[0],
-						append(sendmail[1:len(sendmail)], ctx.NotifyFreq.To)...,
+						append(sendmail[1:], ctx.NotifyFreq.To)...,
 					)
 					cmd.Stdin = newNotification(ctx.NotifyFreq, fmt.Sprintf(
 						"Freq from %s: %s", sender.Name, src,
