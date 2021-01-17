@@ -139,8 +139,8 @@ file is renamed from @file{.part} one and when you rerun
 @command{nncp-call} again, remote node will receive completion
 notification.
 
-@option{-autotoss} options runs tosser on node's spool after call
-is finished. All @option{-autotoss-*} options is the same as in
+@option{-autotoss} option runs tosser on node's spool every second
+during the call. All @option{-autotoss-*} options is the same as in
 @ref{nncp-toss} command.
 
 @node nncp-caller
@@ -264,8 +264,8 @@ Example inetd-entry:
 uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -inetd
 @end verbatim
 
-@option{-autotoss} options runs tosser on node's spool after call
-is finished. All @option{-autotoss-*} options is the same as in
+@option{-autotoss} option runs tosser on node's spool every second
+during the call. All @option{-autotoss-*} options is the same as in
 @ref{nncp-toss} command.
 
 @node nncp-exec
