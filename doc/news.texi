@@ -435,9 +435,10 @@ are not supported.
 
 @item
 @command{nncp-bundle} command can either create stream of encrypted
-packets, or digest it. It is useful when dealing with stdin/stdout based
-transmission methods (like writing to CD-ROM without intermediate
-prepared ISO image and working with tape drives).
+packets, or digest it. It is useful when dealing with
+@code{stdin}/@code{stdout} based transmission methods (like writing to
+CD-ROM without intermediate prepared ISO image and working with tape
+drives).
 
 @item
 @command{nncp-toss} is able to create @file{.seen} files preventing
@@ -499,8 +500,8 @@ option for unchunked transfer was not in KiBs, but in bytes.
 @itemize
 
 @item
-Ability to feed @command{nncp-file} from stdin, that uses an encrypted
-temporary file for that.
+Ability to feed @command{nncp-file} from @code{stdin}, that uses an
+encrypted temporary file for that.
 
 @item
 Chunked files transmission appeared with corresponding

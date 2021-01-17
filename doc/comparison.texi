@@ -120,7 +120,7 @@ comparable commands of UUCP and NNCP, just for the interest:
 @item Receive connection (pipe, daemon, etc)
     @tab @command{uucico} (@option{-l} or similar)
     @tab @command{nncp-daemon}
-@item Request remote execution, stdin piped in
+@item Request remote execution, @code{stdin} piped in
     @tab @command{uux}
     @tab @command{nncp-exec}
 @item Copy file to remote machine
