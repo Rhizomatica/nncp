@@ -66,13 +66,19 @@ func (c InetdConn) Close() error {
 	return c.w.Close()
 }
 
-func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) *nncp.SPState {
+func performSP(
+	ctx *nncp.Ctx,
+	conn nncp.ConnDeadlined,
+	nice uint8,
+	nodeIdC chan *nncp.NodeId,
+) {
 	state := nncp.SPState{
 		Ctx:  ctx,
 		Nice: nice,
 	}
 	if err := state.StartR(conn); err == nil {
 		ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
+		nodeIdC <- state.Node.Id
 		state.Wait()
 		ctx.LogI("call-finish", nncp.SDS{
 			"node":     state.Node.Id,
@@ -84,12 +90,15 @@ func performSP(ctx *nncp.Ctx, conn nncp.ConnDeadlined, nice uint8) *nncp.SPState
 		}, "")
 	} else {
 		nodeId := "unknown"
-		if state.Node != nil {
+		if state.Node == nil {
+			nodeIdC <- nil
+		} else {
+			nodeIdC <- state.Node.Id
 			nodeId = state.Node.Id.String()
 		}
 		ctx.LogE("call-start", nncp.SDS{"node": nodeId}, err, "")
 	}
-	return &state
+	close(nodeIdC)
 }
 
 func main() {
@@ -108,12 +117,12 @@ func main() {
 		version   = flag.Bool("version", false, "Print version information")
 		warranty  = flag.Bool("warranty", false, "Print warranty information")
 
-		autotoss       = flag.Bool("autotoss", false, "Toss after call is finished")
-		autotossDoSeen = flag.Bool("autotoss-seen", false, "Create .seen files during tossing")
-		autotossNoFile = flag.Bool("autotoss-nofile", false, "Do not process \"file\" packets during tossing")
-		autotossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
-		autotossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
-		autotossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
+		autoToss       = flag.Bool("autotoss", false, "Toss after call is finished")
+		autoTossDoSeen = flag.Bool("autotoss-seen", false, "Create .seen files during tossing")
+		autoTossNoFile = flag.Bool("autotoss-nofile", false, "Do not process \"file\" packets during tossing")
+		autoTossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
+		autoTossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
+		autoTossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -150,7 +159,10 @@ func main() {
 	if *inetd {
 		os.Stderr.Close() // #nosec G104
 		conn := &InetdConn{os.Stdin, os.Stdout}
-		performSP(ctx, conn, nice)
+		nodeIdC := make(chan *nncp.NodeId)
+		go performSP(ctx, conn, nice, nodeIdC)
+		<-nodeIdC    // nodeId
+		<-nodeIdC    // call completion
 		conn.Close() // #nosec G104
 		return
 	}
@@ -167,20 +179,28 @@ func main() {
 		}
 		ctx.LogD("daemon", nncp.SDS{"addr": conn.RemoteAddr()}, "accepted")
 		go func(conn net.Conn) {
-			state := performSP(ctx, conn, nice)
-			conn.Close() // #nosec G104
-			if *autotoss && state.Node != nil {
-				ctx.Toss(
-					state.Node.Id,
+			nodeIdC := make(chan *nncp.NodeId)
+			go performSP(ctx, conn, nice, nodeIdC)
+			nodeId := <-nodeIdC
+			var autoTossFinish chan struct{}
+			var autoTossBadCode chan bool
+			if *autoToss && nodeId != nil {
+				autoTossFinish, autoTossBadCode = ctx.AutoToss(
+					nodeId,
 					nice,
-					false,
-					*autotossDoSeen,
-					*autotossNoFile,
-					*autotossNoFreq,
-					*autotossNoExec,
-					*autotossNoTrns,
+					*autoTossDoSeen,
+					*autoTossNoFile,
+					*autoTossNoFreq,
+					*autoTossNoExec,
+					*autoTossNoTrns,
 				)
 			}
+			<-nodeIdC // call completion
+			if *autoToss {
+				close(autoTossFinish)
+				<-autoTossBadCode
+			}
+			conn.Close() // #nosec G104
 		}(conn)
 	}
 }

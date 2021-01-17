@@ -33,6 +33,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
@@ -425,4 +426,27 @@ func (ctx *Ctx) Toss(
 		pipeR.Close() // #nosec G104
 	}
 	return isBad
+}
+
+func (ctx *Ctx) AutoToss(
+	nodeId *NodeId,
+	nice uint8,
+	doSeen, noFile, noFreq, noExec, noTrns bool,
+) (chan struct{}, chan bool) {
+	finish := make(chan struct{})
+	badCode := make(chan bool)
+	go func() {
+		bad := false
+		for {
+			select {
+			case <-finish:
+				badCode <- bad
+				break
+			default:
+			}
+			time.Sleep(time.Second)
+			bad = !ctx.Toss(nodeId, nice, false, doSeen, noFile, noFreq, noExec, noTrns)
+		}
+	}()
+	return finish, badCode
 }

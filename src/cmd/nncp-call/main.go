@@ -59,12 +59,12 @@ func main() {
 		onlineDeadlineSec = flag.Uint("onlinedeadline", 0, "Override onlinedeadline option")
 		maxOnlineTimeSec  = flag.Uint("maxonlinetime", 0, "Override maxonlinetime option")
 
-		autotoss       = flag.Bool("autotoss", false, "Toss after call is finished")
-		autotossDoSeen = flag.Bool("autotoss-seen", false, "Create .seen files during tossing")
-		autotossNoFile = flag.Bool("autotoss-nofile", false, "Do not process \"file\" packets during tossing")
-		autotossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
-		autotossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
-		autotossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
+		autoToss       = flag.Bool("autotoss", false, "Toss after call is finished")
+		autoTossDoSeen = flag.Bool("autotoss-seen", false, "Create .seen files during tossing")
+		autoTossNoFile = flag.Bool("autotoss-nofile", false, "Do not process \"file\" packets during tossing")
+		autoTossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
+		autoTossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
+		autoTossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -160,6 +160,21 @@ func main() {
 	}
 
 	ctx.Umask()
+
+	var autoTossFinish chan struct{}
+	var autoTossBadCode chan bool
+	if *autoToss {
+		autoTossFinish, autoTossBadCode = ctx.AutoToss(
+			node.Id,
+			nice,
+			*autoTossDoSeen,
+			*autoTossNoFile,
+			*autoTossNoFreq,
+			*autoTossNoExec,
+			*autoTossNoTrns,
+		)
+	}
+
 	badCode := !ctx.CallNode(
 		node,
 		addrs,
@@ -172,17 +187,10 @@ func main() {
 		*listOnly,
 		onlyPkts,
 	)
-	if *autotoss {
-		badCode = ctx.Toss(
-			node.Id,
-			nice,
-			false,
-			*autotossDoSeen,
-			*autotossNoFile,
-			*autotossNoFreq,
-			*autotossNoExec,
-			*autotossNoTrns,
-		) || badCode
+
+	if *autoToss {
+		close(autoTossFinish)
+		badCode = (<-autoTossBadCode) || badCode
 	}
 	if badCode {
 		os.Exit(1)
