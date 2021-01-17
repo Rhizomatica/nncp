@@ -33,6 +33,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
@@ -99,11 +100,9 @@ func (ctx *Ctx) Toss(
 			)
 			job.Fd.Close() // #nosec G104
 			if err != nil {
-				ctx.LogE("rx", sds, err, "decryption")
 				return pipeW.CloseWithError(err)
 			}
 			if err = pipeWB.Flush(); err != nil {
-				ctx.LogE("rx", sds, err, "decryption flush")
 				return pipeW.CloseWithError(err)
 			}
 			return pipeW.Close()
@@ -156,7 +155,7 @@ func (ctx *Ctx) Toss(
 			if !dryRun {
 				cmd := exec.Command(
 					cmdline[0],
-					append(cmdline[1:len(cmdline)], args...)...,
+					append(cmdline[1:], args...)...,
 				)
 				cmd.Env = append(
 					cmd.Env,
@@ -183,7 +182,7 @@ func (ctx *Ctx) Toss(
 					if exists {
 						cmd := exec.Command(
 							sendmail[0],
-							append(sendmail[1:len(sendmail)], notify.To)...,
+							append(sendmail[1:], notify.To)...,
 						)
 						cmd.Stdin = newNotification(notify, fmt.Sprintf(
 							"Exec from %s: %s", sender.Name, argsStr,
@@ -304,7 +303,7 @@ func (ctx *Ctx) Toss(
 				if len(sendmail) > 0 && ctx.NotifyFile != nil {
 					cmd := exec.Command(
 						sendmail[0],
-						append(sendmail[1:len(sendmail)], ctx.NotifyFile.To)...,
+						append(sendmail[1:], ctx.NotifyFile.To)...,
 					)
 					cmd.Stdin = newNotification(ctx.NotifyFile, fmt.Sprintf(
 						"File from %s: %s (%s)",
@@ -373,7 +372,7 @@ func (ctx *Ctx) Toss(
 				if len(sendmail) > 0 && ctx.NotifyFreq != nil {
 					cmd := exec.Command(
 						sendmail[0],
-						append(sendmail[1:len(sendmail)], ctx.NotifyFreq.To)...,
+						append(sendmail[1:], ctx.NotifyFreq.To)...,
 					)
 					cmd.Stdin = newNotification(ctx.NotifyFreq, fmt.Sprintf(
 						"Freq from %s: %s", sender.Name, src,
@@ -425,4 +424,27 @@ func (ctx *Ctx) Toss(
 		pipeR.Close() // #nosec G104
 	}
 	return isBad
+}
+
+func (ctx *Ctx) AutoToss(
+	nodeId *NodeId,
+	nice uint8,
+	doSeen, noFile, noFreq, noExec, noTrns bool,
+) (chan struct{}, chan bool) {
+	finish := make(chan struct{})
+	badCode := make(chan bool)
+	go func() {
+		bad := false
+		for {
+			select {
+			case <-finish:
+				badCode <- bad
+				break
+			default:
+			}
+			time.Sleep(time.Second)
+			bad = !ctx.Toss(nodeId, nice, false, doSeen, noFile, noFreq, noExec, noTrns)
+		}
+	}()
+	return finish, badCode
 }

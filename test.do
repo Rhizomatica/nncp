@@ -1,7 +1,6 @@
-redo-ifchange config gopath module-name
+redo-ifchange config
 exec >&2
 . ./config
-. ./gopath
-mod=`cat module-name`
 cd src
-GOPATH=$GOPATH ${GO:-go} test -failfast $mod/...
+GO=${GO:-go}
+$GO test -failfast ./...

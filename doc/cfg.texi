@@ -142,7 +142,7 @@ Dictionary consisting of handles and corresponding command line
 arguments. In example above there are @command{sendmail} handles,
 @command{warcer}, @command{wgeter} and @command{flag} one. Remote node
 can queue some handle execution with providing additional command line
-arguments and the body fed to command's stdin.
+arguments and the body fed to command's @code{stdin}.
 
 @verb{|sendmail: ["/usr/sbin/sendmail", "-t"]|} handle, when called by
 @verb{|echo hello world | nncp-exec OURNODE sendmail ARG0 ARG1 ARG2|}
@@ -190,9 +190,9 @@ human-readable name of the address. For direct TCP connections use
 @verb{|host:port|} format, pointing to @ref{nncp-daemon}'s listening
 instance. Also you can pipe connection through the external command
 using @verb{#|some command#} format. @code{/bin/sh -c "some command"}
-will start and its stdin/stdout used as a connection. May be omitted if
-either no direct connection exists, or @ref{nncp-call} is used with
-forced address specifying.
+will start and its @code{stdin}/@code{stdout} used as a connection. May
+be omitted if either no direct connection exists, or @ref{nncp-call} is
+used with forced address specifying.
 
 @anchor{CfgXxRate}
 @item rxrate/txrate
