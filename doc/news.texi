@@ -3,6 +3,28 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.6.0
+@section Release 5.6.0
+@itemize
+
+@item
+@option{-autotoss*} option runs tosser not after the call, but every
+second while it is active.
+
+@item
+@option{autotoss}, @option{autotoss-doseen},
+@option{autotoss-nofile}, @option{autotoss-nofreq},
+@option{autotoss-noexec}, @option{autotoss-notrns} options available in
+@option{calls} configuration section. You can configure per-call
+automatic tosser options.
+
+@item
+Use vendoring, instead of @env{GOPATH} overriding during tarball
+installation, because current minimal Go's version is 1.12 and it
+supports modules.
+
+@end itemize
+
 @node Release 5.5.1
 @section Release 5.5.1
 @itemize
@@ -435,9 +457,10 @@ are not supported.
 
 @item
 @command{nncp-bundle} command can either create stream of encrypted
-packets, or digest it. It is useful when dealing with stdin/stdout based
-transmission methods (like writing to CD-ROM without intermediate
-prepared ISO image and working with tape drives).
+packets, or digest it. It is useful when dealing with
+@code{stdin}/@code{stdout} based transmission methods (like writing to
+CD-ROM without intermediate prepared ISO image and working with tape
+drives).
 
 @item
 @command{nncp-toss} is able to create @file{.seen} files preventing
@@ -499,8 +522,8 @@ option for unchunked transfer was not in KiBs, but in bytes.
 @itemize
 
 @item
-Ability to feed @command{nncp-file} from stdin, that uses an encrypted
-temporary file for that.
+Ability to feed @command{nncp-file} from @code{stdin}, that uses an
+encrypted temporary file for that.
 
 @item
 Chunked files transmission appeared with corresponding

@@ -81,6 +81,13 @@ type CallJSON struct {
 	Addr           *string `json:"addr,omitempty"`
 	OnlineDeadline *uint   `json:"onlinedeadline,omitempty"`
 	MaxOnlineTime  *uint   `json:"maxonlinetime,omitempty"`
+
+	AutoToss       *bool `json:"autotoss,omitempty"`
+	AutoTossDoSeen *bool `json:"autotoss-doseen,omitempty"`
+	AutoTossNoFile *bool `json:"autotoss-nofile,omitempty"`
+	AutoTossNoFreq *bool `json:"autotoss-nofreq,omitempty"`
+	AutoTossNoExec *bool `json:"autotoss-noexec,omitempty"`
+	AutoTossNoTrns *bool `json:"autotoss-notrns,omitempty"`
 }
 
 type NodeOurJSON struct {
@@ -260,12 +267,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 			onlineDeadline = time.Duration(*callCfg.OnlineDeadline) * time.Second
 		}
 
-		var maxOnlineTime time.Duration
-		if callCfg.MaxOnlineTime != nil {
-			maxOnlineTime = time.Duration(*callCfg.MaxOnlineTime) * time.Second
-		}
-
-		calls = append(calls, &Call{
+		call := Call{
 			Cron:           expr,
 			Nice:           nice,
 			Xx:             xx,
@@ -273,8 +275,31 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 			TxRate:         txRate,
 			Addr:           addr,
 			OnlineDeadline: onlineDeadline,
-			MaxOnlineTime:  maxOnlineTime,
-		})
+		}
+
+		if callCfg.MaxOnlineTime != nil {
+			call.MaxOnlineTime = time.Duration(*callCfg.MaxOnlineTime) * time.Second
+		}
+		if callCfg.AutoToss != nil {
+			call.AutoToss = *callCfg.AutoToss
+		}
+		if callCfg.AutoTossDoSeen != nil {
+			call.AutoTossDoSeen = *callCfg.AutoTossDoSeen
+		}
+		if callCfg.AutoTossNoFile != nil {
+			call.AutoTossNoFile = *callCfg.AutoTossNoFile
+		}
+		if callCfg.AutoTossNoFreq != nil {
+			call.AutoTossNoFreq = *callCfg.AutoTossNoFreq
+		}
+		if callCfg.AutoTossNoExec != nil {
+			call.AutoTossNoExec = *callCfg.AutoTossNoExec
+		}
+		if callCfg.AutoTossNoTrns != nil {
+			call.AutoTossNoTrns = *callCfg.AutoTossNoTrns
+		}
+
+		calls = append(calls, &call)
 	}
 
 	node := Node{

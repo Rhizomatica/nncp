@@ -210,6 +210,13 @@ func main() {
     #   #     txrate: 20
     #   #     xx: rx
     #   #     addr: lan
+    #   #
+    #   #     autotoss: false
+    #   #     autotoss-doseen: true
+    #   #     autotoss-nofile: true
+    #   #     autotoss-nofreq: true
+    #   #     autotoss-noexec: true
+    #   #     autotoss-notrns: true
     #   #   },
     #   # ]
     # }

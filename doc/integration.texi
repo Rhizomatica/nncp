@@ -243,7 +243,7 @@ exec: @{
 @}
 @end example
 
-The -bS option is what tells Exim to receive BSMTP on stdin.
+The -bS option is what tells Exim to receive BSMTP on @code{stdin}.
 
 Now, you need to tell Exim that nncp is a trusted user (able to set From
 headers arbitrarily). Assuming you are running NNCP as the nncp user,
