@@ -53,10 +53,10 @@ $ nncp-bundle [options] -rx [-check] [-dryrun] [NODE ...] < ...
 
 With @option{-tx} option, this command creates @ref{Bundles, bundle} of
 @ref{Encrypted, encrypted packets} from the spool directory and writes
-it to stdout.
+it to @code{stdout}.
 
-With @option{-rx} option, this command takes bundle from stdin and
-copies all found packets for our node to the spool directory. Pay
+With @option{-rx} option, this command takes bundle from @code{stdin}
+and copies all found packets for our node to the spool directory. Pay
 attention that @strong{no} integrity checking is done by default. Modern
 tape drives could easily provide too much throughput your CPU won't be
 able to verify on the fly. So if you won't @ref{nncp-toss, toss}
@@ -73,7 +73,7 @@ When packets are sent through the stream, they are still kept in the
 spool directory, because there is no assurance that they are transferred
 to the media (media (CD-ROM, tape drive, raw hard drive) can end). If
 you want to forcefully delete them (after they are successfully flushed
-to stdout) anyway, use @option{-delete} option.
+to @code{stdout}) anyway, use @option{-delete} option.
 
 But you can verify produced stream after, by digesting it by yourself
 with @option{-rx} and @option{-delete} options -- in that mode, stream
@@ -219,8 +219,8 @@ $ nncp-cfgnew [options] [-nocomments] > new.hjson
 @end example
 
 Generate new node configuration: private keys, example configuration
-file and print it to stdout. You must use this command when you setup
-the new node. @option{-nocomments} will create configuration file
+file and print it to @code{stdout}. You must use this command when you
+setup the new node. @option{-nocomments} will create configuration file
 without descriptive huge comments -- useful for advanced users.
 
 Pay attention that private keys generation consumes an entropy from your
@@ -255,9 +255,10 @@ can handle. @option{-bind} option specifies @option{addr:port} it must
 bind to and listen.
 
 It could be run as @command{inetd} service, by specifying
-@option{-inetd} option. Pay attention that because it uses stdin/stdout,
-it can not effectively work with IO timeouts and connection closing can
-propagate up to 5 minutes in practice. Example inetd-entry:
+@option{-inetd} option. Pay attention that because it uses
+@code{stdin}/@code{stdout}, it can not effectively work with IO timeouts
+and connection closing can propagate up to 5 minutes in practice.
+Example inetd-entry:
 
 @verbatim
 uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -inetd
@@ -326,9 +327,9 @@ This command queues file in @ref{Spool, spool} directory immediately
 2 GiB file will create 2 GiB outbound encrypted packet.
 
 If @file{SRC} equals to @file{-}, then create an encrypted temporary
-file and copy everything taken from stdin to it and use for outbound
+file and copy everything taken from @code{stdin} to it and use for outbound
 packet creation. Pay attention that if you want to send 1 GiB of data
-taken from stdin, then you have to have more than 2 GiB of disk space
+taken from @code{stdin}, then you have to have more than 2 GiB of disk space
 for that temporary file and resulting encrypted packet. You can control
 where temporary file will be stored using @env{TMPDIR} environment
 variable. Encryption is performed in AEAD mode with
@@ -402,7 +403,7 @@ Sender: 2WHBV3TPZHDOZGUJEH563ZEK7M33J4UESRFO4PDKWD5KZNPROABQ
 @end example
 
 If you specify @option{-dump} option and provide an @ref{Encrypted,
-encrypted} packet, then it will verify and decrypt it to stdout.
+encrypted} packet, then it will verify and decrypt it to @code{stdout}.
 Encrypted packets contain @ref{Plain, plain} ones, that also can be fed
 to @command{nncp-pkt}:
 
@@ -461,10 +462,10 @@ If @option{-keep} option is specified, then no
 @file{.nncp.meta}/@file{.nncp.chunkXXX} files are deleted during
 reassembly process.
 
-@option{-stdout} option outputs reassembled file to stdout, instead of
-saving to temporary file with renaming after. This could be useful for
-reassembling on separate filesystem to lower fragmentation effect,
-and/or separate storage device for higher performance.
+@option{-stdout} option outputs reassembled file to @code{stdout},
+instead of saving to temporary file with renaming after. This could be
+useful for reassembling on separate filesystem to lower fragmentation
+effect, and/or separate storage device for higher performance.
 
 @option{-dump} option prints meta-file contents in human-friendly form.
 It is useful mainly for debugging purposes. For example:
