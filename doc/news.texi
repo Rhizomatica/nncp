@@ -18,6 +18,11 @@ second while it is active.
 @option{calls} configuration section. You can configure per-call
 automatic tosser options.
 
+@item
+Use vendoring, instead of @env{GOPATH} overriding during tarball
+installation, because current minimal Go's version is 1.12 and it
+supports modules.
+
 @end itemize
 
 @node Release 5.5.1
