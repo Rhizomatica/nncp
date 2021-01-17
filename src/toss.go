@@ -100,11 +100,9 @@ func (ctx *Ctx) Toss(
 			)
 			job.Fd.Close() // #nosec G104
 			if err != nil {
-				ctx.LogE("rx", sds, err, "decryption")
 				return pipeW.CloseWithError(err)
 			}
 			if err = pipeWB.Flush(); err != nil {
-				ctx.LogE("rx", sds, err, "decryption flush")
 				return pipeW.CloseWithError(err)
 			}
 			return pipeW.Close()
