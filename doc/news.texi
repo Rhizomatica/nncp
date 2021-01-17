@@ -11,6 +11,13 @@ See also this page @ref{Новости, on russian}.
 @option{-autotoss*} option runs tosser not after the call, but every
 second while it is active.
 
+@item
+@option{autotoss}, @option{autotoss-doseen},
+@option{autotoss-nofile}, @option{autotoss-nofreq},
+@option{autotoss-noexec}, @option{autotoss-notrns} options available in
+@option{calls} configuration section. You can configure per-call
+automatic tosser options.
+
 @end itemize
 
 @node Release 5.5.1

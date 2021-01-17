@@ -9,6 +9,13 @@
 @option{-autotoss*} опции запускают tosser не после завершения вызова, а
 во время него ежесекундно.
 
+@item
+В @option{calls} секции конфигурации появились опции
+@option{autotoss}, @option{autotoss-doseen},
+@option{autotoss-nofile}, @option{autotoss-nofreq},
+@option{autotoss-noexec}, @option{autotoss-notrns}.
+Вы можете настраивать опции автоматического tosser для каждого вызова.
+
 @end itemize
 
 @node Релиз 5.5.1

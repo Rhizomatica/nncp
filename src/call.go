@@ -33,6 +33,13 @@ type Call struct {
 	Addr           *string
 	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
+
+	AutoToss       bool
+	AutoTossDoSeen bool
+	AutoTossNoFile bool
+	AutoTossNoFreq bool
+	AutoTossNoExec bool
+	AutoTossNoTrns bool
 }
 
 func (ctx *Ctx) CallNode(

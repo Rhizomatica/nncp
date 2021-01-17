@@ -11,6 +11,9 @@ calls: [
         cron: "*/1 * * * MON-FRI"
         onlinedeadline: 3600
         nice: PRIORITY+10
+
+        autotoss: true
+        autotoss-doseen: true
     },
     {
         cron: "30 * * * SAT,SUN"
@@ -184,5 +187,10 @@ configuration option when calling.
 @item maxonlinetime
 Optional. Override @ref{CfgMaxOnlineTime, @emph{maxonlinetime}}
 configuration option when calling.
+
+@item autotoss, -doseen, -nofile, -nofreq, -noexec, -notrns
+Optionally enable auto tossing: run tosser on node's spool every second
+during the call. You can control either are @file{.seen} files must be
+created, or skip any kind of packet processing.
 
 @end table
