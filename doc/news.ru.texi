@@ -16,6 +16,11 @@
 @option{autotoss-noexec}, @option{autotoss-notrns}.
 Вы можете настраивать опции автоматического tosser для каждого вызова.
 
+@item
+Использовать vendoring вместо переопределения @env{GOPATH} во время
+установки tarball, так как текущая минимальная версия Go это 1.12,
+поддерживающая модули.
+
 @end itemize
 
 @node Релиз 5.5.1

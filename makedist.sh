@@ -8,109 +8,26 @@ release=$1
 git clone . $tmp/nncp-$release
 cd $tmp/nncp-$release
 git checkout v$release
-redo module-name VERSION
-rm -r .redo
-mod_name=`cat module-name`
-rm -fr .git
-
-mv src src.orig
-mkdir -p src/$mod_name
-mv src.orig/* src/$mod_name
-rmdir src.orig
-
-mods="
-github.com/davecgh/go-xdr
-github.com/dustin/go-humanize
-github.com/flynn/noise
-github.com/gorhill/cronexpr
-github.com/hjson/hjson-go
-github.com/klauspost/compress
-go.cypherpunks.ru/balloon
-golang.org/x/crypto
-golang.org/x/net
-golang.org/x/sys
-golang.org/x/term
-"
-for mod in $mods; do
-    mod_path=$(sed -n "s# // indirect## ; s#^	\($mod\) \(.*\)\$#\1@\2#p" src/$mod_name/go.mod)
-    [ -n "$mod_path" ]
-    mkdir -p src/$mod
-    ( cd $GOPATH/pkg/mod/$mod_path ; tar cf - --exclude ".git*" * ) | tar xfC - src/$mod
-    chmod -R +w src/$mod
-done
-
-cat > $tmp/includes <<EOF
-golang.org/x/crypto/AUTHORS
-golang.org/x/crypto/blake2b
-golang.org/x/crypto/blake2s
-golang.org/x/crypto/chacha20
-golang.org/x/crypto/chacha20poly1305
-golang.org/x/crypto/CONTRIBUTORS
-golang.org/x/crypto/curve25519
-golang.org/x/crypto/ed25519
-golang.org/x/crypto/go.mod
-golang.org/x/crypto/go.sum
-golang.org/x/crypto/internal/subtle
-golang.org/x/crypto/LICENSE
-golang.org/x/crypto/nacl
-golang.org/x/crypto/PATENTS
-golang.org/x/crypto/poly1305
-golang.org/x/crypto/README.md
-golang.org/x/crypto/salsa20
-golang.org/x/net/AUTHORS
-golang.org/x/net/CONTRIBUTORS
-golang.org/x/net/go.mod
-golang.org/x/net/go.sum
-golang.org/x/net/LICENSE
-golang.org/x/net/netutil
-golang.org/x/net/PATENTS
-golang.org/x/net/README.md
-golang.org/x/sys/AUTHORS
-golang.org/x/sys/CONTRIBUTORS
-golang.org/x/sys/cpu
-golang.org/x/sys/go.mod
-golang.org/x/sys/internal/unsafeheader
-golang.org/x/sys/LICENSE
-golang.org/x/sys/PATENTS
-golang.org/x/sys/README.md
-golang.org/x/sys/unix
-golang.org/x/term
-EOF
-tar cfCI - src $tmp/includes | tar xfC - $tmp
-rm -fr src/golang.org $tmp/includes
-mv $tmp/golang.org src
-
-cat > $tmp/includes <<EOF
-compress/compressible.go
-compress/fse
-compress/huff0
-compress/LICENSE
-compress/README.md
-compress/zstd
-EOF
-cat > $tmp/excludes <<EOF
-*testdata*
-*_test.go
-snappy.go
-EOF
-tar cfCIX - src/github.com/klauspost $tmp/includes $tmp/excludes | tar xfC - $tmp
-rm -fr src/github.com/klauspost/compress $tmp/includes $tmp/excludes
-mv $tmp/compress src/github.com/klauspost
-
-find src -name .travis.yml -delete
-rm -fr src/github.com/davecgh/go-xdr/xdr
-rm -r src/github.com/flynn/noise/vector*
-rm src/github.com/hjson/hjson-go/build_release.sh
-rm src/github.com/gorhill/cronexpr/APLv2
-rm -fr ports
-find . -name .gitignore -delete
-rm makedist.sh module-name.do VERSION.do
+redo VERSION
+cd src
+go mod vendor
+modvendor -v -copy="**/*_test.go **/words.go **/README.md **/main.go"
+cd vendor
+rm -r \
+    github.com/flynn/noise/vector* \
+    github.com/gorhill/cronexpr/APLv2 \
+    github.com/hjson/hjson-go/build_release.sh \
+    github.com/klauspost/compress/snappy \
+    github.com/klauspost/compress/zstd/snappy.go \
+    golang.org/x/sys/plan9 \
+    golang.org/x/sys/windows
+find github.com/klauspost/compress golang.org/x/sys -name "*_test.go" -delete
+cd ../..
+rm -r ports
+find . \( -name .gitignore -o -name .travis.yml \) -delete
 
 mkdir contrib
 cp ~/work/redo/minimal/do contrib/do
-echo echo GOPATH=\`pwd\` > gopath.do
-
-perl -p -i -e "s#src/#src/$mod_name/#g" bin/default.do
 
 cat > doc/download.texi <<EOF
 @node Tarballs
@@ -181,11 +98,16 @@ rm -r doc/.well-known doc/nncp.html/.well-known
 
 ########################################################################
 
-rm -r .redo doc/.redo
+perl -i -npe "s/GO build/GO build -mod=vendor/" bin/default.do
+perl -i -npe "s/GO list/GO list -mod=vendor/" bin/default.do
+perl -i -npe "s/GO test/GO test -mod=vendor/" test.do
+rm makedist.sh VERSION.do
+rm -r .git
+redo-cleanup full
 find . -type d -exec chmod 755 {} \;
 find . -type f -exec chmod 644 {} \;
-find . -type f -name "*.sh" -exec chmod 755 {} \;
-chmod 755 contrib/do
+find . -type f -name "*.sh" -exec chmod +x {} \;
+chmod +x contrib/do
 
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"

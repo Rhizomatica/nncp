@@ -1,12 +1,10 @@
-cd ..
-redo-ifchange config gopath module-name
-. ./config
-. ./gopath
-mod=`cat module-name`
-redo-ifchange src/*.go src/cmd/$1/*.go
+cd ../src
+redo-ifchange ../config *.go cmd/$1/*.go
+. ../config
+GO=${GO:-go}
+mod=`$GO list -m`
 GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultCfgPath=$CFGPATH"
 GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultSendmailPath=$SENDMAIL"
 GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultSpoolPath=$SPOOLPATH"
 GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultLogPath=$LOGPATH"
-cd src
-GOPATH=$GOPATH ${GO:-go} build -o ../bin/$3 -ldflags "$GO_LDFLAGS" $mod/cmd/$1
+$GO build -o ../bin/$3 -ldflags "$GO_LDFLAGS" ./cmd/$1

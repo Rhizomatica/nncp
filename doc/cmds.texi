@@ -284,7 +284,7 @@ appended and decompressed body fed to command's @code{stdin}.
 If @option{-use-tmp} option is specified, then @code{stdin} data is read
 into temporary file first, requiring twice more disk space, but no
 memory requirements. @ref{StdinTmpFile, Same temporary file} rules
-applies as with @ref{nncp-file -} command.
+applies as with @ref{nncp-file, nncp-file -} command.
 
 For example, if remote side has following configuration file for your
 node:
