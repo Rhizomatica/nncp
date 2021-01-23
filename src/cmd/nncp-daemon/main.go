@@ -161,8 +161,25 @@ func main() {
 		conn := &InetdConn{os.Stdin, os.Stdout}
 		nodeIdC := make(chan *nncp.NodeId)
 		go performSP(ctx, conn, nice, nodeIdC)
-		<-nodeIdC    // nodeId
-		<-nodeIdC    // call completion
+		nodeId := <-nodeIdC
+		var autoTossFinish chan struct{}
+		var autoTossBadCode chan bool
+		if *autoToss && nodeId != nil {
+			autoTossFinish, autoTossBadCode = ctx.AutoToss(
+				nodeId,
+				nice,
+				*autoTossDoSeen,
+				*autoTossNoFile,
+				*autoTossNoFreq,
+				*autoTossNoExec,
+				*autoTossNoTrns,
+			)
+		}
+		<-nodeIdC // call completion
+		if *autoToss {
+			close(autoTossFinish)
+			<-autoTossBadCode
+		}
 		conn.Close() // #nosec G104
 		return
 	}

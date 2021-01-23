@@ -3,6 +3,16 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 5.7.0
+@section Release 5.7.0
+@itemize
+
+@item
+@option{-autotoss*} option workability with @command{nncp-daemon}'s
+@option{-inetd} mode.
+
+@end itemize
+
 @node Release 5.6.0
 @section Release 5.6.0
 @itemize

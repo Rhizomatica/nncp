@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 5.7.0
+@subsection Релиз 5.7.0
+@itemize
+
+@item
+Работоспособность @option{-autotoss*} опции с @option{-inetd} режимом
+@command{nncp-daemon}.
+
+@end itemize
+
 @node Релиз 5.6.0
 @subsection Релиз 5.6.0
 @itemize
