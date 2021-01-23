@@ -86,7 +86,7 @@ func main() {
 				log.Fatalln("Invalid NODE specified:", err)
 			}
 			if len(node.Calls) == 0 {
-				ctx.LogD("caller", nncp.SDS{"node": node.Id}, "has no calls, skipping")
+				ctx.LogD("caller", nncp.LEs{{K: "Node", V: node.Id}}, "has no calls, skipping")
 				continue
 			}
 			nodes = append(nodes, node)
@@ -94,7 +94,7 @@ func main() {
 	} else {
 		for _, node := range ctx.Neigh {
 			if len(node.Calls) == 0 {
-				ctx.LogD("caller", nncp.SDS{"node": node.Id}, "has no calls, skipping")
+				ctx.LogD("caller", nncp.LEs{{K: "Node", V: node.Id}}, "has no calls, skipping")
 				continue
 			}
 			nodes = append(nodes, node)
@@ -115,24 +115,43 @@ func main() {
 				} else {
 					addrs = append(addrs, *call.Addr)
 				}
-				sds := nncp.SDS{"node": node.Id, "callindex": i}
+				les := nncp.LEs{{K: "Node", V: node.Id}, {K: "CallIndex", V: i}}
 				for {
 					n := time.Now()
 					t := call.Cron.Next(n)
-					ctx.LogD("caller", sds, t.String())
+					ctx.LogD("caller", les, t.String())
 					if t.IsZero() {
-						ctx.LogE("caller", sds, errors.New("got zero time"), "")
+						ctx.LogE("caller", les, errors.New("got zero time"), "")
 						return
 					}
 					time.Sleep(t.Sub(n))
 					node.Lock()
 					if node.Busy {
 						node.Unlock()
-						ctx.LogD("caller", sds, "busy")
+						ctx.LogD("caller", les, "busy")
 						continue
 					} else {
 						node.Busy = true
 						node.Unlock()
+
+						if call.WhenTxExists && call.Xx != "TRx" {
+							ctx.LogD("caller", les, "checking tx existence")
+							txExists := false
+							for job := range ctx.Jobs(node.Id, nncp.TTx) {
+								job.Fd.Close()
+								if job.PktEnc.Nice > call.Nice {
+									continue
+								}
+								txExists = true
+							}
+							if !txExists {
+								ctx.LogD("caller", les, "no tx")
+								node.Lock()
+								node.Busy = false
+								node.Unlock()
+								continue
+							}
+						}
 
 						var autoTossFinish chan struct{}
 						var autoTossBadCode chan bool

@@ -26,7 +26,7 @@ import (
 
 func (ctx *Ctx) LockDir(nodeId *NodeId, lockCtx string) (*os.File, error) {
 	if err := ctx.ensureRxDir(nodeId); err != nil {
-		ctx.LogE("lockdir", SDS{}, err, "")
+		ctx.LogE("lockdir", LEs{}, err, "")
 		return nil, err
 	}
 	lockPath := filepath.Join(ctx.Spool, nodeId.String(), lockCtx) + ".lock"
@@ -36,12 +36,12 @@ func (ctx *Ctx) LockDir(nodeId *NodeId, lockCtx string) (*os.File, error) {
 		os.FileMode(0666),
 	)
 	if err != nil {
-		ctx.LogE("lockdir", SDS{"path": lockPath}, err, "")
+		ctx.LogE("lockdir", LEs{{"path", lockPath}}, err, "")
 		return nil, err
 	}
 	err = unix.Flock(int(dirLock.Fd()), unix.LOCK_EX|unix.LOCK_NB)
 	if err != nil {
-		ctx.LogE("lockdir", SDS{"path": lockPath}, err, "")
+		ctx.LogE("lockdir", LEs{{"path", lockPath}}, err, "")
 		dirLock.Close() // #nosec G104
 		return nil, err
 	}

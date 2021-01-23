@@ -9,6 +9,7 @@ require (
 	github.com/klauspost/compress v1.11.4
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	go.cypherpunks.ru/balloon v1.1.1
+	go.cypherpunks.ru/recfile v0.4.3
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	golang.org/x/sys v0.0.0-20210105210732-16f7687f5001

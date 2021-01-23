@@ -18,54 +18,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"bytes"
 	"fmt"
 	"os"
-	"sort"
-	"strings"
 	"time"
 
+	"go.cypherpunks.ru/recfile"
 	"golang.org/x/sys/unix"
 )
 
-type LogLevel string
+type LE struct {
+	K string
+	V interface{}
+}
+type LEs []LE
 
-type SDS map[string]interface{}
-
-func sdFmt(who string, sds SDS) string {
-	keys := make([]string, 0, len(sds))
-	for k, _ := range sds {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	result := make([]string, 0, 1+len(keys))
-	result = append(result, "["+who)
-	for _, k := range keys {
-		var value string
-		switch v := sds[k].(type) {
+func (les LEs) Rec() string {
+	fields := make([]recfile.Field, 0, len(les)+1)
+	fields = append(fields, recfile.Field{
+		Name: "When", Value: time.Now().UTC().Format(time.RFC3339Nano),
+	})
+	var val string
+	for _, le := range les {
+		switch v := le.V.(type) {
 		case int, int8, uint8, int64, uint64:
-			value = fmt.Sprintf("%d", v)
+			val = fmt.Sprintf("%d", v)
 		default:
-			value = fmt.Sprintf("%s", v)
+			val = fmt.Sprintf("%s", v)
 		}
-		result = append(result, fmt.Sprintf(`%s="%s"`, k, value))
+		fields = append(fields, recfile.Field{Name: le.K, Value: val})
 	}
-	return strings.Join(result, " ") + "]"
+	b := bytes.NewBuffer(make([]byte, 0, 1<<10))
+	w := recfile.NewWriter(b)
+	_, err := w.RecordStart()
+	if err != nil {
+		panic(err)
+	}
+	_, err = w.WriteFields(fields...)
+	if err != nil {
+		panic(err)
+	}
+	return b.String()
 }
 
-func msgFmt(level LogLevel, who string, sds SDS, msg string) string {
-	result := fmt.Sprintf(
-		"%s %s %s",
-		level,
-		time.Now().UTC().Format(time.RFC3339Nano),
-		sdFmt(who, sds),
-	)
-	if len(msg) > 0 {
-		result += " " + msg
-	}
-	return result + "\n"
-}
-
-func (ctx *Ctx) Log(msg string) {
+func (ctx *Ctx) Log(rec string) {
 	fdLock, err := os.OpenFile(
 		ctx.LogPath+".lock",
 		os.O_CREATE|os.O_WRONLY,
@@ -92,42 +88,41 @@ func (ctx *Ctx) Log(msg string) {
 		fmt.Fprintln(os.Stderr, "Can not open log:", err)
 		return
 	}
-	fd.WriteString(msg) // #nosec G104
+	fd.WriteString(rec) // #nosec G104
 	fd.Close()          // #nosec G104
 }
 
-func (ctx *Ctx) LogD(who string, sds SDS, msg string) {
+func (ctx *Ctx) LogD(who string, les LEs, msg string) {
 	if !ctx.Debug {
 		return
 	}
-	fmt.Fprint(os.Stderr, msgFmt(LogLevel("D"), who, sds, msg))
+	les = append(LEs{{"Debug", true}, {"Who", who}}, les...)
+	if msg != "" {
+		les = append(les, LE{"Msg", msg})
+	}
+	fmt.Fprint(os.Stderr, les.Rec())
 }
 
-func (ctx *Ctx) LogI(who string, sds SDS, msg string) {
-	msg = msgFmt(LogLevel("I"), who, sds, msg)
+func (ctx *Ctx) LogI(who string, les LEs, msg string) {
+	les = append(LEs{{"Who", who}}, les...)
+	if msg != "" {
+		les = append(les, LE{"Msg", msg})
+	}
+	rec := les.Rec()
 	if !ctx.Quiet {
-		fmt.Fprintln(os.Stderr, ctx.Humanize(msg))
+		fmt.Fprintln(os.Stderr, ctx.HumanizeRec(rec))
 	}
-	ctx.Log(msg)
+	ctx.Log(rec)
 }
 
-func (ctx *Ctx) LogE(who string, sds SDS, err error, msg string) {
-	sds["err"] = err.Error()
-	msg = msgFmt(LogLevel("E"), who, sds, msg)
-	if len(msg) > 2048 {
-		msg = msg[:2048]
+func (ctx *Ctx) LogE(who string, les LEs, err error, msg string) {
+	les = append(LEs{{"Err", err.Error()}, {"Who", who}}, les...)
+	if msg != "" {
+		les = append(les, LE{"Msg", msg})
 	}
-	fmt.Fprintln(os.Stderr, ctx.Humanize(msg))
-	ctx.Log(msg)
-}
-
-func SdsAdd(sds, add SDS) SDS {
-	neu := SDS{}
-	for k, v := range sds {
-		neu[k] = v
+	rec := les.Rec()
+	if !ctx.Quiet {
+		fmt.Fprintln(os.Stderr, ctx.HumanizeRec(rec))
 	}
-	for k, v := range add {
-		neu[k] = v
-	}
-	return neu
+	ctx.Log(rec)
 }
