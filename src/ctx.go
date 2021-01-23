@@ -65,12 +65,12 @@ func (ctx *Ctx) FindNode(id string) (*Node, error) {
 func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
 	dirPath := filepath.Join(ctx.Spool, nodeId.String(), string(TRx))
 	if err := os.MkdirAll(dirPath, os.FileMode(0777)); err != nil {
-		ctx.LogE("dir-ensure", SDS{"dir": dirPath}, err, "")
+		ctx.LogE("dir-ensure", LEs{{"Dir", dirPath}}, err, "")
 		return err
 	}
 	fd, err := os.Open(dirPath)
 	if err != nil {
-		ctx.LogE("dir-ensure", SDS{"dir": dirPath}, err, "")
+		ctx.LogE("dir-ensure", LEs{{"Dir", dirPath}}, err, "")
 		return err
 	}
 	return fd.Close()

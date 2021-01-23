@@ -114,19 +114,21 @@ func main() {
 
 	ctx.Umask()
 
-	sds := nncp.SDS{}
 	if *doTx {
-		sds["xx"] = string(nncp.TTx)
 		var pktName string
 		bufStdout := bufio.NewWriter(os.Stdout)
 		tarWr := tar.NewWriter(bufStdout)
-		for nodeId, _ := range nodeIds {
-			sds["node"] = nodeId.String()
+		for nodeId := range nodeIds {
+			les := nncp.LEs{
+				{K: "XX", V: string(nncp.TTx)},
+				{K: "Node", V: nodeId.String()},
+				{K: "Pkt", V: "dummy"},
+			}
 			for job := range ctx.Jobs(&nodeId, nncp.TTx) {
 				pktName = filepath.Base(job.Fd.Name())
-				sds["pkt"] = pktName
+				les[len(les)-1].V = pktName
 				if job.PktEnc.Nice > nice {
-					ctx.LogD("nncp-bundle", sds, "too nice")
+					ctx.LogD("nncp-bundle", les, "too nice")
 					job.Fd.Close() // #nosec G104
 					continue
 				}
@@ -154,10 +156,10 @@ func main() {
 				}
 				if _, err = nncp.CopyProgressed(
 					tarWr, job.Fd, "Tx",
-					nncp.SdsAdd(sds, nncp.SDS{
-						"pkt":      nncp.Base32Codec.EncodeToString(job.HshValue[:]),
-						"fullsize": job.Size,
-					}),
+					append(les, nncp.LEs{
+						{K: "Pkt", V: nncp.Base32Codec.EncodeToString(job.HshValue[:])},
+						{K: "FullSize", V: job.Size},
+					}...),
 					ctx.ShowPrgrs,
 				); err != nil {
 					log.Fatalln("Error during copying to tar:", err)
@@ -174,7 +176,7 @@ func main() {
 						log.Fatalln("Error during deletion:", err)
 					}
 				}
-				ctx.LogI("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{"size": job.Size}), "")
+				ctx.LogI("nncp-bundle", append(les, nncp.LE{K: "Size", V: job.Size}), "")
 			}
 		}
 		if err = tarWr.Close(); err != nil {
@@ -201,20 +203,23 @@ func main() {
 				panic(err)
 			}
 			tarR := tar.NewReader(bufStdin)
-			sds["xx"] = string(nncp.TRx)
 			entry, err := tarR.Next()
 			if err != nil {
 				if err != io.EOF {
 					ctx.LogD(
 						"nncp-bundle",
-						nncp.SdsAdd(sds, nncp.SDS{"err": err}),
+						nncp.LEs{{K: "XX", V: string(nncp.TRx)}, {K: "Err", V: err}},
 						"error reading tar",
 					)
 				}
 				continue
 			}
 			if entry.Typeflag != tar.TypeDir {
-				ctx.LogD("nncp-bundle", sds, "Expected NNCP/")
+				ctx.LogD(
+					"nncp-bundle",
+					nncp.LEs{{K: "XX", V: string(nncp.TRx)}},
+					"Expected NNCP/",
+				)
 				continue
 			}
 			entry, err = tarR.Next()
@@ -222,61 +227,58 @@ func main() {
 				if err != io.EOF {
 					ctx.LogD(
 						"nncp-bundle",
-						nncp.SdsAdd(sds, nncp.SDS{"err": err}),
+						nncp.LEs{{K: "XX", V: string(nncp.TRx)}, {K: "Err", V: err}},
 						"error reading tar",
 					)
 				}
 				continue
 			}
-			sds["pkt"] = entry.Name
+			les := nncp.LEs{{K: "XX", V: string(nncp.TRx)}, {K: "Pkt", V: entry.Name}}
 			if entry.Size < nncp.PktEncOverhead {
-				ctx.LogD("nncp-bundle", sds, "Too small packet")
+				ctx.LogD("nncp-bundle", les, "Too small packet")
 				continue
 			}
 			if !ctx.IsEnoughSpace(entry.Size) {
-				ctx.LogE("nncp-bundle", sds, errors.New("not enough spool space"), "")
+				ctx.LogE("nncp-bundle", les, errors.New("not enough spool space"), "")
 				continue
 			}
 			pktName := filepath.Base(entry.Name)
 			if _, err = nncp.Base32Codec.DecodeString(pktName); err != nil {
-				ctx.LogD("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{"err": "bad packet name"}), "")
+				ctx.LogD("nncp-bundle", append(les, nncp.LE{K: "Err", V: "bad packet name"}), "")
 				continue
 			}
 			if _, err = io.ReadFull(tarR, pktEncBuf); err != nil {
-				ctx.LogD("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{"err": err}), "read")
+				ctx.LogD("nncp-bundle", append(les, nncp.LE{K: "Err", V: err}), "read")
 				continue
 			}
 			if _, err = xdr.Unmarshal(bytes.NewReader(pktEncBuf), &pktEnc); err != nil {
-				ctx.LogD("nncp-bundle", sds, "Bad packet structure")
+				ctx.LogD("nncp-bundle", les, "Bad packet structure")
 				continue
 			}
 			if pktEnc.Magic != nncp.MagicNNCPEv4 {
-				ctx.LogD("nncp-bundle", sds, "Bad packet magic number")
+				ctx.LogD("nncp-bundle", les, "Bad packet magic number")
 				continue
 			}
 			if pktEnc.Nice > nice {
-				ctx.LogD("nncp-bundle", sds, "too nice")
+				ctx.LogD("nncp-bundle", les, "too nice")
 				continue
 			}
 			if *pktEnc.Sender == *ctx.SelfId && *doDelete {
 				if len(nodeIds) > 0 {
 					if _, exists := nodeIds[*pktEnc.Recipient]; !exists {
-						ctx.LogD("nncp-bundle", sds, "Recipient is not requested")
+						ctx.LogD("nncp-bundle", les, "Recipient is not requested")
 						continue
 					}
 				}
 				nodeId32 := nncp.Base32Codec.EncodeToString(pktEnc.Recipient[:])
-				sds["xx"] = string(nncp.TTx)
-				sds["node"] = nodeId32
-				sds["pkt"] = pktName
-				dstPath := filepath.Join(
-					ctx.Spool,
-					nodeId32,
-					string(nncp.TTx),
-					pktName,
-				)
+				les := nncp.LEs{
+					{K: "XX", V: string(nncp.TTx)},
+					{K: "Node", V: nodeId32},
+					{K: "Pkt", V: pktName},
+				}
+				dstPath := filepath.Join(ctx.Spool, nodeId32, string(nncp.TTx), pktName)
 				if _, err = os.Stat(dstPath); err != nil {
-					ctx.LogD("nncp-bundle", sds, "Packet is already missing")
+					ctx.LogD("nncp-bundle", les, "Packet is already missing")
 					continue
 				}
 				hsh, err := blake2b.New256(nil)
@@ -288,43 +290,46 @@ func main() {
 				}
 				if _, err = nncp.CopyProgressed(
 					hsh, tarR, "Rx",
-					nncp.SdsAdd(sds, nncp.SDS{"fullsize": entry.Size}),
+					append(les, nncp.LE{K: "FullSize", V: entry.Size}),
 					ctx.ShowPrgrs,
 				); err != nil {
 					log.Fatalln("Error during copying:", err)
 				}
 				if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) == pktName {
-					ctx.LogI("nncp-bundle", sds, "removed")
+					ctx.LogI("nncp-bundle", les, "removed")
 					if !*dryRun {
 						os.Remove(dstPath) // #nosec G104
 					}
 				} else {
-					ctx.LogE("nncp-bundle", sds, errors.New("bad checksum"), "")
+					ctx.LogE("nncp-bundle", les, errors.New("bad checksum"), "")
 				}
 				continue
 			}
 			if *pktEnc.Recipient != *ctx.SelfId {
-				ctx.LogD("nncp-bundle", sds, "Unknown recipient")
+				ctx.LogD("nncp-bundle", les, "Unknown recipient")
 				continue
 			}
 			if len(nodeIds) > 0 {
 				if _, exists := nodeIds[*pktEnc.Sender]; !exists {
-					ctx.LogD("nncp-bundle", sds, "Sender is not requested")
+					ctx.LogD("nncp-bundle", les, "Sender is not requested")
 					continue
 				}
 			}
 			sender := nncp.Base32Codec.EncodeToString(pktEnc.Sender[:])
-			sds["node"] = sender
-			sds["pkt"] = pktName
-			sds["fullsize"] = entry.Size
+			les = nncp.LEs{
+				{K: "XX", V: string(nncp.TRx)},
+				{K: "Node", V: sender},
+				{K: "Pkt", V: pktName},
+				{K: "FullSize", V: entry.Size},
+			}
 			dstDirPath := filepath.Join(ctx.Spool, sender, string(nncp.TRx))
 			dstPath := filepath.Join(dstDirPath, pktName)
 			if _, err = os.Stat(dstPath); err == nil || !os.IsNotExist(err) {
-				ctx.LogD("nncp-bundle", sds, "Packet already exists")
+				ctx.LogD("nncp-bundle", les, "Packet already exists")
 				continue
 			}
 			if _, err = os.Stat(dstPath + nncp.SeenSuffix); err == nil || !os.IsNotExist(err) {
-				ctx.LogD("nncp-bundle", sds, "Packet already exists")
+				ctx.LogD("nncp-bundle", les, "Packet already exists")
 				continue
 			}
 			if *doCheck {
@@ -336,11 +341,11 @@ func main() {
 					if _, err = hsh.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}
-					if _, err = nncp.CopyProgressed(hsh, tarR, "check", sds, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(hsh, tarR, "check", les, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 					if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) != pktName {
-						ctx.LogE("nncp-bundle", sds, errors.New("bad checksum"), "")
+						ctx.LogE("nncp-bundle", les, errors.New("bad checksum"), "")
 						continue
 					}
 				} else {
@@ -351,7 +356,7 @@ func main() {
 					if _, err = tmp.W.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}
-					if _, err = nncp.CopyProgressed(tmp.W, tarR, "check", sds, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(tmp.W, tarR, "check", les, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 					if err = tmp.W.Flush(); err != nil {
@@ -362,14 +367,14 @@ func main() {
 							log.Fatalln("Error during commiting:", err)
 						}
 					} else {
-						ctx.LogE("nncp-bundle", sds, errors.New("bad checksum"), "")
+						ctx.LogE("nncp-bundle", les, errors.New("bad checksum"), "")
 						tmp.Cancel()
 						continue
 					}
 				}
 			} else {
 				if *dryRun {
-					if _, err = nncp.CopyProgressed(ioutil.Discard, tarR, "Rx", sds, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(ioutil.Discard, tarR, "Rx", les, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 				} else {
@@ -381,7 +386,7 @@ func main() {
 					if _, err = bufTmp.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}
-					if _, err = nncp.CopyProgressed(bufTmp, tarR, "Rx", sds, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(bufTmp, tarR, "Rx", les, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 					if err = bufTmp.Flush(); err != nil {
@@ -404,9 +409,13 @@ func main() {
 					}
 				}
 			}
-			ctx.LogI("nncp-bundle", nncp.SdsAdd(sds, nncp.SDS{
-				"size": sds["fullsize"],
-			}), "")
+			for _, le := range les {
+				if le.K == "FullSize" {
+					les = append(les, nncp.LE{K: "Size", V: le.V})
+					break
+				}
+			}
+			ctx.LogI("nncp-bundle", les, "")
 		}
 	}
 }

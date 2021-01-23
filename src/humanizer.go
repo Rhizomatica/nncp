@@ -18,100 +18,84 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"errors"
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"go.cypherpunks.ru/recfile"
 )
 
-func (ctx *Ctx) Humanize(s string) string {
-	s = strings.TrimRight(s, "\n")
-	splitted := strings.SplitN(s, " ", 4)
-	if len(splitted) != 4 {
-		return s
-	}
-	var level string
-	if splitted[0] == "E" {
-		level = "ERROR "
-	}
-	when, err := time.Parse(time.RFC3339Nano, splitted[1])
+func (ctx *Ctx) HumanizeRec(rec string) string {
+	r := recfile.NewReader(strings.NewReader(rec))
+	le, err := r.NextMap()
 	if err != nil {
-		return s
+		return rec
 	}
-	who := splitted[2][1:]
-	closingBracket := strings.LastIndex(splitted[3], "]")
-	if closingBracket == -1 {
-		return s
+	humanized, err := ctx.Humanize(le)
+	if err != nil {
+		return fmt.Sprintf("Can not humanize: %s\n%s", err, rec)
 	}
-	rem := strings.Trim(splitted[3][closingBracket+1:], " ")
-	sds := make(map[string]string)
+	return humanized
+}
 
-	re := regexp.MustCompile(`\w+="[^"]+"`)
-	for _, pair := range re.FindAllString(splitted[3][:closingBracket+1], -1) {
-		sep := strings.Index(pair, "=")
-		sds[pair[:sep]] = pair[sep+2 : len(pair)-1]
-	}
-
-	nodeS := sds["node"]
+func (ctx *Ctx) Humanize(le map[string]string) (string, error) {
+	nodeS := le["Node"]
 	node, err := ctx.FindNode(nodeS)
 	if err == nil {
 		nodeS = node.Name
 	}
 	var size string
-	if sizeRaw, exists := sds["size"]; exists {
+	if sizeRaw, exists := le["Size"]; exists {
 		sp, err := strconv.ParseUint(sizeRaw, 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
 		size = humanize.IBytes(uint64(sp))
 	}
 
 	var msg string
-	switch who {
+	switch le["Who"] {
 	case "tx":
-		switch sds["type"] {
+		switch le["Type"] {
 		case "file":
 			msg = fmt.Sprintf(
 				"File %s (%s) transfer to %s:%s: %s",
-				sds["src"], size, nodeS, sds["dst"], rem,
+				le["Src"], size, nodeS, le["Dst"], le["Msg"],
 			)
 		case "freq":
 			msg = fmt.Sprintf(
 				"File request from %s:%s to %s: %s",
-				nodeS, sds["src"], sds["dst"], rem,
+				nodeS, le["Src"], le["Dst"], le["Msg"],
 			)
 		case "exec":
 			msg = fmt.Sprintf(
 				"Exec to %s@%s (%s): %s",
-				nodeS, sds["dst"], size, rem,
+				nodeS, le["Dst"], size, le["Msg"],
 			)
 		case "trns":
 			msg = fmt.Sprintf(
 				"Transitional packet to %s (%s) (nice %s): %s",
-				nodeS, size, sds["nice"], rem,
+				nodeS, size, le["Nice"], le["Msg"],
 			)
 		default:
-			return s
+			return "", errors.New("unknown \"tx\" type")
 		}
-		if err, exists := sds["err"]; exists {
+		if err, exists := le["Err"]; exists {
 			msg += ": " + err
 		}
 	case "rx":
-		switch sds["type"] {
+		switch le["Type"] {
 		case "exec":
-			msg = fmt.Sprintf(
-				"Got exec from %s to %s (%s)",
-				nodeS, sds["dst"], size,
-			)
+			msg = fmt.Sprintf("Got exec from %s to %s (%s)", nodeS, le["Dst"], size)
 		case "file":
-			msg = fmt.Sprintf("Got file %s (%s) from %s", sds["dst"], size, nodeS)
+			msg = fmt.Sprintf("Got file %s (%s) from %s", le["Dst"], size, nodeS)
 		case "freq":
-			msg = fmt.Sprintf("Got file request %s to %s", sds["src"], nodeS)
+			msg = fmt.Sprintf("Got file request %s to %s", le["Src"], nodeS)
 		case "trns":
-			nodeT := sds["dst"]
+			nodeT := le["Dst"]
 			node, err := ctx.FindNode(nodeT)
 			if err == nil {
 				nodeT = node.Name
@@ -121,24 +105,24 @@ func (ctx *Ctx) Humanize(s string) string {
 				nodeS, nodeT, size,
 			)
 		default:
-			return s
+			return "", errors.New("unknown \"rx\" type")
 		}
-		if err, exists := sds["err"]; exists {
+		if err, exists := le["Err"]; exists {
 			msg += ": " + err
 		}
 	case "check":
-		msg = fmt.Sprintf("Checking: %s/%s/%s", sds["node"], sds["xx"], sds["pkt"])
-		if err, exists := sds["err"]; exists {
+		msg = fmt.Sprintf("Checking: %s/%s/%s", le["Node"], le["XX"], le["Pkt"])
+		if err, exists := le["Err"]; exists {
 			msg += fmt.Sprintf(" %s", err)
 		}
 	case "nncp-xfer":
-		switch sds["xx"] {
+		switch le["XX"] {
 		case "rx":
 			msg = "Packet transfer, received from"
 		case "tx":
 			msg = "Packet transfer, sent to"
 		default:
-			return s
+			return "", errors.New("unknown XX")
 		}
 		if nodeS != "" {
 			msg += " node " + nodeS
@@ -146,53 +130,53 @@ func (ctx *Ctx) Humanize(s string) string {
 		if size != "" {
 			msg += fmt.Sprintf(" (%s)", size)
 		}
-		if err, exists := sds["err"]; exists {
+		if err, exists := le["Err"]; exists {
 			msg += ": " + err
 		} else {
-			msg += " " + rem
+			msg += " " + le["Msg"]
 		}
 	case "nncp-bundle":
-		switch sds["xx"] {
+		switch le["XX"] {
 		case "rx":
 			msg = "Bundle transfer, received from"
 		case "tx":
 			msg = "Bundle transfer, sent to"
 		default:
-			return s
+			return "", errors.New("unknown XX")
 		}
 		if nodeS != "" {
 			msg += " node " + nodeS
 		}
-		msg += " " + sds["pkt"]
+		msg += " " + le["Pkt"]
 		if size != "" {
 			msg += fmt.Sprintf(" (%s)", size)
 		}
-		if err, exists := sds["err"]; exists {
+		if err, exists := le["Err"]; exists {
 			msg += ": " + err
 		}
 	case "nncp-rm":
-		msg += "removing " + sds["file"]
+		msg += "removing " + le["File"]
 	case "call-start":
 		msg = fmt.Sprintf("Connection to %s", nodeS)
-		if err, exists := sds["err"]; exists {
+		if err, exists := le["Err"]; exists {
 			msg += ": " + err
 		}
 	case "call-finish":
-		rx, err := strconv.ParseUint(sds["rxbytes"], 10, 64)
+		rx, err := strconv.ParseUint(le["RxBytes"], 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
-		rxs, err := strconv.ParseUint(sds["rxspeed"], 10, 64)
+		rxs, err := strconv.ParseUint(le["RxSpeed"], 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
-		tx, err := strconv.ParseUint(sds["txbytes"], 10, 64)
+		tx, err := strconv.ParseUint(le["TxBytes"], 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
-		txs, err := strconv.ParseUint(sds["txspeed"], 10, 64)
+		txs, err := strconv.ParseUint(le["TxSpeed"], 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
 		msg = fmt.Sprintf(
 			"Finished call with %s: %s received (%s/sec), %s transferred (%s/sec)",
@@ -203,114 +187,117 @@ func (ctx *Ctx) Humanize(s string) string {
 	case "sp-start":
 		if nodeS == "" {
 			msg += "SP"
-			if peer, exists := sds["peer"]; exists {
+			if peer, exists := le["Peer"]; exists {
 				msg += fmt.Sprintf(": %s", peer)
 			}
 		} else {
-			nice, err := NicenessParse(sds["nice"])
+			nice, err := NicenessParse(le["Nice"])
 			if err != nil {
-				return s
+				return "", err
 			}
 			msg += fmt.Sprintf("SP with %s (nice %s)", nodeS, NicenessFmt(nice))
 		}
-		if len(rem) > 0 {
-			msg += ": " + rem
+		if m, exists := le["Msg"]; exists {
+			msg += ": " + m
 		}
-		if err, exists := sds["err"]; exists {
+		if err, exists := le["Err"]; exists {
 			msg += ": " + err
 		}
 
 	case "sp-info":
-		nice, err := NicenessParse(sds["nice"])
+		nice, err := NicenessParse(le["Nice"])
 		if err != nil {
-			return s
+			return "", err
 		}
 		msg = fmt.Sprintf(
 			"Packet %s (%s) (nice %s)",
-			sds["pkt"],
-			size,
-			NicenessFmt(nice),
+			le["Pkt"], size, NicenessFmt(nice),
 		)
-		offsetParsed, err := strconv.ParseUint(sds["offset"], 10, 64)
+		offsetParsed, err := strconv.ParseUint(le["Offset"], 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
-		sizeParsed, err := strconv.ParseUint(sds["size"], 10, 64)
+		sizeParsed, err := strconv.ParseUint(le["Size"], 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
 		msg += fmt.Sprintf(": %d%%", 100*offsetParsed/sizeParsed)
-		if len(rem) > 0 {
-			msg += ": " + rem
+		if m, exists := le["Msg"]; exists {
+			msg += ": " + m
 		}
 	case "sp-infos":
-		switch sds["xx"] {
+		switch le["XX"] {
 		case "rx":
 			msg = fmt.Sprintf("%s has got for us: ", nodeS)
 		case "tx":
 			msg = fmt.Sprintf("We have got for %s: ", nodeS)
 		default:
-			return s
+			return "", errors.New("unknown XX")
 		}
-		msg += fmt.Sprintf("%s packets, %s", sds["pkts"], size)
+		msg += fmt.Sprintf("%s packets, %s", le["Pkts"], size)
 	case "sp-process":
-		msg = fmt.Sprintf("%s has %s (%s): %s", nodeS, sds["pkt"], size, rem)
+		msg = fmt.Sprintf("%s has %s (%s): %s", nodeS, le["Pkt"], size, le["Msg"])
 	case "sp-file":
-		switch sds["xx"] {
+		switch le["XX"] {
 		case "rx":
 			msg = "Got packet "
 		case "tx":
 			msg = "Sent packet "
 		default:
-			return s
+			return "", errors.New("unknown XX")
 		}
-		fullsize, err := strconv.ParseUint(sds["fullsize"], 10, 64)
+		fullsize, err := strconv.ParseUint(le["FullSize"], 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
-		sizeParsed, err := strconv.ParseUint(sds["size"], 10, 64)
+		sizeParsed, err := strconv.ParseUint(le["Size"], 10, 64)
 		if err != nil {
-			return s
+			return "", err
 		}
 		msg += fmt.Sprintf(
 			"%s %d%% (%s / %s)",
-			sds["pkt"],
+			le["Pkt"],
 			100*sizeParsed/fullsize,
 			humanize.IBytes(uint64(sizeParsed)),
 			humanize.IBytes(uint64(fullsize)),
 		)
 	case "sp-done":
-		switch sds["xx"] {
+		switch le["XX"] {
 		case "rx":
-			msg = fmt.Sprintf("Packet %s is retreived (%s)", sds["pkt"], size)
+			msg = fmt.Sprintf("Packet %s is retreived (%s)", le["Pkt"], size)
 		case "tx":
-			msg = fmt.Sprintf("Packet %s is sent", sds["pkt"])
+			msg = fmt.Sprintf("Packet %s is sent", le["Pkt"])
 		default:
-			return s
+			return "", errors.New("unknown XX")
 		}
 	case "nncp-reass":
-		chunkNum, exists := sds["chunk"]
+		chunkNum, exists := le["Chunk"]
 		if exists {
 			msg = fmt.Sprintf(
 				"Reassembling chunked file \"%s\" (chunk %s): %s",
-				sds["path"],
-				chunkNum,
-				rem,
+				le["Path"], chunkNum, le["Msg"],
 			)
 		} else {
 			msg = fmt.Sprintf(
 				"Reassembling chunked file \"%s\": %s",
-				sds["path"],
-				rem,
+				le["Path"], le["Msg"],
 			)
 		}
-		if err, exists := sds["err"]; exists {
+		if err, exists := le["Err"]; exists {
 			msg += ": " + err
 		}
 	case "lockdir":
-		msg = fmt.Sprintf("Acquire lock for %s: %s", sds["path"], sds["err"])
+		msg = fmt.Sprintf("Acquire lock for %s: %s", le["Path"], le["Err"])
 	default:
-		return s
+		return "", errors.New("unknown Who")
 	}
-	return fmt.Sprintf("%s %s%s", when.Format(time.RFC3339), level, msg)
+	when, err := time.Parse(time.RFC3339Nano, le["When"])
+	if err != nil {
+		return "", err
+	}
+	var level string
+	if _, isErr := le["Err"]; isErr {
+		level = "ERROR "
+	}
+	return fmt.Sprintf("%s %s%s", when.Format(time.RFC3339), level, msg), nil
 }

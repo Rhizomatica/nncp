@@ -1,9 +1,15 @@
 @node Новости
 @section Новости
 
-@node Релиз 5.7.0
-@subsection Релиз 5.7.0
+@node Релиз 6.0.0
+@subsection Релиз 6.0.0
 @itemize
+
+@item
+Журнал использует человеко-читаемый и легко обрабатываемый машиной
+@url{https://www.gnu.org/software/recutils/, recfile} формат для своих
+записей, вместо структурированных строчек RFC 3339. Старый формат
+журналов не поддерживается @command{nncp-log}.
 
 @item
 Работоспособность @option{-autotoss*} опции с @option{-inetd} режимом

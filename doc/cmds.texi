@@ -398,7 +398,8 @@ queuing.
 $ nncp-log [options]
 @end example
 
-Parse @ref{Log, log} file and print out its records in human-readable form.
+Parse @ref{Log, log} file and print out its records in short
+human-readable form.
 
 @node nncp-pkt
 @section nncp-pkt

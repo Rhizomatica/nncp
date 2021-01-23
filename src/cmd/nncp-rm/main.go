@@ -118,10 +118,10 @@ func main() {
 					return nil
 				}
 				if now.Sub(info.ModTime()) < oldBoundary {
-					ctx.LogD("nncp-rm", nncp.SDS{"file": path}, "too fresh, skipping")
+					ctx.LogD("nncp-rm", nncp.LEs{{K: "File", V: path}}, "too fresh, skipping")
 					return nil
 				}
-				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
 				if *dryRun {
 					return nil
 				}
@@ -141,7 +141,7 @@ func main() {
 				return nil
 			}
 			if strings.HasSuffix(info.Name(), ".lock") {
-				ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+				ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
 				if *dryRun {
 					return nil
 				}
@@ -173,25 +173,25 @@ func main() {
 					return nil
 				}
 				if now.Sub(info.ModTime()) < oldBoundary {
-					ctx.LogD("nncp-rm", nncp.SDS{"file": path}, "too fresh, skipping")
+					ctx.LogD("nncp-rm", nncp.LEs{{K: "File", V: path}}, "too fresh, skipping")
 					return nil
 				}
 				if *doSeen && strings.HasSuffix(info.Name(), nncp.SeenSuffix) {
-					ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+					ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
 					if *dryRun {
 						return nil
 					}
 					return os.Remove(path)
 				}
 				if *doPart && strings.HasSuffix(info.Name(), nncp.PartSuffix) {
-					ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+					ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
 					if *dryRun {
 						return nil
 					}
 					return os.Remove(path)
 				}
 				if *pktRaw != "" && filepath.Base(info.Name()) == *pktRaw {
-					ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+					ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
 					if *dryRun {
 						return nil
 					}
@@ -201,7 +201,7 @@ func main() {
 					!*doPart &&
 					(*doRx || *doTx) &&
 					((*doRx && xx == nncp.TRx) || (*doTx && xx == nncp.TTx)) {
-					ctx.LogI("nncp-rm", nncp.SDS{"file": path}, "")
+					ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
 					if *dryRun {
 						return nil
 					}

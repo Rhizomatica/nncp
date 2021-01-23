@@ -54,8 +54,8 @@ func (ctx *Ctx) CallNode(
 	onlyPkts map[[32]byte]bool,
 ) (isGood bool) {
 	for _, addr := range addrs {
-		sds := SDS{"node": node.Id, "addr": addr}
-		ctx.LogD("call", sds, "dialing")
+		les := LEs{{"Node", node.Id}, {"Addr", addr}}
+		ctx.LogD("call", les, "dialing")
 		var conn ConnDeadlined
 		var err error
 		if addr[0] == '|' {
@@ -64,10 +64,10 @@ func (ctx *Ctx) CallNode(
 			conn, err = net.Dial("tcp", addr)
 		}
 		if err != nil {
-			ctx.LogD("call", SdsAdd(sds, SDS{"err": err}), "dialing")
+			ctx.LogD("call", append(les, LE{"Err", err}), "dialing")
 			continue
 		}
-		ctx.LogD("call", sds, "connected")
+		ctx.LogD("call", les, "connected")
 		state := SPState{
 			Ctx:            ctx,
 			Node:           node,
@@ -81,21 +81,21 @@ func (ctx *Ctx) CallNode(
 			onlyPkts:       onlyPkts,
 		}
 		if err = state.StartI(conn); err == nil {
-			ctx.LogI("call-start", sds, "connected")
+			ctx.LogI("call-start", les, "connected")
 			state.Wait()
-			ctx.LogI("call-finish", SDS{
-				"node":     state.Node.Id,
-				"duration": int64(state.Duration.Seconds()),
-				"rxbytes":  state.RxBytes,
-				"txbytes":  state.TxBytes,
-				"rxspeed":  state.RxSpeed,
-				"txspeed":  state.TxSpeed,
+			ctx.LogI("call-finish", LEs{
+				{"Node", state.Node.Id},
+				{"Duration", int64(state.Duration.Seconds())},
+				{"RxBytes", state.RxBytes},
+				{"TxBytes", state.TxBytes},
+				{"RxSpeed", state.RxSpeed},
+				{"TxSpeed", state.TxSpeed},
 			}, "")
 			isGood = true
 			conn.Close() // #nosec G104
 			break
 		} else {
-			ctx.LogE("call-start", sds, err, "")
+			ctx.LogE("call-start", les, err, "")
 			conn.Close() // #nosec G104
 		}
 	}

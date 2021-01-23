@@ -82,7 +82,7 @@ func CopyProgressed(
 	dst io.Writer,
 	src io.Reader,
 	prgrsPrefix string,
-	sds SDS,
+	les LEs,
 	showPrgrs bool,
 ) (written int64, err error) {
 	buf := make([]byte, EncBlkSize)
@@ -95,8 +95,7 @@ func CopyProgressed(
 			if nw > 0 {
 				written += int64(nw)
 				if showPrgrs {
-					sds["size"] = written
-					Progress(prgrsPrefix, sds)
+					Progress(prgrsPrefix, append(les, LE{"Size", written}))
 				}
 			}
 			if ew != nil {
@@ -118,13 +117,20 @@ func CopyProgressed(
 	return
 }
 
-func Progress(prefix string, sds SDS) {
+func Progress(prefix string, les LEs) {
 	var size int64
-	if sizeI, exists := sds["size"]; exists {
-		size = sizeI.(int64)
+	var fullsize int64
+	var pkt string
+	for _, le := range les {
+		switch le.K {
+		case "Size":
+			size = le.V.(int64)
+		case "FullSize":
+			fullsize = le.V.(int64)
+		case "Pkt":
+			pkt = le.V.(string)
+		}
 	}
-	fullsize := sds["fullsize"].(int64)
-	pkt := sds["pkt"].(string)
 	progressBarsLock.RLock()
 	pb, exists := progressBars[pkt]
 	progressBarsLock.RUnlock()
