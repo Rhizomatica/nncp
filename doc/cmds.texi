@@ -238,6 +238,16 @@ that has Base32-encoded filenames and compare it with recalculated
 BLAKE2b hash output of their contents. That supplementary command is
 not used often in practice, if ever.
 
+@node nncp-cronexpr
+@section nncp-cronexpr
+
+@example
+$ nncp-cronexpr -num 12 "*/1 * * * * SAT,SUN 2021"
+@end example
+
+Check validity of specified @ref{CronExpr, cron expression} and print 12
+next time entities.
+
 @node nncp-daemon
 @section nncp-daemon
 

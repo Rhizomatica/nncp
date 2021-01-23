@@ -5,6 +5,7 @@ nncp-cfgenc
 nncp-cfgmin
 nncp-cfgnew
 nncp-check
+nncp-cronexpr
 nncp-daemon
 nncp-exec
 nncp-file

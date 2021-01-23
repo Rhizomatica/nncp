@@ -33,6 +33,7 @@ type Call struct {
 	Addr           *string
 	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
+	WhenTxExists   bool
 
 	AutoToss       bool
 	AutoTossDoSeen bool

@@ -210,6 +210,7 @@ func main() {
     #   #     txrate: 20
     #   #     xx: rx
     #   #     addr: lan
+    #   #     when-tx-exists: true
     #   #
     #   #     autotoss: false
     #   #     autotoss-doseen: true

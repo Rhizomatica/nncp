@@ -81,6 +81,7 @@ type CallJSON struct {
 	Addr           *string `json:"addr,omitempty"`
 	OnlineDeadline *uint   `json:"onlinedeadline,omitempty"`
 	MaxOnlineTime  *uint   `json:"maxonlinetime,omitempty"`
+	WhenTxExists   *bool   `json:"when-tx-exists,omitempty"`
 
 	AutoToss       *bool `json:"autotoss,omitempty"`
 	AutoTossDoSeen *bool `json:"autotoss-doseen,omitempty"`
@@ -279,6 +280,9 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 
 		if callCfg.MaxOnlineTime != nil {
 			call.MaxOnlineTime = time.Duration(*callCfg.MaxOnlineTime) * time.Second
+		}
+		if callCfg.WhenTxExists != nil {
+			call.WhenTxExists = *callCfg.WhenTxExists
 		}
 		if callCfg.AutoToss != nil {
 			call.AutoToss = *callCfg.AutoToss
