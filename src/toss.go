@@ -71,7 +71,7 @@ func (ctx *Ctx) Toss(
 ) bool {
 	dirLock, err := ctx.LockDir(nodeId, "toss")
 	if err != nil {
-		ctx.LogE("rx", SDS{}, err, "lock")
+		ctx.LogE("rx", LEs{}, err, "lock")
 		return false
 	}
 	defer ctx.UnlockDir(dirLock)
@@ -84,9 +84,9 @@ func (ctx *Ctx) Toss(
 	defer decompressor.Close()
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Fd.Name())
-		sds := SDS{"node": job.PktEnc.Sender, "pkt": pktName}
+		les := LEs{{"Node", job.PktEnc.Sender}, {"Pkt", pktName}}
 		if job.PktEnc.Nice > nice {
-			ctx.LogD("rx", SdsAdd(sds, SDS{"nice": int(job.PktEnc.Nice)}), "too nice")
+			ctx.LogD("rx", append(les, LE{"Nice", int(job.PktEnc.Nice)}), "too nice")
 			job.Fd.Close() // #nosec G104
 			continue
 		}
@@ -113,7 +113,7 @@ func (ctx *Ctx) Toss(
 		var pktSize int64
 		var pktSizeBlocks int64
 		if _, err = xdr.Unmarshal(pipeR, &pkt); err != nil {
-			ctx.LogE("rx", sds, err, "unmarshal")
+			ctx.LogE("rx", les, err, "unmarshal")
 			isBad = true
 			goto Closing
 		}
@@ -123,8 +123,8 @@ func (ctx *Ctx) Toss(
 			pktSize -= poly1305.TagSize
 		}
 		pktSize -= pktSizeBlocks * poly1305.TagSize
-		sds["size"] = pktSize
-		ctx.LogD("rx", sds, "taken")
+		les = append(les, LE{"Size", pktSize})
+		ctx.LogD("rx", les, "taken")
 		switch pkt.Type {
 		case PktTypeExec, PktTypeExecFat:
 			if noExec {
@@ -137,14 +137,14 @@ func (ctx *Ctx) Toss(
 				args = append(args, string(p))
 			}
 			argsStr := strings.Join(append([]string{handle}, args...), " ")
-			sds := SdsAdd(sds, SDS{
-				"type": "exec",
-				"dst":  argsStr,
-			})
+			les = append(les, LEs{
+				{"Type", "exec"},
+				{"Dst", argsStr},
+			}...)
 			sender := ctx.Neigh[*job.PktEnc.Sender]
 			cmdline, exists := sender.Exec[handle]
 			if !exists || len(cmdline) == 0 {
-				ctx.LogE("rx", sds, errors.New("No handle found"), "")
+				ctx.LogE("rx", les, errors.New("No handle found"), "")
 				isBad = true
 				goto Closing
 			}
@@ -171,7 +171,7 @@ func (ctx *Ctx) Toss(
 				}
 				output, err := cmd.Output()
 				if err != nil {
-					ctx.LogE("rx", sds, err, "handle")
+					ctx.LogE("rx", les, err, "handle")
 					isBad = true
 					goto Closing
 				}
@@ -189,12 +189,12 @@ func (ctx *Ctx) Toss(
 							"Exec from %s: %s", sender.Name, argsStr,
 						), output)
 						if err = cmd.Run(); err != nil {
-							ctx.LogE("rx", sds, err, "notify")
+							ctx.LogE("rx", les, err, "notify")
 						}
 					}
 				}
 			}
-			ctx.LogI("rx", sds, "")
+			ctx.LogI("rx", les, "")
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
@@ -202,7 +202,7 @@ func (ctx *Ctx) Toss(
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
-					ctx.LogE("rx", sds, err, "remove")
+					ctx.LogE("rx", les, err, "remove")
 					isBad = true
 				}
 			}
@@ -211,57 +211,57 @@ func (ctx *Ctx) Toss(
 				goto Closing
 			}
 			dst := string(pkt.Path[:int(pkt.PathLen)])
-			sds := SdsAdd(sds, SDS{"type": "file", "dst": dst})
+			les = append(les, LEs{{"Type", "file"}, {"Dst", dst}}...)
 			if filepath.IsAbs(dst) {
-				ctx.LogE("rx", sds, errors.New("non-relative destination path"), "")
+				ctx.LogE("rx", les, errors.New("non-relative destination path"), "")
 				isBad = true
 				goto Closing
 			}
 			incoming := ctx.Neigh[*job.PktEnc.Sender].Incoming
 			if incoming == nil {
-				ctx.LogE("rx", sds, errors.New("incoming is not allowed"), "")
+				ctx.LogE("rx", les, errors.New("incoming is not allowed"), "")
 				isBad = true
 				goto Closing
 			}
 			dir := filepath.Join(*incoming, path.Dir(dst))
 			if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
-				ctx.LogE("rx", sds, err, "mkdir")
+				ctx.LogE("rx", les, err, "mkdir")
 				isBad = true
 				goto Closing
 			}
 			if !dryRun {
 				tmp, err := TempFile(dir, "file")
 				if err != nil {
-					ctx.LogE("rx", sds, err, "mktemp")
+					ctx.LogE("rx", les, err, "mktemp")
 					isBad = true
 					goto Closing
 				}
-				sds["tmp"] = tmp.Name()
-				ctx.LogD("rx", sds, "created")
+				les = append(les, LE{"Tmp", tmp.Name()})
+				ctx.LogD("rx", les, "created")
 				bufW := bufio.NewWriter(tmp)
 				if _, err = CopyProgressed(
 					bufW, pipeR, "Rx file",
-					SdsAdd(sds, SDS{"fullsize": sds["size"]}),
+					append(les, LE{"FullSize", pktSize}),
 					ctx.ShowPrgrs,
 				); err != nil {
-					ctx.LogE("rx", sds, err, "copy")
+					ctx.LogE("rx", les, err, "copy")
 					isBad = true
 					goto Closing
 				}
 				if err = bufW.Flush(); err != nil {
 					tmp.Close() // #nosec G104
-					ctx.LogE("rx", sds, err, "copy")
+					ctx.LogE("rx", les, err, "copy")
 					isBad = true
 					goto Closing
 				}
 				if err = tmp.Sync(); err != nil {
 					tmp.Close() // #nosec G104
-					ctx.LogE("rx", sds, err, "copy")
+					ctx.LogE("rx", les, err, "copy")
 					isBad = true
 					goto Closing
 				}
 				if err = tmp.Close(); err != nil {
-					ctx.LogE("rx", sds, err, "copy")
+					ctx.LogE("rx", les, err, "copy")
 					isBad = true
 					goto Closing
 				}
@@ -273,7 +273,7 @@ func (ctx *Ctx) Toss(
 						if os.IsNotExist(err) {
 							break
 						}
-						ctx.LogE("rx", sds, err, "stat")
+						ctx.LogE("rx", les, err, "stat")
 						isBad = true
 						goto Closing
 					}
@@ -281,16 +281,16 @@ func (ctx *Ctx) Toss(
 					dstPathCtr++
 				}
 				if err = os.Rename(tmp.Name(), dstPath); err != nil {
-					ctx.LogE("rx", sds, err, "rename")
+					ctx.LogE("rx", les, err, "rename")
 					isBad = true
 				}
 				if err = DirSync(*incoming); err != nil {
-					ctx.LogE("rx", sds, err, "sync")
+					ctx.LogE("rx", les, err, "sync")
 					isBad = true
 				}
-				delete(sds, "tmp")
+				les = les[:len(les)-1] // delete Tmp
 			}
-			ctx.LogI("rx", sds, "")
+			ctx.LogI("rx", les, "")
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
@@ -298,7 +298,7 @@ func (ctx *Ctx) Toss(
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
-					ctx.LogE("rx", sds, err, "remove")
+					ctx.LogE("rx", les, err, "remove")
 					isBad = true
 				}
 				if len(sendmail) > 0 && ctx.NotifyFile != nil {
@@ -313,7 +313,7 @@ func (ctx *Ctx) Toss(
 						humanize.IBytes(uint64(pktSize)),
 					), nil)
 					if err = cmd.Run(); err != nil {
-						ctx.LogE("rx", sds, err, "notify")
+						ctx.LogE("rx", les, err, "notify")
 					}
 				}
 			}
@@ -323,23 +323,23 @@ func (ctx *Ctx) Toss(
 			}
 			src := string(pkt.Path[:int(pkt.PathLen)])
 			if filepath.IsAbs(src) {
-				ctx.LogE("rx", sds, errors.New("non-relative source path"), "")
+				ctx.LogE("rx", les, errors.New("non-relative source path"), "")
 				isBad = true
 				goto Closing
 			}
-			sds := SdsAdd(sds, SDS{"type": "freq", "src": src})
+			les := append(les, LEs{{"Type", "freq"}, {"Src", src}}...)
 			dstRaw, err := ioutil.ReadAll(pipeR)
 			if err != nil {
-				ctx.LogE("rx", sds, err, "read")
+				ctx.LogE("rx", les, err, "read")
 				isBad = true
 				goto Closing
 			}
 			dst := string(dstRaw)
-			sds["dst"] = dst
+			les = append(les, LE{"Dst", dst})
 			sender := ctx.Neigh[*job.PktEnc.Sender]
 			freqPath := sender.FreqPath
 			if freqPath == nil {
-				ctx.LogE("rx", sds, errors.New("freqing is not allowed"), "")
+				ctx.LogE("rx", les, errors.New("freqing is not allowed"), "")
 				isBad = true
 				goto Closing
 			}
@@ -354,12 +354,12 @@ func (ctx *Ctx) Toss(
 					sender.FreqMaxSize,
 				)
 				if err != nil {
-					ctx.LogE("rx", sds, err, "tx file")
+					ctx.LogE("rx", les, err, "tx file")
 					isBad = true
 					goto Closing
 				}
 			}
-			ctx.LogI("rx", sds, "")
+			ctx.LogI("rx", les, "")
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
@@ -367,7 +367,7 @@ func (ctx *Ctx) Toss(
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
-					ctx.LogE("rx", sds, err, "remove")
+					ctx.LogE("rx", les, err, "remove")
 					isBad = true
 				}
 				if len(sendmail) > 0 && ctx.NotifyFreq != nil {
@@ -379,7 +379,7 @@ func (ctx *Ctx) Toss(
 						"Freq from %s: %s", sender.Name, src,
 					), nil)
 					if err = cmd.Run(); err != nil {
-						ctx.LogE("rx", sds, err, "notify")
+						ctx.LogE("rx", les, err, "notify")
 					}
 				}
 			}
@@ -391,21 +391,21 @@ func (ctx *Ctx) Toss(
 			copy(dst[:], pkt.Path[:int(pkt.PathLen)])
 			nodeId := NodeId(*dst)
 			node, known := ctx.Neigh[nodeId]
-			sds := SdsAdd(sds, SDS{"type": "trns", "dst": nodeId})
+			les := append(les, LEs{{"Type", "trns"}, {"Dst", nodeId}}...)
 			if !known {
-				ctx.LogE("rx", sds, errors.New("unknown node"), "")
+				ctx.LogE("rx", les, errors.New("unknown node"), "")
 				isBad = true
 				goto Closing
 			}
-			ctx.LogD("rx", sds, "taken")
+			ctx.LogD("rx", les, "taken")
 			if !dryRun {
 				if err = ctx.TxTrns(node, job.PktEnc.Nice, pktSize, pipeR); err != nil {
-					ctx.LogE("rx", sds, err, "tx trns")
+					ctx.LogE("rx", les, err, "tx trns")
 					isBad = true
 					goto Closing
 				}
 			}
-			ctx.LogI("rx", sds, "")
+			ctx.LogI("rx", les, "")
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
@@ -413,12 +413,12 @@ func (ctx *Ctx) Toss(
 					}
 				}
 				if err = os.Remove(job.Fd.Name()); err != nil {
-					ctx.LogE("rx", sds, err, "remove")
+					ctx.LogE("rx", les, err, "remove")
 					isBad = true
 				}
 			}
 		default:
-			ctx.LogE("rx", sds, errors.New("unknown type"), "")
+			ctx.LogE("rx", les, errors.New("unknown type"), "")
 			isBad = true
 		}
 	Closing:

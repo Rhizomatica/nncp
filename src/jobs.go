@@ -71,12 +71,12 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 				fd.Close() // #nosec G104
 				continue
 			}
-			ctx.LogD("jobs", SDS{
-				"xx":   string(xx),
-				"node": pktEnc.Sender,
-				"name": fi.Name(),
-				"nice": int(pktEnc.Nice),
-				"size": fi.Size(),
+			ctx.LogD("jobs", LEs{
+				{"XX", string(xx)},
+				{"Node", pktEnc.Sender},
+				{"Name", fi.Name()},
+				{"Nice", int(pktEnc.Nice)},
+				{"Size", fi.Size()},
 			}, "taken")
 			job := Job{
 				PktEnc:   &pktEnc,

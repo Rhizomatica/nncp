@@ -44,7 +44,7 @@ func (ctx *Ctx) NewTmpFile() (*os.File, error) {
 	}
 	fd, err := TempFile(jobsPath, "")
 	if err == nil {
-		ctx.LogD("tmp", SDS{"src": fd.Name()}, "created")
+		ctx.LogD("tmp", LEs{{"Src", fd.Name()}}, "created")
 	}
 	return fd, err
 }
@@ -109,7 +109,7 @@ func (tmp *TmpFileWHash) Commit(dir string) error {
 		return err
 	}
 	checksum := Base32Codec.EncodeToString(tmp.Hsh.Sum(nil))
-	tmp.ctx.LogD("tmp", SDS{"src": tmp.Fd.Name(), "dst": checksum}, "commit")
+	tmp.ctx.LogD("tmp", LEs{{"Src", tmp.Fd.Name()}, {"Dst", checksum}}, "commit")
 	if err = os.Rename(tmp.Fd.Name(), filepath.Join(dir, checksum)); err != nil {
 		return err
 	}

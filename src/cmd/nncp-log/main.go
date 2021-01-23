@@ -19,13 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
 	"go.cypherpunks.ru/nncp/v5"
+	"go.cypherpunks.ru/recfile"
 )
 
 func usage() {
@@ -63,15 +64,22 @@ func main() {
 	if err != nil {
 		log.Fatalln("Can not open log:", err)
 	}
-	scanner := bufio.NewScanner(fd)
-	for scanner.Scan() {
-		t := scanner.Text()
-		if *debug {
-			fmt.Println(t)
+	r := recfile.NewReader(fd)
+	for {
+		le, err := r.NextMap()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Fatalln("Can not read log:", err)
 		}
-		fmt.Println(ctx.Humanize(t))
-	}
-	if err = scanner.Err(); err != nil {
-		log.Fatalln("Can not read log:", err)
+		if *debug {
+			fmt.Println(le)
+		}
+		s, err := ctx.Humanize(le)
+		if err != nil {
+			s = fmt.Sprintf("Can not humanize: %s\n%s", err, le)
+		}
+		fmt.Println(s)
 	}
 }
