@@ -311,18 +311,18 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]uint8) [
 	var payloads [][]byte
 	for _, info := range infos {
 		payloads = append(payloads, MarshalSP(SPTypeInfo, info))
-		ctx.LogD("sp-info-our", SDS{
-			"node": nodeId,
-			"name": Base32Codec.EncodeToString(info.Hash[:]),
-			"size": info.Size,
+		ctx.LogD("sp-info-our", LEs{
+			{"Node", nodeId},
+			{"Name", Base32Codec.EncodeToString(info.Hash[:])},
+			{"Size", info.Size},
 		}, "")
 	}
 	if totalSize > 0 {
-		ctx.LogI("sp-infos", SDS{
-			"xx":   string(TTx),
-			"node": nodeId,
-			"pkts": len(payloads),
-			"size": totalSize,
+		ctx.LogI("sp-infos", LEs{
+			{"XX", string(TTx)},
+			{"Node", nodeId},
+			{"Pkts", len(payloads)},
+			{"Size", totalSize},
 		}, "")
 	}
 	return payloadsSplit(payloads)
@@ -392,31 +392,31 @@ func (state *SPState) StartI(conn ConnDeadlined) error {
 		state.dirUnlock()
 		return err
 	}
-	sds := SDS{"node": nodeId, "nice": int(state.Nice)}
-	state.Ctx.LogD("sp-start", sds, "sending first message")
+	les := LEs{{"Node", nodeId}, {"Nice", int(state.Nice)}}
+	state.Ctx.LogD("sp-start", les, "sending first message")
 	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 	if err = state.WriteSP(conn, buf, false); err != nil {
-		state.Ctx.LogE("sp-start", sds, err, "")
+		state.Ctx.LogE("sp-start", les, err, "")
 		state.dirUnlock()
 		return err
 	}
-	state.Ctx.LogD("sp-start", sds, "waiting for first message")
+	state.Ctx.LogD("sp-start", les, "waiting for first message")
 	conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 	if buf, err = state.ReadSP(conn); err != nil {
-		state.Ctx.LogE("sp-start", sds, err, "")
+		state.Ctx.LogE("sp-start", les, err, "")
 		state.dirUnlock()
 		return err
 	}
 	payload, state.csOur, state.csTheir, err = state.hs.ReadMessage(nil, buf)
 	if err != nil {
-		state.Ctx.LogE("sp-start", sds, err, "")
+		state.Ctx.LogE("sp-start", les, err, "")
 		state.dirUnlock()
 		return err
 	}
-	state.Ctx.LogD("sp-start", sds, "starting workers")
+	state.Ctx.LogD("sp-start", les, "starting workers")
 	err = state.StartWorkers(conn, infosPayloads, payload)
 	if err != nil {
-		state.Ctx.LogE("sp-start", sds, err, "")
+		state.Ctx.LogE("sp-start", les, err, "")
 		state.dirUnlock()
 	}
 	return err
@@ -447,14 +447,14 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	state.xxOnly = xxOnly
 	var buf []byte
 	var payload []byte
-	state.Ctx.LogD("sp-start", SDS{"nice": int(state.Nice)}, "waiting for first message")
+	state.Ctx.LogD("sp-start", LEs{{"Nice", int(state.Nice)}}, "waiting for first message")
 	conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 	if buf, err = state.ReadSP(conn); err != nil {
-		state.Ctx.LogE("sp-start", SDS{}, err, "")
+		state.Ctx.LogE("sp-start", LEs{}, err, "")
 		return err
 	}
 	if payload, _, _, err = state.hs.ReadMessage(nil, buf); err != nil {
-		state.Ctx.LogE("sp-start", SDS{}, err, "")
+		state.Ctx.LogE("sp-start", LEs{}, err, "")
 		return err
 	}
 
@@ -467,7 +467,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	}
 	if node == nil {
 		peerId := Base32Codec.EncodeToString(state.hs.PeerStatic())
-		state.Ctx.LogE("sp-start", SDS{"peer": peerId}, errors.New("unknown"), "")
+		state.Ctx.LogE("sp-start", LEs{{"Peer", peerId}}, errors.New("unknown peer"), "")
 		return errors.New("Unknown peer: " + peerId)
 	}
 	state.Node = node
@@ -475,7 +475,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	state.txRate = node.TxRate
 	state.onlineDeadline = node.OnlineDeadline
 	state.maxOnlineTime = node.MaxOnlineTime
-	sds := SDS{"node": node.Id, "nice": int(state.Nice)}
+	les := LEs{{"Node", node.Id}, {"Nice", int(state.Nice)}}
 
 	if err = state.Ctx.ensureRxDir(node.Id); err != nil {
 		return err
@@ -510,7 +510,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 		firstPayload = append(firstPayload, SPHaltMarshalized...)
 	}
 
-	state.Ctx.LogD("sp-start", sds, "sending first message")
+	state.Ctx.LogD("sp-start", les, "sending first message")
 	buf, state.csTheir, state.csOur, err = state.hs.WriteMessage(nil, firstPayload)
 	if err != nil {
 		state.dirUnlock()
@@ -518,11 +518,11 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	}
 	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 	if err = state.WriteSP(conn, buf, false); err != nil {
-		state.Ctx.LogE("sp-start", sds, err, "")
+		state.Ctx.LogE("sp-start", les, err, "")
 		state.dirUnlock()
 		return err
 	}
-	state.Ctx.LogD("sp-start", sds, "starting workers")
+	state.Ctx.LogD("sp-start", les, "starting workers")
 	err = state.StartWorkers(conn, infosPayloads, payload)
 	if err != nil {
 		state.dirUnlock()
@@ -535,7 +535,7 @@ func (state *SPState) StartWorkers(
 	infosPayloads [][]byte,
 	payload []byte,
 ) error {
-	sds := SDS{"node": state.Node.Id, "nice": int(state.Nice)}
+	les := LEs{{"Node", state.Node.Id}, {"Nice", int(state.Nice)}}
 	state.isDead = make(chan struct{})
 	if state.maxOnlineTime > 0 {
 		state.mustFinishAt = state.started.Add(state.maxOnlineTime)
@@ -548,7 +548,7 @@ func (state *SPState) StartWorkers(
 			for _, payload := range infosPayloads[1:] {
 				state.Ctx.LogD(
 					"sp-work",
-					SdsAdd(sds, SDS{"size": len(payload)}),
+					append(les, LE{"Size", len(payload)}),
 					"queuing remaining payload",
 				)
 				state.payloads <- payload
@@ -560,12 +560,12 @@ func (state *SPState) StartWorkers(
 	// Processing of first payload and queueing its responses
 	state.Ctx.LogD(
 		"sp-work",
-		SdsAdd(sds, SDS{"size": len(payload)}),
+		append(les, LE{"Size", len(payload)}),
 		"processing first payload",
 	)
 	replies, err := state.ProcessSP(payload)
 	if err != nil {
-		state.Ctx.LogE("sp-work", sds, err, "")
+		state.Ctx.LogE("sp-work", les, err, "")
 		return err
 	}
 	state.wg.Add(1)
@@ -573,7 +573,7 @@ func (state *SPState) StartWorkers(
 		for _, reply := range replies {
 			state.Ctx.LogD(
 				"sp-work",
-				SdsAdd(sds, SDS{"size": len(reply)}),
+				append(les, LE{"Size", len(reply)}),
 				"queuing reply",
 			)
 			state.payloads <- reply
@@ -632,7 +632,7 @@ func (state *SPState) StartWorkers(
 					) {
 						state.Ctx.LogD(
 							"sp-work",
-							SdsAdd(sds, SDS{"size": len(payload)}),
+							append(les, LE{"Size", len(payload)}),
 							"queuing new info",
 						)
 						state.payloads <- payload
@@ -656,13 +656,13 @@ func (state *SPState) StartWorkers(
 			var ping bool
 			select {
 			case <-state.pings:
-				state.Ctx.LogD("sp-xmit", sds, "got ping")
+				state.Ctx.LogD("sp-xmit", les, "got ping")
 				payload = SPPingMarshalized
 				ping = true
 			case payload = <-state.payloads:
 				state.Ctx.LogD(
 					"sp-xmit",
-					SdsAdd(sds, SDS{"size": len(payload)}),
+					append(les, LE{"Size", len(payload)}),
 					"got payload",
 				)
 			default:
@@ -677,12 +677,12 @@ func (state *SPState) StartWorkers(
 				if state.txRate > 0 {
 					time.Sleep(time.Second / time.Duration(state.txRate))
 				}
-				sdsp := SdsAdd(sds, SDS{
-					"xx":   string(TTx),
-					"pkt":  Base32Codec.EncodeToString(freq.Hash[:]),
-					"size": int64(freq.Offset),
-				})
-				state.Ctx.LogD("sp-file", sdsp, "queueing")
+				lesp := append(les, LEs{
+					{"XX", string(TTx)},
+					{"Pkt", Base32Codec.EncodeToString(freq.Hash[:])},
+					{"Size", int64(freq.Offset)},
+				}...)
+				state.Ctx.LogD("sp-file", lesp, "queueing")
 				fd, err := os.Open(filepath.Join(
 					state.Ctx.Spool,
 					state.Node.Id.String(),
@@ -690,30 +690,30 @@ func (state *SPState) StartWorkers(
 					Base32Codec.EncodeToString(freq.Hash[:]),
 				))
 				if err != nil {
-					state.Ctx.LogE("sp-file", sdsp, err, "")
+					state.Ctx.LogE("sp-file", lesp, err, "")
 					return
 				}
 				fi, err := fd.Stat()
 				if err != nil {
-					state.Ctx.LogE("sp-file", sdsp, err, "")
+					state.Ctx.LogE("sp-file", lesp, err, "")
 					return
 				}
 				fullSize := fi.Size()
 				var buf []byte
 				if freq.Offset < uint64(fullSize) {
-					state.Ctx.LogD("sp-file", sdsp, "seeking")
+					state.Ctx.LogD("sp-file", lesp, "seeking")
 					if _, err = fd.Seek(int64(freq.Offset), io.SeekStart); err != nil {
-						state.Ctx.LogE("sp-file", sdsp, err, "")
+						state.Ctx.LogE("sp-file", lesp, err, "")
 						return
 					}
 					buf = make([]byte, MaxSPSize-SPHeadOverhead-SPFileOverhead)
 					n, err := fd.Read(buf)
 					if err != nil {
-						state.Ctx.LogE("sp-file", sdsp, err, "")
+						state.Ctx.LogE("sp-file", lesp, err, "")
 						return
 					}
 					buf = buf[:n]
-					state.Ctx.LogD("sp-file", SdsAdd(sdsp, SDS{"size": n}), "read")
+					state.Ctx.LogD("sp-file", append(lesp, LE{"Size", n}), "read")
 				}
 				fd.Close() // #nosec G104
 				payload = MarshalSP(SPTypeFile, SPFile{
@@ -722,15 +722,15 @@ func (state *SPState) StartWorkers(
 					Payload: buf,
 				})
 				ourSize := freq.Offset + uint64(len(buf))
-				sdsp["size"] = int64(ourSize)
-				sdsp["fullsize"] = fullSize
+				lesp = append(lesp, LE{"Size", int64(ourSize)})
+				lesp = append(lesp, LE{"FullSize", fullSize})
 				if state.Ctx.ShowPrgrs {
-					Progress("Tx", sdsp)
+					Progress("Tx", lesp)
 				}
 				state.Lock()
 				if len(state.queueTheir) > 0 && *state.queueTheir[0].freq.Hash == *freq.Hash {
 					if ourSize == uint64(fullSize) {
-						state.Ctx.LogD("sp-file", sdsp, "finished")
+						state.Ctx.LogD("sp-file", lesp, "finished")
 						if len(state.queueTheir) > 1 {
 							state.queueTheir = state.queueTheir[1:]
 						} else {
@@ -740,14 +740,14 @@ func (state *SPState) StartWorkers(
 						state.queueTheir[0].freq.Offset += uint64(len(buf))
 					}
 				} else {
-					state.Ctx.LogD("sp-file", sdsp, "queue disappeared")
+					state.Ctx.LogD("sp-file", lesp, "queue disappeared")
 				}
 				state.Unlock()
 			}
-			state.Ctx.LogD("sp-xmit", SdsAdd(sds, SDS{"size": len(payload)}), "sending")
+			state.Ctx.LogD("sp-xmit", append(les, LE{"Size", len(payload)}), "sending")
 			conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 			if err := state.WriteSP(conn, state.csOur.Encrypt(nil, nil, payload), ping); err != nil {
-				state.Ctx.LogE("sp-xmit", sds, err, "")
+				state.Ctx.LogE("sp-xmit", les, err, "")
 				return
 			}
 		}
@@ -760,7 +760,7 @@ func (state *SPState) StartWorkers(
 			if state.NotAlive() {
 				break
 			}
-			state.Ctx.LogD("sp-recv", sds, "waiting for payload")
+			state.Ctx.LogD("sp-recv", les, "waiting for payload")
 			conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 			payload, err := state.ReadSP(conn)
 			if err != nil {
@@ -774,27 +774,27 @@ func (state *SPState) StartWorkers(
 				if unmarshalErr.ErrorCode == xdr.ErrIO {
 					break
 				}
-				state.Ctx.LogE("sp-recv", sds, err, "")
+				state.Ctx.LogE("sp-recv", les, err, "")
 				break
 			}
 			state.Ctx.LogD(
 				"sp-recv",
-				SdsAdd(sds, SDS{"size": len(payload)}),
+				append(les, LE{"Size", len(payload)}),
 				"got payload",
 			)
 			payload, err = state.csTheir.Decrypt(nil, nil, payload)
 			if err != nil {
-				state.Ctx.LogE("sp-recv", sds, err, "")
+				state.Ctx.LogE("sp-recv", les, err, "")
 				break
 			}
 			state.Ctx.LogD(
 				"sp-recv",
-				SdsAdd(sds, SDS{"size": len(payload)}),
+				append(les, LE{"Size", len(payload)}),
 				"processing",
 			)
 			replies, err := state.ProcessSP(payload)
 			if err != nil {
-				state.Ctx.LogE("sp-recv", sds, err, "")
+				state.Ctx.LogE("sp-recv", les, err, "")
 				break
 			}
 			state.wg.Add(1)
@@ -802,7 +802,7 @@ func (state *SPState) StartWorkers(
 				for _, reply := range replies {
 					state.Ctx.LogD(
 						"sp-recv",
-						SdsAdd(sds, SDS{"size": len(reply)}),
+						append(les, LE{"Size", len(reply)}),
 						"queuing reply",
 					)
 					state.payloads <- reply
@@ -841,16 +841,16 @@ func (state *SPState) Wait() {
 }
 
 func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
-	sds := SDS{"node": state.Node.Id, "nice": int(state.Nice)}
+	les := LEs{{"Node", state.Node.Id}, {"Nice", int(state.Nice)}}
 	r := bytes.NewReader(payload)
 	var err error
 	var replies [][]byte
 	var infosGot bool
 	for r.Len() > 0 {
-		state.Ctx.LogD("sp-process", sds, "unmarshaling header")
+		state.Ctx.LogD("sp-process", les, "unmarshaling header")
 		var head SPHead
 		if _, err = xdr.Unmarshal(r, &head); err != nil {
-			state.Ctx.LogE("sp-process", sds, err, "")
+			state.Ctx.LogE("sp-process", les, err, "")
 			return nil, err
 		}
 		if head.Type != SPTypePing {
@@ -858,38 +858,38 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 		}
 		switch head.Type {
 		case SPTypeHalt:
-			state.Ctx.LogD("sp-process", SdsAdd(sds, SDS{"type": "halt"}), "")
+			state.Ctx.LogD("sp-process", append(les, LE{"Type", "halt"}), "")
 			state.Lock()
 			state.queueTheir = nil
 			state.Unlock()
 		case SPTypePing:
-			state.Ctx.LogD("sp-process", SdsAdd(sds, SDS{"type": "ping"}), "")
+			state.Ctx.LogD("sp-process", append(les, LE{"Type", "ping"}), "")
 		case SPTypeInfo:
 			infosGot = true
-			sdsp := SdsAdd(sds, SDS{"type": "info"})
-			state.Ctx.LogD("sp-process", sdsp, "unmarshaling packet")
+			lesp := append(les, LE{"Type", "info"})
+			state.Ctx.LogD("sp-process", lesp, "unmarshaling packet")
 			var info SPInfo
 			if _, err = xdr.Unmarshal(r, &info); err != nil {
-				state.Ctx.LogE("sp-process", sdsp, err, "")
+				state.Ctx.LogE("sp-process", lesp, err, "")
 				return nil, err
 			}
-			sdsp = SdsAdd(sds, SDS{
-				"pkt":  Base32Codec.EncodeToString(info.Hash[:]),
-				"size": int64(info.Size),
-				"nice": int(info.Nice),
-			})
+			lesp = append(lesp, LEs{
+				{"Pkt", Base32Codec.EncodeToString(info.Hash[:])},
+				{"Size", int64(info.Size)},
+				{"Nice", int(info.Nice)},
+			}...)
 			if !state.listOnly && info.Nice > state.Nice {
-				state.Ctx.LogD("sp-process", sdsp, "too nice")
+				state.Ctx.LogD("sp-process", lesp, "too nice")
 				continue
 			}
-			state.Ctx.LogD("sp-process", sdsp, "received")
+			state.Ctx.LogD("sp-process", lesp, "received")
 			if !state.listOnly && state.xxOnly == TTx {
 				continue
 			}
 			state.Lock()
 			state.infosTheir[*info.Hash] = &info
 			state.Unlock()
-			state.Ctx.LogD("sp-process", sdsp, "stating part")
+			state.Ctx.LogD("sp-process", lesp, "stating part")
 			pktPath := filepath.Join(
 				state.Ctx.Spool,
 				state.Node.Id.String(),
@@ -897,14 +897,14 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				Base32Codec.EncodeToString(info.Hash[:]),
 			)
 			if _, err = os.Stat(pktPath); err == nil {
-				state.Ctx.LogI("sp-info", sdsp, "already done")
+				state.Ctx.LogI("sp-info", lesp, "already done")
 				if !state.listOnly {
 					replies = append(replies, MarshalSP(SPTypeDone, SPDone{info.Hash}))
 				}
 				continue
 			}
 			if _, err = os.Stat(pktPath + SeenSuffix); err == nil {
-				state.Ctx.LogI("sp-info", sdsp, "already seen")
+				state.Ctx.LogI("sp-info", lesp, "already seen")
 				if !state.listOnly {
 					replies = append(replies, MarshalSP(SPTypeDone, SPDone{info.Hash}))
 				}
@@ -916,14 +916,10 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				offset = fi.Size()
 			}
 			if !state.Ctx.IsEnoughSpace(int64(info.Size) - offset) {
-				state.Ctx.LogI("sp-info", sdsp, "not enough space")
+				state.Ctx.LogI("sp-info", lesp, "not enough space")
 				continue
 			}
-			state.Ctx.LogI(
-				"sp-info",
-				SdsAdd(sdsp, SDS{"offset": offset}),
-				"",
-			)
+			state.Ctx.LogI("sp-info", append(lesp, LE{"Offset", offset}), "")
 			if !state.listOnly && (state.onlyPkts == nil || state.onlyPkts[*info.Hash]) {
 				replies = append(replies, MarshalSP(
 					SPTypeFreq,
@@ -931,51 +927,49 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				))
 			}
 		case SPTypeFile:
-			sdsp := SdsAdd(sds, SDS{"type": "file"})
-			state.Ctx.LogD("sp-process", sdsp, "unmarshaling packet")
+			lesp := append(les, LE{"Type", "file"})
+			state.Ctx.LogD("sp-process", lesp, "unmarshaling packet")
 			var file SPFile
 			if _, err = xdr.Unmarshal(r, &file); err != nil {
-				state.Ctx.LogE("sp-process", SdsAdd(sds, SDS{"type": "file"}), err, "")
+				state.Ctx.LogE("sp-process", lesp, err, "")
 				return nil, err
 			}
-			sdsp["xx"] = string(TRx)
-			sdsp["pkt"] = Base32Codec.EncodeToString(file.Hash[:])
-			sdsp["size"] = len(file.Payload)
+			lesp = append(lesp, LEs{
+				{"XX", string(TRx)},
+				{"Pkt", Base32Codec.EncodeToString(file.Hash[:])},
+				{"Size", len(file.Payload)},
+			}...)
 			dirToSync := filepath.Join(
 				state.Ctx.Spool,
 				state.Node.Id.String(),
 				string(TRx),
 			)
 			filePath := filepath.Join(dirToSync, Base32Codec.EncodeToString(file.Hash[:]))
-			state.Ctx.LogD("sp-file", sdsp, "opening part")
+			state.Ctx.LogD("sp-file", lesp, "opening part")
 			fd, err := os.OpenFile(
 				filePath+PartSuffix,
 				os.O_RDWR|os.O_CREATE,
 				os.FileMode(0666),
 			)
 			if err != nil {
-				state.Ctx.LogE("sp-file", sdsp, err, "")
+				state.Ctx.LogE("sp-file", lesp, err, "")
 				return nil, err
 			}
-			state.Ctx.LogD(
-				"sp-file",
-				SdsAdd(sdsp, SDS{"offset": file.Offset}),
-				"seeking",
-			)
+			state.Ctx.LogD("sp-file", append(lesp, LE{"Offset", file.Offset}), "seeking")
 			if _, err = fd.Seek(int64(file.Offset), io.SeekStart); err != nil {
-				state.Ctx.LogE("sp-file", sdsp, err, "")
+				state.Ctx.LogE("sp-file", lesp, err, "")
 				fd.Close() // #nosec G104
 				return nil, err
 			}
-			state.Ctx.LogD("sp-file", sdsp, "writing")
+			state.Ctx.LogD("sp-file", lesp, "writing")
 			_, err = fd.Write(file.Payload)
 			if err != nil {
-				state.Ctx.LogE("sp-file", sdsp, err, "")
+				state.Ctx.LogE("sp-file", lesp, err, "")
 				fd.Close() // #nosec G104
 				return nil, err
 			}
 			ourSize := int64(file.Offset + uint64(len(file.Payload)))
-			sdsp["size"] = ourSize
+			lesp[len(lesp)-1].V = ourSize
 			fullsize := int64(0)
 			state.RLock()
 			infoTheir, ok := state.infosTheir[*file.Hash]
@@ -983,9 +977,9 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			if ok {
 				fullsize = int64(infoTheir.Size)
 			}
-			sdsp["fullsize"] = fullsize
+			lesp = append(lesp, LE{"FullSize", fullsize})
 			if state.Ctx.ShowPrgrs {
-				Progress("Rx", sdsp)
+				Progress("Rx", lesp)
 			}
 			if fullsize != ourSize {
 				fd.Close() // #nosec G104
@@ -997,7 +991,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					spCheckerToken <- struct{}{}
 				}()
 				if err := fd.Sync(); err != nil {
-					state.Ctx.LogE("sp-file", sdsp, err, "sync")
+					state.Ctx.LogE("sp-file", lesp, err, "sync")
 					fd.Close() // #nosec G104
 					return
 				}
@@ -1005,23 +999,23 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				defer state.wg.Done()
 				if _, err = fd.Seek(0, io.SeekStart); err != nil {
 					fd.Close() // #nosec G104
-					state.Ctx.LogE("sp-file", sdsp, err, "")
+					state.Ctx.LogE("sp-file", lesp, err, "")
 					return
 				}
-				state.Ctx.LogD("sp-file", sdsp, "checking")
-				gut, err := Check(fd, file.Hash[:], sdsp, state.Ctx.ShowPrgrs)
+				state.Ctx.LogD("sp-file", lesp, "checking")
+				gut, err := Check(fd, file.Hash[:], lesp, state.Ctx.ShowPrgrs)
 				fd.Close() // #nosec G104
 				if err != nil || !gut {
-					state.Ctx.LogE("sp-file", sdsp, errors.New("checksum mismatch"), "")
+					state.Ctx.LogE("sp-file", lesp, errors.New("checksum mismatch"), "")
 					return
 				}
-				state.Ctx.LogI("sp-done", SdsAdd(sdsp, SDS{"xx": string(TRx)}), "")
+				state.Ctx.LogI("sp-done", lesp, "")
 				if err = os.Rename(filePath+PartSuffix, filePath); err != nil {
-					state.Ctx.LogE("sp-file", sdsp, err, "rename")
+					state.Ctx.LogE("sp-file", lesp, err, "rename")
 					return
 				}
 				if err = DirSync(dirToSync); err != nil {
-					state.Ctx.LogE("sp-file", sdsp, err, "sync")
+					state.Ctx.LogE("sp-file", lesp, err, "sync")
 					return
 				}
 				state.Lock()
@@ -1034,38 +1028,38 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				}()
 			}()
 		case SPTypeDone:
-			sdsp := SdsAdd(sds, SDS{"type": "done"})
-			state.Ctx.LogD("sp-process", sdsp, "unmarshaling packet")
+			lesp := append(les, LE{"Type", "done"})
+			state.Ctx.LogD("sp-process", lesp, "unmarshaling packet")
 			var done SPDone
 			if _, err = xdr.Unmarshal(r, &done); err != nil {
-				state.Ctx.LogE("sp-process", SdsAdd(sds, SDS{"type": "done"}), err, "")
+				state.Ctx.LogE("sp-process", lesp, err, "")
 				return nil, err
 			}
-			sdsp["pkt"] = Base32Codec.EncodeToString(done.Hash[:])
-			state.Ctx.LogD("sp-done", sdsp, "removing")
+			lesp = append(lesp, LE{"Pkt", Base32Codec.EncodeToString(done.Hash[:])})
+			state.Ctx.LogD("sp-done", lesp, "removing")
 			err := os.Remove(filepath.Join(
 				state.Ctx.Spool,
 				state.Node.Id.String(),
 				string(TTx),
 				Base32Codec.EncodeToString(done.Hash[:]),
 			))
-			sdsp["xx"] = string(TTx)
+			lesp = append(lesp, LE{"XX", string(TTx)})
 			if err == nil {
-				state.Ctx.LogI("sp-done", sdsp, "")
+				state.Ctx.LogI("sp-done", lesp, "")
 			} else {
-				state.Ctx.LogE("sp-done", sdsp, err, "")
+				state.Ctx.LogE("sp-done", lesp, err, "")
 			}
 		case SPTypeFreq:
-			sdsp := SdsAdd(sds, SDS{"type": "freq"})
-			state.Ctx.LogD("sp-process", sdsp, "unmarshaling packet")
+			lesp := append(les, LE{"Type", "freq"})
+			state.Ctx.LogD("sp-process", lesp, "unmarshaling packet")
 			var freq SPFreq
 			if _, err = xdr.Unmarshal(r, &freq); err != nil {
-				state.Ctx.LogE("sp-process", sdsp, err, "")
+				state.Ctx.LogE("sp-process", lesp, err, "")
 				return nil, err
 			}
-			sdsp["pkt"] = Base32Codec.EncodeToString(freq.Hash[:])
-			sdsp["offset"] = freq.Offset
-			state.Ctx.LogD("sp-process", sdsp, "queueing")
+			lesp = append(lesp, LE{"Pkt", Base32Codec.EncodeToString(freq.Hash[:])})
+			lesp = append(lesp, LE{"Offset", freq.Offset})
+			state.Ctx.LogD("sp-process", lesp, "queueing")
 			nice, exists := state.infosOurSeen[*freq.Hash]
 			if exists {
 				if state.onlyPkts == nil || !state.onlyPkts[*freq.Hash] {
@@ -1082,15 +1076,15 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					state.queueTheir[insertIdx] = &FreqWithNice{&freq, nice}
 					state.Unlock()
 				} else {
-					state.Ctx.LogD("sp-process", sdsp, "skipping")
+					state.Ctx.LogD("sp-process", lesp, "skipping")
 				}
 			} else {
-				state.Ctx.LogD("sp-process", sdsp, "unknown")
+				state.Ctx.LogD("sp-process", lesp, "unknown")
 			}
 		default:
 			state.Ctx.LogE(
 				"sp-process",
-				SdsAdd(sds, SDS{"type": head.Type}),
+				append(les, LE{"Type", head.Type}),
 				errors.New("unknown type"),
 				"",
 			)
@@ -1106,11 +1100,11 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			size += info.Size
 		}
 		state.RUnlock()
-		state.Ctx.LogI("sp-infos", SDS{
-			"xx":   string(TRx),
-			"node": state.Node.Id,
-			"pkts": pkts,
-			"size": int64(size),
+		state.Ctx.LogI("sp-infos", LEs{
+			{"XX", string(TRx)},
+			{"Node", state.Node.Id},
+			{"Pkts", pkts},
+			{"Size", int64(size)},
 		}, "")
 	}
 	return payloadsSplit(replies), nil

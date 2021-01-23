@@ -3,6 +3,30 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 6.0.0
+@section Release 6.0.0
+@itemize
+
+@item Log uses human readable and easy machine parseable
+@url{https://www.gnu.org/software/recutils/, recfile} format for the
+records, instead of structured RFC 3339 lines. Old logs are not readable
+by @command{nncp-log} anymore.
+
+@item
+@option{-autotoss*} option workability with @command{nncp-daemon}'s
+@option{-inetd} mode.
+
+@item
+Call's @option{when-tx-exists} allows to make a call only when outbound
+packets exists. Combined with seconds-aware cron expression that can be
+used as some kind of auto dialler.
+
+@item
+@command{nncp-cronexpr} command allows you to check validity and
+expectations of specified cron expression.
+
+@end itemize
+
 @node Release 5.6.0
 @section Release 5.6.0
 @itemize

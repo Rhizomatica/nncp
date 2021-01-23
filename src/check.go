@@ -27,12 +27,12 @@ import (
 	"golang.org/x/crypto/blake2b"
 )
 
-func Check(src io.Reader, checksum []byte, sds SDS, showPrgrs bool) (bool, error) {
+func Check(src io.Reader, checksum []byte, les LEs, showPrgrs bool) (bool, error) {
 	hsh, err := blake2b.New256(nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if _, err = CopyProgressed(hsh, bufio.NewReader(src), "check", sds, showPrgrs); err != nil {
+	if _, err = CopyProgressed(hsh, bufio.NewReader(src), "check", les, showPrgrs); err != nil {
 		return false, err
 	}
 	return bytes.Compare(hsh.Sum(nil), checksum) == 0, nil
@@ -41,21 +41,21 @@ func Check(src io.Reader, checksum []byte, sds SDS, showPrgrs bool) (bool, error
 func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, xx) {
-		sds := SDS{
-			"xx":       string(xx),
-			"node":     nodeId,
-			"pkt":      Base32Codec.EncodeToString(job.HshValue[:]),
-			"fullsize": job.Size,
+		les := LEs{
+			{"XX", string(xx)},
+			{"Node", nodeId},
+			{"Pkt", Base32Codec.EncodeToString(job.HshValue[:])},
+			{"FullSize", job.Size},
 		}
-		gut, err := Check(job.Fd, job.HshValue[:], sds, ctx.ShowPrgrs)
+		gut, err := Check(job.Fd, job.HshValue[:], les, ctx.ShowPrgrs)
 		job.Fd.Close() // #nosec G104
 		if err != nil {
-			ctx.LogE("check", sds, err, "")
+			ctx.LogE("check", les, err, "")
 			return true
 		}
 		if !gut {
 			isBad = true
-			ctx.LogE("check", sds, errors.New("bad"), "")
+			ctx.LogE("check", les, errors.New("bad"), "")
 		}
 	}
 	return isBad

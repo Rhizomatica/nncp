@@ -77,16 +77,16 @@ func performSP(
 		Nice: nice,
 	}
 	if err := state.StartR(conn); err == nil {
-		ctx.LogI("call-start", nncp.SDS{"node": state.Node.Id}, "connected")
+		ctx.LogI("call-start", nncp.LEs{{K: "Node", V: state.Node.Id}}, "connected")
 		nodeIdC <- state.Node.Id
 		state.Wait()
-		ctx.LogI("call-finish", nncp.SDS{
-			"node":     state.Node.Id,
-			"duration": int64(state.Duration.Seconds()),
-			"rxbytes":  state.RxBytes,
-			"txbytes":  state.TxBytes,
-			"rxspeed":  state.RxSpeed,
-			"txspeed":  state.TxSpeed,
+		ctx.LogI("call-finish", nncp.LEs{
+			{K: "Node", V: state.Node.Id},
+			{K: "Duration", V: int64(state.Duration.Seconds())},
+			{K: "RxBytes", V: state.RxBytes},
+			{K: "TxBytes", V: state.TxBytes},
+			{K: "RxSpeed", V: state.RxSpeed},
+			{K: "TxSpeed", V: state.TxSpeed},
 		}, "")
 	} else {
 		nodeId := "unknown"
@@ -96,7 +96,7 @@ func performSP(
 			nodeIdC <- state.Node.Id
 			nodeId = state.Node.Id.String()
 		}
-		ctx.LogE("call-start", nncp.SDS{"node": nodeId}, err, "")
+		ctx.LogI("call-start", nncp.LEs{{K: "Node", V: nodeId}}, "connected")
 	}
 	close(nodeIdC)
 }
@@ -161,8 +161,25 @@ func main() {
 		conn := &InetdConn{os.Stdin, os.Stdout}
 		nodeIdC := make(chan *nncp.NodeId)
 		go performSP(ctx, conn, nice, nodeIdC)
-		<-nodeIdC    // nodeId
-		<-nodeIdC    // call completion
+		nodeId := <-nodeIdC
+		var autoTossFinish chan struct{}
+		var autoTossBadCode chan bool
+		if *autoToss && nodeId != nil {
+			autoTossFinish, autoTossBadCode = ctx.AutoToss(
+				nodeId,
+				nice,
+				*autoTossDoSeen,
+				*autoTossNoFile,
+				*autoTossNoFreq,
+				*autoTossNoExec,
+				*autoTossNoTrns,
+			)
+		}
+		<-nodeIdC // call completion
+		if *autoToss {
+			close(autoTossFinish)
+			<-autoTossBadCode
+		}
 		conn.Close() // #nosec G104
 		return
 	}
@@ -177,7 +194,7 @@ func main() {
 		if err != nil {
 			log.Fatalln("Can not accept connection:", err)
 		}
-		ctx.LogD("daemon", nncp.SDS{"addr": conn.RemoteAddr()}, "accepted")
+		ctx.LogD("daemon", nncp.LEs{{K: "Addr", V: conn.RemoteAddr()}}, "accepted")
 		go func(conn net.Conn) {
 			nodeIdC := make(chan *nncp.NodeId)
 			go performSP(ctx, conn, nice, nodeIdC)

@@ -80,10 +80,10 @@ func (ctx *Ctx) Tx(
 	curSize := size
 	pipeR, pipeW := io.Pipe()
 	go func(size int64, src io.Reader, dst io.WriteCloser) {
-		ctx.LogD("tx", SDS{
-			"node": hops[0].Id,
-			"nice": int(nice),
-			"size": size,
+		ctx.LogD("tx", LEs{
+			{"Node", hops[0].Id},
+			{"Nice", int(nice)},
+			{"Size", size},
 		}, "wrote")
 		errs <- PktEncWrite(ctx.Self, hops[0], pkt, nice, size, padSize, src, dst)
 		dst.Close() // #nosec G104
@@ -96,10 +96,10 @@ func (ctx *Ctx) Tx(
 		pipeRPrev = pipeR
 		pipeR, pipeW = io.Pipe()
 		go func(node *Node, pkt *Pkt, size int64, src io.Reader, dst io.WriteCloser) {
-			ctx.LogD("tx", SDS{
-				"node": node.Id,
-				"nice": int(nice),
-				"size": size,
+			ctx.LogD("tx", LEs{
+				{"Node", node.Id},
+				{"Nice", int(nice)},
+				{"Size", size},
 			}, "trns wrote")
 			errs <- PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
 			dst.Close() // #nosec G104
@@ -109,7 +109,7 @@ func (ctx *Ctx) Tx(
 	go func() {
 		_, err := CopyProgressed(
 			tmp.W, pipeR, "Tx",
-			SDS{"pkt": pktName, "fullsize": curSize},
+			LEs{{"Pkt", pktName}, {"FullSize", curSize}},
 			ctx.ShowPrgrs,
 		)
 		errs <- err
@@ -347,18 +347,18 @@ func (ctx *Ctx) TxFile(
 			return err
 		}
 		_, err = ctx.Tx(node, pkt, nice, fileSize, minSize, reader, dstPath)
-		sds := SDS{
-			"type": "file",
-			"node": node.Id,
-			"nice": int(nice),
-			"src":  srcPath,
-			"dst":  dstPath,
-			"size": fileSize,
+		les := LEs{
+			{"Type", "file"},
+			{"Node", node.Id},
+			{"Nice", int(nice)},
+			{"Src", srcPath},
+			{"Dst", dstPath},
+			{"Size", fileSize},
 		}
 		if err == nil {
-			ctx.LogI("tx", sds, "sent")
+			ctx.LogI("tx", les, "sent")
 		} else {
-			ctx.LogE("tx", sds, err, "sent")
+			ctx.LogE("tx", les, err, "sent")
 		}
 		return err
 	}
@@ -403,18 +403,18 @@ func (ctx *Ctx) TxFile(
 			io.TeeReader(reader, hsh),
 			path,
 		)
-		sds := SDS{
-			"type": "file",
-			"node": node.Id,
-			"nice": int(nice),
-			"src":  srcPath,
-			"dst":  path,
-			"size": sizeToSend,
+		les := LEs{
+			{"Type", "file"},
+			{"Node", node.Id},
+			{"Nice", int(nice)},
+			{"Src", srcPath},
+			{"Dst", path},
+			{"Size", sizeToSend},
 		}
 		if err == nil {
-			ctx.LogI("tx", sds, "sent")
+			ctx.LogI("tx", les, "sent")
 		} else {
-			ctx.LogE("tx", sds, err, "sent")
+			ctx.LogE("tx", les, err, "sent")
 			return err
 		}
 		hsh.Sum(metaPkt.Checksums[chunkNum][:0])
@@ -436,18 +436,18 @@ func (ctx *Ctx) TxFile(
 	}
 	metaPktSize := int64(metaBuf.Len())
 	_, err = ctx.Tx(node, pkt, nice, metaPktSize, minSize, &metaBuf, path)
-	sds := SDS{
-		"type": "file",
-		"node": node.Id,
-		"nice": int(nice),
-		"src":  srcPath,
-		"dst":  path,
-		"size": metaPktSize,
+	les := LEs{
+		{"Type", "file"},
+		{"Node", node.Id},
+		{"Nice", int(nice)},
+		{"Src", srcPath},
+		{"Dst", path},
+		{"Size", metaPktSize},
 	}
 	if err == nil {
-		ctx.LogI("tx", sds, "sent")
+		ctx.LogI("tx", les, "sent")
 	} else {
-		ctx.LogE("tx", sds, err, "sent")
+		ctx.LogE("tx", les, err, "sent")
 	}
 	return err
 }
@@ -472,18 +472,18 @@ func (ctx *Ctx) TxFreq(
 	src := strings.NewReader(dstPath)
 	size := int64(src.Len())
 	_, err = ctx.Tx(node, pkt, nice, size, minSize, src, srcPath)
-	sds := SDS{
-		"type":      "freq",
-		"node":      node.Id,
-		"nice":      int(nice),
-		"replynice": int(replyNice),
-		"src":       srcPath,
-		"dst":       dstPath,
+	les := LEs{
+		{"Type", "freq"},
+		{"Node", node.Id},
+		{"Nice", int(nice)},
+		{"ReplyNice", int(replyNice)},
+		{"Src", srcPath},
+		{"Dst", dstPath},
 	}
 	if err == nil {
-		ctx.LogI("tx", sds, "sent")
+		ctx.LogI("tx", les, "sent")
 	} else {
-		ctx.LogE("tx", sds, err, "sent")
+		ctx.LogE("tx", les, err, "sent")
 	}
 	return err
 }
@@ -583,33 +583,33 @@ func (ctx *Ctx) TxExec(
 		_, err = ctx.Tx(node, pkt, nice, size, minSize, tmpReader, handle)
 	}
 
-	sds := SDS{
-		"type":      "exec",
-		"node":      node.Id,
-		"nice":      int(nice),
-		"replynice": int(replyNice),
-		"dst":       strings.Join(append([]string{handle}, args...), " "),
-		"size":      size,
+	les := LEs{
+		{"Type", "exec"},
+		{"Node", node.Id},
+		{"Nice", int(nice)},
+		{"ReplyNice", int(replyNice)},
+		{"Dst", strings.Join(append([]string{handle}, args...), " ")},
+		{"Size", size},
 	}
 	if err == nil {
-		ctx.LogI("tx", sds, "sent")
+		ctx.LogI("tx", les, "sent")
 	} else {
-		ctx.LogE("tx", sds, err, "sent")
+		ctx.LogE("tx", les, err, "sent")
 	}
 	return err
 }
 
 func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error {
-	sds := SDS{
-		"type": "trns",
-		"node": node.Id,
-		"nice": int(nice),
-		"size": size,
+	les := LEs{
+		{"Type", "trns"},
+		{"Node", node.Id},
+		{"Nice", int(nice)},
+		{"Size", size},
 	}
-	ctx.LogD("tx", sds, "taken")
+	ctx.LogD("tx", les, "taken")
 	if !ctx.IsEnoughSpace(size) {
 		err := errors.New("is not enough space")
-		ctx.LogE("tx", sds, err, err.Error())
+		ctx.LogE("tx", les, err, err.Error())
 		return err
 	}
 	tmp, err := ctx.NewTmpFileWHash()
@@ -618,7 +618,7 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	}
 	if _, err = CopyProgressed(
 		tmp.W, src, "Tx trns",
-		SDS{"pkt": node.Id.String(), "fullsize": size},
+		LEs{{"Pkt", node.Id.String()}, {"FullSize", size}},
 		ctx.ShowPrgrs,
 	); err != nil {
 		return err
@@ -626,9 +626,9 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	nodePath := filepath.Join(ctx.Spool, node.Id.String())
 	err = tmp.Commit(filepath.Join(nodePath, string(TTx)))
 	if err == nil {
-		ctx.LogI("tx", sds, "sent")
+		ctx.LogI("tx", les, "sent")
 	} else {
-		ctx.LogI("tx", SdsAdd(sds, SDS{"err": err}), "sent")
+		ctx.LogI("tx", append(les, LE{"Err", err}), "sent")
 	}
 	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name)) // #nosec G104
 	return err
