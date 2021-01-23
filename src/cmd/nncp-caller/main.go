@@ -134,6 +134,25 @@ func main() {
 						node.Busy = true
 						node.Unlock()
 
+						if call.WhenTxExists && call.Xx != "TRx" {
+							ctx.LogD("caller", sds, "checking tx existence")
+							txExists := false
+							for job := range ctx.Jobs(node.Id, nncp.TTx) {
+								job.Fd.Close()
+								if job.PktEnc.Nice > call.Nice {
+									continue
+								}
+								txExists = true
+							}
+							if !txExists {
+								ctx.LogD("caller", sds, "no tx")
+								node.Lock()
+								node.Busy = false
+								node.Unlock()
+								continue
+							}
+						}
+
 						var autoTossFinish chan struct{}
 						var autoTossBadCode chan bool
 						if call.AutoToss {
