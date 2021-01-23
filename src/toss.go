@@ -87,6 +87,7 @@ func (ctx *Ctx) Toss(
 		sds := SDS{"node": job.PktEnc.Sender, "pkt": pktName}
 		if job.PktEnc.Nice > nice {
 			ctx.LogD("rx", SdsAdd(sds, SDS{"nice": int(job.PktEnc.Nice)}), "too nice")
+			job.Fd.Close() // #nosec G104
 			continue
 		}
 		pipeR, pipeW := io.Pipe()
