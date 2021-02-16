@@ -55,15 +55,23 @@ delivery via NNCP:
 @example
 /usr/local/etc/postfix/master.cf:
 nncp      unix  -       n       n       -       -       pipe
-          flags=F user=nncp argv=nncp-exec -quiet $nexthop sendmail $recipient
+  flags=FRqhu user=nncp argv=nncp-exec -quiet $nexthop sendmail $recipient
 @end example
 
 This runs the @command{nncp-exec} command to place outgoing mail into
-the NNCP queue after replacing @var{$nexthop} by the the receiving NNCP
+the NNCP queue after replacing @var{$nexthop} by the receiving NNCP
 node and after replacing @var{$recipient} by the recipients. The
 @command{pipe(8)} delivery agent executes the @command{nncp-exec}
 command without assistance from the shell, so there are no problems with
 shell meta characters in command-line parameters.
+
+Pay attention to @code{flags}, containing @code{R}, telling Postfix to
+include @code{Return-Path:} header. Otherwise that envelope sender
+information will be lost. Possibly you will also need somehow to
+preserve that header on the receiving side, because @command{sendmail}
+command will replace it. For example you can rename it before feeding to
+@command{sendmail} with
+@code{reformail -R Return-Path: X-Original-Return-Path: | sendmail}.
 
 @item Specify that mail for @emph{example.com}, should be delivered via
 NNCP, to a host named @emph{nncp-host}:
@@ -134,7 +142,7 @@ mail delivery via NNCP:
 @example
 /usr/local/etc/postfix/master.cf:
 nncp      unix  -       n       n       -       -       pipe
-          flags=F user=nncp argv=nncp-exec -quiet $nexthop sendmail $recipient
+  flags=Fqhu user=nncp argv=nncp-exec -quiet $nexthop sendmail $recipient
 @end example
 
 This runs the @command{nncp-exec} command to place outgoing mail into
