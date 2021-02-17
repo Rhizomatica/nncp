@@ -27,7 +27,7 @@ NNCP это свободное программное обеспечением: 
 
 Пожалуйста все вопросы касающиеся использования NNCP, отчёты об ошибках
 и патчи отправляйте в nncp-devel почтовую рассылку:
-https://lists.cypherpunks.ru/pipermail/nncp-devel/
+http://lists.cypherpunks.ru/nncp_002ddevel.html
 
 Исходный код для разработчика находится в Git репозитории:
 http://www.git.cypherpunks.ru/?p=nncp.git;a=summary
