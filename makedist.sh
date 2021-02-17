@@ -170,7 +170,7 @@ GPG key ID: 0x2B25868E75A1A953 NNCP releases <releases@nncpgo.org>
 Fingerprint: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
 
 Please send questions regarding the use of NNCP, bug reports and patches
-to mailing list: https://lists.cypherpunks.ru/pipermail/nncp-devel/
+to mailing list: http://lists.cypherpunks.ru/nncp_002ddevel.html
 EOF
 
 cat <<EOF
@@ -220,5 +220,5 @@ SHA256 хэш: $hash
 
 Пожалуйста, все вопросы касающиеся использования NNCP, отчёты об ошибках
 и патчи отправляйте в nncp-devel почтовую рассылку:
-https://lists.cypherpunks.ru/pipermail/nncp-devel/
+http://lists.cypherpunks.ru/nncp_002ddevel.html
 EOF
