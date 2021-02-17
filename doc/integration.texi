@@ -71,7 +71,10 @@ information will be lost. Possibly you will also need somehow to
 preserve that header on the receiving side, because @command{sendmail}
 command will replace it. For example you can rename it before feeding to
 @command{sendmail} with
-@code{reformail -R Return-Path: X-Original-Return-Path: | sendmail}.
+@code{reformail -R Return-Path: X-Original-Return-Path: | sendmail}, or
+extract with:
+
+@verbatiminclude sendmail.sh
 
 @item Specify that mail for @emph{example.com}, should be delivered via
 NNCP, to a host named @emph{nncp-host}:
