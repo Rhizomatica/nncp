@@ -292,7 +292,6 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]uint8) [
 	var infos []*SPInfo
 	var totalSize int64
 	for job := range ctx.Jobs(nodeId, TTx) {
-		job.Fd.Close() // #nosec G104
 		if job.PktEnc.Nice > nice {
 			continue
 		}
