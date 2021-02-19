@@ -83,23 +83,24 @@ func (ctx *Ctx) Toss(
 	}
 	defer decompressor.Close()
 	for job := range ctx.Jobs(nodeId, TRx) {
-		pktName := filepath.Base(job.Fd.Name())
+		pktName := filepath.Base(job.Path)
 		les := LEs{{"Node", job.PktEnc.Sender}, {"Pkt", pktName}}
 		if job.PktEnc.Nice > nice {
 			ctx.LogD("rx", append(les, LE{"Nice", int(job.PktEnc.Nice)}), "too nice")
-			job.Fd.Close() // #nosec G104
 			continue
 		}
+		fd, err := os.Open(job.Path)
+		if err != nil {
+			ctx.LogE("rx", les, err, "open")
+			isBad = true
+			continue
+		}
+
 		pipeR, pipeW := io.Pipe()
 		go func(job Job) error {
 			pipeWB := bufio.NewWriter(pipeW)
-			_, _, err := PktEncRead(
-				ctx.Self,
-				ctx.Neigh,
-				bufio.NewReader(job.Fd),
-				pipeWB,
-			)
-			job.Fd.Close() // #nosec G104
+			_, _, err := PktEncRead(ctx.Self, ctx.Neigh, bufio.NewReader(fd), pipeWB)
+			fd.Close() // #nosec G104
 			if err != nil {
 				return pipeW.CloseWithError(err)
 			}
@@ -109,7 +110,6 @@ func (ctx *Ctx) Toss(
 			return pipeW.Close()
 		}(job)
 		var pkt Pkt
-		var err error
 		var pktSize int64
 		var pktSizeBlocks int64
 		if _, err = xdr.Unmarshal(pipeR, &pkt); err != nil {
@@ -197,11 +197,11 @@ func (ctx *Ctx) Toss(
 			ctx.LogI("rx", les, "")
 			if !dryRun {
 				if doSeen {
-					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
+					if fd, err := os.Create(job.Path + SeenSuffix); err == nil {
 						fd.Close() // #nosec G104
 					}
 				}
-				if err = os.Remove(job.Fd.Name()); err != nil {
+				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("rx", les, err, "remove")
 					isBad = true
 				}
@@ -293,11 +293,11 @@ func (ctx *Ctx) Toss(
 			ctx.LogI("rx", les, "")
 			if !dryRun {
 				if doSeen {
-					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
+					if fd, err := os.Create(job.Path + SeenSuffix); err == nil {
 						fd.Close() // #nosec G104
 					}
 				}
-				if err = os.Remove(job.Fd.Name()); err != nil {
+				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("rx", les, err, "remove")
 					isBad = true
 				}
@@ -362,11 +362,11 @@ func (ctx *Ctx) Toss(
 			ctx.LogI("rx", les, "")
 			if !dryRun {
 				if doSeen {
-					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
+					if fd, err := os.Create(job.Path + SeenSuffix); err == nil {
 						fd.Close() // #nosec G104
 					}
 				}
-				if err = os.Remove(job.Fd.Name()); err != nil {
+				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("rx", les, err, "remove")
 					isBad = true
 				}
@@ -408,11 +408,11 @@ func (ctx *Ctx) Toss(
 			ctx.LogI("rx", les, "")
 			if !dryRun {
 				if doSeen {
-					if fd, err := os.Create(job.Fd.Name() + SeenSuffix); err == nil {
+					if fd, err := os.Create(job.Path + SeenSuffix); err == nil {
 						fd.Close() // #nosec G104
 					}
 				}
-				if err = os.Remove(job.Fd.Name()); err != nil {
+				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("rx", les, err, "remove")
 					isBad = true
 				}

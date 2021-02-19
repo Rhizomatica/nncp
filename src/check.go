@@ -23,6 +23,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"os"
 
 	"golang.org/x/crypto/blake2b"
 )
@@ -47,8 +48,13 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 			{"Pkt", Base32Codec.EncodeToString(job.HshValue[:])},
 			{"FullSize", job.Size},
 		}
-		gut, err := Check(job.Fd, job.HshValue[:], les, ctx.ShowPrgrs)
-		job.Fd.Close() // #nosec G104
+		fd, err := os.Open(job.Path)
+		if err != nil {
+			ctx.LogE("check", les, err, "")
+			return true
+		}
+		gut, err := Check(fd, job.HshValue[:], les, ctx.ShowPrgrs)
+		fd.Close() // #nosec G104
 		if err != nil {
 			ctx.LogE("check", les, err, "")
 			return true

@@ -125,12 +125,15 @@ func main() {
 				{K: "Pkt", V: "dummy"},
 			}
 			for job := range ctx.Jobs(&nodeId, nncp.TTx) {
-				pktName = filepath.Base(job.Fd.Name())
+				pktName = filepath.Base(job.Path)
 				les[len(les)-1].V = pktName
 				if job.PktEnc.Nice > nice {
 					ctx.LogD("nncp-bundle", les, "too nice")
-					job.Fd.Close() // #nosec G104
 					continue
+				}
+				fd, err := os.Open(job.Path)
+				if err != nil {
+					log.Fatalln("Error during opening:", err)
 				}
 				if err = tarWr.WriteHeader(&tar.Header{
 					Format:   tar.FormatUSTAR,
@@ -155,7 +158,7 @@ func main() {
 					log.Fatalln("Error writing tar header:", err)
 				}
 				if _, err = nncp.CopyProgressed(
-					tarWr, job.Fd, "Tx",
+					tarWr, bufio.NewReader(fd), "Tx",
 					append(les, nncp.LEs{
 						{K: "Pkt", V: nncp.Base32Codec.EncodeToString(job.HshValue[:])},
 						{K: "FullSize", V: job.Size},
@@ -164,7 +167,9 @@ func main() {
 				); err != nil {
 					log.Fatalln("Error during copying to tar:", err)
 				}
-				job.Fd.Close() // #nosec G104
+				if err = fd.Close(); err != nil {
+					log.Fatalln("Error during closing:", err)
+				}
 				if err = tarWr.Flush(); err != nil {
 					log.Fatalln("Error during tar flushing:", err)
 				}
@@ -172,7 +177,7 @@ func main() {
 					log.Fatalln("Error during stdout flushing:", err)
 				}
 				if *doDelete {
-					if err = os.Remove(job.Fd.Name()); err != nil {
+					if err = os.Remove(job.Path); err != nil {
 						log.Fatalln("Error during deletion:", err)
 					}
 				}

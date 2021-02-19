@@ -315,39 +315,42 @@ Tx:
 		}
 		les = les[:len(les)-1]
 		for job := range ctx.Jobs(&nodeId, nncp.TTx) {
-			pktName := filepath.Base(job.Fd.Name())
+			pktName := filepath.Base(job.Path)
 			les := append(les, nncp.LE{K: "Pkt", V: pktName})
 			if job.PktEnc.Nice > nice {
 				ctx.LogD("nncp-xfer", les, "too nice")
-				job.Fd.Close() // #nosec G104
 				continue
 			}
 			if _, err = os.Stat(filepath.Join(dstPath, pktName)); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("nncp-xfer", les, "already exists")
-				job.Fd.Close() // #nosec G104
 				continue
 			}
 			if _, err = os.Stat(filepath.Join(dstPath, pktName+nncp.SeenSuffix)); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("nncp-xfer", les, "already exists")
-				job.Fd.Close() // #nosec G104
 				continue
 			}
 			tmp, err := nncp.TempFile(dstPath, "xfer")
 			if err != nil {
 				ctx.LogE("nncp-xfer", les, err, "mktemp")
-				job.Fd.Close() // #nosec G104
 				isBad = true
 				break
 			}
 			les = append(les, nncp.LE{K: "Tmp", V: tmp.Name()})
 			ctx.LogD("nncp-xfer", les, "created")
+			fd, err := os.Open(job.Path)
+			if err != nil {
+				ctx.LogE("nncp-xfer", les, err, "open")
+				tmp.Close() // #nosec G104
+				isBad = true
+				continue
+			}
 			bufW := bufio.NewWriter(tmp)
 			copied, err := nncp.CopyProgressed(
-				bufW, bufio.NewReader(job.Fd), "Tx",
+				bufW, bufio.NewReader(fd), "Tx",
 				append(les, nncp.LE{K: "FullSize", V: job.Size}),
 				ctx.ShowPrgrs,
 			)
-			job.Fd.Close() // #nosec G104
+			fd.Close() // #nosec G104
 			if err != nil {
 				ctx.LogE("nncp-xfer", les, err, "copy")
 				tmp.Close() // #nosec G104
@@ -383,7 +386,7 @@ Tx:
 			les = les[:len(les)-1]
 			ctx.LogI("nncp-xfer", append(les, nncp.LE{K: "Size", V: copied}), "")
 			if !*keep {
-				if err = os.Remove(job.Fd.Name()); err != nil {
+				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("nncp-xfer", les, err, "remove")
 					isBad = true
 				}

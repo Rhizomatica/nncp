@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 
@@ -34,7 +33,7 @@ const (
 
 type Job struct {
 	PktEnc   *PktEnc
-	Fd       *os.File
+	Path     string
 	Size     int64
 	HshValue *[32]byte
 }
@@ -58,17 +57,15 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 			if err != nil {
 				continue
 			}
-			fd, err := os.Open(filepath.Join(rxPath, fi.Name()))
+			pth := filepath.Join(rxPath, fi.Name())
+			fd, err := os.Open(pth)
 			if err != nil {
 				continue
 			}
 			var pktEnc PktEnc
-			if _, err = xdr.Unmarshal(fd, &pktEnc); err != nil || pktEnc.Magic != MagicNNCPEv4 {
-				fd.Close() // #nosec G104
-				continue
-			}
-			if _, err = fd.Seek(0, io.SeekStart); err != nil {
-				fd.Close() // #nosec G104
+			_, err = xdr.Unmarshal(fd, &pktEnc)
+			fd.Close()
+			if err != nil || pktEnc.Magic != MagicNNCPEv4 {
 				continue
 			}
 			ctx.LogD("jobs", LEs{
@@ -80,7 +77,7 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 			}, "taken")
 			job := Job{
 				PktEnc:   &pktEnc,
-				Fd:       fd,
+				Path:     pth,
 				Size:     fi.Size(),
 				HshValue: new([32]byte),
 			}

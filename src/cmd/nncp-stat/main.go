@@ -99,7 +99,6 @@ func main() {
 		rxNums := make(map[uint8]int)
 		rxBytes := make(map[uint8]int64)
 		for job := range ctx.Jobs(node.Id, nncp.TRx) {
-			job.Fd.Close() // #nosec G104
 			if *showPkt {
 				jobPrint(nncp.TRx, job)
 			}
@@ -109,7 +108,6 @@ func main() {
 		txNums := make(map[uint8]int)
 		txBytes := make(map[uint8]int64)
 		for job := range ctx.Jobs(node.Id, nncp.TTx) {
-			job.Fd.Close() // #nosec G104
 			if *showPkt {
 				jobPrint(nncp.TTx, job)
 			}
