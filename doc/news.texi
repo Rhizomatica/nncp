@@ -21,6 +21,10 @@ Online downloaded files are saved with @file{.nock} (non-checksummed)
 suffix, waiting either for @command{nncp-check}, or online daemons to
 perform integrity check.
 
+@item
+Optimization: files, that are not resumed, are checksummed immediately
+during the online download, skipping @file{.nock}-intermediate step.
+
 @end itemize
 
 @node Release 6.0.0
