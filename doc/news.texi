@@ -12,6 +12,10 @@ Optimization: most commands do not keep opened file descriptors now.
 Previously you can exceed maximal number of opened files if you have got
 many packets in the spool directory.
 
+@item
+Optimization: do not close file descriptor of the file we download
+online. Previously each chunk lead to expensive open/close calls.
+
 @end itemize
 
 @node Release 6.0.0
