@@ -459,7 +459,7 @@ func TestTossTrns(t *testing.T) {
 			}
 			copy(pktTrans.Path[:], nodeOur.Id[:])
 			var dst bytes.Buffer
-			if err := PktEncWrite(
+			if _, err := PktEncWrite(
 				ctx.Self,
 				ctx.Neigh[*nodeOur.Id],
 				&pktTrans,

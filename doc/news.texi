@@ -25,6 +25,11 @@ perform integrity check.
 Optimization: files, that are not resumed, are checksummed immediately
 during the online download, skipping @file{.nock}-intermediate step.
 
+@item
+Ability to store encrypted packet's header in @file{.hdr} file, close to
+the packet itself. That can greatly increase performance of packets
+listing on filesystems with big block's size.
+
 @end itemize
 
 @node Release 6.0.0

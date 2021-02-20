@@ -141,7 +141,7 @@ func Progress(prefix string, les LEs) {
 		progressBarsLock.Unlock()
 	}
 	what := pkt
-	if len(what) >= 52 { // Base32 encoded
+	if len(what) >= Base32Encoded32Len { // Base32 encoded
 		what = what[:16] + ".." + what[len(what)-16:]
 	}
 	what = prefix + " " + what

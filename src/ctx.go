@@ -40,6 +40,7 @@ type Ctx struct {
 	UmaskForce *int
 	Quiet      bool
 	ShowPrgrs  bool
+	HdrUsage   bool
 	Debug      bool
 	NotifyFile *FromToJSON
 	NotifyFreq *FromToJSON

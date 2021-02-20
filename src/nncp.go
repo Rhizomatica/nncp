@@ -37,6 +37,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.`
 )
 
+const Base32Encoded32Len = 52
+
 var (
 	Version string = "6.1.0"
 

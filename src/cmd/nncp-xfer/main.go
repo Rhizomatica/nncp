@@ -28,7 +28,6 @@ import (
 	"os"
 	"path/filepath"
 
-	xdr "github.com/davecgh/go-xdr/xdr2"
 	"go.cypherpunks.ru/nncp/v5"
 )
 
@@ -183,8 +182,7 @@ func main() {
 				isBad = true
 				continue
 			}
-			var pktEnc nncp.PktEnc
-			_, err = xdr.Unmarshal(fd, &pktEnc)
+			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
 			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv4 {
 				ctx.LogD("nncp-xfer", les, "is not a packet")
 				fd.Close() // #nosec G104
@@ -248,6 +246,14 @@ func main() {
 					ctx.LogE("nncp-xfer", les, err, "remove")
 					isBad = true
 				}
+			}
+			if ctx.HdrUsage {
+				ctx.HdrWrite(pktEncRaw, filepath.Join(
+					ctx.Spool,
+					nodeId.String(),
+					string(nncp.TRx),
+					tmp.Checksum(),
+				))
 			}
 		}
 	}
@@ -389,6 +395,8 @@ Tx:
 				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("nncp-xfer", les, err, "remove")
 					isBad = true
+				} else if ctx.HdrUsage {
+					os.Remove(job.Path + nncp.HdrSuffix)
 				}
 			}
 		}

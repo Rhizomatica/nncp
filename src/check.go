@@ -82,6 +82,7 @@ func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[32]byte) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer fd.Close()
 	fi, err := fd.Stat()
 	if err != nil {
 		return 0, err
@@ -101,5 +102,18 @@ func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[32]byte) (int64, error) {
 	if err = os.Rename(pktPath+NoCKSuffix, pktPath); err != nil {
 		return 0, err
 	}
-	return size, DirSync(dirToSync)
+	if err = DirSync(dirToSync); err != nil {
+		return size, err
+	}
+	if ctx.HdrUsage {
+		if _, err = fd.Seek(0, io.SeekStart); err != nil {
+			return size, err
+		}
+		_, pktEncRaw, err := ctx.HdrRead(fd)
+		if err != nil {
+			return size, err
+		}
+		ctx.HdrWrite(pktEncRaw, pktPath)
+	}
+	return size, err
 }

@@ -1107,9 +1107,9 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				continue
 			}
 			err = fd.Sync()
-			state.closeFd(filePathPart)
 			if err != nil {
 				state.Ctx.LogE("sp-file", lesp, err, "sync")
+				state.closeFd(filePathPart)
 				continue
 			}
 			if hasherExists {
@@ -1134,8 +1134,25 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				state.Lock()
 				delete(state.infosTheir, *file.Hash)
 				state.Unlock()
+				if !state.Ctx.HdrUsage {
+					state.closeFd(filePathPart)
+					continue
+				}
+				if _, err = fd.Seek(0, io.SeekStart); err != nil {
+					state.Ctx.LogE("sp-file", lesp, err, "seek")
+					state.closeFd(filePathPart)
+					continue
+				}
+				_, pktEncRaw, err := state.Ctx.HdrRead(fd)
+				state.closeFd(filePathPart)
+				if err != nil {
+					state.Ctx.LogE("sp-file", lesp, err, "HdrRead")
+					continue
+				}
+				state.Ctx.HdrWrite(pktEncRaw, filePath)
 				continue
 			}
+			state.closeFd(filePathPart)
 			if err = os.Rename(filePathPart, filePath+NoCKSuffix); err != nil {
 				state.Ctx.LogE("sp-file", lesp, err, "rename")
 				continue
@@ -1162,15 +1179,19 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			}
 			lesp = append(lesp, LE{"Pkt", Base32Codec.EncodeToString(done.Hash[:])})
 			state.Ctx.LogD("sp-done", lesp, "removing")
-			err := os.Remove(filepath.Join(
+			pth := filepath.Join(
 				state.Ctx.Spool,
 				state.Node.Id.String(),
 				string(TTx),
 				Base32Codec.EncodeToString(done.Hash[:]),
-			))
+			)
+			err := os.Remove(pth)
 			lesp = append(lesp, LE{"XX", string(TTx)})
 			if err == nil {
 				state.Ctx.LogI("sp-done", lesp, "")
+				if state.Ctx.HdrUsage {
+					os.Remove(pth + HdrSuffix)
+				}
 			} else {
 				state.Ctx.LogE("sp-done", lesp, err, "")
 			}
