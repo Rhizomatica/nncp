@@ -204,6 +204,8 @@ func (ctx *Ctx) Toss(
 				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("rx", les, err, "remove")
 					isBad = true
+				} else if ctx.HdrUsage {
+					os.Remove(job.Path + HdrSuffix)
 				}
 			}
 		case PktTypeFile:
@@ -300,6 +302,8 @@ func (ctx *Ctx) Toss(
 				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("rx", les, err, "remove")
 					isBad = true
+				} else if ctx.HdrUsage {
+					os.Remove(job.Path + HdrSuffix)
 				}
 				if len(sendmail) > 0 && ctx.NotifyFile != nil {
 					cmd := exec.Command(
@@ -369,6 +373,8 @@ func (ctx *Ctx) Toss(
 				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("rx", les, err, "remove")
 					isBad = true
+				} else if ctx.HdrUsage {
+					os.Remove(job.Path + HdrSuffix)
 				}
 				if len(sendmail) > 0 && ctx.NotifyFreq != nil {
 					cmd := exec.Command(
@@ -415,6 +421,8 @@ func (ctx *Ctx) Toss(
 				if err = os.Remove(job.Path); err != nil {
 					ctx.LogE("rx", les, err, "remove")
 					isBad = true
+				} else if ctx.HdrUsage {
+					os.Remove(job.Path + HdrSuffix)
 				}
 			}
 		default:

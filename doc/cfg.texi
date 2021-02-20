@@ -9,6 +9,7 @@ Example @url{https://hjson.org/, Hjson} configuration file:
   log: /var/spool/nncp/log
   umask: "022"
   noprogress: true
+  nohdr: true
 
   notify: {
     file: {
@@ -102,6 +103,9 @@ override their umask to specified octal mask. Useful for using with
 Enabled @strong{noprogress} option disabled progress showing for many
 commands by default. You can always force its showing with
 @option{-progress} command line option anyway.
+
+@anchor{CfgNoHdr}
+@strong{nohdr} option disables @ref{HdrFile, .hdr} files usage.
 
 @anchor{CfgNotify}
 @strong{notify} section contains notification settings for successfully

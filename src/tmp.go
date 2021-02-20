@@ -92,6 +92,10 @@ func DirSync(dirPath string) error {
 	return fd.Close()
 }
 
+func (tmp *TmpFileWHash) Checksum() string {
+	return Base32Codec.EncodeToString(tmp.Hsh.Sum(nil))
+}
+
 func (tmp *TmpFileWHash) Commit(dir string) error {
 	var err error
 	if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
@@ -108,7 +112,7 @@ func (tmp *TmpFileWHash) Commit(dir string) error {
 	if err = tmp.Fd.Close(); err != nil {
 		return err
 	}
-	checksum := Base32Codec.EncodeToString(tmp.Hsh.Sum(nil))
+	checksum := tmp.Checksum()
 	tmp.ctx.LogD("tmp", LEs{{"Src", tmp.Fd.Name()}, {"Dst", checksum}}, "commit")
 	if err = os.Rename(tmp.Fd.Name(), filepath.Join(dir, checksum)); err != nil {
 		return err

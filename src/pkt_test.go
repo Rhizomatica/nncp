@@ -44,7 +44,7 @@ func TestPktEncWrite(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		err = PktEncWrite(
+		_, err = PktEncWrite(
 			nodeOur,
 			nodeTheir.Their(),
 			pkt,
@@ -95,7 +95,7 @@ func TestPktEncRead(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		err = PktEncWrite(
+		_, err = PktEncWrite(
 			node1,
 			node2.Their(),
 			pkt,

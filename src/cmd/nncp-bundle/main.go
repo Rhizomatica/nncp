@@ -179,6 +179,8 @@ func main() {
 				if *doDelete {
 					if err = os.Remove(job.Path); err != nil {
 						log.Fatalln("Error during deletion:", err)
+					} else if ctx.HdrUsage {
+						os.Remove(job.Path + nncp.HdrSuffix)
 					}
 				}
 				ctx.LogI("nncp-bundle", append(les, nncp.LE{K: "Size", V: job.Size}), "")
@@ -303,7 +305,10 @@ func main() {
 				if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) == pktName {
 					ctx.LogI("nncp-bundle", les, "removed")
 					if !*dryRun {
-						os.Remove(dstPath) // #nosec G104
+						os.Remove(dstPath)
+						if ctx.HdrUsage {
+							os.Remove(dstPath + nncp.HdrSuffix)
+						}
 					}
 				} else {
 					ctx.LogE("nncp-bundle", les, errors.New("bad checksum"), "")
@@ -411,6 +416,9 @@ func main() {
 					}
 					if err = nncp.DirSync(dstDirPath); err != nil {
 						log.Fatalln("Error during syncing:", err)
+					}
+					if ctx.HdrUsage {
+						ctx.HdrWrite(pktEncBuf, dstPath)
 					}
 				}
 			}

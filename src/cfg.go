@@ -119,6 +119,7 @@ type CfgJSON struct {
 	Umask string `json:"umask,omitempty"`
 
 	OmitPrgrs bool `json:"noprogress,omitempty"`
+	NoHdr     bool `json:"nohdr,omitempty"`
 
 	Notify *NotifyJSON `json:"notify,omitempty"`
 
@@ -463,11 +464,16 @@ func CfgParse(data []byte) (*Ctx, error) {
 	if cfgJSON.OmitPrgrs {
 		showPrgrs = false
 	}
+	hdrUsage := true
+	if cfgJSON.NoHdr {
+		hdrUsage = false
+	}
 	ctx := Ctx{
 		Spool:      spoolPath,
 		LogPath:    logPath,
 		UmaskForce: umaskForce,
 		ShowPrgrs:  showPrgrs,
+		HdrUsage:   hdrUsage,
 		Self:       self,
 		Neigh:      make(map[NodeId]*Node, len(cfgJSON.Neigh)),
 		Alias:      make(map[string]*NodeId),
