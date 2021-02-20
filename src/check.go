@@ -24,9 +24,12 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"golang.org/x/crypto/blake2b"
 )
+
+const NoCKSuffix = ".nock"
 
 func Check(src io.Reader, checksum []byte, les LEs, showPrgrs bool) (bool, error) {
 	hsh, err := blake2b.New256(nil)
@@ -69,4 +72,34 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 
 func (ctx *Ctx) Check(nodeId *NodeId) bool {
 	return !(ctx.checkXxIsBad(nodeId, TRx) || ctx.checkXxIsBad(nodeId, TTx))
+}
+
+func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[32]byte) (int64, error) {
+	dirToSync := filepath.Join(ctx.Spool, nodeId.String(), string(TRx))
+	pktName := Base32Codec.EncodeToString(hshValue[:])
+	pktPath := filepath.Join(dirToSync, pktName)
+	fd, err := os.Open(pktPath + NoCKSuffix)
+	if err != nil {
+		return 0, err
+	}
+	fi, err := fd.Stat()
+	if err != nil {
+		return 0, err
+	}
+	defer fd.Close()
+	size := fi.Size()
+	les := LEs{
+		{"XX", string(TRx)},
+		{"Node", nodeId},
+		{"Pkt", pktName},
+		{"FullSize", size},
+	}
+	gut, err := Check(fd, hshValue[:], les, ctx.ShowPrgrs)
+	if err != nil || !gut {
+		return 0, errors.New("checksum mismatch")
+	}
+	if err = os.Rename(pktPath+NoCKSuffix, pktPath); err != nil {
+		return 0, err
+	}
+	return size, DirSync(dirToSync)
 }

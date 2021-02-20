@@ -34,6 +34,7 @@ type Call struct {
 	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
 	WhenTxExists   bool
+	NoCK           bool
 
 	AutoToss       bool
 	AutoTossDoSeen bool
@@ -51,6 +52,7 @@ func (ctx *Ctx) CallNode(
 	rxRate, txRate int,
 	onlineDeadline, maxOnlineTime time.Duration,
 	listOnly bool,
+	noCK bool,
 	onlyPkts map[[32]byte]bool,
 ) (isGood bool) {
 	for _, addr := range addrs {
@@ -78,6 +80,7 @@ func (ctx *Ctx) CallNode(
 			rxRate:         rxRate,
 			txRate:         txRate,
 			listOnly:       listOnly,
+			NoCK:           noCK,
 			onlyPkts:       onlyPkts,
 		}
 		if err = state.StartI(conn); err == nil {

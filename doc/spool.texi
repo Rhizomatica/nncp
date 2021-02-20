@@ -12,6 +12,7 @@ spool/2WHB...OABQ/rx/5ZIB...UMKW.part
 spool/2WHB...OABQ/tx.lock
 spool/2WHB...OABQ/toss.lock
 spool/BYRR...CG6Q/rx.lock
+spool/BYRR...CG6Q/rx/MLZ6...Q3SQ.nock
 spool/BYRR...CG6Q/rx/
 spool/BYRR...CG6Q/tx.lock
 spool/BYRR...CG6Q/tx/AQUT...DGNT.seen
@@ -20,22 +21,34 @@ spool/BYRR...CG6Q/tx/VCSR...3VXX.seen
 spool/BYRR...CG6Q/tx/ZI5U...5RRQ
 @end example
 
-Except for @file{tmp}, all other directories are Base32-encoded node
-identifiers (@file{2WHB...OABQ}, @file{BYRR...CG6Q} in our example).
-Each node subdirectory has @file{rx} (received, partially received and
-currently unprocessed packets) and @file{tx} (for outbound packets)
+@itemize
+
+@item Except for @file{tmp}, all other directories are Base32-encoded
+node identifiers (@file{2WHB...OABQ}, @file{BYRR...CG6Q} in our example).
+
+@item Each node subdirectory has @file{rx} (received, partially received
+and currently unprocessed packets) and @file{tx} (for outbound packets)
 directories.
 
-Each @file{rx}/@file{tx} directory contains one file per encrypted
+@item Each @file{rx}/@file{tx} directory contains one file per encrypted
 packet. Its filename is Base32 encoded BLAKE2b hash of the contents. So
-it can be integrity checked at any time. @file{5ZIB...UMKW.part} is
-partially received file from @file{2WHB...OABQ} node. @file{tx}
-directory can not contain partially written files -- they are moved
-atomically from @file{tmp}.
+it can be integrity checked at any time.
 
-When @ref{nncp-toss} utility is called with @option{-seen} option, it
-will create empty @file{XXX.seen} files, telling that some kind of
+@item @file{5ZIB...UMKW.part} is partially received file from
+@file{2WHB...OABQ} node. @file{tx} directory can not contain partially
+written files -- they are moved atomically from @file{tmp}.
+
+@item @file{rx} can contain received, but currently integrity unchecked
+files with @file{.nock} extension. It is completely the same as an
+ordinary encrypted packets, but its integrity after online download was
+not done. After successful checksum verification, @file{.nock} extension
+is trimmed.
+
+@item When @ref{nncp-toss} utility is called with @option{-seen} option,
+it will create empty @file{XXX.seen} files, telling that some kind of
 packet was already tossed sometime.
 
-Only one process can work with @file{rx}/@file{tx} directories at once,
-so there are corresponding lock files.
+@item Only one process can work with @file{rx}/@file{tx} directories at
+once, so there are corresponding lock files.
+
+@end itemize

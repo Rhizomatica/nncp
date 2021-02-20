@@ -47,13 +47,14 @@ func (ctx *Ctx) Humanize(le map[string]string) (string, error) {
 	if err == nil {
 		nodeS = node.Name
 	}
+	var sizeParsed uint64
 	var size string
 	if sizeRaw, exists := le["Size"]; exists {
-		sp, err := strconv.ParseUint(sizeRaw, 10, 64)
+		sizeParsed, err = strconv.ParseUint(sizeRaw, 10, 64)
 		if err != nil {
 			return "", err
 		}
-		size = humanize.IBytes(uint64(sp))
+		size = humanize.IBytes(sizeParsed)
 	}
 
 	var msg string
@@ -212,15 +213,13 @@ func (ctx *Ctx) Humanize(le map[string]string) (string, error) {
 			"Packet %s (%s) (nice %s)",
 			le["Pkt"], size, NicenessFmt(nice),
 		)
-		offsetParsed, err := strconv.ParseUint(le["Offset"], 10, 64)
-		if err != nil {
-			return "", err
+		if offset := le["Offset"]; offset != "" {
+			offsetParsed, err := strconv.ParseUint(offset, 10, 64)
+			if err != nil {
+				return "", err
+			}
+			msg += fmt.Sprintf(": %d%%", 100*offsetParsed/sizeParsed)
 		}
-		sizeParsed, err := strconv.ParseUint(le["Size"], 10, 64)
-		if err != nil {
-			return "", err
-		}
-		msg += fmt.Sprintf(": %d%%", 100*offsetParsed/sizeParsed)
 		if m, exists := le["Msg"]; exists {
 			msg += ": " + m
 		}
@@ -246,10 +245,6 @@ func (ctx *Ctx) Humanize(le map[string]string) (string, error) {
 			return "", errors.New("unknown XX")
 		}
 		fullsize, err := strconv.ParseUint(le["FullSize"], 10, 64)
-		if err != nil {
-			return "", err
-		}
-		sizeParsed, err := strconv.ParseUint(le["Size"], 10, 64)
 		if err != nil {
 			return "", err
 		}
