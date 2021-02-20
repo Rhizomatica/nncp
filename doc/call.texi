@@ -31,6 +31,7 @@ calls: [
     {
         cron: "*/5 * * * * * *"
         when-tx-exists: true
+        nock: true
     },
 ]
 @end verbatim
@@ -84,5 +85,15 @@ created, or skip any kind of packet processing.
 
 @item when-tx-exists
 Call only if packets for sending exists.
+
+@anchor{CfgNoCK}
+@item nock
+NoCK (no-checksumming) tells not to do checksumming of received files,
+assuming that it will be done for example with @ref{nncp-check} command
+later. That can help minimizing time spent online, because HDD won't do
+simultaneous reading of the data for checksumming and writing of the
+received one, but just sequential writing of the file. Pay attention
+that you have to make a call to remote node after checksumming is done,
+to send notification about successful packet reception.
 
 @end table

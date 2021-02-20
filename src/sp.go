@@ -55,8 +55,6 @@ var (
 
 	DefaultDeadline = 10 * time.Second
 	PingTimeout     = time.Minute
-
-	spCheckerToken chan struct{}
 )
 
 type FdAndFullSize struct {
@@ -153,8 +151,6 @@ func init() {
 		panic(err)
 	}
 	SPFileOverhead = buf.Len()
-	spCheckerToken = make(chan struct{}, 1)
-	spCheckerToken <- struct{}{}
 }
 
 func MarshalSP(typ SPType, sp interface{}) []byte {
@@ -188,6 +184,7 @@ type SPState struct {
 	Ctx            *Ctx
 	Node           *Node
 	Nice           uint8
+	NoCK           bool
 	onlineDeadline time.Duration
 	maxOnlineTime  time.Duration
 	hs             *noise.HandshakeState
@@ -220,6 +217,7 @@ type SPState struct {
 	onlyPkts       map[[32]byte]bool
 	writeSPBuf     bytes.Buffer
 	fds            map[string]FdAndFullSize
+	checkerJobs    chan *[32]byte
 	sync.RWMutex
 }
 
@@ -241,6 +239,14 @@ func (state *SPState) SetDead() {
 		for range state.pings {
 		}
 	}()
+	go func() {
+		for _, s := range state.fds {
+			s.fd.Close()
+		}
+	}()
+	if !state.NoCK {
+		close(state.checkerJobs)
+	}
 }
 
 func (state *SPState) NotAlive() bool {
@@ -255,6 +261,31 @@ func (state *SPState) NotAlive() bool {
 func (state *SPState) dirUnlock() {
 	state.Ctx.UnlockDir(state.rxLock)
 	state.Ctx.UnlockDir(state.txLock)
+}
+
+func (state *SPState) SPChecker() {
+	for hshValue := range state.checkerJobs {
+		les := LEs{
+			{"XX", string(TRx)},
+			{"Node", state.Node.Id},
+			{"Pkt", Base32Codec.EncodeToString(hshValue[:])},
+		}
+		state.Ctx.LogD("sp-file", les, "checking")
+		size, err := state.Ctx.CheckNoCK(state.Node.Id, hshValue)
+		les = append(les, LE{"Size", size})
+		if err != nil {
+			state.Ctx.LogE("sp-file", les, err, "")
+			continue
+		}
+		state.Ctx.LogI("sp-done", les, "")
+		state.wg.Add(1)
+		go func(hsh *[32]byte) {
+			if !state.NotAlive() {
+				state.payloads <- MarshalSP(SPTypeDone, SPDone{hsh})
+			}
+			state.wg.Done()
+		}(hshValue)
+	}
 }
 
 func (state *SPState) WriteSP(dst io.Writer, payload []byte, ping bool) error {
@@ -450,6 +481,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	state.infosTheir = make(map[[32]byte]*SPInfo)
 	state.started = started
 	state.xxOnly = xxOnly
+
 	var buf []byte
 	var payload []byte
 	state.Ctx.LogD("sp-start", LEs{{"Nice", int(state.Nice)}}, "waiting for first message")
@@ -543,6 +575,20 @@ func (state *SPState) closeFd(pth string) {
 	}
 }
 
+func (state *SPState) FillExistingNoCK() {
+	checkerJobs := make([]*[32]byte, 0)
+	for job := range state.Ctx.JobsNoCK(state.Node.Id) {
+		if job.PktEnc.Nice > state.Nice {
+			continue
+		}
+		checkerJobs = append(checkerJobs, job.HshValue)
+	}
+	for _, job := range checkerJobs {
+		state.checkerJobs <- job
+	}
+	state.wg.Done()
+}
+
 func (state *SPState) StartWorkers(
 	conn ConnDeadlined,
 	infosPayloads [][]byte,
@@ -553,6 +599,14 @@ func (state *SPState) StartWorkers(
 	state.isDead = make(chan struct{})
 	if state.maxOnlineTime > 0 {
 		state.mustFinishAt = state.started.Add(state.maxOnlineTime)
+	}
+
+	// Checker
+	if !state.NoCK {
+		state.checkerJobs = make(chan *[32]byte)
+		go state.SPChecker()
+		state.wg.Add(1)
+		go state.FillExistingNoCK()
 	}
 
 	// Remaining handshake payload sending
@@ -838,9 +892,6 @@ func (state *SPState) StartWorkers(
 		state.wg.Done()
 		state.SetDead()
 		conn.Close() // #nosec G104
-		for _, s := range state.fds {
-			s.fd.Close()
-		}
 	}()
 
 	return nil
@@ -934,6 +985,10 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				}
 				continue
 			}
+			if _, err = os.Stat(pktPath + NoCKSuffix); err == nil {
+				state.Ctx.LogI("sp-info", lesp, "still non checksummed")
+				continue
+			}
 			fi, err := os.Stat(pktPath + PartSuffix)
 			var offset int64
 			if err == nil {
@@ -1015,48 +1070,27 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			if fullsize != ourSize {
 				continue
 			}
-			<-spCheckerToken
-			go func() {
-				defer func() {
-					spCheckerToken <- struct{}{}
-				}()
-				if err := fd.Sync(); err != nil {
-					state.Ctx.LogE("sp-file", lesp, err, "sync")
-					state.closeFd(filePathPart)
-					return
-				}
-				state.wg.Add(1)
-				defer state.wg.Done()
-				if _, err = fd.Seek(0, io.SeekStart); err != nil {
-					state.closeFd(filePathPart)
-					state.Ctx.LogE("sp-file", lesp, err, "")
-					return
-				}
-				state.Ctx.LogD("sp-file", lesp, "checking")
-				gut, err := Check(fd, file.Hash[:], lesp, state.Ctx.ShowPrgrs)
-				state.closeFd(filePathPart)
-				if err != nil || !gut {
-					state.Ctx.LogE("sp-file", lesp, errors.New("checksum mismatch"), "")
-					return
-				}
-				state.Ctx.LogI("sp-done", lesp, "")
-				if err = os.Rename(filePath+PartSuffix, filePath); err != nil {
-					state.Ctx.LogE("sp-file", lesp, err, "rename")
-					return
-				}
-				if err = DirSync(dirToSync); err != nil {
-					state.Ctx.LogE("sp-file", lesp, err, "sync")
-					return
-				}
-				state.Lock()
-				delete(state.infosTheir, *file.Hash)
-				state.Unlock()
-				state.wg.Add(1)
-				go func() {
-					state.payloads <- MarshalSP(SPTypeDone, SPDone{file.Hash})
-					state.wg.Done()
-				}()
-			}()
+			err = fd.Sync()
+			state.closeFd(filePathPart)
+			if err != nil {
+				state.Ctx.LogE("sp-file", lesp, err, "sync")
+				continue
+			}
+			if err = os.Rename(filePathPart, filePath+NoCKSuffix); err != nil {
+				state.Ctx.LogE("sp-file", lesp, err, "rename")
+				continue
+			}
+			if err = DirSync(dirToSync); err != nil {
+				state.Ctx.LogE("sp-file", lesp, err, "sync")
+				continue
+			}
+			state.Ctx.LogI("sp-file", lesp, "downloaded")
+			state.Lock()
+			delete(state.infosTheir, *file.Hash)
+			state.Unlock()
+			if !state.NoCK {
+				state.checkerJobs <- file.Hash
+			}
 		case SPTypeDone:
 			lesp := append(les, LE{"Type", "done"})
 			state.Ctx.LogD("sp-process", lesp, "unmarshaling packet")

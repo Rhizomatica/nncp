@@ -211,6 +211,7 @@ func main() {
     #   #     xx: rx
     #   #     addr: lan
     #   #     when-tx-exists: true
+    #   #     nock: true
     #   #
     #   #     autotoss: false
     #   #     autotoss-doseen: true

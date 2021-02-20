@@ -20,6 +20,7 @@ package nncp
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 )
@@ -38,7 +39,7 @@ type Job struct {
 	HshValue *[32]byte
 }
 
-func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
+func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 	rxPath := filepath.Join(ctx.Spool, nodeId.String(), string(xx))
 	jobs := make(chan Job, 16)
 	go func() {
@@ -53,7 +54,17 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 			return
 		}
 		for _, fi := range fis {
-			hshValue, err := Base32Codec.DecodeString(fi.Name())
+			var hshValue []byte
+			if nock {
+				if !strings.HasSuffix(fi.Name(), NoCKSuffix) {
+					continue
+				}
+				hshValue, err = Base32Codec.DecodeString(
+					strings.TrimSuffix(fi.Name(), NoCKSuffix),
+				)
+			} else {
+				hshValue, err = Base32Codec.DecodeString(fi.Name())
+			}
 			if err != nil {
 				continue
 			}
@@ -86,4 +97,12 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 		}
 	}()
 	return jobs
+}
+
+func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
+	return ctx.jobsFind(nodeId, xx, false)
+}
+
+func (ctx *Ctx) JobsNoCK(nodeId *NodeId) chan Job {
+	return ctx.jobsFind(nodeId, TRx, true)
 }
