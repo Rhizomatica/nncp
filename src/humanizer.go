@@ -203,7 +203,6 @@ func (ctx *Ctx) Humanize(le map[string]string) (string, error) {
 		if err, exists := le["Err"]; exists {
 			msg += ": " + err
 		}
-
 	case "sp-info":
 		nice, err := NicenessParse(le["Nice"])
 		if err != nil {
