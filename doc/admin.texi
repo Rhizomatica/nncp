@@ -45,7 +45,7 @@ $ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
 
     Example @url{https://www.newsyslog.org/manual.html, newsyslog}'s entry:
 @example
-/var/spool/nncp/log		644	7	100	*	CYN
+/var/spool/nncp/log		644	7	100	*	BCYN
 @end example
 
 @item

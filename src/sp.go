@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"crypto/subtle"
 	"errors"
+	"hash"
 	"io"
 	"os"
 	"path/filepath"
@@ -30,6 +31,7 @@ import (
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/flynn/noise"
+	"golang.org/x/crypto/blake2b"
 )
 
 const (
@@ -37,6 +39,11 @@ const (
 	PartSuffix     = ".part"
 	SPHeadOverhead = 4
 )
+
+type SPCheckerQueues struct {
+	appeared chan *[32]byte
+	checked  chan *[32]byte
+}
 
 var (
 	MagicNNCPLv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'S', 0, 0, 1}
@@ -56,8 +63,18 @@ var (
 	DefaultDeadline = 10 * time.Second
 	PingTimeout     = time.Minute
 
-	spCheckerToken chan struct{}
+	spCheckers = make(map[NodeId]*SPCheckerQueues)
 )
+
+type FdAndFullSize struct {
+	fd       *os.File
+	fullSize int64
+}
+
+type HasherAndOffset struct {
+	h      hash.Hash
+	offset uint64
+}
 
 type SPType uint8
 
@@ -148,8 +165,6 @@ func init() {
 		panic(err)
 	}
 	SPFileOverhead = buf.Len()
-	spCheckerToken = make(chan struct{}, 1)
-	spCheckerToken <- struct{}{}
 }
 
 func MarshalSP(typ SPType, sp interface{}) []byte {
@@ -183,6 +198,7 @@ type SPState struct {
 	Ctx            *Ctx
 	Node           *Node
 	Nice           uint8
+	NoCK           bool
 	onlineDeadline time.Duration
 	maxOnlineTime  time.Duration
 	hs             *noise.HandshakeState
@@ -214,6 +230,9 @@ type SPState struct {
 	listOnly       bool
 	onlyPkts       map[[32]byte]bool
 	writeSPBuf     bytes.Buffer
+	fds            map[string]FdAndFullSize
+	fileHashers    map[string]*HasherAndOffset
+	checkerQueues  SPCheckerQueues
 	sync.RWMutex
 }
 
@@ -235,6 +254,11 @@ func (state *SPState) SetDead() {
 		for range state.pings {
 		}
 	}()
+	go func() {
+		for _, s := range state.fds {
+			s.fd.Close()
+		}
+	}()
 }
 
 func (state *SPState) NotAlive() bool {
@@ -249,6 +273,25 @@ func (state *SPState) NotAlive() bool {
 func (state *SPState) dirUnlock() {
 	state.Ctx.UnlockDir(state.rxLock)
 	state.Ctx.UnlockDir(state.txLock)
+}
+
+func SPChecker(ctx *Ctx, nodeId *NodeId, appeared, checked chan *[32]byte) {
+	for hshValue := range appeared {
+		les := LEs{
+			{"XX", string(TRx)},
+			{"Node", nodeId},
+			{"Pkt", Base32Codec.EncodeToString(hshValue[:])},
+		}
+		ctx.LogD("sp-checker", les, "checking")
+		size, err := ctx.CheckNoCK(nodeId, hshValue)
+		les = append(les, LE{"Size", size})
+		if err != nil {
+			ctx.LogE("sp-checker", les, err, "")
+			continue
+		}
+		ctx.LogI("sp-done", les, "")
+		go func(hsh *[32]byte) { checked <- hsh }(hshValue)
+	}
 }
 
 func (state *SPState) WriteSP(dst io.Writer, payload []byte, ping bool) error {
@@ -292,7 +335,6 @@ func (ctx *Ctx) infosOur(nodeId *NodeId, nice uint8, seen *map[[32]byte]uint8) [
 	var infos []*SPInfo
 	var totalSize int64
 	for job := range ctx.Jobs(nodeId, TTx) {
-		job.Fd.Close() // #nosec G104
 		if job.PktEnc.Nice > nice {
 			continue
 		}
@@ -445,6 +487,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	state.infosTheir = make(map[[32]byte]*SPInfo)
 	state.started = started
 	state.xxOnly = xxOnly
+
 	var buf []byte
 	var payload []byte
 	state.Ctx.LogD("sp-start", LEs{{"Nice", int(state.Nice)}}, "waiting for first message")
@@ -530,15 +573,58 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	return err
 }
 
+func (state *SPState) closeFd(pth string) {
+	s, exists := state.fds[pth]
+	delete(state.fds, pth)
+	if exists {
+		s.fd.Close()
+	}
+}
+
 func (state *SPState) StartWorkers(
 	conn ConnDeadlined,
 	infosPayloads [][]byte,
 	payload []byte,
 ) error {
 	les := LEs{{"Node", state.Node.Id}, {"Nice", int(state.Nice)}}
+	state.fds = make(map[string]FdAndFullSize)
+	state.fileHashers = make(map[string]*HasherAndOffset)
 	state.isDead = make(chan struct{})
 	if state.maxOnlineTime > 0 {
 		state.mustFinishAt = state.started.Add(state.maxOnlineTime)
+	}
+
+	// Checker
+	if !state.NoCK {
+		queues := spCheckers[*state.Node.Id]
+		if queues == nil {
+			queues = &SPCheckerQueues{
+				appeared: make(chan *[32]byte),
+				checked:  make(chan *[32]byte),
+			}
+			spCheckers[*state.Node.Id] = queues
+			go SPChecker(state.Ctx, state.Node.Id, queues.appeared, queues.checked)
+		}
+		state.checkerQueues = *queues
+		go func() {
+			for job := range state.Ctx.JobsNoCK(state.Node.Id) {
+				if job.PktEnc.Nice <= state.Nice {
+					state.checkerQueues.appeared <- job.HshValue
+				}
+			}
+		}()
+		state.wg.Add(1)
+		go func() {
+			defer state.wg.Done()
+			for {
+				select {
+				case <-state.isDead:
+					return
+				case hsh := <-state.checkerQueues.checked:
+					state.payloads <- MarshalSP(SPTypeDone, SPDone{hsh})
+				}
+			}
+		}()
 	}
 
 	// Remaining handshake payload sending
@@ -683,22 +769,29 @@ func (state *SPState) StartWorkers(
 					{"Size", int64(freq.Offset)},
 				}...)
 				state.Ctx.LogD("sp-file", lesp, "queueing")
-				fd, err := os.Open(filepath.Join(
+				pth := filepath.Join(
 					state.Ctx.Spool,
 					state.Node.Id.String(),
 					string(TTx),
 					Base32Codec.EncodeToString(freq.Hash[:]),
-				))
-				if err != nil {
-					state.Ctx.LogE("sp-file", lesp, err, "")
-					return
+				)
+				fdAndFullSize, exists := state.fds[pth]
+				if !exists {
+					fd, err := os.Open(pth)
+					if err != nil {
+						state.Ctx.LogE("sp-file", lesp, err, "")
+						return
+					}
+					fi, err := fd.Stat()
+					if err != nil {
+						state.Ctx.LogE("sp-file", lesp, err, "")
+						return
+					}
+					fdAndFullSize = FdAndFullSize{fd: fd, fullSize: fi.Size()}
+					state.fds[pth] = fdAndFullSize
 				}
-				fi, err := fd.Stat()
-				if err != nil {
-					state.Ctx.LogE("sp-file", lesp, err, "")
-					return
-				}
-				fullSize := fi.Size()
+				fd := fdAndFullSize.fd
+				fullSize := fdAndFullSize.fullSize
 				var buf []byte
 				if freq.Offset < uint64(fullSize) {
 					state.Ctx.LogD("sp-file", lesp, "seeking")
@@ -715,7 +808,7 @@ func (state *SPState) StartWorkers(
 					buf = buf[:n]
 					state.Ctx.LogD("sp-file", append(lesp, LE{"Size", n}), "read")
 				}
-				fd.Close() // #nosec G104
+				state.closeFd(pth)
 				payload = MarshalSP(SPTypeFile, SPFile{
 					Hash:    freq.Hash,
 					Offset:  freq.Offset,
@@ -862,8 +955,10 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.Lock()
 			state.queueTheir = nil
 			state.Unlock()
+
 		case SPTypePing:
 			state.Ctx.LogD("sp-process", append(les, LE{"Type", "ping"}), "")
+
 		case SPTypeInfo:
 			infosGot = true
 			lesp := append(les, LE{"Type", "info"})
@@ -910,6 +1005,10 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				}
 				continue
 			}
+			if _, err = os.Stat(pktPath + NoCKSuffix); err == nil {
+				state.Ctx.LogI("sp-info", lesp, "still non checksummed")
+				continue
+			}
 			fi, err := os.Stat(pktPath + PartSuffix)
 			var offset int64
 			if err == nil {
@@ -926,6 +1025,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					SPFreq{info.Hash, uint64(offset)},
 				))
 			}
+
 		case SPTypeFile:
 			lesp := append(les, LE{"Type", "file"})
 			state.Ctx.LogD("sp-process", lesp, "unmarshaling packet")
@@ -945,28 +1045,59 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				string(TRx),
 			)
 			filePath := filepath.Join(dirToSync, Base32Codec.EncodeToString(file.Hash[:]))
+			filePathPart := filePath + PartSuffix
 			state.Ctx.LogD("sp-file", lesp, "opening part")
-			fd, err := os.OpenFile(
-				filePath+PartSuffix,
-				os.O_RDWR|os.O_CREATE,
-				os.FileMode(0666),
-			)
-			if err != nil {
-				state.Ctx.LogE("sp-file", lesp, err, "")
-				return nil, err
+			fdAndFullSize, exists := state.fds[filePathPart]
+			var fd *os.File
+			if exists {
+				fd = fdAndFullSize.fd
+			} else {
+				fd, err = os.OpenFile(
+					filePathPart,
+					os.O_RDWR|os.O_CREATE,
+					os.FileMode(0666),
+				)
+				if err != nil {
+					state.Ctx.LogE("sp-file", lesp, err, "")
+					return nil, err
+				}
+				state.fds[filePathPart] = FdAndFullSize{fd: fd}
+				if file.Offset == 0 {
+					h, err := blake2b.New256(nil)
+					if err != nil {
+						panic(err)
+					}
+					state.fileHashers[filePath] = &HasherAndOffset{h: h}
+				}
 			}
 			state.Ctx.LogD("sp-file", append(lesp, LE{"Offset", file.Offset}), "seeking")
 			if _, err = fd.Seek(int64(file.Offset), io.SeekStart); err != nil {
 				state.Ctx.LogE("sp-file", lesp, err, "")
-				fd.Close() // #nosec G104
+				state.closeFd(filePathPart)
 				return nil, err
 			}
 			state.Ctx.LogD("sp-file", lesp, "writing")
-			_, err = fd.Write(file.Payload)
-			if err != nil {
+			if _, err = fd.Write(file.Payload); err != nil {
 				state.Ctx.LogE("sp-file", lesp, err, "")
-				fd.Close() // #nosec G104
+				state.closeFd(filePathPart)
 				return nil, err
+			}
+			hasherAndOffset, hasherExists := state.fileHashers[filePath]
+			if hasherExists {
+				if hasherAndOffset.offset == file.Offset {
+					if _, err = hasherAndOffset.h.Write(file.Payload); err != nil {
+						panic(err)
+					}
+					hasherAndOffset.offset += uint64(len(file.Payload))
+				} else {
+					state.Ctx.LogE(
+						"sp-file", lesp,
+						errors.New("offset differs"),
+						"deleting hasher",
+					)
+					delete(state.fileHashers, filePath)
+					hasherExists = false
+				}
 			}
 			ourSize := int64(file.Offset + uint64(len(file.Payload)))
 			lesp[len(lesp)-1].V = ourSize
@@ -982,51 +1113,71 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				Progress("Rx", lesp)
 			}
 			if fullsize != ourSize {
-				fd.Close() // #nosec G104
 				continue
 			}
-			<-spCheckerToken
-			go func() {
-				defer func() {
-					spCheckerToken <- struct{}{}
-				}()
-				if err := fd.Sync(); err != nil {
-					state.Ctx.LogE("sp-file", lesp, err, "sync")
-					fd.Close() // #nosec G104
-					return
-				}
-				state.wg.Add(1)
-				defer state.wg.Done()
-				if _, err = fd.Seek(0, io.SeekStart); err != nil {
-					fd.Close() // #nosec G104
-					state.Ctx.LogE("sp-file", lesp, err, "")
-					return
-				}
-				state.Ctx.LogD("sp-file", lesp, "checking")
-				gut, err := Check(fd, file.Hash[:], lesp, state.Ctx.ShowPrgrs)
-				fd.Close() // #nosec G104
-				if err != nil || !gut {
+			err = fd.Sync()
+			if err != nil {
+				state.Ctx.LogE("sp-file", lesp, err, "sync")
+				state.closeFd(filePathPart)
+				continue
+			}
+			if hasherExists {
+				if bytes.Compare(hasherAndOffset.h.Sum(nil), file.Hash[:]) != 0 {
 					state.Ctx.LogE("sp-file", lesp, errors.New("checksum mismatch"), "")
-					return
+					continue
 				}
-				state.Ctx.LogI("sp-done", lesp, "")
-				if err = os.Rename(filePath+PartSuffix, filePath); err != nil {
+				if err = os.Rename(filePathPart, filePath); err != nil {
 					state.Ctx.LogE("sp-file", lesp, err, "rename")
-					return
+					continue
 				}
 				if err = DirSync(dirToSync); err != nil {
 					state.Ctx.LogE("sp-file", lesp, err, "sync")
-					return
+					continue
 				}
-				state.Lock()
-				delete(state.infosTheir, *file.Hash)
-				state.Unlock()
+				state.Ctx.LogI("sp-file", lesp, "done")
 				state.wg.Add(1)
 				go func() {
 					state.payloads <- MarshalSP(SPTypeDone, SPDone{file.Hash})
 					state.wg.Done()
 				}()
-			}()
+				state.Lock()
+				delete(state.infosTheir, *file.Hash)
+				state.Unlock()
+				if !state.Ctx.HdrUsage {
+					state.closeFd(filePathPart)
+					continue
+				}
+				if _, err = fd.Seek(0, io.SeekStart); err != nil {
+					state.Ctx.LogE("sp-file", lesp, err, "seek")
+					state.closeFd(filePathPart)
+					continue
+				}
+				_, pktEncRaw, err := state.Ctx.HdrRead(fd)
+				state.closeFd(filePathPart)
+				if err != nil {
+					state.Ctx.LogE("sp-file", lesp, err, "HdrRead")
+					continue
+				}
+				state.Ctx.HdrWrite(pktEncRaw, filePath)
+				continue
+			}
+			state.closeFd(filePathPart)
+			if err = os.Rename(filePathPart, filePath+NoCKSuffix); err != nil {
+				state.Ctx.LogE("sp-file", lesp, err, "rename")
+				continue
+			}
+			if err = DirSync(dirToSync); err != nil {
+				state.Ctx.LogE("sp-file", lesp, err, "sync")
+				continue
+			}
+			state.Ctx.LogI("sp-file", lesp, "downloaded")
+			state.Lock()
+			delete(state.infosTheir, *file.Hash)
+			state.Unlock()
+			if !state.NoCK {
+				state.checkerQueues.appeared <- file.Hash
+			}
+
 		case SPTypeDone:
 			lesp := append(les, LE{"Type", "done"})
 			state.Ctx.LogD("sp-process", lesp, "unmarshaling packet")
@@ -1036,19 +1187,23 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				return nil, err
 			}
 			lesp = append(lesp, LE{"Pkt", Base32Codec.EncodeToString(done.Hash[:])})
+			lesp = append(lesp, LE{"XX", string(TTx)})
 			state.Ctx.LogD("sp-done", lesp, "removing")
-			err := os.Remove(filepath.Join(
+			pth := filepath.Join(
 				state.Ctx.Spool,
 				state.Node.Id.String(),
 				string(TTx),
 				Base32Codec.EncodeToString(done.Hash[:]),
-			))
-			lesp = append(lesp, LE{"XX", string(TTx)})
-			if err == nil {
+			)
+			if err = os.Remove(pth); err == nil {
 				state.Ctx.LogI("sp-done", lesp, "")
+				if state.Ctx.HdrUsage {
+					os.Remove(pth + HdrSuffix)
+				}
 			} else {
 				state.Ctx.LogE("sp-done", lesp, err, "")
 			}
+
 		case SPTypeFreq:
 			lesp := append(les, LE{"Type", "freq"})
 			state.Ctx.LogD("sp-process", lesp, "unmarshaling packet")
@@ -1081,6 +1236,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			} else {
 				state.Ctx.LogD("sp-process", lesp, "unknown")
 			}
+
 		default:
 			state.Ctx.LogE(
 				"sp-process",

@@ -138,7 +138,6 @@ func main() {
 							ctx.LogD("caller", les, "checking tx existence")
 							txExists := false
 							for job := range ctx.Jobs(node.Id, nncp.TTx) {
-								job.Fd.Close()
 								if job.PktEnc.Nice > call.Nice {
 									continue
 								}
@@ -177,6 +176,7 @@ func main() {
 							call.OnlineDeadline,
 							call.MaxOnlineTime,
 							false,
+							call.NoCK,
 							nil,
 						)
 

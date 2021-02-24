@@ -98,18 +98,25 @@ func main() {
 		fmt.Println(node.Name)
 		rxNums := make(map[uint8]int)
 		rxBytes := make(map[uint8]int64)
+		noCKNums := make(map[uint8]int)
+		noCKBytes := make(map[uint8]int64)
 		for job := range ctx.Jobs(node.Id, nncp.TRx) {
-			job.Fd.Close() // #nosec G104
 			if *showPkt {
 				jobPrint(nncp.TRx, job)
 			}
 			rxNums[job.PktEnc.Nice] = rxNums[job.PktEnc.Nice] + 1
 			rxBytes[job.PktEnc.Nice] = rxBytes[job.PktEnc.Nice] + job.Size
 		}
+		for job := range ctx.JobsNoCK(node.Id) {
+			if *showPkt {
+				jobPrint(nncp.TRx, job)
+			}
+			noCKNums[job.PktEnc.Nice] = noCKNums[job.PktEnc.Nice] + 1
+			noCKBytes[job.PktEnc.Nice] = noCKBytes[job.PktEnc.Nice] + job.Size
+		}
 		txNums := make(map[uint8]int)
 		txBytes := make(map[uint8]int64)
 		for job := range ctx.Jobs(node.Id, nncp.TTx) {
-			job.Fd.Close() // #nosec G104
 			if *showPkt {
 				jobPrint(nncp.TTx, job)
 			}
@@ -120,17 +127,26 @@ func main() {
 		for nice = 1; nice > 0; nice++ {
 			rxNum, rxExists := rxNums[nice]
 			txNum, txExists := txNums[nice]
-			if !(rxExists || txExists) {
+			noCKNum, noCKExists := noCKNums[nice]
+			if !(rxExists || txExists || noCKExists) {
 				continue
 			}
 			fmt.Printf(
-				"\tnice:% 4s | Rx: % 10s, % 3d pkts | Tx: % 10s, % 3d pkts\n",
+				"\tnice:% 4s | Rx: % 10s, % 3d pkts | Tx: % 10s, % 3d pkts",
 				nncp.NicenessFmt(nice),
 				humanize.IBytes(uint64(rxBytes[nice])),
 				rxNum,
 				humanize.IBytes(uint64(txBytes[nice])),
 				txNum,
 			)
+			if noCKExists {
+				fmt.Printf(
+					" | NoCK: % 10s, % 3d pkts",
+					humanize.IBytes(uint64(noCKBytes[nice])),
+					noCKNum,
+				)
+			}
+			fmt.Printf("\n")
 		}
 	}
 }

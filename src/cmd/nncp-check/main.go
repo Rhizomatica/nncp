@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"go.cypherpunks.ru/nncp/v5"
 )
@@ -30,12 +31,13 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintf(os.Stderr, "nncp-check -- verify Rx/Tx packets checksum\n\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [-nock] [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
 func main() {
 	var (
+		nock      = flag.Bool("nock", false, "Process .nock files")
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		nodeRaw   = flag.String("node", "", "Process only that node")
 		spoolPath = flag.String("spool", "", "Override path to spool")
@@ -85,7 +87,20 @@ func main() {
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		if !ctx.Check(node.Id) {
+		if *nock {
+			for job := range ctx.JobsNoCK(node.Id) {
+				if _, err = ctx.CheckNoCK(node.Id, job.HshValue); err != nil {
+					pktName := nncp.Base32Codec.EncodeToString(job.HshValue[:])
+					log.Println(filepath.Join(
+						ctx.Spool,
+						nodeId.String(),
+						string(nncp.TRx),
+						pktName+nncp.NoCKSuffix,
+					), err)
+					isBad = true
+				}
+			}
+		} else if !ctx.Check(node.Id) {
 			isBad = true
 		}
 	}

@@ -383,7 +383,12 @@ func TestTossFreq(t *testing.T) {
 		}
 		for job := range ctx.Jobs(ctx.Self.Id, TTx) {
 			var buf bytes.Buffer
-			_, _, err := PktEncRead(ctx.Self, ctx.Neigh, job.Fd, &buf)
+			fd, err := os.Open(job.Path)
+			if err != nil {
+				t.Error(err)
+				return false
+			}
+			_, _, err = PktEncRead(ctx.Self, ctx.Neigh, fd, &buf)
 			if err != nil {
 				t.Error(err)
 				return false
@@ -454,7 +459,7 @@ func TestTossTrns(t *testing.T) {
 			}
 			copy(pktTrans.Path[:], nodeOur.Id[:])
 			var dst bytes.Buffer
-			if err := PktEncWrite(
+			if _, err := PktEncWrite(
 				ctx.Self,
 				ctx.Neigh[*nodeOur.Id],
 				&pktTrans,

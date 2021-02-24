@@ -43,6 +43,8 @@ func (les LEs) Rec() string {
 		switch v := le.V.(type) {
 		case int, int8, uint8, int64, uint64:
 			val = fmt.Sprintf("%d", v)
+		case bool:
+			val = fmt.Sprintf("%v", v)
 		default:
 			val = fmt.Sprintf("%s", v)
 		}

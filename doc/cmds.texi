@@ -102,6 +102,7 @@ $ nncp-call [options]
     [-rxrate INT]
     [-txrate INT]
     [-autotoss*]
+    [-nock]
     NODE[:ADDR] [FORCEADDR]
 @end example
 
@@ -114,15 +115,17 @@ transfer.
 
 If @option{-rx} option is specified then only inbound packets
 transmission is performed. If @option{-tx} option is specified, then
-only outbound transmission is performed. @option{-onlinedeadline}
-overrides @ref{CfgOnlineDeadline, @emph{onlinedeadline}}.
-@option{-maxonlinetime} overrides @ref{CfgMaxOnlineTime,
-@emph{maxonlinetime}}. @option{-rxrate}/@option{-txrate} override
-@ref{CfgXxRate, rxrate/txrate}. @option{-list} option allows you to list
-packets of remote node, without any transmission.
+only outbound transmission is performed.
 
-You can specify what packets your want to download, by specifying
-@option{-pkts} option with comma-separated list of packets identifiers.
+@option{-onlinedeadline} overrides @ref{CfgOnlineDeadline, @emph{onlinedeadline}}.
+@option{-maxonlinetime} overrides @ref{CfgMaxOnlineTime, @emph{maxonlinetime}}.
+@option{-rxrate}/@option{-txrate} override @ref{CfgXxRate, rxrate/txrate}.
+Read @ref{CfgNoCK, more} about @option{-nock} option.
+
+@option{-list} option allows you to list packets of remote node, without
+any transmission. You can specify what packets your want to download, by
+specifying @option{-pkts} option with comma-separated list of packets
+identifiers.
 
 Each @option{NODE} can contain several uniquely identified
 @option{ADDR}esses in @ref{CfgAddrs, configuration} file. If you do
@@ -230,13 +233,16 @@ operating system.
 @section nncp-check
 
 @example
-$ nncp-check [options]
+$ nncp-check [-nock] [options]
 @end example
 
 Perform @ref{Spool, spool} directory integrity check. Read all files
 that has Base32-encoded filenames and compare it with recalculated
-BLAKE2b hash output of their contents. That supplementary command is
-not used often in practice, if ever.
+BLAKE2b hash output of their contents.
+
+The most useful mode of operation is with @option{-nock} option, that
+checks integrity of @file{.nock} files, renaming them to ordinary
+(verified) encrypted packets.
 
 @node nncp-cronexpr
 @section nncp-cronexpr
@@ -252,7 +258,9 @@ next time entities.
 @section nncp-daemon
 
 @example
-$ nncp-daemon [options] [-maxconn INT] [-bind ADDR] [-inetd] [-autotoss*]
+$ nncp-daemon [options]
+    [-maxconn INT] [-bind ADDR] [-inetd]
+    [-autotoss*] [-nock]
 @end example
 
 Start listening TCP daemon, wait for incoming connections and run
@@ -277,6 +285,8 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -
 @option{-autotoss} option runs tosser on node's spool every second
 during the call. All @option{-autotoss-*} options is the same as in
 @ref{nncp-toss} command.
+
+Read @ref{CfgNoCK, more} about @option{-nock} option.
 
 @node nncp-exec
 @section nncp-exec
@@ -509,6 +519,7 @@ $ nncp-rm [options] -tmp
 $ nncp-rm [options] -lock
 $ nncp-rm [options] -node NODE -part
 $ nncp-rm [options] -node NODE -seen
+$ nncp-rm [options] -node NODE -nock
 $ nncp-rm [options] -node NODE [-rx] [-tx]
 $ nncp-rm [options] -node NODE -pkt PKT
 @end example
@@ -529,10 +540,10 @@ Base32 name) will be deleted. This is useful when you see some packet
 failing to be processed.
 
 @item When either @option{-rx} or @option{-tx} options are specified
-(maybe both of them), then delete all packets from that given queues. If
-@option{-part} is given, then delete only @file{.part}ly downloaded
-ones. If @option{-seen} option is specified, then delete only
-@file{.seen} files.
+(maybe both of them), then delete all packets from that given queues.
+@option{-part} option deletes @file{.part}ly downloaded files.
+@option{-seen} option deletes @file{.seen} files. @option{-nock} option
+deletes non-checksummed (non-verified) @file{.nock} files.
 
 @item @option{-dryrun} option just prints what will be deleted.
 
