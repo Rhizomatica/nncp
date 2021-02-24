@@ -23,9 +23,13 @@ import (
 	"errors"
 	"io"
 	"log"
+	"os"
+	"path/filepath"
 
 	"golang.org/x/crypto/blake2b"
 )
+
+const NoCKSuffix = ".nock"
 
 func Check(src io.Reader, checksum []byte, les LEs, showPrgrs bool) (bool, error) {
 	hsh, err := blake2b.New256(nil)
@@ -47,8 +51,13 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 			{"Pkt", Base32Codec.EncodeToString(job.HshValue[:])},
 			{"FullSize", job.Size},
 		}
-		gut, err := Check(job.Fd, job.HshValue[:], les, ctx.ShowPrgrs)
-		job.Fd.Close() // #nosec G104
+		fd, err := os.Open(job.Path)
+		if err != nil {
+			ctx.LogE("check", les, err, "")
+			return true
+		}
+		gut, err := Check(fd, job.HshValue[:], les, ctx.ShowPrgrs)
+		fd.Close() // #nosec G104
 		if err != nil {
 			ctx.LogE("check", les, err, "")
 			return true
@@ -63,4 +72,48 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 
 func (ctx *Ctx) Check(nodeId *NodeId) bool {
 	return !(ctx.checkXxIsBad(nodeId, TRx) || ctx.checkXxIsBad(nodeId, TTx))
+}
+
+func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[32]byte) (int64, error) {
+	dirToSync := filepath.Join(ctx.Spool, nodeId.String(), string(TRx))
+	pktName := Base32Codec.EncodeToString(hshValue[:])
+	pktPath := filepath.Join(dirToSync, pktName)
+	fd, err := os.Open(pktPath + NoCKSuffix)
+	if err != nil {
+		return 0, err
+	}
+	defer fd.Close()
+	fi, err := fd.Stat()
+	if err != nil {
+		return 0, err
+	}
+	defer fd.Close()
+	size := fi.Size()
+	les := LEs{
+		{"XX", string(TRx)},
+		{"Node", nodeId},
+		{"Pkt", pktName},
+		{"FullSize", size},
+	}
+	gut, err := Check(fd, hshValue[:], les, ctx.ShowPrgrs)
+	if err != nil || !gut {
+		return 0, errors.New("checksum mismatch")
+	}
+	if err = os.Rename(pktPath+NoCKSuffix, pktPath); err != nil {
+		return 0, err
+	}
+	if err = DirSync(dirToSync); err != nil {
+		return size, err
+	}
+	if ctx.HdrUsage {
+		if _, err = fd.Seek(0, io.SeekStart); err != nil {
+			return size, err
+		}
+		_, pktEncRaw, err := ctx.HdrRead(fd)
+		if err != nil {
+			return size, err
+		}
+		ctx.HdrWrite(pktEncRaw, pktPath)
+	}
+	return size, err
 }

@@ -44,6 +44,7 @@ func main() {
 		rxOnly      = flag.Bool("rx", false, "Only receive packets")
 		txOnly      = flag.Bool("tx", false, "Only transmit packets")
 		listOnly    = flag.Bool("list", false, "Only list remote packets")
+		noCK        = flag.Bool("nock", false, "Do no checksum checking")
 		onlyPktsRaw = flag.String("pkts", "", "Recieve only that packets, comma separated")
 		rxRate      = flag.Int("rxrate", 0, "Maximal receive rate, pkts/sec")
 		txRate      = flag.Int("txrate", 0, "Maximal transmit rate, pkts/sec")
@@ -185,6 +186,7 @@ func main() {
 		onlineDeadline,
 		maxOnlineTime,
 		*listOnly,
+		*noCK,
 		onlyPkts,
 	)
 

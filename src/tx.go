@@ -62,7 +62,9 @@ func (ctx *Ctx) Tx(
 	}
 	expectedSize := size
 	for i := 0; i < len(hops); i++ {
-		expectedSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+expectedSize)
+		expectedSize = PktEncOverhead +
+			PktSizeOverhead +
+			sizeWithTags(PktOverhead+expectedSize)
 	}
 	padSize := minSize - expectedSize
 	if padSize < 0 {
@@ -79,16 +81,23 @@ func (ctx *Ctx) Tx(
 	errs := make(chan error)
 	curSize := size
 	pipeR, pipeW := io.Pipe()
+	var pktEncRaw []byte
 	go func(size int64, src io.Reader, dst io.WriteCloser) {
 		ctx.LogD("tx", LEs{
 			{"Node", hops[0].Id},
 			{"Nice", int(nice)},
 			{"Size", size},
 		}, "wrote")
-		errs <- PktEncWrite(ctx.Self, hops[0], pkt, nice, size, padSize, src, dst)
+		pktEncRaw, err = PktEncWrite(
+			ctx.Self, hops[0], pkt, nice, size, padSize, src, dst,
+		)
+		errs <- err
 		dst.Close() // #nosec G104
 	}(curSize, src, pipeW)
-	curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize) + padSize
+	curSize = PktEncOverhead +
+		PktSizeOverhead +
+		sizeWithTags(PktOverhead+curSize) +
+		padSize
 
 	var pipeRPrev io.Reader
 	for i := 1; i < len(hops); i++ {
@@ -101,7 +110,8 @@ func (ctx *Ctx) Tx(
 				{"Nice", int(nice)},
 				{"Size", size},
 			}, "trns wrote")
-			errs <- PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
+			_, err := PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
+			errs <- err
 			dst.Close() // #nosec G104
 		}(hops[i], pktTrns, curSize, pipeRPrev, pipeW)
 		curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize)
@@ -124,6 +134,12 @@ func (ctx *Ctx) Tx(
 	nodePath := filepath.Join(ctx.Spool, lastNode.Id.String())
 	err = tmp.Commit(filepath.Join(nodePath, string(TTx)))
 	os.Symlink(nodePath, filepath.Join(ctx.Spool, lastNode.Name)) // #nosec G104
+	if err != nil {
+		return lastNode, err
+	}
+	if ctx.HdrUsage {
+		ctx.HdrWrite(pktEncRaw, filepath.Join(nodePath, string(TTx), tmp.Checksum()))
+	}
 	return lastNode, err
 }
 

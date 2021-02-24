@@ -70,11 +70,13 @@ func performSP(
 	ctx *nncp.Ctx,
 	conn nncp.ConnDeadlined,
 	nice uint8,
+	noCK bool,
 	nodeIdC chan *nncp.NodeId,
 ) {
 	state := nncp.SPState{
 		Ctx:  ctx,
 		Nice: nice,
+		NoCK: noCK,
 	}
 	if err := state.StartR(conn); err == nil {
 		ctx.LogI("call-start", nncp.LEs{{K: "Node", V: state.Node.Id}}, "connected")
@@ -108,6 +110,7 @@ func main() {
 		bind      = flag.String("bind", "[::]:5400", "Address to bind to")
 		inetd     = flag.Bool("inetd", false, "Is it started as inetd service")
 		maxConn   = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
+		noCK      = flag.Bool("nock", false, "Do no checksum checking")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -160,7 +163,7 @@ func main() {
 		os.Stderr.Close() // #nosec G104
 		conn := &InetdConn{os.Stdin, os.Stdout}
 		nodeIdC := make(chan *nncp.NodeId)
-		go performSP(ctx, conn, nice, nodeIdC)
+		go performSP(ctx, conn, nice, *noCK, nodeIdC)
 		nodeId := <-nodeIdC
 		var autoTossFinish chan struct{}
 		var autoTossBadCode chan bool
@@ -197,7 +200,7 @@ func main() {
 		ctx.LogD("daemon", nncp.LEs{{K: "Addr", V: conn.RemoteAddr()}}, "accepted")
 		go func(conn net.Conn) {
 			nodeIdC := make(chan *nncp.NodeId)
-			go performSP(ctx, conn, nice, nodeIdC)
+			go performSP(ctx, conn, nice, *noCK, nodeIdC)
 			nodeId := <-nodeIdC
 			var autoTossFinish chan struct{}
 			var autoTossBadCode chan bool

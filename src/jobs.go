@@ -18,9 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
-	"io"
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 )
@@ -30,16 +31,54 @@ type TRxTx string
 const (
 	TRx TRxTx = "rx"
 	TTx TRxTx = "tx"
+
+	HdrSuffix = ".hdr"
 )
 
 type Job struct {
 	PktEnc   *PktEnc
-	Fd       *os.File
+	Path     string
 	Size     int64
 	HshValue *[32]byte
 }
 
-func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
+func (ctx *Ctx) HdrRead(fd *os.File) (*PktEnc, []byte, error) {
+	var pktEnc PktEnc
+	_, err := xdr.Unmarshal(fd, &pktEnc)
+	if err != nil {
+		return nil, nil, err
+	}
+	var raw bytes.Buffer
+	if _, err = xdr.Marshal(&raw, pktEnc); err != nil {
+		panic(err)
+	}
+	return &pktEnc, raw.Bytes(), nil
+}
+
+func (ctx *Ctx) HdrWrite(pktEncRaw []byte, tgt string) error {
+	tmpHdr, err := ctx.NewTmpFile()
+	if err != nil {
+		ctx.LogE("hdr-write", []LE{}, err, "new")
+		return err
+	}
+	if _, err = tmpHdr.Write(pktEncRaw); err != nil {
+		ctx.LogE("hdr-write", []LE{}, err, "write")
+		os.Remove(tmpHdr.Name())
+		return err
+	}
+	if err = tmpHdr.Close(); err != nil {
+		ctx.LogE("hdr-write", []LE{}, err, "close")
+		os.Remove(tmpHdr.Name())
+		return err
+	}
+	if err = os.Rename(tmpHdr.Name(), tgt+HdrSuffix); err != nil {
+		ctx.LogE("hdr-write", []LE{}, err, "rename")
+		return err
+	}
+	return err
+}
+
+func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 	rxPath := filepath.Join(ctx.Spool, nodeId.String(), string(xx))
 	jobs := make(chan Job, 16)
 	go func() {
@@ -54,33 +93,58 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 			return
 		}
 		for _, fi := range fis {
-			hshValue, err := Base32Codec.DecodeString(fi.Name())
+			name := fi.Name()
+			var hshValue []byte
+			if nock {
+				if !strings.HasSuffix(name, NoCKSuffix) ||
+					len(name) != Base32Encoded32Len+len(NoCKSuffix) {
+					continue
+				}
+				hshValue, err = Base32Codec.DecodeString(
+					strings.TrimSuffix(name, NoCKSuffix),
+				)
+			} else {
+				if len(name) != Base32Encoded32Len {
+					continue
+				}
+				hshValue, err = Base32Codec.DecodeString(name)
+			}
 			if err != nil {
 				continue
 			}
-			fd, err := os.Open(filepath.Join(rxPath, fi.Name()))
+			pth := filepath.Join(rxPath, name)
+			hdrExists := true
+			var fd *os.File
+			if nock {
+				fd, err = os.Open(pth)
+			} else {
+				fd, err = os.Open(pth + HdrSuffix)
+				if err != nil && os.IsNotExist(err) {
+					hdrExists = false
+					fd, err = os.Open(pth)
+				}
+			}
 			if err != nil {
 				continue
 			}
-			var pktEnc PktEnc
-			if _, err = xdr.Unmarshal(fd, &pktEnc); err != nil || pktEnc.Magic != MagicNNCPEv4 {
-				fd.Close() // #nosec G104
-				continue
-			}
-			if _, err = fd.Seek(0, io.SeekStart); err != nil {
-				fd.Close() // #nosec G104
+			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
+			fd.Close()
+			if err != nil || pktEnc.Magic != MagicNNCPEv4 {
 				continue
 			}
 			ctx.LogD("jobs", LEs{
 				{"XX", string(xx)},
 				{"Node", pktEnc.Sender},
-				{"Name", fi.Name()},
+				{"Name", name},
 				{"Nice", int(pktEnc.Nice)},
 				{"Size", fi.Size()},
 			}, "taken")
+			if !hdrExists && ctx.HdrUsage {
+				ctx.HdrWrite(pktEncRaw, pth)
+			}
 			job := Job{
-				PktEnc:   &pktEnc,
-				Fd:       fd,
+				PktEnc:   pktEnc,
+				Path:     pth,
 				Size:     fi.Size(),
 				HshValue: new([32]byte),
 			}
@@ -89,4 +153,12 @@ func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
 		}
 	}()
 	return jobs
+}
+
+func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
+	return ctx.jobsFind(nodeId, xx, false)
+}
+
+func (ctx *Ctx) JobsNoCK(nodeId *NodeId) chan Job {
+	return ctx.jobsFind(nodeId, TRx, true)
 }

@@ -82,6 +82,7 @@ type CallJSON struct {
 	OnlineDeadline *uint   `json:"onlinedeadline,omitempty"`
 	MaxOnlineTime  *uint   `json:"maxonlinetime,omitempty"`
 	WhenTxExists   *bool   `json:"when-tx-exists,omitempty"`
+	NoCK           *bool   `json:"nock"`
 
 	AutoToss       *bool `json:"autotoss,omitempty"`
 	AutoTossDoSeen *bool `json:"autotoss-doseen,omitempty"`
@@ -118,6 +119,7 @@ type CfgJSON struct {
 	Umask string `json:"umask,omitempty"`
 
 	OmitPrgrs bool `json:"noprogress,omitempty"`
+	NoHdr     bool `json:"nohdr,omitempty"`
 
 	Notify *NotifyJSON `json:"notify,omitempty"`
 
@@ -283,6 +285,9 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		}
 		if callCfg.WhenTxExists != nil {
 			call.WhenTxExists = *callCfg.WhenTxExists
+		}
+		if callCfg.NoCK != nil {
+			call.NoCK = *callCfg.NoCK
 		}
 		if callCfg.AutoToss != nil {
 			call.AutoToss = *callCfg.AutoToss
@@ -459,11 +464,16 @@ func CfgParse(data []byte) (*Ctx, error) {
 	if cfgJSON.OmitPrgrs {
 		showPrgrs = false
 	}
+	hdrUsage := true
+	if cfgJSON.NoHdr {
+		hdrUsage = false
+	}
 	ctx := Ctx{
 		Spool:      spoolPath,
 		LogPath:    logPath,
 		UmaskForce: umaskForce,
 		ShowPrgrs:  showPrgrs,
+		HdrUsage:   hdrUsage,
 		Self:       self,
 		Neigh:      make(map[NodeId]*Node, len(cfgJSON.Neigh)),
 		Alias:      make(map[string]*NodeId),

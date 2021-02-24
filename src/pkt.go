@@ -192,14 +192,14 @@ func PktEncWrite(
 	size, padSize int64,
 	data io.Reader,
 	out io.Writer,
-) error {
+) ([]byte, error) {
 	pubEph, prvEph, err := box.GenerateKey(rand.Reader)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var pktBuf bytes.Buffer
 	if _, err := xdr.Marshal(&pktBuf, pkt); err != nil {
-		return err
+		return nil, err
 	}
 	tbs := PktTbs{
 		Magic:     MagicNNCPEv4,
@@ -210,7 +210,7 @@ func PktEncWrite(
 	}
 	var tbsBuf bytes.Buffer
 	if _, err = xdr.Marshal(&tbsBuf, &tbs); err != nil {
-		return err
+		return nil, err
 	}
 	signature := new([ed25519.SignatureSize]byte)
 	copy(signature[:], ed25519.Sign(our.SignPrv, tbsBuf.Bytes()))
@@ -222,26 +222,31 @@ func PktEncWrite(
 		ExchPub:   *pubEph,
 		Sign:      *signature,
 	}
-	if _, err = xdr.Marshal(out, &pktEnc); err != nil {
-		return err
+	tbsBuf.Reset()
+	if _, err = xdr.Marshal(&tbsBuf, &pktEnc); err != nil {
+		return nil, err
+	}
+	pktEncRaw := tbsBuf.Bytes()
+	if _, err = out.Write(pktEncRaw); err != nil {
+		return nil, err
 	}
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, prvEph, their.ExchPub)
 	kdf, err := blake2b.NewXOF(KDFXOFSize, sharedKey[:])
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if _, err = kdf.Write(MagicNNCPEv4[:]); err != nil {
-		return err
+		return nil, err
 	}
 
 	key := make([]byte, chacha20poly1305.KeySize)
 	if _, err = io.ReadFull(kdf, key); err != nil {
-		return err
+		return nil, err
 	}
 	aead, err := chacha20poly1305.New(key)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	nonce := make([]byte, aead.NonceSize())
 
@@ -249,31 +254,31 @@ func PktEncWrite(
 	sizeBuf := make([]byte, 8+aead.Overhead())
 	binary.BigEndian.PutUint64(sizeBuf, uint64(sizeWithTags(int64(fullSize))))
 	if _, err = out.Write(aead.Seal(sizeBuf[:0], nonce, sizeBuf[:8], nil)); err != nil {
-		return err
+		return nil, err
 	}
 
 	lr := io.LimitedReader{R: data, N: size}
 	mr := io.MultiReader(&pktBuf, &lr)
 	written, err := aeadProcess(aead, nonce, true, mr, out)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if written != fullSize {
-		return io.ErrUnexpectedEOF
+		return nil, io.ErrUnexpectedEOF
 	}
 	if padSize > 0 {
 		if _, err = io.ReadFull(kdf, key); err != nil {
-			return err
+			return nil, err
 		}
 		kdf, err = blake2b.NewXOF(blake2b.OutputLengthUnknown, key)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if _, err = io.CopyN(out, kdf, padSize); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return pktEncRaw, nil
 }
 
 func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {

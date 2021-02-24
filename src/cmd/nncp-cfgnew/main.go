@@ -104,6 +104,8 @@ func main() {
   # umask: "022"
   # Omit progress showing by default
   # noprogress: true
+  # Do not use .hdr files
+  # nohdr: true
 
   # Enable notification email sending
   # notify: {
@@ -211,6 +213,7 @@ func main() {
     #   #     xx: rx
     #   #     addr: lan
     #   #     when-tx-exists: true
+    #   #     nock: true
     #   #
     #   #     autotoss: false
     #   #     autotoss-doseen: true

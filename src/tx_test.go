@@ -98,9 +98,13 @@ func TestTx(t *testing.T) {
 			return false
 		}
 		txJob := sentJobs[0]
-		defer txJob.Fd.Close()
+		fd, err := os.Open(txJob.Path)
+		if err != nil {
+			panic(err)
+		}
+		defer fd.Close()
 		var bufR bytes.Buffer
-		if _, err = io.Copy(&bufR, txJob.Fd); err != nil {
+		if _, err = io.Copy(&bufR, fd); err != nil {
 			panic(err)
 		}
 		var bufW bytes.Buffer
