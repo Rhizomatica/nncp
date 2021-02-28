@@ -5,5 +5,4 @@ ${MAKEINFO:-makeinfo} \
     $MAKEINFO_OPTS \
     --set-customization-variable CLOSE_QUOTE_SYMBOL=\" \
     --set-customization-variable OPEN_QUOTE_SYMBOL=\" \
-    --set-customization-variable CSS_LINES="`cat style.css`" \
     --output $3 index.texi
