@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/gorhill/cronexpr"
-	"go.cypherpunks.ru/nncp/v5"
+	"go.cypherpunks.ru/nncp/v6"
 )
 
 func usage() {

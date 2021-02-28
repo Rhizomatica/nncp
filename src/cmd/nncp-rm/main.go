@@ -29,7 +29,7 @@ import (
 	"strings"
 	"time"
 
-	"go.cypherpunks.ru/nncp/v5"
+	"go.cypherpunks.ru/nncp/v6"
 )
 
 func usage() {

@@ -33,7 +33,7 @@ import (
 	"strings"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"go.cypherpunks.ru/nncp/v5"
+	"go.cypherpunks.ru/nncp/v6"
 	"golang.org/x/crypto/blake2b"
 )
 
