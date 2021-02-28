@@ -26,7 +26,7 @@ import (
 	"sort"
 
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v5"
+	"go.cypherpunks.ru/nncp/v6"
 )
 
 func usage() {
