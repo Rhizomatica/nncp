@@ -244,9 +244,12 @@ func (ctx *Ctx) Humanize(le map[string]string) (string, error) {
 		default:
 			return "", errors.New("unknown XX")
 		}
-		fullsize, err := strconv.ParseUint(le["FullSize"], 10, 64)
-		if err != nil {
-			return "", err
+		fullsize := uint64(1)
+		if raw, exists := le["FullSize"]; exists {
+			fullsize, err = strconv.ParseUint(raw, 10, 64)
+			if err != nil {
+				return "", err
+			}
 		}
 		msg += fmt.Sprintf(
 			"%s %d%% (%s / %s)",
@@ -255,6 +258,12 @@ func (ctx *Ctx) Humanize(le map[string]string) (string, error) {
 			humanize.IBytes(uint64(sizeParsed)),
 			humanize.IBytes(uint64(fullsize)),
 		)
+		if m, exists := le["Msg"]; exists {
+			msg += ": " + m
+		}
+		if err, exists := le["Err"]; exists {
+			msg += ": " + err
+		}
 	case "sp-done":
 		switch le["XX"] {
 		case "rx":
