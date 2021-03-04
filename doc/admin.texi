@@ -68,24 +68,22 @@ $ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
     @verb{|uucp|} user:
 
 @example
-# mkdir -p /var/service/nncp-toss/log
-# chmod 755 /var/service/nncp-toss/log /var/service/nncp-toss
-# cd /var/service/nncp-toss
+# mkdir -p /var/service/.nncp-toss/log
+# cd /var/service/.nncp-toss
 
-# cat > run_ <<EOF
+# cat > run <<EOF
 #!/bin/sh -e
 exec 2>&1
 exec setuidgid uucp /usr/local/bin/nncp-toss -cycle 10
 EOF
-# chmod 755 run_
 
-# cat > log/run_ <<EOF
+# cat > log/run <<EOF
 #!/bin/sh -e
 exec setuidgid uucp multilog t ./main
 EOF
-# chmod 755 log/run_
 
-# mv log/run_ log/run ; mv run_ run
+# chmod -R 755 /var/service/.nncp-toss
+# mv /var/service/.nncp-toss /var/service/nncp-toss
 @end example
 
 @item
@@ -94,6 +92,29 @@ EOF
 
 @example
 uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -inetd
+@end example
+
+@item
+    Or it can be also run as a @command{daemontools} daemon under
+    @url{http://cr.yp.to/ucspi-tcp.html, UCSPI-TCP}:
+
+@example
+# mkdir -p /var/service/.nncp-daemon/log
+# cd /var/service/.nncp-daemon
+
+# cat > run <<EOF
+#!/bin/sh -e
+exec envuidgid nncpuser tcpserver -DRHU -l 0 0 uucp \
+	/usr/local/bin/nncp-daemon -quiet -inetd
+EOF
+
+# cat > log/run <<EOF
+#!/bin/sh -e
+exec setuidgid uucp multilog t ./main
+EOF
+
+# chmod -R 755 /var/service/.nncp-daemon
+# mv /var/service/.nncp-daemon /var/service/nncp-daemon
 @end example
 
 @end itemize
