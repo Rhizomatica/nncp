@@ -19,11 +19,13 @@ package nncp
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
+	"github.com/dustin/go-humanize"
 )
 
 type TRxTx string
@@ -58,21 +60,29 @@ func (ctx *Ctx) HdrRead(fd *os.File) (*PktEnc, []byte, error) {
 func (ctx *Ctx) HdrWrite(pktEncRaw []byte, tgt string) error {
 	tmpHdr, err := ctx.NewTmpFile()
 	if err != nil {
-		ctx.LogE("hdr-write", []LE{}, err, "new")
+		ctx.LogE("hdr-write-tmp-new", nil, err, func(les LEs) string {
+			return "Header writing: new temporary file"
+		})
 		return err
 	}
 	if _, err = tmpHdr.Write(pktEncRaw); err != nil {
-		ctx.LogE("hdr-write", []LE{}, err, "write")
+		ctx.LogE("hdr-write-write", nil, err, func(les LEs) string {
+			return "Header writing: writing"
+		})
 		os.Remove(tmpHdr.Name())
 		return err
 	}
 	if err = tmpHdr.Close(); err != nil {
-		ctx.LogE("hdr-write", []LE{}, err, "close")
+		ctx.LogE("hdr-write-close", nil, err, func(les LEs) string {
+			return "Header writing: closing"
+		})
 		os.Remove(tmpHdr.Name())
 		return err
 	}
 	if err = os.Rename(tmpHdr.Name(), tgt+HdrSuffix); err != nil {
-		ctx.LogE("hdr-write", []LE{}, err, "rename")
+		ctx.LogE("hdr-write-rename", nil, err, func(les LEs) string {
+			return "Header writing: renaming"
+		})
 		return err
 	}
 	return err
@@ -132,13 +142,20 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 			if err != nil || pktEnc.Magic != MagicNNCPEv4 {
 				continue
 			}
-			ctx.LogD("jobs", LEs{
+			ctx.LogD("job", LEs{
 				{"XX", string(xx)},
 				{"Node", pktEnc.Sender},
 				{"Name", name},
 				{"Nice", int(pktEnc.Nice)},
 				{"Size", fi.Size()},
-			}, "taken")
+			}, func(les LEs) string {
+				return fmt.Sprintf(
+					"Job %s/%s/%s nice: %s size: %s",
+					pktEnc.Sender, string(xx), name,
+					NicenessFmt(pktEnc.Nice),
+					humanize.IBytes(uint64(fi.Size())),
+				)
+			})
 			if !hdrExists && ctx.HdrUsage {
 				ctx.HdrWrite(pktEncRaw, pth)
 			}

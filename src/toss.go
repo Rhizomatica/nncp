@@ -53,13 +53,14 @@ func newNotification(fromTo *FromToJSON, subject string, body []byte) io.Reader 
 		"Subject: " + mime.BEncoding.Encode("UTF-8", subject),
 	}
 	if len(body) > 0 {
-		lines = append(lines, []string{
+		lines = append(
+			lines,
 			"MIME-Version: 1.0",
 			"Content-Type: text/plain; charset=utf-8",
 			"Content-Transfer-Encoding: base64",
 			"",
 			base64.StdEncoding.EncodeToString(body),
-		}...)
+		)
 	}
 	return strings.NewReader(strings.Join(lines, "\n"))
 }
@@ -71,7 +72,6 @@ func (ctx *Ctx) Toss(
 ) bool {
 	dirLock, err := ctx.LockDir(nodeId, "toss")
 	if err != nil {
-		ctx.LogE("rx", LEs{}, err, "lock")
 		return false
 	}
 	defer ctx.UnlockDir(dirLock)
@@ -84,14 +84,29 @@ func (ctx *Ctx) Toss(
 	defer decompressor.Close()
 	for job := range ctx.Jobs(nodeId, TRx) {
 		pktName := filepath.Base(job.Path)
-		les := LEs{{"Node", job.PktEnc.Sender}, {"Pkt", pktName}}
+		les := LEs{
+			{"Node", job.PktEnc.Sender},
+			{"Pkt", pktName},
+			{"Nice", int(job.PktEnc.Nice)},
+		}
 		if job.PktEnc.Nice > nice {
-			ctx.LogD("rx", append(les, LE{"Nice", int(job.PktEnc.Nice)}), "too nice")
+			ctx.LogD("rx-too-nice", les, func(les LEs) string {
+				return fmt.Sprintf(
+					"Tossing %s/%s: too nice: %s",
+					ctx.NodeName(job.PktEnc.Sender), pktName,
+					NicenessFmt(job.PktEnc.Nice),
+				)
+			})
 			continue
 		}
 		fd, err := os.Open(job.Path)
 		if err != nil {
-			ctx.LogE("rx", les, err, "open")
+			ctx.LogE("rx-open", les, err, func(les LEs) string {
+				return fmt.Sprintf(
+					"Tossing %s/%s: opening %s",
+					ctx.NodeName(job.PktEnc.Sender), pktName, job.Path,
+				)
+			})
 			isBad = true
 			continue
 		}
@@ -113,7 +128,12 @@ func (ctx *Ctx) Toss(
 		var pktSize int64
 		var pktSizeBlocks int64
 		if _, err = xdr.Unmarshal(pipeR, &pkt); err != nil {
-			ctx.LogE("rx", les, err, "unmarshal")
+			ctx.LogE("rx-unmarshal", les, err, func(les LEs) string {
+				return fmt.Sprintf(
+					"Tossing %s/%s: unmarshal",
+					ctx.NodeName(job.PktEnc.Sender), pktName,
+				)
+			})
 			isBad = true
 			goto Closing
 		}
@@ -124,7 +144,14 @@ func (ctx *Ctx) Toss(
 		}
 		pktSize -= pktSizeBlocks * poly1305.TagSize
 		les = append(les, LE{"Size", pktSize})
-		ctx.LogD("rx", les, "taken")
+		ctx.LogD("rx", les, func(les LEs) string {
+			return fmt.Sprintf(
+				"Tossing %s/%s (%s)",
+				ctx.NodeName(job.PktEnc.Sender), pktName,
+				humanize.IBytes(uint64(pktSize)),
+			)
+		})
+
 		switch pkt.Type {
 		case PktTypeExec, PktTypeExecFat:
 			if noExec {
@@ -137,14 +164,20 @@ func (ctx *Ctx) Toss(
 				args = append(args, string(p))
 			}
 			argsStr := strings.Join(append([]string{handle}, args...), " ")
-			les = append(les, LEs{
-				{"Type", "exec"},
-				{"Dst", argsStr},
-			}...)
+			les = append(les, LE{"Type", "exec"}, LE{"Dst", argsStr})
 			sender := ctx.Neigh[*job.PktEnc.Sender]
 			cmdline, exists := sender.Exec[handle]
 			if !exists || len(cmdline) == 0 {
-				ctx.LogE("rx", les, errors.New("No handle found"), "")
+				ctx.LogE(
+					"rx-no-handle", les, errors.New("No handle found"),
+					func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing exec %s/%s (%s): %s",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), argsStr,
+						)
+					},
+				)
 				isBad = true
 				goto Closing
 			}
@@ -154,10 +187,7 @@ func (ctx *Ctx) Toss(
 				}
 			}
 			if !dryRun {
-				cmd := exec.Command(
-					cmdline[0],
-					append(cmdline[1:], args...)...,
-				)
+				cmd := exec.Command(cmdline[0], append(cmdline[1:], args...)...)
 				cmd.Env = append(
 					cmd.Env,
 					"NNCP_SELF="+ctx.Self.Id.String(),
@@ -171,7 +201,13 @@ func (ctx *Ctx) Toss(
 				}
 				output, err := cmd.Output()
 				if err != nil {
-					ctx.LogE("rx", les, err, "handle")
+					ctx.LogE("rx-hande", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing exec %s/%s (%s): %s: handling",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), argsStr,
+						)
+					})
 					isBad = true
 					goto Closing
 				}
@@ -189,12 +225,24 @@ func (ctx *Ctx) Toss(
 							"Exec from %s: %s", sender.Name, argsStr,
 						), output)
 						if err = cmd.Run(); err != nil {
-							ctx.LogE("rx", les, err, "notify")
+							ctx.LogE("rx-notify", les, err, func(les LEs) string {
+								return fmt.Sprintf(
+									"Tossing exec %s/%s (%s): %s: notifying",
+									ctx.NodeName(job.PktEnc.Sender), pktName,
+									humanize.IBytes(uint64(pktSize)), argsStr,
+								)
+							})
 						}
 					}
 				}
 			}
-			ctx.LogI("rx", les, "")
+			ctx.LogI("rx", les, func(les LEs) string {
+				return fmt.Sprintf(
+					"Got exec from %s to %s (%s)",
+					ctx.NodeName(job.PktEnc.Sender), argsStr,
+					humanize.IBytes(uint64(pktSize)),
+				)
+			})
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Path + SeenSuffix); err == nil {
@@ -202,68 +250,135 @@ func (ctx *Ctx) Toss(
 					}
 				}
 				if err = os.Remove(job.Path); err != nil {
-					ctx.LogE("rx", les, err, "remove")
+					ctx.LogE("rx-notify", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing exec %s/%s (%s): %s: notifying",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), argsStr,
+						)
+					})
 					isBad = true
 				} else if ctx.HdrUsage {
 					os.Remove(job.Path + HdrSuffix)
 				}
 			}
+
 		case PktTypeFile:
 			if noFile {
 				goto Closing
 			}
 			dst := string(pkt.Path[:int(pkt.PathLen)])
-			les = append(les, LEs{{"Type", "file"}, {"Dst", dst}}...)
+			les = append(les, LE{"Type", "file"}, LE{"Dst", dst})
 			if filepath.IsAbs(dst) {
-				ctx.LogE("rx", les, errors.New("non-relative destination path"), "")
+				ctx.LogE(
+					"rx-non-rel", les, errors.New("non-relative destination path"),
+					func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					},
+				)
 				isBad = true
 				goto Closing
 			}
 			incoming := ctx.Neigh[*job.PktEnc.Sender].Incoming
 			if incoming == nil {
-				ctx.LogE("rx", les, errors.New("incoming is not allowed"), "")
+				ctx.LogE(
+					"rx-no-incoming", les, errors.New("incoming is not allowed"),
+					func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					},
+				)
 				isBad = true
 				goto Closing
 			}
 			dir := filepath.Join(*incoming, path.Dir(dst))
 			if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
-				ctx.LogE("rx", les, err, "mkdir")
+				ctx.LogE("rx-mkdir", les, err, func(les LEs) string {
+					return fmt.Sprintf(
+						"Tossing file %s/%s (%s): %s: mkdir",
+						ctx.NodeName(job.PktEnc.Sender), pktName,
+						humanize.IBytes(uint64(pktSize)), dst,
+					)
+				})
 				isBad = true
 				goto Closing
 			}
 			if !dryRun {
 				tmp, err := TempFile(dir, "file")
 				if err != nil {
-					ctx.LogE("rx", les, err, "mktemp")
+					ctx.LogE("rx-mktemp", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: mktemp",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					})
 					isBad = true
 					goto Closing
 				}
 				les = append(les, LE{"Tmp", tmp.Name()})
-				ctx.LogD("rx", les, "created")
+				ctx.LogD("rx-tmp-created", les, func(les LEs) string {
+					return fmt.Sprintf(
+						"Tossing file %s/%s (%s): %s: created: %s",
+						ctx.NodeName(job.PktEnc.Sender), pktName,
+						humanize.IBytes(uint64(pktSize)), dst, tmp.Name(),
+					)
+				})
 				bufW := bufio.NewWriter(tmp)
 				if _, err = CopyProgressed(
 					bufW, pipeR, "Rx file",
 					append(les, LE{"FullSize", pktSize}),
 					ctx.ShowPrgrs,
 				); err != nil {
-					ctx.LogE("rx", les, err, "copy")
+					ctx.LogE("rx-copy", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: copying",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					})
 					isBad = true
 					goto Closing
 				}
 				if err = bufW.Flush(); err != nil {
 					tmp.Close() // #nosec G104
-					ctx.LogE("rx", les, err, "copy")
+					ctx.LogE("rx-flush", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: flushing",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					})
 					isBad = true
 					goto Closing
 				}
 				if err = tmp.Sync(); err != nil {
 					tmp.Close() // #nosec G104
-					ctx.LogE("rx", les, err, "copy")
+					ctx.LogE("rx-sync", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: syncing",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					})
 					isBad = true
 					goto Closing
 				}
 				if err = tmp.Close(); err != nil {
-					ctx.LogE("rx", les, err, "copy")
+					ctx.LogE("rx-close", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: closing",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					})
 					isBad = true
 					goto Closing
 				}
@@ -275,7 +390,13 @@ func (ctx *Ctx) Toss(
 						if os.IsNotExist(err) {
 							break
 						}
-						ctx.LogE("rx", les, err, "stat")
+						ctx.LogE("rx-stat", les, err, func(les LEs) string {
+							return fmt.Sprintf(
+								"Tossing file %s/%s (%s): %s: stating: %s",
+								ctx.NodeName(job.PktEnc.Sender), pktName,
+								humanize.IBytes(uint64(pktSize)), dst, dstPath,
+							)
+						})
 						isBad = true
 						goto Closing
 					}
@@ -283,16 +404,34 @@ func (ctx *Ctx) Toss(
 					dstPathCtr++
 				}
 				if err = os.Rename(tmp.Name(), dstPath); err != nil {
-					ctx.LogE("rx", les, err, "rename")
+					ctx.LogE("rx-rename", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: renaming",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					})
 					isBad = true
 				}
 				if err = DirSync(*incoming); err != nil {
-					ctx.LogE("rx", les, err, "sync")
+					ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: dirsyncing",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					})
 					isBad = true
 				}
 				les = les[:len(les)-1] // delete Tmp
 			}
-			ctx.LogI("rx", les, "")
+			ctx.LogI("rx", les, func(les LEs) string {
+				return fmt.Sprintf(
+					"Got file %s (%s) from %s",
+					dst, humanize.IBytes(uint64(pktSize)),
+					ctx.NodeName(job.PktEnc.Sender),
+				)
+			})
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Path + SeenSuffix); err == nil {
@@ -300,7 +439,13 @@ func (ctx *Ctx) Toss(
 					}
 				}
 				if err = os.Remove(job.Path); err != nil {
-					ctx.LogE("rx", les, err, "remove")
+					ctx.LogE("rx-remove", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: removing",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), dst,
+						)
+					})
 					isBad = true
 				} else if ctx.HdrUsage {
 					os.Remove(job.Path + HdrSuffix)
@@ -317,24 +462,46 @@ func (ctx *Ctx) Toss(
 						humanize.IBytes(uint64(pktSize)),
 					), nil)
 					if err = cmd.Run(); err != nil {
-						ctx.LogE("rx", les, err, "notify")
+						ctx.LogE("rx-notify", les, err, func(les LEs) string {
+							return fmt.Sprintf(
+								"Tossing file %s/%s (%s): %s: notifying",
+								ctx.NodeName(job.PktEnc.Sender), pktName,
+								humanize.IBytes(uint64(pktSize)), dst,
+							)
+						})
 					}
 				}
 			}
+
 		case PktTypeFreq:
 			if noFreq {
 				goto Closing
 			}
 			src := string(pkt.Path[:int(pkt.PathLen)])
+			les := append(les, LE{"Type", "freq"}, LE{"Src", src})
 			if filepath.IsAbs(src) {
-				ctx.LogE("rx", les, errors.New("non-relative source path"), "")
+				ctx.LogE(
+					"rx-non-rel", les, errors.New("non-relative source path"),
+					func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing freq %s/%s (%s): %s: notifying",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), src,
+						)
+					},
+				)
 				isBad = true
 				goto Closing
 			}
-			les := append(les, LEs{{"Type", "freq"}, {"Src", src}}...)
 			dstRaw, err := ioutil.ReadAll(pipeR)
 			if err != nil {
-				ctx.LogE("rx", les, err, "read")
+				ctx.LogE("rx-read", les, err, func(les LEs) string {
+					return fmt.Sprintf(
+						"Tossing freq %s/%s (%s): %s: reading",
+						ctx.NodeName(job.PktEnc.Sender), pktName,
+						humanize.IBytes(uint64(pktSize)), src,
+					)
+				})
 				isBad = true
 				goto Closing
 			}
@@ -343,7 +510,16 @@ func (ctx *Ctx) Toss(
 			sender := ctx.Neigh[*job.PktEnc.Sender]
 			freqPath := sender.FreqPath
 			if freqPath == nil {
-				ctx.LogE("rx", les, errors.New("freqing is not allowed"), "")
+				ctx.LogE(
+					"rx-no-freq", les, errors.New("freqing is not allowed"),
+					func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing freq %s/%s (%s): %s -> %s",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), src, dst,
+						)
+					},
+				)
 				isBad = true
 				goto Closing
 			}
@@ -358,12 +534,23 @@ func (ctx *Ctx) Toss(
 					sender.FreqMaxSize,
 				)
 				if err != nil {
-					ctx.LogE("rx", les, err, "tx file")
+					ctx.LogE("rx-tx", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing freq %s/%s (%s): %s -> %s: txing",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), src, dst,
+						)
+					})
 					isBad = true
 					goto Closing
 				}
 			}
-			ctx.LogI("rx", les, "")
+			ctx.LogI("rx", les, func(les LEs) string {
+				return fmt.Sprintf(
+					"Got file request %s to %s",
+					src, ctx.NodeName(job.PktEnc.Sender),
+				)
+			})
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Path + SeenSuffix); err == nil {
@@ -371,7 +558,13 @@ func (ctx *Ctx) Toss(
 					}
 				}
 				if err = os.Remove(job.Path); err != nil {
-					ctx.LogE("rx", les, err, "remove")
+					ctx.LogE("rx-remove", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing freq %s/%s (%s): %s -> %s: removing",
+							ctx.NodeName(job.PktEnc.Sender), pktName,
+							humanize.IBytes(uint64(pktSize)), src, dst,
+						)
+					})
 					isBad = true
 				} else if ctx.HdrUsage {
 					os.Remove(job.Path + HdrSuffix)
@@ -385,10 +578,17 @@ func (ctx *Ctx) Toss(
 						"Freq from %s: %s", sender.Name, src,
 					), nil)
 					if err = cmd.Run(); err != nil {
-						ctx.LogE("rx", les, err, "notify")
+						ctx.LogE("rx-notify", les, err, func(les LEs) string {
+							return fmt.Sprintf(
+								"Tossing freq %s/%s (%s): %s -> %s: notifying",
+								ctx.NodeName(job.PktEnc.Sender), pktName,
+								humanize.IBytes(uint64(pktSize)), src, dst,
+							)
+						})
 					}
 				}
 			}
+
 		case PktTypeTrns:
 			if noTrns {
 				goto Closing
@@ -397,21 +597,39 @@ func (ctx *Ctx) Toss(
 			copy(dst[:], pkt.Path[:int(pkt.PathLen)])
 			nodeId := NodeId(*dst)
 			node, known := ctx.Neigh[nodeId]
-			les := append(les, LEs{{"Type", "trns"}, {"Dst", nodeId}}...)
+			les := append(les, LE{"Type", "trns"}, LE{"Dst", nodeId})
+			logMsg := func(les LEs) string {
+				return fmt.Sprintf(
+					"Tossing trns %s/%s (%s): %s",
+					ctx.NodeName(job.PktEnc.Sender),
+					pktName,
+					humanize.IBytes(uint64(pktSize)),
+					nodeId.String(),
+				)
+			}
 			if !known {
-				ctx.LogE("rx", les, errors.New("unknown node"), "")
+				ctx.LogE("rx-unknown", les, errors.New("unknown node"), logMsg)
 				isBad = true
 				goto Closing
 			}
-			ctx.LogD("rx", les, "taken")
+			ctx.LogD("rx-tx", les, logMsg)
 			if !dryRun {
 				if err = ctx.TxTrns(node, job.PktEnc.Nice, pktSize, pipeR); err != nil {
-					ctx.LogE("rx", les, err, "tx trns")
+					ctx.LogE("rx", les, err, func(les LEs) string {
+						return logMsg(les) + ": txing"
+					})
 					isBad = true
 					goto Closing
 				}
 			}
-			ctx.LogI("rx", les, "")
+			ctx.LogI("rx", les, func(les LEs) string {
+				return fmt.Sprintf(
+					"Got transitional packet from %s to %s (%s)",
+					ctx.NodeName(job.PktEnc.Sender),
+					ctx.NodeName(&nodeId),
+					humanize.IBytes(uint64(pktSize)),
+				)
+			})
 			if !dryRun {
 				if doSeen {
 					if fd, err := os.Create(job.Path + SeenSuffix); err == nil {
@@ -419,14 +637,33 @@ func (ctx *Ctx) Toss(
 					}
 				}
 				if err = os.Remove(job.Path); err != nil {
-					ctx.LogE("rx", les, err, "remove")
+					ctx.LogE("rx", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing trns %s/%s (%s): %s: removing",
+							ctx.NodeName(job.PktEnc.Sender),
+							pktName,
+							humanize.IBytes(uint64(pktSize)),
+							ctx.NodeName(&nodeId),
+						)
+					})
 					isBad = true
 				} else if ctx.HdrUsage {
 					os.Remove(job.Path + HdrSuffix)
 				}
 			}
+
 		default:
-			ctx.LogE("rx", les, errors.New("unknown type"), "")
+			ctx.LogE(
+				"rx-type-unknown", les, errors.New("unknown type"),
+				func(les LEs) string {
+					return fmt.Sprintf(
+						"Tossing %s/%s (%s)",
+						ctx.NodeName(job.PktEnc.Sender),
+						pktName,
+						humanize.IBytes(uint64(pktSize)),
+					)
+				},
+			)
 			isBad = true
 		}
 	Closing:

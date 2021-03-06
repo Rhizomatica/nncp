@@ -19,6 +19,7 @@ package nncp
 
 import (
 	"bufio"
+	"fmt"
 	"hash"
 	"io"
 	"os"
@@ -44,7 +45,9 @@ func (ctx *Ctx) NewTmpFile() (*os.File, error) {
 	}
 	fd, err := TempFile(jobsPath, "")
 	if err == nil {
-		ctx.LogD("tmp", LEs{{"Src", fd.Name()}}, "created")
+		ctx.LogD("tmp", LEs{{"Src", fd.Name()}}, func(les LEs) string {
+			return "Temporary file created: %s" + fd.Name()
+		})
 	}
 	return fd, err
 }
@@ -113,7 +116,13 @@ func (tmp *TmpFileWHash) Commit(dir string) error {
 		return err
 	}
 	checksum := tmp.Checksum()
-	tmp.ctx.LogD("tmp", LEs{{"Src", tmp.Fd.Name()}, {"Dst", checksum}}, "commit")
+	tmp.ctx.LogD(
+		"tmp-rename",
+		LEs{{"Src", tmp.Fd.Name()}, {"Dst", checksum}},
+		func(les LEs) string {
+			return fmt.Sprintf("Temporary file: %s -> %s", tmp.Fd.Name(), checksum)
+		},
+	)
 	if err = os.Rename(tmp.Fd.Name(), filepath.Join(dir, checksum)); err != nil {
 		return err
 	}
