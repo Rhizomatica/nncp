@@ -3,6 +3,16 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 6.2.0
+@section Release 6.2.0
+@itemize
+
+@item
+Yet another logging refactoring and simplification.
+Should be no visible differences to the end user.
+
+@end itemize
+
 @node Release 6.1.0
 @section Release 6.1.0
 @itemize

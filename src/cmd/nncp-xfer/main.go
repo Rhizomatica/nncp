@@ -28,6 +28,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/dustin/go-humanize"
 	"go.cypherpunks.ru/nncp/v6"
 )
 
@@ -105,6 +106,7 @@ func main() {
 	var dir *os.File
 	var fis []os.FileInfo
 	var les nncp.LEs
+	var logMsg func(les nncp.LEs) string
 	if *txOnly {
 		goto Tx
 	}
@@ -112,26 +114,37 @@ func main() {
 		{K: "XX", V: string(nncp.TRx)},
 		{K: "Dir", V: selfPath},
 	}
-	ctx.LogD("nncp-xfer", les, "self")
+	logMsg = func(les nncp.LEs) string {
+		return "Packet transfer, received from self"
+	}
+	ctx.LogD("xfer-self", les, logMsg)
 	if _, err = os.Stat(selfPath); err != nil {
 		if os.IsNotExist(err) {
-			ctx.LogD("nncp-xfer", les, "no dir")
+			ctx.LogD("xfer-self-no-dir", les, func(les nncp.LEs) string {
+				return logMsg(les) + ": no directory"
+			})
 			goto Tx
 		}
-		ctx.LogE("nncp-xfer", les, err, "stat")
+		ctx.LogE("xfer-self-stat", les, err, func(les nncp.LEs) string {
+			return logMsg(les) + ": stating"
+		})
 		isBad = true
 		goto Tx
 	}
 	dir, err = os.Open(selfPath)
 	if err != nil {
-		ctx.LogE("nncp-xfer", les, err, "open")
+		ctx.LogE("xfer-self-open", les, err, func(les nncp.LEs) string {
+			return logMsg(les) + ": opening"
+		})
 		isBad = true
 		goto Tx
 	}
 	fis, err = dir.Readdir(0)
 	dir.Close() // #nosec G104
 	if err != nil {
-		ctx.LogE("nncp-xfer", les, err, "read")
+		ctx.LogE("xfer-self-read", les, err, func(les nncp.LEs) string {
+			return logMsg(les) + ": reading"
+		})
 		isBad = true
 		goto Tx
 	}
@@ -141,28 +154,41 @@ func main() {
 		}
 		nodeId, err := nncp.NodeIdFromString(fi.Name())
 		les := append(les, nncp.LE{K: "Node", V: fi.Name()})
+		logMsg := func(les nncp.LEs) string {
+			return "Packet transfer, received from " + ctx.NodeName(nodeId)
+		}
 		if err != nil {
-			ctx.LogD("nncp-xfer", les, "is not NodeId")
+			ctx.LogD("xfer-rx-not-node", les, func(les nncp.LEs) string {
+				return logMsg(les) + ": is not NodeId"
+			})
 			continue
 		}
 		if nodeOnly != nil && *nodeId != *nodeOnly.Id {
-			ctx.LogD("nncp-xfer", les, "skip")
+			ctx.LogD("xfer-rx-skip", les, func(les nncp.LEs) string {
+				return logMsg(les) + ": skipping"
+			})
 			continue
 		}
 		if _, known := ctx.Neigh[*nodeId]; !known {
-			ctx.LogD("nncp-xfer", les, "unknown")
+			ctx.LogD("xfer-rx-unknown", les, func(les nncp.LEs) string {
+				return logMsg(les) + ": unknown"
+			})
 			continue
 		}
 		dir, err = os.Open(filepath.Join(selfPath, fi.Name()))
 		if err != nil {
-			ctx.LogE("nncp-xfer", les, err, "open")
+			ctx.LogE("xfer-rx-open", les, err, func(les nncp.LEs) string {
+				return logMsg(les) + ": opening"
+			})
 			isBad = true
 			continue
 		}
 		fisInt, err := dir.Readdir(0)
 		dir.Close() // #nosec G104
 		if err != nil {
-			ctx.LogE("nncp-xfer", les, err, "read")
+			ctx.LogE("xfer-rx-read", les, err, func(les nncp.LEs) string {
+				return logMsg(les) + ": reading"
+			})
 			isBad = true
 			continue
 		}
@@ -176,26 +202,45 @@ func main() {
 			}
 			filename := filepath.Join(dir.Name(), fiInt.Name())
 			les := append(les, nncp.LE{K: "File", V: filename})
+			logMsg := func(les nncp.LEs) string {
+				return fmt.Sprintf(
+					"Packet transfer, received from %s: %s",
+					ctx.NodeName(nodeId), filename,
+				)
+			}
 			fd, err := os.Open(filename)
 			if err != nil {
-				ctx.LogE("nncp-xfer", les, err, "open")
+				ctx.LogE("xfer-rx-open", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": opening"
+				})
 				isBad = true
 				continue
 			}
 			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
 			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv4 {
-				ctx.LogD("nncp-xfer", les, "is not a packet")
+				ctx.LogD("xfer-rx-not-packet", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": is not a packet"
+				})
 				fd.Close() // #nosec G104
 				continue
 			}
 			if pktEnc.Nice > nice {
-				ctx.LogD("nncp-xfer", les, "too nice")
+				ctx.LogD("xfer-rx-too-nice", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": too nice"
+				})
 				fd.Close() // #nosec G104
 				continue
 			}
 			les = append(les, nncp.LE{K: "Size", V: fiInt.Size()})
+			logMsg = func(les nncp.LEs) string {
+				return fmt.Sprintf(
+					"Packet transfer, received from %s: %s (%s)",
+					ctx.NodeName(nodeId), filename,
+					humanize.IBytes(uint64(fiInt.Size())),
+				)
+			}
 			if !ctx.IsEnoughSpace(fiInt.Size()) {
-				ctx.LogE("nncp-xfer", les, errors.New("is not enough space"), "")
+				ctx.LogE("xfer-rx", les, errors.New("is not enough space"), logMsg)
 				fd.Close() // #nosec G104
 				continue
 			}
@@ -213,19 +258,20 @@ func main() {
 					err = w.Close()
 				}
 				if err != nil {
-					ctx.LogE("nncp-xfer", les, err, "copy")
+					ctx.LogE("xfer-rx", les, err, logMsg)
 					w.CloseWithError(err) // #nosec G104
 				}
 			}()
 			if _, err = nncp.CopyProgressed(
 				tmp.W, r, "Rx",
-				append(les, nncp.LEs{
-					{K: "Pkt", V: filename},
-					{K: "FullSize", V: fiInt.Size()},
-				}...),
+				append(
+					les,
+					nncp.LE{K: "Pkt", V: filename},
+					nncp.LE{K: "FullSize", V: fiInt.Size()},
+				),
 				ctx.ShowPrgrs,
 			); err != nil {
-				ctx.LogE("nncp-xfer", les, err, "copy")
+				ctx.LogE("xfer-rx", les, err, logMsg)
 				isBad = true
 			}
 			fd.Close() // #nosec G104
@@ -240,10 +286,10 @@ func main() {
 			)); err != nil {
 				log.Fatalln(err)
 			}
-			ctx.LogI("nncp-xfer", les, "")
+			ctx.LogI("xfer-rx", les, logMsg)
 			if !*keep {
 				if err = os.Remove(filename); err != nil {
-					ctx.LogE("nncp-xfer", les, err, "remove")
+					ctx.LogE("xfer-rx-remove", les, err, logMsg)
 					isBad = true
 				}
 			}
@@ -266,12 +312,14 @@ Tx:
 		return
 	}
 	for nodeId := range ctx.Neigh {
-		les := nncp.LEs{
-			{K: "XX", V: string(nncp.TTx)},
-			{K: "Node", V: nodeId},
+		les := nncp.LEs{{K: "XX", V: string(nncp.TTx)}, {K: "Node", V: nodeId}}
+		logMsg := func(les nncp.LEs) string {
+			return "Packet transfer, sent to " + ctx.NodeName(&nodeId)
 		}
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
-			ctx.LogD("nncp-xfer", les, "skip")
+			ctx.LogD("xfer-tx-skip", les, func(les nncp.LEs) string {
+				return logMsg(les) + ": skipping"
+			})
 			continue
 		}
 		dirLock, err := ctx.LockDir(&nodeId, string(nncp.TTx))
@@ -280,41 +328,55 @@ Tx:
 		}
 		nodePath := filepath.Join(flag.Arg(0), nodeId.String())
 		les = append(les, nncp.LE{K: "Dir", V: nodePath})
+		logMsg = func(les nncp.LEs) string {
+			return fmt.Sprintf(
+				"Packet transfer, sent to %s: directory %s",
+				ctx.NodeName(&nodeId), nodePath,
+			)
+		}
 		_, err = os.Stat(nodePath)
 		if err != nil {
 			if os.IsNotExist(err) {
-				ctx.LogD("nncp-xfer", les, "does not exist")
+				ctx.LogD("xfer-tx-not-exist", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": does not exist"
+				})
 				if !*mkdir {
 					ctx.UnlockDir(dirLock)
 					continue
 				}
 				if err = os.Mkdir(nodePath, os.FileMode(0777)); err != nil {
 					ctx.UnlockDir(dirLock)
-					ctx.LogE("nncp-xfer", les, err, "mkdir")
+					ctx.LogE("xfer-tx-mkdir", les, err, logMsg)
 					isBad = true
 					continue
 				}
 			} else {
 				ctx.UnlockDir(dirLock)
-				ctx.LogE("nncp-xfer", les, err, "stat")
+				ctx.LogE("xfer-tx", les, err, logMsg)
 				isBad = true
 				continue
 			}
 		}
 		dstPath := filepath.Join(nodePath, ctx.SelfId.String())
 		les[len(les)-1].V = dstPath
+		logMsg = func(les nncp.LEs) string {
+			return fmt.Sprintf(
+				"Packet transfer, sent to %s: directory %s",
+				ctx.NodeName(&nodeId), dstPath,
+			)
+		}
 		_, err = os.Stat(dstPath)
 		if err != nil {
 			if os.IsNotExist(err) {
 				if err = os.Mkdir(dstPath, os.FileMode(0777)); err != nil {
 					ctx.UnlockDir(dirLock)
-					ctx.LogE("nncp-xfer", les, err, "mkdir")
+					ctx.LogE("xfer-tx-mkdir", les, err, logMsg)
 					isBad = true
 					continue
 				}
 			} else {
 				ctx.UnlockDir(dirLock)
-				ctx.LogE("nncp-xfer", les, err, "stat")
+				ctx.LogE("xfer-tx", les, err, logMsg)
 				isBad = true
 				continue
 			}
@@ -323,29 +385,47 @@ Tx:
 		for job := range ctx.Jobs(&nodeId, nncp.TTx) {
 			pktName := filepath.Base(job.Path)
 			les := append(les, nncp.LE{K: "Pkt", V: pktName})
+			logMsg = func(les nncp.LEs) string {
+				return fmt.Sprintf(
+					"Packet transfer, sent to %s: %s",
+					ctx.NodeName(&nodeId), pktName,
+				)
+			}
 			if job.PktEnc.Nice > nice {
-				ctx.LogD("nncp-xfer", les, "too nice")
+				ctx.LogD("xfer-tx-too-nice", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": too nice"
+				})
 				continue
 			}
 			if _, err = os.Stat(filepath.Join(dstPath, pktName)); err == nil || !os.IsNotExist(err) {
-				ctx.LogD("nncp-xfer", les, "already exists")
+				ctx.LogD("xfer-tx-exists", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": already exists"
+				})
 				continue
 			}
 			if _, err = os.Stat(filepath.Join(dstPath, pktName+nncp.SeenSuffix)); err == nil || !os.IsNotExist(err) {
-				ctx.LogD("nncp-xfer", les, "already exists")
+				ctx.LogD("xfer-tx-seen", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": already seen"
+				})
 				continue
 			}
 			tmp, err := nncp.TempFile(dstPath, "xfer")
 			if err != nil {
-				ctx.LogE("nncp-xfer", les, err, "mktemp")
+				ctx.LogE("xfer-tx-mktemp", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": mktemp"
+				})
 				isBad = true
 				break
 			}
 			les = append(les, nncp.LE{K: "Tmp", V: tmp.Name()})
-			ctx.LogD("nncp-xfer", les, "created")
+			ctx.LogD("xfer-tx-tmp-create", les, func(les nncp.LEs) string {
+				return fmt.Sprintf("%s: temporary %s created", logMsg(les), tmp.Name())
+			})
 			fd, err := os.Open(job.Path)
 			if err != nil {
-				ctx.LogE("nncp-xfer", les, err, "open")
+				ctx.LogE("xfer-tx-open", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": opening"
+				})
 				tmp.Close() // #nosec G104
 				isBad = true
 				continue
@@ -358,42 +438,64 @@ Tx:
 			)
 			fd.Close() // #nosec G104
 			if err != nil {
-				ctx.LogE("nncp-xfer", les, err, "copy")
+				ctx.LogE("xfer-tx-copy", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": copying"
+				})
 				tmp.Close() // #nosec G104
 				isBad = true
 				continue
 			}
 			if err = bufW.Flush(); err != nil {
 				tmp.Close() // #nosec G104
-				ctx.LogE("nncp-xfer", les, err, "flush")
+				ctx.LogE("xfer-tx-flush", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": flushing"
+				})
 				isBad = true
 				continue
 			}
 			if err = tmp.Sync(); err != nil {
 				tmp.Close() // #nosec G104
-				ctx.LogE("nncp-xfer", les, err, "sync")
+				ctx.LogE("xfer-tx-sync", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": syncing"
+				})
 				isBad = true
 				continue
 			}
 			if err = tmp.Close(); err != nil {
-				ctx.LogE("nncp-xfer", les, err, "sync")
+				ctx.LogE("xfer-tx-close", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": closing"
+				})
 			}
 			if err = os.Rename(tmp.Name(), filepath.Join(dstPath, pktName)); err != nil {
-				ctx.LogE("nncp-xfer", les, err, "rename")
+				ctx.LogE("xfer-tx-rename", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": renaming"
+				})
 				isBad = true
 				continue
 			}
 			if err = nncp.DirSync(dstPath); err != nil {
-				ctx.LogE("nncp-xfer", les, err, "sync")
+				ctx.LogE("xfer-tx-dirsync", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": dirsyncing"
+				})
 				isBad = true
 				continue
 			}
 			os.Remove(filepath.Join(dstPath, pktName+".part")) // #nosec G104
 			les = les[:len(les)-1]
-			ctx.LogI("nncp-xfer", append(les, nncp.LE{K: "Size", V: copied}), "")
+			ctx.LogI(
+				"xfer-tx",
+				append(les, nncp.LE{K: "Size", V: copied}),
+				func(les nncp.LEs) string {
+					return fmt.Sprintf(
+						"%s (%s)", logMsg(les), humanize.IBytes(uint64(copied)),
+					)
+				},
+			)
 			if !*keep {
 				if err = os.Remove(job.Path); err != nil {
-					ctx.LogE("nncp-xfer", les, err, "remove")
+					ctx.LogE("xfer-tx-remove", les, err, func(les nncp.LEs) string {
+						return logMsg(les) + ": removing"
+					})
 					isBad = true
 				} else if ctx.HdrUsage {
 					os.Remove(job.Path + nncp.HdrSuffix)

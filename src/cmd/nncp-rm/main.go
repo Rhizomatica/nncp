@@ -122,10 +122,14 @@ func main() {
 					return nil
 				}
 				if now.Sub(info.ModTime()) < oldBoundary {
-					ctx.LogD("nncp-rm", nncp.LEs{{K: "File", V: path}}, "too fresh, skipping")
+					ctx.LogD("rm-skip", nncp.LEs{{K: "File", V: path}}, func(les nncp.LEs) string {
+						return fmt.Sprintf("File %s: too fresh, skipping", path)
+					})
 					return nil
 				}
-				ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
+				ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, func(les nncp.LEs) string {
+					return fmt.Sprintf("File %s: removed", path)
+				})
 				if *dryRun {
 					return nil
 				}
@@ -145,7 +149,9 @@ func main() {
 				return nil
 			}
 			if strings.HasSuffix(info.Name(), ".lock") {
-				ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
+				ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, func(les nncp.LEs) string {
+					return fmt.Sprintf("File %s: removed", path)
+				})
 				if *dryRun {
 					return nil
 				}
@@ -176,22 +182,27 @@ func main() {
 				if info.IsDir() {
 					return nil
 				}
+				logMsg := func(les nncp.LEs) string {
+					return fmt.Sprintf("File %s: removed", path)
+				}
 				if now.Sub(info.ModTime()) < oldBoundary {
-					ctx.LogD("nncp-rm", nncp.LEs{{K: "File", V: path}}, "too fresh, skipping")
+					ctx.LogD("rm-skip", nncp.LEs{{K: "File", V: path}}, func(les nncp.LEs) string {
+						return fmt.Sprintf("File %s: too fresh, skipping", path)
+					})
 					return nil
 				}
 				if (*doSeen && strings.HasSuffix(info.Name(), nncp.SeenSuffix)) ||
 					(*doNoCK && strings.HasSuffix(info.Name(), nncp.NoCKSuffix)) ||
 					(*doHdr && strings.HasSuffix(info.Name(), nncp.HdrSuffix)) ||
 					(*doPart && strings.HasSuffix(info.Name(), nncp.PartSuffix)) {
-					ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
+					ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, logMsg)
 					if *dryRun {
 						return nil
 					}
 					return os.Remove(path)
 				}
 				if *pktRaw != "" && filepath.Base(info.Name()) == *pktRaw {
-					ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
+					ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, logMsg)
 					if *dryRun {
 						return nil
 					}
@@ -200,7 +211,7 @@ func main() {
 				if !*doSeen && !*doNoCK && !*doHdr && !*doPart &&
 					(*doRx || *doTx) &&
 					((*doRx && xx == nncp.TRx) || (*doTx && xx == nncp.TTx)) {
-					ctx.LogI("nncp-rm", nncp.LEs{{K: "File", V: path}}, "")
+					ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, logMsg)
 					if *dryRun {
 						return nil
 					}

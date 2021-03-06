@@ -94,22 +94,18 @@ func (ctx *Ctx) Log(rec string) {
 	fd.Close()          // #nosec G104
 }
 
-func (ctx *Ctx) LogD(who string, les LEs, msg string) {
+func (ctx *Ctx) LogD(who string, les LEs, msg func(LEs) string) {
 	if !ctx.Debug {
 		return
 	}
 	les = append(LEs{{"Debug", true}, {"Who", who}}, les...)
-	if msg != "" {
-		les = append(les, LE{"Msg", msg})
-	}
+	les = append(les, LE{"Msg", msg(les)})
 	fmt.Fprint(os.Stderr, les.Rec())
 }
 
-func (ctx *Ctx) LogI(who string, les LEs, msg string) {
+func (ctx *Ctx) LogI(who string, les LEs, msg func(LEs) string) {
 	les = append(LEs{{"Who", who}}, les...)
-	if msg != "" {
-		les = append(les, LE{"Msg", msg})
-	}
+	les = append(les, LE{"Msg", msg(les)})
 	rec := les.Rec()
 	if !ctx.Quiet {
 		fmt.Fprintln(os.Stderr, ctx.HumanizeRec(rec))
@@ -117,11 +113,9 @@ func (ctx *Ctx) LogI(who string, les LEs, msg string) {
 	ctx.Log(rec)
 }
 
-func (ctx *Ctx) LogE(who string, les LEs, err error, msg string) {
+func (ctx *Ctx) LogE(who string, les LEs, err error, msg func(LEs) string) {
 	les = append(LEs{{"Err", err.Error()}, {"Who", who}}, les...)
-	if msg != "" {
-		les = append(les, LE{"Msg", msg})
-	}
+	les = append(les, LE{"Msg", msg(les)})
 	rec := les.Rec()
 	if !ctx.Quiet {
 		fmt.Fprintln(os.Stderr, ctx.HumanizeRec(rec))

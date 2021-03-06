@@ -86,7 +86,13 @@ func main() {
 				log.Fatalln("Invalid NODE specified:", err)
 			}
 			if len(node.Calls) == 0 {
-				ctx.LogD("caller", nncp.LEs{{K: "Node", V: node.Id}}, "has no calls, skipping")
+				ctx.LogD(
+					"caller-no-calls",
+					nncp.LEs{{K: "Node", V: node.Id}},
+					func(les nncp.LEs) string {
+						return fmt.Sprintf("%s node has no calls, skipping", node.Name)
+					},
+				)
 				continue
 			}
 			nodes = append(nodes, node)
@@ -94,7 +100,13 @@ func main() {
 	} else {
 		for _, node := range ctx.Neigh {
 			if len(node.Calls) == 0 {
-				ctx.LogD("caller", nncp.LEs{{K: "Node", V: node.Id}}, "has no calls, skipping")
+				ctx.LogD(
+					"caller-no-calls",
+					nncp.LEs{{K: "Node", V: node.Id}},
+					func(les nncp.LEs) string {
+						return fmt.Sprintf("%s node has no calls, skipping", node.Name)
+					},
+				)
 				continue
 			}
 			nodes = append(nodes, node)
@@ -116,26 +128,35 @@ func main() {
 					addrs = append(addrs, *call.Addr)
 				}
 				les := nncp.LEs{{K: "Node", V: node.Id}, {K: "CallIndex", V: i}}
+				logMsg := func(les nncp.LEs) string {
+					return fmt.Sprintf("%s node, call %d", node.Name, i)
+				}
 				for {
 					n := time.Now()
 					t := call.Cron.Next(n)
-					ctx.LogD("caller", les, t.String())
+					ctx.LogD("caller-time", les, func(les nncp.LEs) string {
+						return logMsg(les) + ": " + t.String()
+					})
 					if t.IsZero() {
-						ctx.LogE("caller", les, errors.New("got zero time"), "")
+						ctx.LogE("caller", les, errors.New("got zero time"), logMsg)
 						return
 					}
 					time.Sleep(t.Sub(n))
 					node.Lock()
 					if node.Busy {
 						node.Unlock()
-						ctx.LogD("caller", les, "busy")
+						ctx.LogD("caller-busy", les, func(les nncp.LEs) string {
+							return logMsg(les) + ": busy"
+						})
 						continue
 					} else {
 						node.Busy = true
 						node.Unlock()
 
 						if call.WhenTxExists && call.Xx != "TRx" {
-							ctx.LogD("caller", les, "checking tx existence")
+							ctx.LogD("caller", les, func(les nncp.LEs) string {
+								return logMsg(les) + ": checking tx existence"
+							})
 							txExists := false
 							for job := range ctx.Jobs(node.Id, nncp.TTx) {
 								if job.PktEnc.Nice > call.Nice {
@@ -144,7 +165,9 @@ func main() {
 								txExists = true
 							}
 							if !txExists {
-								ctx.LogD("caller", les, "no tx")
+								ctx.LogD("caller-no-tx", les, func(les nncp.LEs) string {
+									return logMsg(les) + ": no tx"
+								})
 								node.Lock()
 								node.Busy = false
 								node.Unlock()
