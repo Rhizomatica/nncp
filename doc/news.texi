@@ -8,6 +8,9 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+Returned @command{nncp-caller}'s @option{-autotoss*} options workability.
+
+@item
 Yet another logging refactoring and simplification.
 Should be no visible differences to the end user.
 
