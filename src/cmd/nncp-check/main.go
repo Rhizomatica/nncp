@@ -25,7 +25,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"go.cypherpunks.ru/nncp/v5"
+	"go.cypherpunks.ru/nncp/v6"
 )
 
 func usage() {

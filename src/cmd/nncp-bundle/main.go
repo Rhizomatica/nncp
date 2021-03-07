@@ -33,7 +33,8 @@ import (
 	"strings"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"go.cypherpunks.ru/nncp/v5"
+	"github.com/dustin/go-humanize"
+	"go.cypherpunks.ru/nncp/v6"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -119,16 +120,22 @@ func main() {
 		bufStdout := bufio.NewWriter(os.Stdout)
 		tarWr := tar.NewWriter(bufStdout)
 		for nodeId := range nodeIds {
-			les := nncp.LEs{
-				{K: "XX", V: string(nncp.TTx)},
-				{K: "Node", V: nodeId.String()},
-				{K: "Pkt", V: "dummy"},
-			}
 			for job := range ctx.Jobs(&nodeId, nncp.TTx) {
 				pktName = filepath.Base(job.Path)
-				les[len(les)-1].V = pktName
+				les := nncp.LEs{
+					{K: "XX", V: string(nncp.TTx)},
+					{K: "Node", V: nodeId.String()},
+					{K: "Pkt", V: pktName},
+				}
 				if job.PktEnc.Nice > nice {
-					ctx.LogD("nncp-bundle", les, "too nice")
+					ctx.LogD("bundle-tx-too-nice", les, func(les nncp.LEs) string {
+						return fmt.Sprintf(
+							"Bundle transfer %s/tx/%s: too nice %s",
+							ctx.NodeName(&nodeId),
+							pktName,
+							nncp.NicenessFmt(job.PktEnc.Nice),
+						)
+					})
 					continue
 				}
 				fd, err := os.Open(job.Path)
@@ -183,7 +190,18 @@ func main() {
 						os.Remove(job.Path + nncp.HdrSuffix)
 					}
 				}
-				ctx.LogI("nncp-bundle", append(les, nncp.LE{K: "Size", V: job.Size}), "")
+				ctx.LogI(
+					"bundle-tx",
+					append(les, nncp.LE{K: "Size", V: job.Size}),
+					func(les nncp.LEs) string {
+						return fmt.Sprintf(
+							"Bundle transfer, sent to node %s %s (%s)",
+							ctx.NodeName(&nodeId),
+							pktName,
+							humanize.IBytes(uint64(job.Size)),
+						)
+					},
+				)
 			}
 		}
 		if err = tarWr.Close(); err != nil {
@@ -214,18 +232,25 @@ func main() {
 			if err != nil {
 				if err != io.EOF {
 					ctx.LogD(
-						"nncp-bundle",
+						"bundle-rx-read-tar",
 						nncp.LEs{{K: "XX", V: string(nncp.TRx)}, {K: "Err", V: err}},
-						"error reading tar",
+						func(les nncp.LEs) string {
+							return "Bundle transfer rx: reading tar"
+						},
 					)
 				}
 				continue
 			}
 			if entry.Typeflag != tar.TypeDir {
 				ctx.LogD(
-					"nncp-bundle",
-					nncp.LEs{{K: "XX", V: string(nncp.TRx)}},
-					"Expected NNCP/",
+					"bundle-rx-read-tar",
+					nncp.LEs{
+						{K: "XX", V: string(nncp.TRx)},
+						{K: "Err", V: errors.New("expected NNCP/")},
+					},
+					func(les nncp.LEs) string {
+						return "Bundle transfer rx: reading tar"
+					},
 				)
 				continue
 			}
@@ -233,47 +258,74 @@ func main() {
 			if err != nil {
 				if err != io.EOF {
 					ctx.LogD(
-						"nncp-bundle",
+						"bundle-rx-read-tar",
 						nncp.LEs{{K: "XX", V: string(nncp.TRx)}, {K: "Err", V: err}},
-						"error reading tar",
+						func(les nncp.LEs) string {
+							return "Bundle transfer rx: reading tar"
+						},
 					)
 				}
 				continue
 			}
 			les := nncp.LEs{{K: "XX", V: string(nncp.TRx)}, {K: "Pkt", V: entry.Name}}
+			logMsg := func(les nncp.LEs) string {
+				return "Bundle transfer rx/" + entry.Name
+			}
 			if entry.Size < nncp.PktEncOverhead {
-				ctx.LogD("nncp-bundle", les, "Too small packet")
+				ctx.LogD("bundle-rx-too-small", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": too small packet"
+				})
 				continue
 			}
 			if !ctx.IsEnoughSpace(entry.Size) {
-				ctx.LogE("nncp-bundle", les, errors.New("not enough spool space"), "")
+				ctx.LogE("bundle-rx", les, errors.New("not enough spool space"), logMsg)
 				continue
 			}
 			pktName := filepath.Base(entry.Name)
 			if _, err = nncp.Base32Codec.DecodeString(pktName); err != nil {
-				ctx.LogD("nncp-bundle", append(les, nncp.LE{K: "Err", V: "bad packet name"}), "")
+				ctx.LogD(
+					"bundle-rx",
+					append(les, nncp.LE{K: "Err", V: "bad packet name"}),
+					logMsg,
+				)
 				continue
 			}
 			if _, err = io.ReadFull(tarR, pktEncBuf); err != nil {
-				ctx.LogD("nncp-bundle", append(les, nncp.LE{K: "Err", V: err}), "read")
+				ctx.LogD(
+					"bundle-rx",
+					append(les, nncp.LE{K: "Err", V: err}),
+					logMsg,
+				)
 				continue
 			}
 			if _, err = xdr.Unmarshal(bytes.NewReader(pktEncBuf), &pktEnc); err != nil {
-				ctx.LogD("nncp-bundle", les, "Bad packet structure")
+				ctx.LogD(
+					"bundle-rx",
+					append(les, nncp.LE{K: "Err", V: "Bad packet structure"}),
+					logMsg,
+				)
 				continue
 			}
 			if pktEnc.Magic != nncp.MagicNNCPEv4 {
-				ctx.LogD("nncp-bundle", les, "Bad packet magic number")
+				ctx.LogD(
+					"bundle-rx",
+					append(les, nncp.LE{K: "Err", V: "Bad packet magic number"}),
+					logMsg,
+				)
 				continue
 			}
 			if pktEnc.Nice > nice {
-				ctx.LogD("nncp-bundle", les, "too nice")
+				ctx.LogD("bundle-rx-too-nice", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": too nice"
+				})
 				continue
 			}
 			if *pktEnc.Sender == *ctx.SelfId && *doDelete {
 				if len(nodeIds) > 0 {
 					if _, exists := nodeIds[*pktEnc.Recipient]; !exists {
-						ctx.LogD("nncp-bundle", les, "Recipient is not requested")
+						ctx.LogD("bundle-tx-skip", les, func(les nncp.LEs) string {
+							return logMsg(les) + ": recipient is not requested"
+						})
 						continue
 					}
 				}
@@ -283,9 +335,14 @@ func main() {
 					{K: "Node", V: nodeId32},
 					{K: "Pkt", V: pktName},
 				}
+				logMsg = func(les nncp.LEs) string {
+					return fmt.Sprintf("Bundle transfer %s/tx/%s", nodeId32, pktName)
+				}
 				dstPath := filepath.Join(ctx.Spool, nodeId32, string(nncp.TTx), pktName)
 				if _, err = os.Stat(dstPath); err != nil {
-					ctx.LogD("nncp-bundle", les, "Packet is already missing")
+					ctx.LogD("bundle-tx-missing", les, func(les nncp.LEs) string {
+						return logMsg(les) + ": packet is already missing"
+					})
 					continue
 				}
 				hsh, err := blake2b.New256(nil)
@@ -303,7 +360,9 @@ func main() {
 					log.Fatalln("Error during copying:", err)
 				}
 				if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) == pktName {
-					ctx.LogI("nncp-bundle", les, "removed")
+					ctx.LogI("bundle-tx-removed", les, func(les nncp.LEs) string {
+						return logMsg(les) + ": removed"
+					})
 					if !*dryRun {
 						os.Remove(dstPath)
 						if ctx.HdrUsage {
@@ -311,17 +370,21 @@ func main() {
 						}
 					}
 				} else {
-					ctx.LogE("nncp-bundle", les, errors.New("bad checksum"), "")
+					ctx.LogE("bundle-tx", les, errors.New("bad checksum"), logMsg)
 				}
 				continue
 			}
 			if *pktEnc.Recipient != *ctx.SelfId {
-				ctx.LogD("nncp-bundle", les, "Unknown recipient")
+				ctx.LogD("nncp-bundle", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": unknown recipient"
+				})
 				continue
 			}
 			if len(nodeIds) > 0 {
 				if _, exists := nodeIds[*pktEnc.Sender]; !exists {
-					ctx.LogD("nncp-bundle", les, "Sender is not requested")
+					ctx.LogD("bundle-rx-skip", les, func(les nncp.LEs) string {
+						return logMsg(les) + ": sender is not requested"
+					})
 					continue
 				}
 			}
@@ -332,14 +395,21 @@ func main() {
 				{K: "Pkt", V: pktName},
 				{K: "FullSize", V: entry.Size},
 			}
+			logMsg = func(les nncp.LEs) string {
+				return fmt.Sprintf("Bundle transfer %s/rx/%s", sender, pktName)
+			}
 			dstDirPath := filepath.Join(ctx.Spool, sender, string(nncp.TRx))
 			dstPath := filepath.Join(dstDirPath, pktName)
 			if _, err = os.Stat(dstPath); err == nil || !os.IsNotExist(err) {
-				ctx.LogD("nncp-bundle", les, "Packet already exists")
+				ctx.LogD("bundle-rx-exists", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": packet already exists"
+				})
 				continue
 			}
 			if _, err = os.Stat(dstPath + nncp.SeenSuffix); err == nil || !os.IsNotExist(err) {
-				ctx.LogD("nncp-bundle", les, "Packet already exists")
+				ctx.LogD("bundle-rx-seen", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": packet already seen"
+				})
 				continue
 			}
 			if *doCheck {
@@ -355,7 +425,7 @@ func main() {
 						log.Fatalln("Error during copying:", err)
 					}
 					if nncp.Base32Codec.EncodeToString(hsh.Sum(nil)) != pktName {
-						ctx.LogE("nncp-bundle", les, errors.New("bad checksum"), "")
+						ctx.LogE("bundle-rx", les, errors.New("bad checksum"), logMsg)
 						continue
 					}
 				} else {
@@ -377,7 +447,7 @@ func main() {
 							log.Fatalln("Error during commiting:", err)
 						}
 					} else {
-						ctx.LogE("nncp-bundle", les, errors.New("bad checksum"), "")
+						ctx.LogE("bundle-rx", les, errors.New("bad checksum"), logMsg)
 						tmp.Cancel()
 						continue
 					}
@@ -428,7 +498,12 @@ func main() {
 					break
 				}
 			}
-			ctx.LogI("nncp-bundle", les, "")
+			ctx.LogI("bundle-rx", les, func(les nncp.LEs) string {
+				return fmt.Sprintf(
+					"Bundle transfer, received from %s %s (%s)",
+					sender, pktName, humanize.IBytes(uint64(entry.Size)),
+				)
+			})
 		}
 	}
 }

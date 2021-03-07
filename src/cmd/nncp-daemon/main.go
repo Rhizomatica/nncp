@@ -26,7 +26,8 @@ import (
 	"os"
 	"time"
 
-	"go.cypherpunks.ru/nncp/v5"
+	"github.com/dustin/go-humanize"
+	"go.cypherpunks.ru/nncp/v6"
 	"golang.org/x/net/netutil"
 )
 
@@ -79,17 +80,33 @@ func performSP(
 		NoCK: noCK,
 	}
 	if err := state.StartR(conn); err == nil {
-		ctx.LogI("call-start", nncp.LEs{{K: "Node", V: state.Node.Id}}, "connected")
+		ctx.LogI(
+			"call-started",
+			nncp.LEs{{K: "Node", V: state.Node.Id}},
+			func(les nncp.LEs) string { return "Connection with " + state.Node.Name },
+		)
 		nodeIdC <- state.Node.Id
 		state.Wait()
-		ctx.LogI("call-finish", nncp.LEs{
+		ctx.LogI("call-finished", nncp.LEs{
 			{K: "Node", V: state.Node.Id},
 			{K: "Duration", V: int64(state.Duration.Seconds())},
 			{K: "RxBytes", V: state.RxBytes},
 			{K: "TxBytes", V: state.TxBytes},
 			{K: "RxSpeed", V: state.RxSpeed},
 			{K: "TxSpeed", V: state.TxSpeed},
-		}, "")
+		}, func(les nncp.LEs) string {
+			return fmt.Sprintf(
+				"Finished call with %s (%d:%d:%d): %s received (%s/sec), %s transferred (%s/sec)",
+				state.Node.Name,
+				int(state.Duration.Hours()),
+				int(state.Duration.Minutes()),
+				int(state.Duration.Seconds()),
+				humanize.IBytes(uint64(state.RxBytes)),
+				humanize.IBytes(uint64(state.RxSpeed)),
+				humanize.IBytes(uint64(state.TxBytes)),
+				humanize.IBytes(uint64(state.TxSpeed)),
+			)
+		})
 	} else {
 		nodeId := "unknown"
 		if state.Node == nil {
@@ -98,7 +115,11 @@ func performSP(
 			nodeIdC <- state.Node.Id
 			nodeId = state.Node.Id.String()
 		}
-		ctx.LogI("call-start", nncp.LEs{{K: "Node", V: nodeId}}, "connected")
+		ctx.LogI(
+			"call-started",
+			nncp.LEs{{K: "Node", V: nodeId}},
+			func(les nncp.LEs) string { return "Connected to " + state.Node.Name },
+		)
 	}
 	close(nodeIdC)
 }
@@ -197,7 +218,13 @@ func main() {
 		if err != nil {
 			log.Fatalln("Can not accept connection:", err)
 		}
-		ctx.LogD("daemon", nncp.LEs{{K: "Addr", V: conn.RemoteAddr()}}, "accepted")
+		ctx.LogD(
+			"daemon-accepted",
+			nncp.LEs{{K: "Addr", V: conn.RemoteAddr()}},
+			func(les nncp.LEs) string {
+				return "Accepted connection with " + conn.RemoteAddr().String()
+			},
+		)
 		go func(conn net.Conn) {
 			nodeIdC := make(chan *nncp.NodeId)
 			go performSP(ctx, conn, nice, *noCK, nodeIdC)

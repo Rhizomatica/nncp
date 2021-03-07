@@ -23,6 +23,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"hash"
 	"io"
 	"io/ioutil"
@@ -33,6 +34,7 @@ import (
 	"time"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
+	"github.com/dustin/go-humanize"
 	"github.com/klauspost/compress/zstd"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/chacha20poly1305"
@@ -87,7 +89,14 @@ func (ctx *Ctx) Tx(
 			{"Node", hops[0].Id},
 			{"Nice", int(nice)},
 			{"Size", size},
-		}, "wrote")
+		}, func(les LEs) string {
+			return fmt.Sprintf(
+				"Tx packet to %s (%s) nice: %s",
+				ctx.NodeName(hops[0].Id),
+				humanize.IBytes(uint64(size)),
+				NicenessFmt(nice),
+			)
+		})
 		pktEncRaw, err = PktEncWrite(
 			ctx.Self, hops[0], pkt, nice, size, padSize, src, dst,
 		)
@@ -109,7 +118,14 @@ func (ctx *Ctx) Tx(
 				{"Node", node.Id},
 				{"Nice", int(nice)},
 				{"Size", size},
-			}, "trns wrote")
+			}, func(les LEs) string {
+				return fmt.Sprintf(
+					"Tx trns packet to %s (%s) nice: %s",
+					ctx.NodeName(node.Id),
+					humanize.IBytes(uint64(size)),
+					NicenessFmt(nice),
+				)
+			})
 			_, err := PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
 			errs <- err
 			dst.Close() // #nosec G104
@@ -371,10 +387,19 @@ func (ctx *Ctx) TxFile(
 			{"Dst", dstPath},
 			{"Size", fileSize},
 		}
+		logMsg := func(les LEs) string {
+			return fmt.Sprintf(
+				"File %s (%s) sent to %s:%s",
+				srcPath,
+				humanize.IBytes(uint64(fileSize)),
+				ctx.NodeName(node.Id),
+				dstPath,
+			)
+		}
 		if err == nil {
-			ctx.LogI("tx", les, "sent")
+			ctx.LogI("tx", les, logMsg)
 		} else {
-			ctx.LogE("tx", les, err, "sent")
+			ctx.LogE("tx", les, err, logMsg)
 		}
 		return err
 	}
@@ -427,10 +452,19 @@ func (ctx *Ctx) TxFile(
 			{"Dst", path},
 			{"Size", sizeToSend},
 		}
+		logMsg := func(les LEs) string {
+			return fmt.Sprintf(
+				"File %s (%s) sent to %s:%s",
+				srcPath,
+				humanize.IBytes(uint64(sizeToSend)),
+				ctx.NodeName(node.Id),
+				path,
+			)
+		}
 		if err == nil {
-			ctx.LogI("tx", les, "sent")
+			ctx.LogI("tx", les, logMsg)
 		} else {
-			ctx.LogE("tx", les, err, "sent")
+			ctx.LogE("tx", les, err, logMsg)
 			return err
 		}
 		hsh.Sum(metaPkt.Checksums[chunkNum][:0])
@@ -460,10 +494,19 @@ func (ctx *Ctx) TxFile(
 		{"Dst", path},
 		{"Size", metaPktSize},
 	}
+	logMsg := func(les LEs) string {
+		return fmt.Sprintf(
+			"File %s (%s) sent to %s:%s",
+			srcPath,
+			humanize.IBytes(uint64(metaPktSize)),
+			ctx.NodeName(node.Id),
+			path,
+		)
+	}
 	if err == nil {
-		ctx.LogI("tx", les, "sent")
+		ctx.LogI("tx", les, logMsg)
 	} else {
-		ctx.LogE("tx", les, err, "sent")
+		ctx.LogE("tx", les, err, logMsg)
 	}
 	return err
 }
@@ -496,10 +539,17 @@ func (ctx *Ctx) TxFreq(
 		{"Src", srcPath},
 		{"Dst", dstPath},
 	}
+	logMsg := func(les LEs) string {
+		return fmt.Sprintf(
+			"File request from %s:%s to %s sent",
+			ctx.NodeName(node.Id), srcPath,
+			dstPath,
+		)
+	}
 	if err == nil {
-		ctx.LogI("tx", les, "sent")
+		ctx.LogI("tx", les, logMsg)
 	} else {
-		ctx.LogE("tx", les, err, "sent")
+		ctx.LogE("tx", les, err, logMsg)
 	}
 	return err
 }
@@ -599,18 +649,25 @@ func (ctx *Ctx) TxExec(
 		_, err = ctx.Tx(node, pkt, nice, size, minSize, tmpReader, handle)
 	}
 
+	dst := strings.Join(append([]string{handle}, args...), " ")
 	les := LEs{
 		{"Type", "exec"},
 		{"Node", node.Id},
 		{"Nice", int(nice)},
 		{"ReplyNice", int(replyNice)},
-		{"Dst", strings.Join(append([]string{handle}, args...), " ")},
+		{"Dst", dst},
 		{"Size", size},
 	}
+	logMsg := func(les LEs) string {
+		return fmt.Sprintf(
+			"Exec sent to %s@%s (%s)",
+			ctx.NodeName(node.Id), dst, humanize.IBytes(uint64(size)),
+		)
+	}
 	if err == nil {
-		ctx.LogI("tx", les, "sent")
+		ctx.LogI("tx", les, logMsg)
 	} else {
-		ctx.LogE("tx", les, err, "sent")
+		ctx.LogE("tx", les, err, logMsg)
 	}
 	return err
 }
@@ -622,10 +679,18 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 		{"Nice", int(nice)},
 		{"Size", size},
 	}
-	ctx.LogD("tx", les, "taken")
+	logMsg := func(les LEs) string {
+		return fmt.Sprintf(
+			"Transitional packet to %s (%s) (nice %s)",
+			ctx.NodeName(node.Id),
+			humanize.IBytes(uint64(size)),
+			NicenessFmt(nice),
+		)
+	}
+	ctx.LogD("tx", les, logMsg)
 	if !ctx.IsEnoughSpace(size) {
 		err := errors.New("is not enough space")
-		ctx.LogE("tx", les, err, err.Error())
+		ctx.LogE("tx", les, err, logMsg)
 		return err
 	}
 	tmp, err := ctx.NewTmpFileWHash()
@@ -642,9 +707,9 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	nodePath := filepath.Join(ctx.Spool, node.Id.String())
 	err = tmp.Commit(filepath.Join(nodePath, string(TTx)))
 	if err == nil {
-		ctx.LogI("tx", les, "sent")
+		ctx.LogI("tx", les, logMsg)
 	} else {
-		ctx.LogI("tx", append(les, LE{"Err", err}), "sent")
+		ctx.LogI("tx", append(les, LE{"Err", err}), logMsg)
 	}
 	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name)) // #nosec G104
 	return err
