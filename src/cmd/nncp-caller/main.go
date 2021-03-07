@@ -49,6 +49,13 @@ func main() {
 		debug     = flag.Bool("debug", false, "Print debug messages")
 		version   = flag.Bool("version", false, "Print version information")
 		warranty  = flag.Bool("warranty", false, "Print warranty information")
+
+		autoToss       = flag.Bool("autotoss", false, "Toss after call is finished")
+		autoTossDoSeen = flag.Bool("autotoss-seen", false, "Create .seen files during tossing")
+		autoTossNoFile = flag.Bool("autotoss-nofile", false, "Do not process \"file\" packets during tossing")
+		autoTossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
+		autoTossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
+		autoTossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
 	)
 	flag.Usage = usage
 	flag.Parse()
@@ -177,15 +184,15 @@ func main() {
 
 						var autoTossFinish chan struct{}
 						var autoTossBadCode chan bool
-						if call.AutoToss {
+						if call.AutoToss || *autoToss {
 							autoTossFinish, autoTossBadCode = ctx.AutoToss(
 								node.Id,
 								call.Nice,
-								call.AutoTossDoSeen,
-								call.AutoTossNoFile,
-								call.AutoTossNoFreq,
-								call.AutoTossNoExec,
-								call.AutoTossNoTrns,
+								call.AutoTossDoSeen || *autoTossDoSeen,
+								call.AutoTossNoFile || *autoTossNoFile,
+								call.AutoTossNoFreq || *autoTossNoFreq,
+								call.AutoTossNoExec || *autoTossNoExec,
+								call.AutoTossNoTrns || *autoTossNoTrns,
 							)
 						}
 
@@ -203,7 +210,7 @@ func main() {
 							nil,
 						)
 
-						if call.AutoToss {
+						if call.AutoToss || *autoToss {
 							close(autoTossFinish)
 							<-autoTossBadCode
 						}
