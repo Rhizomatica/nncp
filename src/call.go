@@ -18,9 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"fmt"
 	"net"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/gorhill/cronexpr"
 )
 
@@ -57,7 +59,9 @@ func (ctx *Ctx) CallNode(
 ) (isGood bool) {
 	for _, addr := range addrs {
 		les := LEs{{"Node", node.Id}, {"Addr", addr}}
-		ctx.LogD("call", les, "dialing")
+		ctx.LogD("calling", les, func(les LEs) string {
+			return fmt.Sprintf("Calling %s (%s)", node.Name, addr)
+		})
 		var conn ConnDeadlined
 		var err error
 		if addr[0] == '|' {
@@ -66,10 +70,14 @@ func (ctx *Ctx) CallNode(
 			conn, err = net.Dial("tcp", addr)
 		}
 		if err != nil {
-			ctx.LogD("call", append(les, LE{"Err", err}), "dialing")
+			ctx.LogD("calling", append(les, LE{"Err", err}), func(les LEs) string {
+				return fmt.Sprintf("Calling %s (%s)", node.Name, addr)
+			})
 			continue
 		}
-		ctx.LogD("call", les, "connected")
+		ctx.LogD("call-connected", les, func(les LEs) string {
+			return fmt.Sprintf("Connected %s (%s)", node.Name, addr)
+		})
 		state := SPState{
 			Ctx:            ctx,
 			Node:           node,
@@ -84,21 +92,37 @@ func (ctx *Ctx) CallNode(
 			onlyPkts:       onlyPkts,
 		}
 		if err = state.StartI(conn); err == nil {
-			ctx.LogI("call-start", les, "connected")
+			ctx.LogI("call-started", les, func(les LEs) string {
+				return fmt.Sprintf("Connection to %s (%s)", node.Name, addr)
+			})
 			state.Wait()
-			ctx.LogI("call-finish", LEs{
-				{"Node", state.Node.Id},
-				{"Duration", int64(state.Duration.Seconds())},
-				{"RxBytes", state.RxBytes},
-				{"TxBytes", state.TxBytes},
-				{"RxSpeed", state.RxSpeed},
-				{"TxSpeed", state.TxSpeed},
-			}, "")
+			ctx.LogI("call-finished", append(
+				les,
+				LE{"Duration", int64(state.Duration.Seconds())},
+				LE{"RxBytes", state.RxBytes},
+				LE{"RxSpeed", state.RxSpeed},
+				LE{"TxBytes", state.TxBytes},
+				LE{"TxSpeed", state.TxSpeed},
+			), func(les LEs) string {
+				return fmt.Sprintf(
+					"Finished call with %s (%d:%d:%d): %s received (%s/sec), %s transferred (%s/sec)",
+					node.Name,
+					int(state.Duration.Hours()),
+					int(state.Duration.Minutes()),
+					int(state.Duration.Seconds()),
+					humanize.IBytes(uint64(state.RxBytes)),
+					humanize.IBytes(uint64(state.RxSpeed)),
+					humanize.IBytes(uint64(state.TxBytes)),
+					humanize.IBytes(uint64(state.TxSpeed)),
+				)
+			})
 			isGood = true
 			conn.Close() // #nosec G104
 			break
 		} else {
-			ctx.LogE("call-start", les, err, "")
+			ctx.LogE("call-started", les, err, func(les LEs) string {
+				return fmt.Sprintf("Connection to %s (%s)", node.Name, addr)
+			})
 			conn.Close() // #nosec G104
 		}
 	}

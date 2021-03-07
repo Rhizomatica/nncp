@@ -35,7 +35,7 @@ import (
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v5"
+	"go.cypherpunks.ru/nncp/v6"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -58,19 +58,24 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	}
 	var metaPkt nncp.ChunkedMeta
 	les := nncp.LEs{{K: "Path", V: path}}
+	logMsg := func(les nncp.LEs) string {
+		return fmt.Sprintf("Reassembling chunked file \"%s\"", path)
+	}
 	if _, err = xdr.Unmarshal(fd, &metaPkt); err != nil {
-		ctx.LogE("nncp-reass", les, err, "bad meta file")
+		ctx.LogE("reass-bad-meta", les, err, func(les nncp.LEs) string {
+			return logMsg(les) + ": bad meta"
+		})
 		return false
 	}
 	fd.Close() // #nosec G104
 	if metaPkt.Magic != nncp.MagicNNCPMv1 {
-		ctx.LogE("nncp-reass", les, nncp.BadMagic, "")
+		ctx.LogE("reass", les, nncp.BadMagic, logMsg)
 		return false
 	}
 
 	metaName := filepath.Base(path)
 	if !strings.HasSuffix(metaName, nncp.ChunkedSuffixMeta) {
-		ctx.LogE("nncp-reass", les, errors.New("invalid filename suffix"), "")
+		ctx.LogE("reass", les, errors.New("invalid filename suffix"), logMsg)
 		return false
 	}
 	mainName := strings.TrimSuffix(metaName, nncp.ChunkedSuffixMeta)
@@ -108,7 +113,9 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		fi, err := os.Stat(chunkPath)
 		lesChunk := append(les, nncp.LE{K: "Chunk", V: chunkNum})
 		if err != nil && os.IsNotExist(err) {
-			ctx.LogI("nncp-reass", lesChunk, "missing")
+			ctx.LogI("reass-chunk-miss", lesChunk, func(les nncp.LEs) string {
+				return fmt.Sprintf("%s: chunk %d missing", logMsg(les), chunkNum)
+			})
 			allChunksExist = false
 			continue
 		}
@@ -119,7 +126,14 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			badSize = uint64(fi.Size()) != metaPkt.ChunkSize
 		}
 		if badSize {
-			ctx.LogE("nncp-reass", lesChunk, errors.New("invalid size"), "")
+			ctx.LogE(
+				"reass-chunk",
+				lesChunk,
+				errors.New("invalid size"),
+				func(les nncp.LEs) string {
+					return fmt.Sprintf("%s: chunk %d", logMsg(les), chunkNum)
+				},
+			)
 			allChunksExist = false
 		}
 	}
@@ -144,10 +158,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		}
 		if _, err = nncp.CopyProgressed(
 			hsh, bufio.NewReader(fd), "check",
-			nncp.LEs{
-				{K: "Pkt", V: chunkPath},
-				{K: "FullSize", V: fi.Size()},
-			},
+			nncp.LEs{{K: "Pkt", V: chunkPath}, {K: "FullSize", V: fi.Size()}},
 			ctx.ShowPrgrs,
 		); err != nil {
 			log.Fatalln(err)
@@ -155,9 +166,12 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		fd.Close() // #nosec G104
 		if bytes.Compare(hsh.Sum(nil), metaPkt.Checksums[chunkNum][:]) != 0 {
 			ctx.LogE(
-				"nncp-reass",
+				"reass-chunk",
 				nncp.LEs{{K: "Path", V: path}, {K: "Chunk", V: chunkNum}},
-				errors.New("checksum is bad"), "",
+				errors.New("checksum is bad"),
+				func(les nncp.LEs) string {
+					return fmt.Sprintf("%s: chunk %d", logMsg(les), chunkNum)
+				},
 			)
 			allChecksumsGood = false
 		}
@@ -166,7 +180,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		return false
 	}
 	if dryRun {
-		ctx.LogI("nncp-reass", nncp.LEs{{K: "path", V: path}}, "ready")
+		ctx.LogI("reass", nncp.LEs{{K: "path", V: path}}, logMsg)
 		return true
 	}
 
@@ -181,7 +195,9 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			log.Fatalln(err)
 		}
 		les = nncp.LEs{{K: "path", V: path}, {K: "Tmp", V: tmp.Name()}}
-		ctx.LogD("nncp-reass", les, "created")
+		ctx.LogD("reass-tmp-created", les, func(les nncp.LEs) string {
+			return fmt.Sprintf("%s: temporary %s created", logMsg(les), tmp.Name())
+		})
 		dst = tmp
 	}
 	dstW := bufio.NewWriter(dst)
@@ -198,10 +214,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		}
 		if _, err = nncp.CopyProgressed(
 			dstW, bufio.NewReader(fd), "reass",
-			nncp.LEs{
-				{K: "Pkt", V: chunkPath},
-				{K: "FullSize", V: fi.Size()},
-			},
+			nncp.LEs{{K: "Pkt", V: chunkPath}, {K: "FullSize", V: fi.Size()}},
 			ctx.ShowPrgrs,
 		); err != nil {
 			log.Fatalln(err)
@@ -209,7 +222,13 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		fd.Close() // #nosec G104
 		if !keep {
 			if err = os.Remove(chunkPath); err != nil {
-				ctx.LogE("nncp-reass", append(les, nncp.LE{K: "Chunk", V: chunkNum}), err, "")
+				ctx.LogE(
+					"reass-chunk",
+					append(les, nncp.LE{K: "Chunk", V: chunkNum}), err,
+					func(les nncp.LEs) string {
+						return fmt.Sprintf("%s: chunk %d", logMsg(les), chunkNum)
+					},
+				)
 				hasErrors = true
 			}
 		}
@@ -225,15 +244,21 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			log.Fatalln("Can not close:", err)
 		}
 	}
-	ctx.LogD("nncp-reass", les, "written")
+	ctx.LogD("reass-written", les, func(les nncp.LEs) string {
+		return logMsg(les) + ": written"
+	})
 	if !keep {
 		if err = os.Remove(path); err != nil {
-			ctx.LogE("nncp-reass", les, err, "")
+			ctx.LogE("reass-removing", les, err, func(les nncp.LEs) string {
+				return logMsg(les) + ": removing"
+			})
 			hasErrors = true
 		}
 	}
 	if stdout {
-		ctx.LogI("nncp-reass", nncp.LEs{{K: "Path", V: path}}, "done")
+		ctx.LogI("reass", nncp.LEs{{K: "Path", V: path}}, func(les nncp.LEs) string {
+			return logMsg(les) + ": done"
+		})
 		return !hasErrors
 	}
 
@@ -256,21 +281,26 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	if err = nncp.DirSync(mainDir); err != nil {
 		log.Fatalln(err)
 	}
-	ctx.LogI("nncp-reass", nncp.LEs{{K: "Path", V: path}}, "done")
+	ctx.LogI("reass", nncp.LEs{{K: "Path", V: path}}, func(les nncp.LEs) string {
+		return logMsg(les) + ": done"
+	})
 	return !hasErrors
 }
 
 func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 	dir, err := os.Open(dirPath)
 	defer dir.Close()
+	logMsg := func(les nncp.LEs) string {
+		return "Finding .meta in " + dirPath
+	}
 	if err != nil {
-		ctx.LogE("nncp-reass", nncp.LEs{{K: "Path", V: dirPath}}, err, "")
+		ctx.LogE("reass", nncp.LEs{{K: "Path", V: dirPath}}, err, logMsg)
 		return nil
 	}
 	fis, err := dir.Readdir(0)
 	dir.Close() // #nosec G104
 	if err != nil {
-		ctx.LogE("nncp-reass", nncp.LEs{{K: "Path", V: dirPath}}, err, "")
+		ctx.LogE("reass", nncp.LEs{{K: "Path", V: dirPath}}, err, logMsg)
 		return nil
 	}
 	metaPaths := make([]string, 0)

@@ -21,6 +21,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -45,26 +46,30 @@ func Check(src io.Reader, checksum []byte, les LEs, showPrgrs bool) (bool, error
 func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 	isBad := false
 	for job := range ctx.Jobs(nodeId, xx) {
+		pktName := Base32Codec.EncodeToString(job.HshValue[:])
 		les := LEs{
 			{"XX", string(xx)},
 			{"Node", nodeId},
-			{"Pkt", Base32Codec.EncodeToString(job.HshValue[:])},
+			{"Pkt", pktName},
 			{"FullSize", job.Size},
+		}
+		logMsg := func(les LEs) string {
+			return fmt.Sprintf("Checking: %s/%s/%s", nodeId, string(xx), pktName)
 		}
 		fd, err := os.Open(job.Path)
 		if err != nil {
-			ctx.LogE("check", les, err, "")
+			ctx.LogE("checking", les, err, logMsg)
 			return true
 		}
 		gut, err := Check(fd, job.HshValue[:], les, ctx.ShowPrgrs)
 		fd.Close() // #nosec G104
 		if err != nil {
-			ctx.LogE("check", les, err, "")
+			ctx.LogE("checking", les, err, logMsg)
 			return true
 		}
 		if !gut {
 			isBad = true
-			ctx.LogE("check", les, errors.New("bad"), "")
+			ctx.LogE("checking", les, errors.New("bad"), logMsg)
 		}
 	}
 	return isBad
