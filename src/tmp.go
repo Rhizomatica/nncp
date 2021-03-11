@@ -46,7 +46,7 @@ func (ctx *Ctx) NewTmpFile() (*os.File, error) {
 	fd, err := TempFile(jobsPath, "")
 	if err == nil {
 		ctx.LogD("tmp", LEs{{"Src", fd.Name()}}, func(les LEs) string {
-			return "Temporary file created: %s" + fd.Name()
+			return "Temporary file created: " + fd.Name()
 		})
 	}
 	return fd, err
