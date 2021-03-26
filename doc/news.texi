@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 6.2.1
+@section Release 6.2.1
+@itemize
+
+@item
+Three places in logs contained excess @code{%s}.
+
+@end itemize
+
 @node Release 6.2.0
 @section Release 6.2.0
 @itemize
