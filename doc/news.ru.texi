@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 6.2.1
+@subsection Релиз 6.2.1
+@itemize
+
+@item
+В трёх местах сообщений журналов по ошибке остались лишние @code{%s}.
+
+@end itemize
+
 @node Релиз 6.2.0
 @subsection Релиз 6.2.0
 @itemize
