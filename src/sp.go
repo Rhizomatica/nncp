@@ -729,7 +729,7 @@ func (state *SPState) StartWorkers(
 			for _, payload := range infosPayloads[1:] {
 				state.Ctx.LogD(
 					"sp-queue-remaining",
-					append(les, LE{"Size", len(payload)}),
+					append(les, LE{"Size", int64(len(payload))}),
 					func(les LEs) string {
 						return fmt.Sprintf(
 							"SP with %s (nice %s): queuing remaining payload (%s)",
@@ -752,7 +752,7 @@ func (state *SPState) StartWorkers(
 			humanize.IBytes(uint64(len(payload))),
 		)
 	}
-	state.Ctx.LogD("sp-process", append(les, LE{"Size", len(payload)}), logMsg)
+	state.Ctx.LogD("sp-process", append(les, LE{"Size", int64(len(payload))}), logMsg)
 	replies, err := state.ProcessSP(payload)
 	if err != nil {
 		state.Ctx.LogE("sp-process", les, err, logMsg)
@@ -763,7 +763,7 @@ func (state *SPState) StartWorkers(
 		for _, reply := range replies {
 			state.Ctx.LogD(
 				"sp-queue-reply",
-				append(les, LE{"Size", len(reply)}),
+				append(les, LE{"Size", int64(len(reply))}),
 				func(les LEs) string {
 					return fmt.Sprintf(
 						"SP with %s (nice %s): queuing reply (%s)",
@@ -828,7 +828,7 @@ func (state *SPState) StartWorkers(
 					) {
 						state.Ctx.LogD(
 							"sp-queue-info",
-							append(les, LE{"Size", len(payload)}),
+							append(les, LE{"Size", int64(len(payload))}),
 							func(les LEs) string {
 								return fmt.Sprintf(
 									"SP with %s (nice %s): queuing new info (%s)",
@@ -869,7 +869,7 @@ func (state *SPState) StartWorkers(
 			case payload = <-state.payloads:
 				state.Ctx.LogD(
 					"sp-got-payload",
-					append(les, LE{"Size", len(payload)}),
+					append(les, LE{"Size", int64(len(payload))}),
 					func(les LEs) string {
 						return fmt.Sprintf(
 							"SP with %s (nice %s): got payload (%s)",
@@ -955,16 +955,18 @@ func (state *SPState) StartWorkers(
 						return
 					}
 					buf = buf[:n]
-					state.Ctx.LogD(
-						"sp-file-read",
-						append(lesp, LE{"Size", n}),
-						func(les LEs) string {
-							return fmt.Sprintf(
-								"%s: read %s",
-								logMsg(les), humanize.IBytes(uint64(n)),
-							)
-						},
+					lesp = append(
+						les,
+						LE{"XX", string(TTx)},
+						LE{"Pkt", pktName},
+						LE{"Size", int64(n)},
 					)
+					state.Ctx.LogD("sp-file-read", lesp, func(les LEs) string {
+						return fmt.Sprintf(
+							"%s: read %s",
+							logMsg(les), humanize.IBytes(uint64(n)),
+						)
+					})
 				}
 				state.closeFd(pth)
 				payload = MarshalSP(SPTypeFile, SPFile{
@@ -973,7 +975,13 @@ func (state *SPState) StartWorkers(
 					Payload: buf,
 				})
 				ourSize := freq.Offset + uint64(len(buf))
-				lesp = append(lesp, LE{"Size", int64(ourSize)}, LE{"FullSize", fullSize})
+				lesp = append(
+					les,
+					LE{"XX", string(TTx)},
+					LE{"Pkt", pktName},
+					LE{"Size", int64(ourSize)},
+					LE{"FullSize", fullSize},
+				)
 				if state.Ctx.ShowPrgrs {
 					Progress("Tx", lesp)
 				}
@@ -1005,7 +1013,7 @@ func (state *SPState) StartWorkers(
 					humanize.IBytes(uint64(len(payload))),
 				)
 			}
-			state.Ctx.LogD("sp-sending", append(les, LE{"Size", len(payload)}), logMsg)
+			state.Ctx.LogD("sp-sending", append(les, LE{"Size", int64(len(payload))}), logMsg)
 			conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
 			if err := state.WriteSP(conn, state.csOur.Encrypt(nil, nil, payload), ping); err != nil {
 				state.Ctx.LogE("sp-sending", les, err, logMsg)
@@ -1053,7 +1061,7 @@ func (state *SPState) StartWorkers(
 			}
 			state.Ctx.LogD(
 				"sp-recv-got",
-				append(les, LE{"Size", len(payload)}),
+				append(les, LE{"Size", int64(len(payload))}),
 				func(les LEs) string { return logMsg(les) + ": got" },
 			)
 			payload, err = state.csTheir.Decrypt(nil, nil, payload)
@@ -1065,7 +1073,7 @@ func (state *SPState) StartWorkers(
 			}
 			state.Ctx.LogD(
 				"sp-recv-process",
-				append(les, LE{"Size", len(payload)}),
+				append(les, LE{"Size", int64(len(payload))}),
 				func(les LEs) string {
 					return logMsg(les) + ": processing"
 				},
@@ -1082,7 +1090,7 @@ func (state *SPState) StartWorkers(
 				for _, reply := range replies {
 					state.Ctx.LogD(
 						"sp-recv-reply",
-						append(les[:len(les)-1], LE{"Size", len(reply)}),
+						append(les[:len(les)-1], LE{"Size", int64(len(reply))}),
 						func(les LEs) string {
 							return fmt.Sprintf(
 								"SP with %s (nice %s): queuing reply (%s)",
@@ -1326,7 +1334,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				lesp,
 				LE{"XX", string(TRx)},
 				LE{"Pkt", pktName},
-				LE{"Size", len(file.Payload)},
+				LE{"Size", int64(len(file.Payload))},
 			)
 			logMsg := func(les LEs) string {
 				return fmt.Sprintf(

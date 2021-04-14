@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 6.3.0
+@section Release 6.3.0
+@itemize
+
+@item
+Fixed possible panic while showing progress during online protocol.
+
+@end itemize
+
 @node Release 6.2.1
 @section Release 6.2.1
 @itemize
