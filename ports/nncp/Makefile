@@ -1,5 +1,3 @@
-# $FreeBSD: $
-
 PORTNAME=	nncp
 DISTVERSION=	6.3.0
 CATEGORIES=	net
