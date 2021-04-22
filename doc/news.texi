@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 6.4.0
+@section Release 6.4.0
+@itemize
+
+@item
+Fixed possible race in online protocol, that lead to panic.
+
+@end itemize
+
 @node Release 6.3.0
 @section Release 6.3.0
 @itemize
