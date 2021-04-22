@@ -233,6 +233,7 @@ type SPState struct {
 	onlyPkts       map[[32]byte]bool
 	writeSPBuf     bytes.Buffer
 	fds            map[string]FdAndFullSize
+	fdsLock        sync.RWMutex
 	fileHashers    map[string]*HasherAndOffset
 	checkerQueues  SPCheckerQueues
 	sync.RWMutex
@@ -669,11 +670,12 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 }
 
 func (state *SPState) closeFd(pth string) {
-	s, exists := state.fds[pth]
-	delete(state.fds, pth)
-	if exists {
+	state.fdsLock.Lock()
+	if s, exists := state.fds[pth]; exists {
+		delete(state.fds, pth)
 		s.fd.Close()
 	}
+	state.fdsLock.Unlock()
 }
 
 func (state *SPState) StartWorkers(
@@ -914,7 +916,9 @@ func (state *SPState) StartWorkers(
 					string(TTx),
 					Base32Codec.EncodeToString(freq.Hash[:]),
 				)
+				state.fdsLock.RLock()
 				fdAndFullSize, exists := state.fds[pth]
+				state.fdsLock.RUnlock()
 				if !exists {
 					fd, err := os.Open(pth)
 					if err != nil {
@@ -931,7 +935,9 @@ func (state *SPState) StartWorkers(
 						return
 					}
 					fdAndFullSize = FdAndFullSize{fd: fd, fullSize: fi.Size()}
+					state.fdsLock.Lock()
 					state.fds[pth] = fdAndFullSize
+					state.fdsLock.Unlock()
 				}
 				fd := fdAndFullSize.fd
 				fullSize := fdAndFullSize.fullSize
@@ -1352,7 +1358,9 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.Ctx.LogD("sp-file-open", lesp, func(les LEs) string {
 				return logMsg(les) + ": opening part"
 			})
+			state.fdsLock.RLock()
 			fdAndFullSize, exists := state.fds[filePathPart]
+			state.fdsLock.RUnlock()
 			var fd *os.File
 			if exists {
 				fd = fdAndFullSize.fd
@@ -1368,7 +1376,9 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					})
 					return nil, err
 				}
+				state.fdsLock.Lock()
 				state.fds[filePathPart] = FdAndFullSize{fd: fd}
+				state.fdsLock.Unlock()
 				if file.Offset == 0 {
 					h, err := blake2b.New256(nil)
 					if err != nil {

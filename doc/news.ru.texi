@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 6.4.0
+@subsection Релиз 6.4.0
+@itemize
+
+@item
+Исправлена возможная гонка в online протоколе, приводящая к падению
+программы.
+
+@end itemize
+
 @node Релиз 6.3.0
 @subsection Релиз 6.3.0
 @itemize
