@@ -689,7 +689,7 @@ func (ctx *Ctx) AutoToss(
 			default:
 			}
 			time.Sleep(time.Second)
-			bad = !ctx.Toss(nodeId, nice, false, doSeen, noFile, noFreq, noExec, noTrns)
+			bad = !ctx.Toss(nodeId, nice, false, doSeen, noFile, noFreq, noExec, noTrns) || bad
 		}
 	}()
 	return finish, badCode
