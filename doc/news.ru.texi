@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 6.5.0
+@subsection Релиз 6.5.0
+@itemize
+
+@item
+Исправлено падение в @command{nncp-daemon} когда SP рукопожатие не было успешно.
+
+@end itemize
+
 @node Релиз 6.4.0
 @subsection Релиз 6.4.0
 @itemize
