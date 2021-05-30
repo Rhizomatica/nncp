@@ -13,6 +13,10 @@ Fixed segfault in @command{nncp-daemon} when SP handshake did not succeed.
 @item
 Fixed possible bad return code ignoring in automatic tosser.
 
+@item
+Kill all packet transmission progress bars in @command{nncp-daemon},
+@command{nncp-call} and @command{nncp-caller} when call is finished.
+
 @end itemize
 
 @node Release 6.4.0
