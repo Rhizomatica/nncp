@@ -258,11 +258,6 @@ func (state *SPState) SetDead() {
 		for range state.pings {
 		}
 	}()
-	go func() {
-		for _, s := range state.fds {
-			s.fd.Close()
-		}
-	}()
 }
 
 func (state *SPState) NotAlive() bool {
@@ -1151,6 +1146,9 @@ func (state *SPState) Wait() {
 	}
 	if txDuration > 0 {
 		state.TxSpeed = state.TxBytes / txDuration
+	}
+	for _, s := range state.fds {
+		s.fd.Close()
 	}
 	for pktName := range state.progressBars {
 		ProgressKill(pktName)

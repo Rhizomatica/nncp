@@ -14,6 +14,10 @@ Fixed segfault in @command{nncp-daemon} when SP handshake did not succeed.
 Fixed possible bad return code ignoring in automatic tosser.
 
 @item
+Fixed race during file descriptors closing when online protocol call is
+finished, that could lead to write error of received packet fragment.
+
+@item
 Kill all packet transmission progress bars in @command{nncp-daemon},
 @command{nncp-call} and @command{nncp-caller} when call is finished.
 
