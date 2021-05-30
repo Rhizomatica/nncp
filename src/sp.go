@@ -795,13 +795,20 @@ func (state *SPState) StartWorkers(
 				pingTicker.Stop()
 				return
 			case now := <-deadlineTicker.C:
-				if (now.Sub(state.RxLastNonPing) >= state.onlineDeadline &&
-					now.Sub(state.TxLastNonPing) >= state.onlineDeadline) ||
-					(state.maxOnlineTime > 0 && state.mustFinishAt.Before(now)) ||
-					(now.Sub(state.RxLastSeen) >= 2*PingTimeout) {
-					state.SetDead()
-					conn.Close() // #nosec G104
+				if now.Sub(state.RxLastNonPing) >= state.onlineDeadline &&
+					now.Sub(state.TxLastNonPing) >= state.onlineDeadline {
+					goto Deadlined
 				}
+				if state.maxOnlineTime > 0 && state.mustFinishAt.Before(now) {
+					goto Deadlined
+				}
+				if now.Sub(state.RxLastSeen) >= 2*PingTimeout {
+					goto Deadlined
+				}
+				break
+			Deadlined:
+				state.SetDead()
+				conn.Close() // #nosec G104
 			case now := <-pingTicker.C:
 				if now.After(state.TxLastSeen.Add(PingTimeout)) {
 					state.wg.Add(1)
