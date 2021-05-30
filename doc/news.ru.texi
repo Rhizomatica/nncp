@@ -11,6 +11,10 @@
 @item
 Исправлено возможное игнорирование плохого кода возврата автоматического tosser.
 
+@item
+Убирать показ прогресса передачи пакетов когда вызов уже завершён в
+@command{nncp-daemon}, @command{nncp-call} and @command{nncp-caller}.
+
 @end itemize
 
 @node Релиз 6.4.0
