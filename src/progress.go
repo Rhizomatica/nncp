@@ -153,3 +153,13 @@ func Progress(prefix string, les LEs) {
 		progressBarsLock.Unlock()
 	}
 }
+
+func ProgressKill(pkt string) {
+	progressBarsLock.Lock()
+	pb, exists := progressBars[pkt]
+	if exists {
+		pb.Kill()
+		delete(progressBars, pkt)
+	}
+	progressBarsLock.Unlock()
+}

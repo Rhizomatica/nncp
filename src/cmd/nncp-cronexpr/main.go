@@ -43,6 +43,7 @@ func main() {
 		version  = flag.Bool("version", false, "Print version information")
 		warranty = flag.Bool("warranty", false, "Print warranty information")
 	)
+	log.SetFlags(log.Lshortfile)
 	flag.Usage = usage
 	flag.Parse()
 	if *warranty {

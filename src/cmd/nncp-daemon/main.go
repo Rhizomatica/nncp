@@ -108,17 +108,21 @@ func performSP(
 			)
 		})
 	} else {
-		nodeId := "unknown"
+		var nodeId string
+		var nodeName string
 		if state.Node == nil {
+			nodeId = "unknown"
+			nodeName = "unknown"
 			nodeIdC <- nil
 		} else {
-			nodeIdC <- state.Node.Id
 			nodeId = state.Node.Id.String()
+			nodeName = state.Node.Name
+			nodeIdC <- state.Node.Id
 		}
 		ctx.LogI(
 			"call-started",
 			nncp.LEs{{K: "Node", V: nodeId}},
-			func(les nncp.LEs) string { return "Connected to " + state.Node.Name },
+			func(les nncp.LEs) string { return "Connected to " + nodeName },
 		)
 	}
 	close(nodeIdC)
@@ -148,6 +152,7 @@ func main() {
 		autoTossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
 		autoTossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
 	)
+	log.SetFlags(log.Lshortfile)
 	flag.Usage = usage
 	flag.Parse()
 	if *warranty {
