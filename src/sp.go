@@ -65,7 +65,8 @@ var (
 	DefaultDeadline = 10 * time.Second
 	PingTimeout     = time.Minute
 
-	spCheckers = make(map[NodeId]*SPCheckerQueues)
+	spCheckers   = make(map[NodeId]*SPCheckerQueues)
+	SPCheckersWg sync.WaitGroup
 )
 
 type FdAndFullSize struct {
@@ -282,6 +283,7 @@ func SPChecker(ctx *Ctx, nodeId *NodeId, appeared, checked chan *[32]byte) {
 			{"Node", nodeId},
 			{"Pkt", pktName},
 		}
+		SPCheckersWg.Add(1)
 		ctx.LogD("sp-checker", les, func(les LEs) string {
 			return fmt.Sprintf("Checksumming %s/rx/%s", ctx.NodeName(nodeId), pktName)
 		})
@@ -302,6 +304,7 @@ func SPChecker(ctx *Ctx, nodeId *NodeId, appeared, checked chan *[32]byte) {
 				pktName, humanize.IBytes(uint64(size)),
 			)
 		})
+		SPCheckersWg.Done()
 		go func(hsh *[32]byte) { checked <- hsh }(hshValue)
 	}
 }
@@ -1135,8 +1138,9 @@ func (state *SPState) Wait() {
 	state.wg.Wait()
 	close(state.payloads)
 	close(state.pings)
-	state.dirUnlock()
 	state.Duration = time.Now().Sub(state.started)
+	SPCheckersWg.Wait()
+	state.dirUnlock()
 	state.RxSpeed = state.RxBytes
 	state.TxSpeed = state.TxBytes
 	rxDuration := int64(state.RxLastSeen.Sub(state.started).Seconds())

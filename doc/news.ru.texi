@@ -1,6 +1,17 @@
 @node Новости
 @section Новости
 
+@node Релиз 6.6.0
+@subsection Релиз 6.6.0
+@itemize
+
+@item
+@command{nncp-daemon}, @command{nncp-call} и @command{nncp-caller}
+ожидают завершения всех процессов фоновой проверки контрольных сумм,
+после того как соединение закрыто.
+
+@end itemize
+
 @node Релиз 6.5.0
 @subsection Релиз 6.5.0
 @itemize
@@ -18,7 +29,7 @@
 
 @item
 Убирать показ прогресса передачи пакетов когда вызов уже завершён в
-@command{nncp-daemon}, @command{nncp-call} and @command{nncp-caller}.
+@command{nncp-daemon}, @command{nncp-call} и @command{nncp-caller}.
 
 @end itemize
 
