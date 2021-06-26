@@ -83,6 +83,7 @@ type CallJSON struct {
 	MaxOnlineTime  *uint   `json:"maxonlinetime,omitempty"`
 	WhenTxExists   *bool   `json:"when-tx-exists,omitempty"`
 	NoCK           *bool   `json:"nock"`
+	MCDIgnore      *bool   `json:"mcd-ignore"`
 
 	AutoToss       *bool `json:"autotoss,omitempty"`
 	AutoTossDoSeen *bool `json:"autotoss-doseen,omitempty"`
@@ -125,6 +126,9 @@ type CfgJSON struct {
 
 	Self  *NodeOurJSON        `json:"self"`
 	Neigh map[string]NodeJSON `json:"neigh"`
+
+	MCDRxIfis []string       `json:"mcd-listen"`
+	MCDTxIfis map[string]int `json:"mcd-send"`
 }
 
 func NewNode(name string, cfg NodeJSON) (*Node, error) {
@@ -288,6 +292,9 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		}
 		if callCfg.NoCK != nil {
 			call.NoCK = *callCfg.NoCK
+		}
+		if callCfg.MCDIgnore != nil {
+			call.MCDIgnore = *callCfg.MCDIgnore
 		}
 		if callCfg.AutoToss != nil {
 			call.AutoToss = *callCfg.AutoToss
@@ -477,6 +484,8 @@ func CfgParse(data []byte) (*Ctx, error) {
 		Self:       self,
 		Neigh:      make(map[NodeId]*Node, len(cfgJSON.Neigh)),
 		Alias:      make(map[string]*NodeId),
+		MCDRxIfis:  cfgJSON.MCDRxIfis,
+		MCDTxIfis:  cfgJSON.MCDTxIfis,
 	}
 	if cfgJSON.Notify != nil {
 		if cfgJSON.Notify.File != nil {

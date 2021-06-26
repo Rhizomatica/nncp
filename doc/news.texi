@@ -3,6 +3,21 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 6.6.0
+@section Release 6.6.0
+@itemize
+
+@item
+@command{nncp-daemon}, @command{nncp-call} and @command{nncp-caller}
+commands wait for all background checksummers completion after
+connection is finished.
+
+@item
+Added possibility of address determining through multicast announcement
+in local area network, so called MCD (MultiCast Discovery).
+
+@end itemize
+
 @node Release 6.5.0
 @section Release 6.5.0
 @itemize

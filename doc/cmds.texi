@@ -260,7 +260,7 @@ next time entities.
 @example
 $ nncp-daemon [options]
     [-maxconn INT] [-bind ADDR] [-inetd]
-    [-autotoss*] [-nock]
+    [-autotoss*] [-nock] [-mcd-once]
 @end example
 
 Start listening TCP daemon, wait for incoming connections and run
@@ -287,6 +287,9 @@ during the call. All @option{-autotoss-*} options is the same as in
 @ref{nncp-toss} command.
 
 Read @ref{CfgNoCK, more} about @option{-nock} option.
+
+@option{-mcd-once} option sends @ref{MCD} announcements once and quits.
+Could be useful with inetd-based setup, where daemons are not running.
 
 @node nncp-exec
 @section nncp-exec
