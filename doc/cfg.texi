@@ -11,6 +11,9 @@ Example @url{https://hjson.org/, Hjson} configuration file:
   noprogress: true
   nohdr: true
 
+  mcd-listen: ["em0", "igb1"]
+  mcd-send: {em0: 60, igb1: 5}
+
   notify: {
     file: {
       from: nncp@localhost
@@ -106,6 +109,14 @@ commands by default. You can always force its showing with
 
 @anchor{CfgNoHdr}
 @strong{nohdr} option disables @ref{HdrFile, .hdr} files usage.
+
+@anchor{CfgMCDListen}
+@strong{mcd-listen} specifies list of network interfaces
+@ref{nncp-caller} will listen for incoming @ref{MCD} announcements.
+
+@anchor{CfgMCDSend}
+@strong{mcd-send} specifies list of network interfaces, and intervals in
+seconds, where @ref{nncp-daemon} will send @ref{MCD} announcements.
 
 @anchor{CfgNotify}
 @strong{notify} section contains notification settings for successfully

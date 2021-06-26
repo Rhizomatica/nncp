@@ -32,6 +32,7 @@ calls: [
         cron: "*/5 * * * * * *"
         when-tx-exists: true
         nock: true
+        mcd-ignore: true
     },
 ]
 @end verbatim
@@ -95,5 +96,10 @@ simultaneous reading of the data for checksumming and writing of the
 received one, but just sequential writing of the file. Pay attention
 that you have to make a call to remote node after checksumming is done,
 to send notification about successful packet reception.
+
+@anchor{CfgMCDIgnore}
+@item mcd-ignore
+Ignore @ref{MCD} announcements: do not add MCD addresses for possible
+connection attempts.
 
 @end table

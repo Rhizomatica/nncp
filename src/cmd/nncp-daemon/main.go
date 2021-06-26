@@ -24,6 +24,8 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -136,6 +138,7 @@ func main() {
 		inetd     = flag.Bool("inetd", false, "Is it started as inetd service")
 		maxConn   = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		noCK      = flag.Bool("nock", false, "Do no checksum checking")
+		mcdOnce   = flag.Bool("mcd-once", false, "Send MCDs once and quit")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -213,10 +216,32 @@ func main() {
 		return
 	}
 
+	cols := strings.Split(*bind, ":")
+	port, err := strconv.Atoi(cols[len(cols)-1])
+	if err != nil {
+		log.Fatalln("Can not parse port:", err)
+	}
+
+	if *mcdOnce {
+		for ifiName := range ctx.MCDTxIfis {
+			if err = ctx.MCDTx(ifiName, port, 0); err != nil {
+				log.Fatalln("Can not do MCD transmission:", err)
+			}
+		}
+		return
+	}
+
 	ln, err := net.Listen("tcp", *bind)
 	if err != nil {
 		log.Fatalln("Can not listen:", err)
 	}
+
+	for ifiName, secs := range ctx.MCDTxIfis {
+		if err = ctx.MCDTx(ifiName, port, time.Duration(secs)*time.Second); err != nil {
+			log.Fatalln("Can not run MCD transmission:", err)
+		}
+	}
+
 	ln = netutil.LimitListener(ln, *maxConn)
 	for {
 		conn, err := ln.Accept()

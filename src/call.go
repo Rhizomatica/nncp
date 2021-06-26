@@ -37,6 +37,7 @@ type Call struct {
 	MaxOnlineTime  time.Duration
 	WhenTxExists   bool
 	NoCK           bool
+	MCDIgnore      bool
 
 	AutoToss       bool
 	AutoTossDoSeen bool
