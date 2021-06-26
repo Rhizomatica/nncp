@@ -109,6 +109,12 @@ func main() {
   # Do not use .hdr files
   # nohdr: true
 
+  # MultiCast Discovery:
+  # List of interfaces where to listen for MCD announcements
+  # mcd-listen: ["em0", "igb1"]
+  # Interfaces and intervals (in seconds) where to send MCD announcements
+  # mcd-send: {em0: 60, igb1: 5}
+
   # Enable notification email sending
   # notify: {
   #   file: {
@@ -216,6 +222,7 @@ func main() {
     #   #     addr: lan
     #   #     when-tx-exists: true
     #   #     nock: true
+    #   #     mcd-ignore: true
     #   #
     #   #     autotoss: false
     #   #     autotoss-doseen: true

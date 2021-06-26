@@ -46,6 +46,9 @@ type Ctx struct {
 	NotifyFile *FromToJSON
 	NotifyFreq *FromToJSON
 	NotifyExec map[string]*FromToJSON
+
+	MCDRxIfis []string
+	MCDTxIfis map[string]int
 }
 
 func (ctx *Ctx) FindNode(id string) (*Node, error) {

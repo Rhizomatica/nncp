@@ -53,6 +53,7 @@ There are also articles about its usage outside this website:
 * Log format: Log.
 * Packet format: Packet.
 * Sync protocol: Sync.
+* MultiCast Discovery: MCD.
 * EBlob format: EBlob.
 * Thanks::
 * Contacts and feedback: Contacts.
@@ -77,6 +78,7 @@ There are also articles about its usage outside this website:
 @include log.texi
 @include pkt.texi
 @include sp.texi
+@include mcd.texi
 @include eblob.texi
 @include thanks.texi
 @include contacts.texi
