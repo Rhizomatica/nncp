@@ -121,19 +121,25 @@ func main() {
 		}
 	}
 
+	for _, ifiName := range ctx.MCDRxIfis {
+		if err = ctx.MCDRx(ifiName); err != nil {
+			log.Fatalln("Can not run MCD reception:", err)
+		}
+	}
+
 	var wg sync.WaitGroup
 	for _, node := range nodes {
 		for i, call := range node.Calls {
 			wg.Add(1)
 			go func(node *nncp.Node, i int, call *nncp.Call) {
 				defer wg.Done()
-				var addrs []string
+				var addrsFromCfg []string
 				if call.Addr == nil {
 					for _, addr := range node.Addrs {
-						addrs = append(addrs, addr)
+						addrsFromCfg = append(addrsFromCfg, addr)
 					}
 				} else {
-					addrs = append(addrs, *call.Addr)
+					addrsFromCfg = append(addrsFromCfg, *call.Addr)
 				}
 				les := nncp.LEs{{K: "Node", V: node.Id}, {K: "CallIndex", V: i}}
 				logMsg := func(les nncp.LEs) string {
@@ -197,9 +203,22 @@ func main() {
 							)
 						}
 
+						var addrs []string
+						if !call.MCDIgnore {
+							nncp.MCDAddrsM.RLock()
+							for _, mcdAddr := range nncp.MCDAddrs[*node.Id] {
+								ctx.LogD("caller", les, func(les nncp.LEs) string {
+									return logMsg(les) + ": adding MCD address: " +
+										mcdAddr.Addr.String()
+								})
+								addrs = append(addrs, mcdAddr.Addr.String())
+							}
+							nncp.MCDAddrsM.RUnlock()
+						}
+
 						ctx.CallNode(
 							node,
-							addrs,
+							append(addrs, addrsFromCfg...),
 							call.Nice,
 							call.Xx,
 							call.RxRate,
