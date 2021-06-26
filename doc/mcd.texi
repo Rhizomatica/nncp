@@ -7,11 +7,10 @@ in local area network. It is very simple:
 
 @itemize
 @item
-    @command{nncp-daemon} sends multicast messages about its presence
-    from time to time.
-    See @ref{CfgMCDSend, mcd-send} configuration option.
+    @ref{nncp-daemon} sends multicast messages about its presence from
+    time to time. See @ref{CfgMCDSend, mcd-send} configuration option.
 @item
-    When @command{nncp-caller} sees them, it adds them as the most
+    When @ref{nncp-caller} sees them, it adds them as the most
     preferred addresses to already known ones. If MCD address
     announcement was not refreshed after two minutes -- it is removed.
     See @ref{CfgMCDListen, mcd-listen} and
