@@ -238,7 +238,7 @@ $ nncp-check [-nock] [options]
 
 Perform @ref{Spool, spool} directory integrity check. Read all files
 that has Base32-encoded filenames and compare it with recalculated
-BLAKE2b hash output of their contents.
+@ref{MTH} hash output of their contents.
 
 The most useful mode of operation is with @option{-nock} option, that
 checks integrity of @file{.nock} files, renaming them to ordinary
@@ -362,7 +362,7 @@ for that temporary file and resulting encrypted packet. You can control
 temporary file location directory with @env{TMPDIR} environment
 variable. Encryption is performed in AEAD mode with
 @url{https://cr.yp.to/chacha.html, ChaCha20}-@url{https://en.wikipedia.org/wiki/Poly1305, Poly1305}
-algorithms. Data is splitted on 128 KiB blocks. Each block is encrypted
+algorithms. Data is divided on 128 KiB blocks. Each block is encrypted
 with increasing nonce counter. File is deletes immediately after
 creation, so even if program crashes -- disk space will be reclaimed, no
 need in cleaning it up later.
@@ -403,6 +403,24 @@ specified, then last element of @file{SRC} will be used.
 If @ref{CfgNotify, notification} is enabled on the remote side for
 file request, then it will sent simple letter after successful file
 queuing.
+
+@node nncp-hash
+@section nncp-hash
+
+@example
+$ nncp-log [-file ...] [-seek X] [-debug] [-progress]
+@end example
+
+Calculate @ref{MTH} hash of either stdin, or @option{-file} if
+specified.
+
+You can optionally force seeking the file first, reading only part of
+the file, and then prepending unread portion of data, with the
+@option{-seek} option. It is intended only for testing and debugging of
+MTH hasher capabilities.
+
+@option{-debug} option shows all intermediate MTH hashes.
+And @option{-progress} will show progress bar.
 
 @node nncp-log
 @section nncp-log

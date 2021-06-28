@@ -29,7 +29,7 @@ import (
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/klauspost/compress/zstd"
-	"go.cypherpunks.ru/nncp/v6"
+	"go.cypherpunks.ru/nncp/v7"
 )
 
 func usage() {
@@ -133,7 +133,7 @@ func main() {
 	}
 	var pktEnc nncp.PktEnc
 	_, err = xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc)
-	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv4 {
+	if err == nil && pktEnc.Magic == nncp.MagicNNCPEv5 {
 		if *dump {
 			ctx, err := nncp.CtxFromCmdline(*cfgPath, "", "", false, false, false, false)
 			if err != nil {

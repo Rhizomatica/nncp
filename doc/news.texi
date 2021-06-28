@@ -3,6 +3,38 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7.0.0
+@section Release 7.0.0
+@itemize
+
+@item
+Merkle Tree-based Hashing with BLAKE3 (MTH) is used instead of BLAKE2b.
+Because of that, there are backward @strong{incompatible} changes of
+encrypted files (everything laying in the spool directory) and
+@file{.meta} files of chunked transfer.
+
+Current implementation is far from being optimal: it lacks
+parallelizable calculations and has higher memory consumption: nearly
+512 KiB for each 1 GiB of file's data. Future performance and memory
+size optimizations should not lead to packet's format change. But it is
+still several times faster than BLAKE2b.
+
+@item
+Resumed online downloads, because of MTH, require reading only of the
+preceding part of file, not the whole one as was before.
+
+@item
+@command{nncp-hash} utility appeared for calculating file's MTH hash.
+
+@item
+MultiCast Discovery uses
+@verb{|ff02::4e4e:4350|} address instead of @verb{|ff02::1|}.
+
+@item
+Updated dependencies.
+
+@end itemize
+
 @node Release 6.6.0
 @section Release 6.6.0
 @itemize

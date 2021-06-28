@@ -26,19 +26,18 @@ import (
 	"io"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/nacl/box"
 	"golang.org/x/crypto/poly1305"
+	"lukechampine.com/blake3"
 )
 
 type PktType uint8
 
 const (
 	EncBlkSize = 128 * (1 << 10)
-	KDFXOFSize = chacha20poly1305.KeySize * 2
 
 	PktTypeFile    PktType = iota
 	PktTypeFreq    PktType = iota
@@ -55,7 +54,7 @@ const (
 
 var (
 	MagicNNCPPv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 3}
-	MagicNNCPEv4 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 4}
+	MagicNNCPEv5 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 5}
 	BadMagic     error   = errors.New("Unknown magic number")
 	BadPktType   error   = errors.New("Unknown packet type")
 
@@ -103,7 +102,7 @@ func init() {
 		panic(err)
 	}
 	pktEnc := PktEnc{
-		Magic:     MagicNNCPEv4,
+		Magic:     MagicNNCPEv5,
 		Sender:    dummyId,
 		Recipient: dummyId,
 	}
@@ -210,7 +209,7 @@ func PktEncWrite(
 		return nil, err
 	}
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv4,
+		Magic:     MagicNNCPEv5,
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
@@ -223,7 +222,7 @@ func PktEncWrite(
 	signature := new([ed25519.SignatureSize]byte)
 	copy(signature[:], ed25519.Sign(our.SignPrv, tbsBuf.Bytes()))
 	pktEnc := PktEnc{
-		Magic:     MagicNNCPEv4,
+		Magic:     MagicNNCPEv5,
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
@@ -240,18 +239,9 @@ func PktEncWrite(
 	}
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, prvEph, their.ExchPub)
-	kdf, err := blake2b.NewXOF(KDFXOFSize, sharedKey[:])
-	if err != nil {
-		return nil, err
-	}
-	if _, err = kdf.Write(MagicNNCPEv4[:]); err != nil {
-		return nil, err
-	}
 
 	key := make([]byte, chacha20poly1305.KeySize)
-	if _, err = io.ReadFull(kdf, key); err != nil {
-		return nil, err
-	}
+	blake3.DeriveKey(key, string(MagicNNCPEv5[:]), sharedKey[:])
 	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return nil, err
@@ -275,14 +265,9 @@ func PktEncWrite(
 		return nil, io.ErrUnexpectedEOF
 	}
 	if padSize > 0 {
-		if _, err = io.ReadFull(kdf, key); err != nil {
-			return nil, err
-		}
-		kdf, err = blake2b.NewXOF(blake2b.OutputLengthUnknown, key)
-		if err != nil {
-			return nil, err
-		}
-		if _, err = io.CopyN(out, kdf, padSize); err != nil {
+		blake3.DeriveKey(key, string(MagicNNCPEv5[:])+" PAD", sharedKey[:])
+		xof := blake3.New(32, key).XOF()
+		if _, err = io.CopyN(out, xof, padSize); err != nil {
 			return nil, err
 		}
 	}
@@ -291,7 +276,7 @@ func PktEncWrite(
 
 func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv4,
+		Magic:     MagicNNCPEv5,
 		Nice:      pktEnc.Nice,
 		Sender:    their.Id,
 		Recipient: our.Id,
@@ -315,7 +300,7 @@ func PktEncRead(
 	if err != nil {
 		return nil, 0, err
 	}
-	if pktEnc.Magic != MagicNNCPEv4 {
+	if pktEnc.Magic != MagicNNCPEv5 {
 		return nil, 0, BadMagic
 	}
 	their, known := nodes[*pktEnc.Sender]
@@ -334,18 +319,9 @@ func PktEncRead(
 	}
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, our.ExchPrv, &pktEnc.ExchPub)
-	kdf, err := blake2b.NewXOF(KDFXOFSize, sharedKey[:])
-	if err != nil {
-		return their, 0, err
-	}
-	if _, err = kdf.Write(MagicNNCPEv4[:]); err != nil {
-		return their, 0, err
-	}
 
 	key := make([]byte, chacha20poly1305.KeySize)
-	if _, err = io.ReadFull(kdf, key); err != nil {
-		return their, 0, err
-	}
+	blake3.DeriveKey(key, string(MagicNNCPEv5[:]), sharedKey[:])
 	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return their, 0, err

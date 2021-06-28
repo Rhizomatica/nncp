@@ -29,7 +29,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v6"
+	"go.cypherpunks.ru/nncp/v7"
 	"golang.org/x/net/netutil"
 )
 
@@ -72,6 +72,7 @@ func (c InetdConn) Close() error {
 func performSP(
 	ctx *nncp.Ctx,
 	conn nncp.ConnDeadlined,
+	addr string,
 	nice uint8,
 	noCK bool,
 	nodeIdC chan *nncp.NodeId,
@@ -85,7 +86,9 @@ func performSP(
 		ctx.LogI(
 			"call-started",
 			nncp.LEs{{K: "Node", V: state.Node.Id}},
-			func(les nncp.LEs) string { return "Connection with " + state.Node.Name },
+			func(les nncp.LEs) string {
+				return fmt.Sprintf("Connection with %s (%s)", state.Node.Name, addr)
+			},
 		)
 		nodeIdC <- state.Node.Id
 		state.Wait()
@@ -192,7 +195,7 @@ func main() {
 		os.Stderr.Close() // #nosec G104
 		conn := &InetdConn{os.Stdin, os.Stdout}
 		nodeIdC := make(chan *nncp.NodeId)
-		go performSP(ctx, conn, nice, *noCK, nodeIdC)
+		go performSP(ctx, conn, "PIPE", nice, *noCK, nodeIdC)
 		nodeId := <-nodeIdC
 		var autoTossFinish chan struct{}
 		var autoTossBadCode chan bool
@@ -257,7 +260,7 @@ func main() {
 		)
 		go func(conn net.Conn) {
 			nodeIdC := make(chan *nncp.NodeId)
-			go performSP(ctx, conn, nice, *noCK, nodeIdC)
+			go performSP(ctx, conn, conn.RemoteAddr().String(), nice, *noCK, nodeIdC)
 			nodeId := <-nodeIdC
 			var autoTossFinish chan struct{}
 			var autoTossBadCode chan bool

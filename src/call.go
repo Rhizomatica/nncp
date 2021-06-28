@@ -56,7 +56,7 @@ func (ctx *Ctx) CallNode(
 	onlineDeadline, maxOnlineTime time.Duration,
 	listOnly bool,
 	noCK bool,
-	onlyPkts map[[32]byte]bool,
+	onlyPkts map[[MTHSize]byte]bool,
 ) (isGood bool) {
 	for _, addr := range addrs {
 		les := LEs{{"Node", node.Id}, {"Addr", addr}}

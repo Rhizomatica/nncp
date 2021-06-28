@@ -62,7 +62,7 @@ main key and 32-byte output length
 @item read 32-bytes of blob AEAD encryption key
 @item encrypt and authenticate blob using
     @url{https://cr.yp.to/chacha.html, ChaCha20}-@url{https://en.wikipedia.org/wiki/Poly1305, Poly1305}.
-    Blob is splitted on 128 KiB blocks. Each block is encrypted with
+    Blob is divided on 128 KiB blocks. Each block is encrypted with
     increasing nonce counter. Eblob packet itself, with empty blob
     field, is fed as an additional authenticated data
 @end enumerate

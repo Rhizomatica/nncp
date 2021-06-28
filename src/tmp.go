@@ -26,8 +26,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
-
-	"golang.org/x/crypto/blake2b"
 )
 
 func TempFile(dir, prefix string) (*os.File, error) {
@@ -64,10 +62,7 @@ func (ctx *Ctx) NewTmpFileWHash() (*TmpFileWHash, error) {
 	if err != nil {
 		return nil, err
 	}
-	hsh, err := blake2b.New256(nil)
-	if err != nil {
-		return nil, err
-	}
+	hsh := MTHNew(0, 0)
 	return &TmpFileWHash{
 		W:   bufio.NewWriter(io.MultiWriter(hsh, tmp)),
 		Fd:  tmp,

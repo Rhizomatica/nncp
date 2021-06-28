@@ -35,8 +35,7 @@ import (
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v6"
-	"golang.org/x/crypto/blake2b"
+	"go.cypherpunks.ru/nncp/v7"
 )
 
 func usage() {
@@ -68,7 +67,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		return false
 	}
 	fd.Close() // #nosec G104
-	if metaPkt.Magic != nncp.MagicNNCPMv1 {
+	if metaPkt.Magic != nncp.MagicNNCPMv2 {
 		ctx.LogE("reass", les, nncp.BadMagic, logMsg)
 		return false
 	}
@@ -152,10 +151,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		if err != nil {
 			log.Fatalln("Can not stat file:", err)
 		}
-		hsh, err = blake2b.New256(nil)
-		if err != nil {
-			log.Fatalln(err)
-		}
+		hsh = nncp.MTHNew(fi.Size(), 0)
 		if _, err = nncp.CopyProgressed(
 			hsh, bufio.NewReader(fd), "check",
 			nncp.LEs{{K: "Pkt", V: chunkPath}, {K: "FullSize", V: fi.Size()}},

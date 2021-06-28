@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	"go.cypherpunks.ru/nncp/v6"
+	"go.cypherpunks.ru/nncp/v7"
 )
 
 func usage() {
@@ -195,6 +195,7 @@ func main() {
 		close(autoTossFinish)
 		badCode = (<-autoTossBadCode) || badCode
 	}
+	nncp.SPCheckerWg.Wait()
 	if badCode {
 		os.Exit(1)
 	}
