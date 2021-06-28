@@ -45,7 +45,7 @@ type MCDAddr struct {
 var (
 	MagicNNCPDv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'D', 0, 0, 1}
 
-	mcdIP           = net.ParseIP("ff02::1")
+	mcdIP           = net.ParseIP("ff02::4e4e:4350")
 	mcdAddrLifetime = 2 * time.Minute
 
 	mcdPktSize int
