@@ -28,7 +28,6 @@ import (
 	"testing/quick"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"golang.org/x/crypto/blake2b"
 )
 
 func TestTx(t *testing.T) {
@@ -141,7 +140,7 @@ func TestTx(t *testing.T) {
 				if pkt.Type != PktTypeTrns {
 					return false
 				}
-				if bytes.Compare(pkt.Path[:blake2b.Size256], vias[i+1][:]) != 0 {
+				if bytes.Compare(pkt.Path[:MTHSize], vias[i+1][:]) != 0 {
 					return false
 				}
 			}

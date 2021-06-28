@@ -34,8 +34,7 @@ import (
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v6"
-	"golang.org/x/crypto/blake2b"
+	"go.cypherpunks.ru/nncp/v7"
 )
 
 const (
@@ -307,7 +306,7 @@ func main() {
 				)
 				continue
 			}
-			if pktEnc.Magic != nncp.MagicNNCPEv4 {
+			if pktEnc.Magic != nncp.MagicNNCPEv5 {
 				ctx.LogD(
 					"bundle-rx",
 					append(les, nncp.LE{K: "Err", V: "Bad packet magic number"}),
@@ -346,10 +345,7 @@ func main() {
 					})
 					continue
 				}
-				hsh, err := blake2b.New256(nil)
-				if err != nil {
-					log.Fatalln("Error during hasher creation:", err)
-				}
+				hsh := nncp.MTHNew(entry.Size, 0)
 				if _, err = hsh.Write(pktEncBuf); err != nil {
 					log.Fatalln("Error during writing:", err)
 				}
@@ -415,10 +411,7 @@ func main() {
 			}
 			if *doCheck {
 				if *dryRun {
-					hsh, err := blake2b.New256(nil)
-					if err != nil {
-						log.Fatalln("Error during hasher creation:", err)
-					}
+					hsh := nncp.MTHNew(entry.Size, 0)
 					if _, err = hsh.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}

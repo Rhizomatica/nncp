@@ -25,7 +25,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"go.cypherpunks.ru/nncp/v6"
+	"go.cypherpunks.ru/nncp/v7"
 )
 
 func usage() {
@@ -90,7 +90,7 @@ func main() {
 		}
 		if *nock {
 			for job := range ctx.JobsNoCK(node.Id) {
-				if _, err = ctx.CheckNoCK(node.Id, job.HshValue); err != nil {
+				if _, err = ctx.CheckNoCK(node.Id, job.HshValue, nil); err != nil {
 					pktName := nncp.Base32Codec.EncodeToString(job.HshValue[:])
 					log.Println(filepath.Join(
 						ctx.Spool,

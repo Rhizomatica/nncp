@@ -37,7 +37,7 @@ directories at once.
 
 @item LYT64MWSNDK34CVYOO7TA6ZCJ3NWI2OUDBBMX2A4QWF34FIRY4DQ
 is an example @ref{Encrypted, encrypted packet}. Its filename is Base32
-encoded BLAKE2b hash of the whole contents. It can be integrity checked
+encoded @ref{MTH} hash of the whole contents. It can be integrity checked
 anytime.
 
 @item LYT64MWSNDK34CVYOO7TA6ZCJ3NWI2OUDBBMX2A4QWF34FIRY4DQ.part

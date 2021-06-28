@@ -31,7 +31,6 @@ import (
 	"testing/quick"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"golang.org/x/crypto/blake2b"
 )
 
 var (
@@ -190,8 +189,9 @@ func TestTossFile(t *testing.T) {
 		ctx.Neigh[*nodeOur.Id] = nodeOur.Their()
 		incomingPath := filepath.Join(spool, "incoming")
 		for _, fileData := range files {
-			checksum := blake2b.Sum256(fileData)
-			fileName := Base32Codec.EncodeToString(checksum[:])
+			hasher := MTHNew(0, 0)
+			hasher.Write(fileData)
+			fileName := Base32Codec.EncodeToString(hasher.Sum(nil))
 			src := filepath.Join(spool, fileName)
 			if err := ioutil.WriteFile(src, fileData, os.FileMode(0600)); err != nil {
 				panic(err)
@@ -221,8 +221,9 @@ func TestTossFile(t *testing.T) {
 			return false
 		}
 		for _, fileData := range files {
-			checksum := blake2b.Sum256(fileData)
-			fileName := Base32Codec.EncodeToString(checksum[:])
+			hasher := MTHNew(0, 0)
+			hasher.Write(fileData)
+			fileName := Base32Codec.EncodeToString(hasher.Sum(nil))
 			data, err := ioutil.ReadFile(filepath.Join(incomingPath, fileName))
 			if err != nil {
 				panic(err)
@@ -455,7 +456,7 @@ func TestTossTrns(t *testing.T) {
 			pktTrans := Pkt{
 				Magic:   MagicNNCPPv3,
 				Type:    PktTypeTrns,
-				PathLen: blake2b.Size256,
+				PathLen: MTHSize,
 			}
 			copy(pktTrans.Path[:], nodeOur.Id[:])
 			var dst bytes.Buffer
@@ -472,9 +473,10 @@ func TestTossTrns(t *testing.T) {
 				t.Error(err)
 				return false
 			}
-			checksum := blake2b.Sum256(dst.Bytes())
+			hasher := MTHNew(0, 0)
+			hasher.Write(dst.Bytes())
 			if err := ioutil.WriteFile(
-				filepath.Join(rxPath, Base32Codec.EncodeToString(checksum[:])),
+				filepath.Join(rxPath, Base32Codec.EncodeToString(hasher.Sum(nil))),
 				dst.Bytes(),
 				os.FileMode(0600),
 			); err != nil {

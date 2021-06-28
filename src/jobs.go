@@ -41,7 +41,7 @@ type Job struct {
 	PktEnc   *PktEnc
 	Path     string
 	Size     int64
-	HshValue *[32]byte
+	HshValue *[MTHSize]byte
 }
 
 func (ctx *Ctx) HdrRead(fd *os.File) (*PktEnc, []byte, error) {
@@ -139,7 +139,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 			}
 			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
 			fd.Close()
-			if err != nil || pktEnc.Magic != MagicNNCPEv4 {
+			if err != nil || pktEnc.Magic != MagicNNCPEv5 {
 				continue
 			}
 			ctx.LogD("job", LEs{
@@ -163,7 +163,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 				PktEnc:   pktEnc,
 				Path:     pth,
 				Size:     fi.Size(),
-				HshValue: new([32]byte),
+				HshValue: new([MTHSize]byte),
 			}
 			copy(job.HshValue[:], hshValue)
 			jobs <- job

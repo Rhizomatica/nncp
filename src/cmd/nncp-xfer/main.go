@@ -29,7 +29,7 @@ import (
 	"path/filepath"
 
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v6"
+	"go.cypherpunks.ru/nncp/v7"
 )
 
 func usage() {
@@ -218,7 +218,7 @@ func main() {
 				continue
 			}
 			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
-			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv4 {
+			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv5 {
 				ctx.LogD("xfer-rx-not-packet", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": is not a packet"
 				})

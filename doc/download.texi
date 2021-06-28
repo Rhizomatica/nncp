@@ -15,11 +15,14 @@ Tarballs include all necessary required libraries:
 @item @code{github.com/gosuri/uilive} @tab MIT
 @item @code{github.com/hjson/hjson-go} @tab MIT
 @item @code{github.com/klauspost/compress} @tab BSD 3-Clause
+@item @code{github.com/klauspost/cpuid} @tab BSD 3-Clause
 @item @code{go.cypherpunks.ru/balloon} @tab GNU LGPLv3
+@item @code{go.cypherpunks.ru/recfile} @tab GNU GPLv3
 @item @code{golang.org/x/crypto} @tab BSD 3-Clause
 @item @code{golang.org/x/net} @tab BSD 3-Clause
 @item @code{golang.org/x/sys} @tab BSD 3-Clause
 @item @code{golang.org/x/term} @tab BSD 3-Clause
+@item @code{lukechampine.com/blake3} @tab MIT
 @end multitable
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}

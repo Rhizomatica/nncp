@@ -36,7 +36,6 @@ import (
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
 	"github.com/klauspost/compress/zstd"
-	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
@@ -406,13 +405,13 @@ func (ctx *Ctx) TxFile(
 
 	leftSize := fileSize
 	metaPkt := ChunkedMeta{
-		Magic:     MagicNNCPMv1,
+		Magic:     MagicNNCPMv2,
 		FileSize:  uint64(fileSize),
 		ChunkSize: uint64(chunkSize),
-		Checksums: make([][32]byte, 0, (fileSize/chunkSize)+1),
+		Checksums: make([][MTHSize]byte, 0, (fileSize/chunkSize)+1),
 	}
 	for i := int64(0); i < (fileSize/chunkSize)+1; i++ {
-		hsh := new([32]byte)
+		hsh := new([MTHSize]byte)
 		metaPkt.Checksums = append(metaPkt.Checksums, *hsh)
 	}
 	var sizeToSend int64
@@ -431,10 +430,7 @@ func (ctx *Ctx) TxFile(
 		if err != nil {
 			return err
 		}
-		hsh, err = blake2b.New256(nil)
-		if err != nil {
-			return err
-		}
+		hsh = MTHNew(0, 0)
 		_, err = ctx.Tx(
 			node,
 			pkt,
