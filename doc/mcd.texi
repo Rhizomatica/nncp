@@ -26,9 +26,9 @@ MCD announcement is an XDR-encoded packet with only two fields:
 @end verbatim
 
 Magic number is @verb{|N N C P D 0x00 0x00 0x01|} and sender is 32-byte
-identifier of the node. It is sent as UDP packet on IPv6 @verb{|ff02::1|}
-multicast address (all hosts in the network) and hard-coded @strong{5400}
-port. Operating system will use IPv6 link-local address as a source one,
-with the port taken from @command{nncp-daemon}'s @option{-bind} option.
-That way, IP packet itself will carry the link-scope reachable address
-of the daemon.
+identifier of the node. It is sent as UDP packet on IPv6
+@strong{@verb{|ff02::4e4e:4350|}} (hexadecimal ASCII @verb{|NNCP|})
+multicast address and @strong{5400} port. Operating system will use IPv6
+link-local address as a source one, with the port taken from
+@command{nncp-daemon}'s @option{-bind} option. That way, IP packet
+itself will carry the link-scope reachable address of the daemon.
