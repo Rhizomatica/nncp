@@ -91,27 +91,19 @@ func main() {
 	}
 
 	os.Stderr.WriteString("Passphrase:") // #nosec G104
-	password, err := term.ReadPassword(0)
+	password1, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	os.Stderr.WriteString("\n") // #nosec G104
-
 	if *decrypt {
-		cfgRaw, err := nncp.DeEBlob(data, password)
+		cfgRaw, err := nncp.DeEBlob(data, password1)
 		if err != nil {
 			log.Fatalln(err)
 		}
 		os.Stdout.Write(cfgRaw) // #nosec G104
 		return
 	}
-
-	password1, err := term.ReadPassword(0)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	os.Stderr.WriteString("\n")                 // #nosec G104
-	os.Stderr.WriteString("Repeat passphrase:") // #nosec G104
+	os.Stderr.WriteString("\nRepeat passphrase:") // #nosec G104
 	password2, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)

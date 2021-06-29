@@ -35,6 +35,9 @@ MultiCast Discovery использует
 @verb{|ff02::4e4e:4350|} адрес вместо @verb{|ff02::1|}.
 
 @item
+@command{nncp-cfgenc} ошибочно трижды спрашивал парольную фразу при шифровании.
+
+@item
 Обновлены зависимые библиотеки.
 
 @end itemize
