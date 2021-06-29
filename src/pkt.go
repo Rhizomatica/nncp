@@ -139,7 +139,7 @@ func ctrIncr(b []byte) {
 
 func aeadProcess(
 	aead cipher.AEAD,
-	nonce []byte,
+	nonce, ad []byte,
 	doEncrypt bool,
 	r io.Reader,
 	w io.Writer,
@@ -169,9 +169,9 @@ func aeadProcess(
 		readBytes += n
 		ctrIncr(ciphCtr)
 		if doEncrypt {
-			toWrite = aead.Seal(buf[:0], nonce, buf[:n], nil)
+			toWrite = aead.Seal(buf[:0], nonce, buf[:n], ad)
 		} else {
-			toWrite, err = aead.Open(buf[:0], nonce, buf[:n], nil)
+			toWrite, err = aead.Open(buf[:0], nonce, buf[:n], ad)
 			if err != nil {
 				return readBytes, err
 			}
@@ -229,6 +229,7 @@ func PktEncWrite(
 		ExchPub:   *pubEph,
 		Sign:      *signature,
 	}
+	ad := blake3.Sum256(tbsBuf.Bytes())
 	tbsBuf.Reset()
 	if _, err = xdr.Marshal(&tbsBuf, &pktEnc); err != nil {
 		return nil, err
@@ -251,13 +252,13 @@ func PktEncWrite(
 	fullSize := pktBuf.Len() + int(size)
 	sizeBuf := make([]byte, 8+aead.Overhead())
 	binary.BigEndian.PutUint64(sizeBuf, uint64(sizeWithTags(int64(fullSize))))
-	if _, err = out.Write(aead.Seal(sizeBuf[:0], nonce, sizeBuf[:8], nil)); err != nil {
+	if _, err = out.Write(aead.Seal(sizeBuf[:0], nonce, sizeBuf[:8], ad[:])); err != nil {
 		return nil, err
 	}
 
 	lr := io.LimitedReader{R: data, N: size}
 	mr := io.MultiReader(&pktBuf, &lr)
-	written, err := aeadProcess(aead, nonce, true, mr, out)
+	written, err := aeadProcess(aead, nonce, ad[:], true, mr, out)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +275,7 @@ func PktEncWrite(
 	return pktEncRaw, nil
 }
 
-func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
+func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) ([]byte, bool, error) {
 	tbs := PktTbs{
 		Magic:     MagicNNCPEv5,
 		Nice:      pktEnc.Nice,
@@ -284,9 +285,9 @@ func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 	}
 	var tbsBuf bytes.Buffer
 	if _, err := xdr.Marshal(&tbsBuf, &tbs); err != nil {
-		return false, err
+		return nil, false, err
 	}
-	return ed25519.Verify(their.SignPub, tbsBuf.Bytes(), pktEnc.Sign[:]), nil
+	return tbsBuf.Bytes(), ed25519.Verify(their.SignPub, tbsBuf.Bytes(), pktEnc.Sign[:]), nil
 }
 
 func PktEncRead(
@@ -310,13 +311,14 @@ func PktEncRead(
 	if *pktEnc.Recipient != *our.Id {
 		return nil, 0, errors.New("Invalid recipient")
 	}
-	verified, err := TbsVerify(our, their, &pktEnc)
+	tbsRaw, verified, err := TbsVerify(our, their, &pktEnc)
 	if err != nil {
 		return nil, 0, err
 	}
 	if !verified {
 		return their, 0, errors.New("Invalid signature")
 	}
+	ad := blake3.Sum256(tbsRaw)
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, our.ExchPrv, &pktEnc.ExchPub)
 
@@ -332,14 +334,14 @@ func PktEncRead(
 	if _, err = io.ReadFull(data, sizeBuf); err != nil {
 		return their, 0, err
 	}
-	sizeBuf, err = aead.Open(sizeBuf[:0], nonce, sizeBuf, nil)
+	sizeBuf, err = aead.Open(sizeBuf[:0], nonce, sizeBuf, ad[:])
 	if err != nil {
 		return their, 0, err
 	}
 	size := int64(binary.BigEndian.Uint64(sizeBuf))
 
 	lr := io.LimitedReader{R: data, N: size}
-	written, err := aeadProcess(aead, nonce, false, &lr, out)
+	written, err := aeadProcess(aead, nonce, ad[:], false, &lr, out)
 	if err != nil {
 		return their, int64(written), err
 	}
