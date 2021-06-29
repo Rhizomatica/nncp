@@ -110,26 +110,20 @@ Each encrypted packet has the following header:
     Ephemeral curve25519 public key
 @item Signature @tab
     64-byte, fixed length opaque data @tab
-    ed25519 signature for that packet's header
+    ed25519 signature for that packet's header over all previous fields.
 @end multitable
-
-Signature is calculated over all previous fields.
 
 All following encryption is done in AEAD mode using
 @url{https://cr.yp.to/chacha.html, ChaCha20}-@url{https://en.wikipedia.org/wiki/Poly1305, Poly1305}
-algorithms. Data is divided on 128 KiB blocks. Each block is encrypted with
-increasing nonce counter.
+algorithms. Authenticated data is BLAKE3-256 hash of the unsigned
+portion of the header (the same data used in the signature). Size is
+XDR-encoded unsigned hyper integer, carrying the payload size, encrypted
+as a single AEAD-block (with the tag) independently from the following
+blocks. It is encoded with the zero nonce.
 
-Authenticated and encrypted size come after the header:
-
-@multitable @columnfractions 0.2 0.3 0.5
-@headitem @tab XDR type @tab Value
-@item Size @tab
-    unsigned hyper integer @tab
-    Payload size.
-@end multitable
-
-Then comes the actual payload.
+Payload with possible padding is divided on 128 KiB blocks blocks. They
+are encrypted with the same authenticated data and increasing big-endian
+64-bit nonce, starting at 1.
 
 Each node has static @strong{exchange} and @strong{signature} keypairs.
 When node A want to send encrypted packet to node B, it:
@@ -145,8 +139,12 @@ When node A want to send encrypted packet to node B, it:
 @item derives 32-bytes AEAD encryption key with BLAKE3 derivation
     function. Source key is the derived ephemeral key. Context is
     @verb{|N N C P E 0x00 0x00 0x05|} magic number
+@item calculates authenticated data: it is BLAKE3-256 hash of the
+    unsigned header (same used for signing)
 @item encrypts size, appends its authenticated ciphertext to the header
+    (with authenticated data, nonce=0)
 @item encrypts each payload block, appending its authenticated ciphertext
+    (with authenticated data, nonce starting at 1, increasing with each block)
 @item possibly appends any kind of "junk" noise data to hide real
     payload's size from the adversary (generated using BLAKE3 XOF, with
     the key derived from the ephemeral one and context string of

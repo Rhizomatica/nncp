@@ -185,7 +185,7 @@ func throughTmpFile(r io.Reader) (
 		return
 	}
 	nonce := make([]byte, aead.NonceSize())
-	written, err := aeadProcess(aead, nonce, true, r, tmpW)
+	written, err := aeadProcess(aead, nonce, nil, true, r, tmpW)
 	if err != nil {
 		rerr = err
 		return
@@ -201,7 +201,7 @@ func throughTmpFile(r io.Reader) (
 	}
 	r, w := io.Pipe()
 	go func() {
-		if _, err := aeadProcess(aead, nonce, false, bufio.NewReader(src), w); err != nil {
+		if _, err := aeadProcess(aead, nonce, nil, false, bufio.NewReader(src), w); err != nil {
 			w.CloseWithError(err) // #nosec G104
 		}
 	}()

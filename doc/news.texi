@@ -27,6 +27,11 @@ preceding part of file, not the whole one as was before.
 @command{nncp-hash} utility appeared for calculating file's MTH hash.
 
 @item
+BLAKE2 KDF and XOF functions are replaced with BLAKE3 in encrypted
+packets. Lowering number of used primitives. Also, its encrypted
+packet's header is used as an associated data during encryption.
+
+@item
 MultiCast Discovery uses
 @verb{|ff02::4e4e:4350|} address instead of @verb{|ff02::1|}.
 
