@@ -128,6 +128,16 @@ func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
 	return &pkt, nil
 }
 
+func ctrIncr(b []byte) {
+	for i := len(b) - 1; i >= 0; i-- {
+		b[i]++
+		if b[i] != 0 {
+			return
+		}
+	}
+	panic("counter overflow")
+}
+
 func aeadProcess(
 	aead cipher.AEAD,
 	nonce []byte,
@@ -135,7 +145,6 @@ func aeadProcess(
 	r io.Reader,
 	w io.Writer,
 ) (int, error) {
-	var blkCtr uint64
 	ciphCtr := nonce[len(nonce)-8:]
 	buf := make([]byte, EncBlkSize+aead.Overhead())
 	var toRead []byte
@@ -159,8 +168,7 @@ func aeadProcess(
 			}
 		}
 		readBytes += n
-		blkCtr++
-		binary.BigEndian.PutUint64(ciphCtr, blkCtr)
+		ctrIncr(ciphCtr)
 		if doEncrypt {
 			toWrite = aead.Seal(buf[:0], nonce, buf[:n], nil)
 		} else {
