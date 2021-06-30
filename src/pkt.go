@@ -53,7 +53,6 @@ const (
 )
 
 var (
-	BadMagic   error = errors.New("Unknown magic number")
 	BadPktType error = errors.New("Unknown packet type")
 
 	PktOverhead    int64
