@@ -34,10 +34,6 @@ const (
 	DefaultP = 2
 )
 
-var (
-	MagicNNCPBv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'B', 0, 0, 3}
-)
-
 type EBlob struct {
 	Magic [8]byte
 	SCost uint32
@@ -65,7 +61,7 @@ func NewEBlob(sCost, tCost, pCost int, password, data []byte) ([]byte, error) {
 		return nil, err
 	}
 	eblob := EBlob{
-		Magic: MagicNNCPBv3,
+		Magic: MagicNNCPBv3.B,
 		SCost: uint32(sCost),
 		TCost: uint32(tCost),
 		PCost: uint32(pCost),
@@ -97,8 +93,17 @@ func DeEBlob(eblobRaw, password []byte) ([]byte, error) {
 	if _, err = xdr.Unmarshal(bytes.NewReader(eblobRaw), &eblob); err != nil {
 		return nil, err
 	}
-	if eblob.Magic != MagicNNCPBv3 {
-		return nil, BadMagic
+	switch eblob.Magic {
+	case MagicNNCPBv1.B:
+		err = MagicNNCPBv1.TooOld()
+	case MagicNNCPBv2.B:
+		err = MagicNNCPBv1.TooOld()
+	case MagicNNCPBv3.B:
+	default:
+		err = BadMagic
+	}
+	if err != nil {
+		return nil, err
 	}
 	key := balloon.H(
 		blake256,

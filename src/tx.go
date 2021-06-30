@@ -405,7 +405,7 @@ func (ctx *Ctx) TxFile(
 
 	leftSize := fileSize
 	metaPkt := ChunkedMeta{
-		Magic:     MagicNNCPMv2,
+		Magic:     MagicNNCPMv2.B,
 		FileSize:  uint64(fileSize),
 		ChunkSize: uint64(chunkSize),
 		Checksums: make([][MTHSize]byte, 0, (fileSize/chunkSize)+1),

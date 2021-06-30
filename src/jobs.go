@@ -139,7 +139,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 			}
 			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
 			fd.Close()
-			if err != nil || pktEnc.Magic != MagicNNCPEv5 {
+			if err != nil || pktEnc.Magic != MagicNNCPEv5.B {
 				continue
 			}
 			ctx.LogD("job", LEs{

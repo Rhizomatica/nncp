@@ -416,7 +416,7 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 
 func CfgParse(data []byte) (*Ctx, error) {
 	var err error
-	if bytes.Compare(data[:8], MagicNNCPBv3[:]) == 0 {
+	if bytes.Compare(data[:8], MagicNNCPBv3.B[:]) == 0 {
 		os.Stderr.WriteString("Passphrase:") // #nosec G104
 		password, err := term.ReadPassword(0)
 		if err != nil {
@@ -427,6 +427,10 @@ func CfgParse(data []byte) (*Ctx, error) {
 		if err != nil {
 			return nil, err
 		}
+	} else if bytes.Compare(data[:8], MagicNNCPBv2.B[:]) == 0 {
+		log.Fatalln(MagicNNCPBv2.TooOld())
+	} else if bytes.Compare(data[:8], MagicNNCPBv1.B[:]) == 0 {
+		log.Fatalln(MagicNNCPBv1.TooOld())
 	}
 	var cfgGeneral map[string]interface{}
 	if err = hjson.Unmarshal(data, &cfgGeneral); err != nil {

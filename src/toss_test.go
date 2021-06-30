@@ -454,7 +454,7 @@ func TestTossTrns(t *testing.T) {
 		os.MkdirAll(txPath, os.FileMode(0700))
 		for _, data := range datum {
 			pktTrans := Pkt{
-				Magic:   MagicNNCPPv3,
+				Magic:   MagicNNCPPv3.B,
 				Type:    PktTypeTrns,
 				PathLen: MTHSize,
 			}
