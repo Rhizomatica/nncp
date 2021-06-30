@@ -105,7 +105,7 @@ func performSP(
 				state.Node.Name,
 				int(state.Duration.Hours()),
 				int(state.Duration.Minutes()),
-				int(state.Duration.Seconds()/60),
+				int(state.Duration.Seconds())%60,
 				humanize.IBytes(uint64(state.RxBytes)),
 				humanize.IBytes(uint64(state.RxSpeed)),
 				humanize.IBytes(uint64(state.TxBytes)),
