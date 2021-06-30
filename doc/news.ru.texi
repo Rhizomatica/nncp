@@ -38,6 +38,9 @@ MultiCast Discovery использует
 @command{nncp-cfgenc} ошибочно трижды спрашивал парольную фразу при шифровании.
 
 @item
+@command{nncp-stat} выводит сводку о частично скачанных пакетах.
+
+@item
 Обновлены зависимые библиотеки.
 
 @end itemize

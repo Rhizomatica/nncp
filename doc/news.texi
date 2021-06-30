@@ -39,6 +39,9 @@ MultiCast Discovery uses
 @command{nncp-cfgenc} mistakenly asked passphrase three times during encryption.
 
 @item
+@command{nncp-stat} reports about partly downloaded packets.
+
+@item
 Updated dependencies.
 
 @end itemize

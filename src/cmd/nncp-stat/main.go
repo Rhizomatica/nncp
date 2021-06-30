@@ -36,11 +36,11 @@ func usage() {
 	flag.PrintDefaults()
 }
 
-func jobPrint(xx nncp.TRxTx, job nncp.Job) {
+func jobPrint(xx nncp.TRxTx, job nncp.Job, suffix string) {
 	fmt.Printf(
-		"\t%s %s %s (nice: %s)\n",
+		"\t%s %s%s %s (nice: %s)\n",
 		string(xx),
-		nncp.Base32Codec.EncodeToString(job.HshValue[:]),
+		nncp.Base32Codec.EncodeToString(job.HshValue[:]), suffix,
 		humanize.IBytes(uint64(job.Size)),
 		nncp.NicenessFmt(job.PktEnc.Nice),
 	)
@@ -101,30 +101,50 @@ func main() {
 		rxBytes := make(map[uint8]int64)
 		noCKNums := make(map[uint8]int)
 		noCKBytes := make(map[uint8]int64)
+		partNums := 0
+		partBytes := int64(0)
 		for job := range ctx.Jobs(node.Id, nncp.TRx) {
 			if *showPkt {
-				jobPrint(nncp.TRx, job)
+				jobPrint(nncp.TRx, job, "")
 			}
 			rxNums[job.PktEnc.Nice] = rxNums[job.PktEnc.Nice] + 1
 			rxBytes[job.PktEnc.Nice] = rxBytes[job.PktEnc.Nice] + job.Size
 		}
 		for job := range ctx.JobsNoCK(node.Id) {
 			if *showPkt {
-				jobPrint(nncp.TRx, job)
+				jobPrint(nncp.TRx, job, ".nock")
 			}
 			noCKNums[job.PktEnc.Nice] = noCKNums[job.PktEnc.Nice] + 1
 			noCKBytes[job.PktEnc.Nice] = noCKBytes[job.PktEnc.Nice] + job.Size
+		}
+		for job := range ctx.JobsPart(node.Id) {
+			if *showPkt {
+				fmt.Printf(
+					"\t%s %s.part %s\n",
+					string(nncp.TRx),
+					nncp.Base32Codec.EncodeToString(job.HshValue[:]),
+					humanize.IBytes(uint64(job.Size)),
+				)
+			}
+			partNums++
+			partBytes += job.Size
 		}
 		txNums := make(map[uint8]int)
 		txBytes := make(map[uint8]int64)
 		for job := range ctx.Jobs(node.Id, nncp.TTx) {
 			if *showPkt {
-				jobPrint(nncp.TTx, job)
+				jobPrint(nncp.TTx, job, "")
 			}
 			txNums[job.PktEnc.Nice] = txNums[job.PktEnc.Nice] + 1
 			txBytes[job.PktEnc.Nice] = txBytes[job.PktEnc.Nice] + job.Size
 		}
 		var nice uint8
+		if partNums > 0 {
+			fmt.Printf(
+				"\tpart: % 10s, % 3d pkts\n",
+				humanize.IBytes(uint64(partBytes)), partNums,
+			)
+		}
 		for nice = 1; nice > 0; nice++ {
 			rxNum, rxExists := rxNums[nice]
 			txNum, txExists := txNums[nice]
