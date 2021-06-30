@@ -29,7 +29,7 @@ import (
 	"path/filepath"
 
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v6"
+	"go.cypherpunks.ru/nncp/v7"
 )
 
 func usage() {
@@ -218,10 +218,29 @@ func main() {
 				continue
 			}
 			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
-			if err != nil || pktEnc.Magic != nncp.MagicNNCPEv4 {
-				ctx.LogD("xfer-rx-not-packet", les, func(les nncp.LEs) string {
-					return logMsg(les) + ": is not a packet"
-				})
+			if err != nil {
+				switch pktEnc.Magic {
+				case nncp.MagicNNCPEv1.B:
+					err = nncp.MagicNNCPEv1.TooOld()
+				case nncp.MagicNNCPEv2.B:
+					err = nncp.MagicNNCPEv2.TooOld()
+				case nncp.MagicNNCPEv3.B:
+					err = nncp.MagicNNCPEv3.TooOld()
+				case nncp.MagicNNCPEv4.B:
+					err = nncp.MagicNNCPEv4.TooOld()
+				case nncp.MagicNNCPEv5.B:
+				default:
+					err = errors.New("is not an encrypted packet")
+				}
+			}
+			if err != nil {
+				ctx.LogD(
+					"xfer-rx-not-packet",
+					append(les, nncp.LE{K: "Err", V: err}),
+					func(les nncp.LEs) string {
+						return logMsg(les) + ": not valid packet: " + err.Error()
+					},
+				)
 				fd.Close() // #nosec G104
 				continue
 			}

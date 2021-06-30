@@ -23,21 +23,21 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
-
-	"golang.org/x/crypto/blake2b"
 )
 
 const NoCKSuffix = ".nock"
 
-func Check(src io.Reader, checksum []byte, les LEs, showPrgrs bool) (bool, error) {
-	hsh, err := blake2b.New256(nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	if _, err = CopyProgressed(hsh, bufio.NewReader(src), "check", les, showPrgrs); err != nil {
+func Check(
+	src io.Reader,
+	size int64,
+	checksum []byte,
+	les LEs,
+	showPrgrs bool,
+) (bool, error) {
+	hsh := MTHNew(size, 0)
+	if _, err := CopyProgressed(hsh, bufio.NewReaderSize(src, MTHSize), "check", les, showPrgrs); err != nil {
 		return false, err
 	}
 	return bytes.Compare(hsh.Sum(nil), checksum) == 0, nil
@@ -61,7 +61,7 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 			ctx.LogE("checking", les, err, logMsg)
 			return true
 		}
-		gut, err := Check(fd, job.HshValue[:], les, ctx.ShowPrgrs)
+		gut, err := Check(fd, job.Size, job.HshValue[:], les, ctx.ShowPrgrs)
 		fd.Close() // #nosec G104
 		if err != nil {
 			ctx.LogE("checking", les, err, logMsg)
@@ -79,7 +79,7 @@ func (ctx *Ctx) Check(nodeId *NodeId) bool {
 	return !(ctx.checkXxIsBad(nodeId, TRx) || ctx.checkXxIsBad(nodeId, TTx))
 }
 
-func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[32]byte) (int64, error) {
+func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[MTHSize]byte, mth *MTH) (int64, error) {
 	dirToSync := filepath.Join(ctx.Spool, nodeId.String(), string(TRx))
 	pktName := Base32Codec.EncodeToString(hshValue[:])
 	pktPath := filepath.Join(dirToSync, pktName)
@@ -92,7 +92,6 @@ func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[32]byte) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer fd.Close()
 	size := fi.Size()
 	les := LEs{
 		{"XX", string(TRx)},
@@ -100,7 +99,18 @@ func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[32]byte) (int64, error) {
 		{"Pkt", pktName},
 		{"FullSize", size},
 	}
-	gut, err := Check(fd, hshValue[:], les, ctx.ShowPrgrs)
+	var gut bool
+	if mth == nil {
+		gut, err = Check(fd, size, hshValue[:], les, ctx.ShowPrgrs)
+	} else {
+		mth.PktName = pktName
+		if _, err = mth.PrependFrom(bufio.NewReaderSize(fd, MTHSize)); err != nil {
+			return 0, err
+		}
+		if bytes.Compare(mth.Sum(nil), hshValue[:]) == 0 {
+			gut = true
+		}
+	}
 	if err != nil || !gut {
 		return 0, errors.New("checksum mismatch")
 	}

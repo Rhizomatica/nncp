@@ -18,8 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 var (
-	MagicNNCPMv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'M', 0, 0, 1}
-
 	ChunkedSuffixMeta = ".nncp.meta"
 	ChunkedSuffixPart = ".nncp.chunk"
 )
@@ -28,5 +26,5 @@ type ChunkedMeta struct {
 	Magic     [8]byte
 	FileSize  uint64
 	ChunkSize uint64
-	Checksums [][32]byte
+	Checksums [][MTHSize]byte
 }

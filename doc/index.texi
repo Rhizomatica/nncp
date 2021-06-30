@@ -52,6 +52,7 @@ There are also articles about its usage outside this website:
 * Spool directory: Spool.
 * Log format: Log.
 * Packet format: Packet.
+* Merkle Tree Hashing: MTH.
 * Sync protocol: Sync.
 * MultiCast Discovery: MCD.
 * EBlob format: EBlob.
@@ -77,6 +78,7 @@ There are also articles about its usage outside this website:
 @include spool.texi
 @include log.texi
 @include pkt.texi
+@include mth.texi
 @include sp.texi
 @include mcd.texi
 @include eblob.texi

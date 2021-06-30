@@ -41,7 +41,7 @@ type Job struct {
 	PktEnc   *PktEnc
 	Path     string
 	Size     int64
-	HshValue *[32]byte
+	HshValue *[MTHSize]byte
 }
 
 func (ctx *Ctx) HdrRead(fd *os.File) (*PktEnc, []byte, error) {
@@ -88,7 +88,7 @@ func (ctx *Ctx) HdrWrite(pktEncRaw []byte, tgt string) error {
 	return err
 }
 
-func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
+func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock, part bool) chan Job {
 	rxPath := filepath.Join(ctx.Spool, nodeId.String(), string(xx))
 	jobs := make(chan Job, 16)
 	go func() {
@@ -113,6 +113,14 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 				hshValue, err = Base32Codec.DecodeString(
 					strings.TrimSuffix(name, NoCKSuffix),
 				)
+			} else if part {
+				if !strings.HasSuffix(name, PartSuffix) ||
+					len(name) != Base32Encoded32Len+len(PartSuffix) {
+					continue
+				}
+				hshValue, err = Base32Codec.DecodeString(
+					strings.TrimSuffix(name, PartSuffix),
+				)
 			} else {
 				if len(name) != Base32Encoded32Len {
 					continue
@@ -125,7 +133,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 			pth := filepath.Join(rxPath, name)
 			hdrExists := true
 			var fd *os.File
-			if nock {
+			if nock || part {
 				fd, err = os.Open(pth)
 			} else {
 				fd, err = os.Open(pth + HdrSuffix)
@@ -137,9 +145,46 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 			if err != nil {
 				continue
 			}
+			if part {
+				job := Job{
+					Path:     pth,
+					Size:     fi.Size(),
+					HshValue: new([MTHSize]byte),
+				}
+				copy(job.HshValue[:], hshValue)
+				jobs <- job
+				continue
+			}
 			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
 			fd.Close()
-			if err != nil || pktEnc.Magic != MagicNNCPEv4 {
+			if err != nil {
+				continue
+			}
+			switch pktEnc.Magic {
+			case MagicNNCPEv1.B:
+				err = MagicNNCPEv1.TooOld()
+			case MagicNNCPEv2.B:
+				err = MagicNNCPEv2.TooOld()
+			case MagicNNCPEv3.B:
+				err = MagicNNCPEv3.TooOld()
+			case MagicNNCPEv4.B:
+				err = MagicNNCPEv4.TooOld()
+			case MagicNNCPEv5.B:
+			default:
+				err = BadMagic
+			}
+			if err != nil {
+				ctx.LogE("job", LEs{
+					{"XX", string(xx)},
+					{"Name", name},
+					{"Size", fi.Size()},
+				}, err, func(les LEs) string {
+					return fmt.Sprintf(
+						"Job %s/%s size: %s",
+						string(xx), name,
+						humanize.IBytes(uint64(fi.Size())),
+					)
+				})
 				continue
 			}
 			ctx.LogD("job", LEs{
@@ -163,7 +208,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 				PktEnc:   pktEnc,
 				Path:     pth,
 				Size:     fi.Size(),
-				HshValue: new([32]byte),
+				HshValue: new([MTHSize]byte),
 			}
 			copy(job.HshValue[:], hshValue)
 			jobs <- job
@@ -173,9 +218,13 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock bool) chan Job {
 }
 
 func (ctx *Ctx) Jobs(nodeId *NodeId, xx TRxTx) chan Job {
-	return ctx.jobsFind(nodeId, xx, false)
+	return ctx.jobsFind(nodeId, xx, false, false)
 }
 
 func (ctx *Ctx) JobsNoCK(nodeId *NodeId) chan Job {
-	return ctx.jobsFind(nodeId, TRx, true)
+	return ctx.jobsFind(nodeId, TRx, true, false)
+}
+
+func (ctx *Ctx) JobsPart(nodeId *NodeId) chan Job {
+	return ctx.jobsFind(nodeId, TRx, false, true)
 }

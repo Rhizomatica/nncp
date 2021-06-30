@@ -56,7 +56,7 @@ func (ctx *Ctx) CallNode(
 	onlineDeadline, maxOnlineTime time.Duration,
 	listOnly bool,
 	noCK bool,
-	onlyPkts map[[32]byte]bool,
+	onlyPkts map[[MTHSize]byte]bool,
 ) (isGood bool) {
 	for _, addr := range addrs {
 		les := LEs{{"Node", node.Id}, {"Addr", addr}}
@@ -110,7 +110,7 @@ func (ctx *Ctx) CallNode(
 					node.Name,
 					int(state.Duration.Hours()),
 					int(state.Duration.Minutes()),
-					int(state.Duration.Seconds()),
+					int(state.Duration.Seconds()/60),
 					humanize.IBytes(uint64(state.RxBytes)),
 					humanize.IBytes(uint64(state.RxSpeed)),
 					humanize.IBytes(uint64(state.TxBytes)),

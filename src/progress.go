@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v6/uilive"
+	"go.cypherpunks.ru/nncp/v7/uilive"
 )
 
 func init() {

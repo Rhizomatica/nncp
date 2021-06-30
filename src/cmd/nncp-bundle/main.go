@@ -34,8 +34,7 @@ import (
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v6"
-	"golang.org/x/crypto/blake2b"
+	"go.cypherpunks.ru/nncp/v7"
 )
 
 const (
@@ -307,10 +306,23 @@ func main() {
 				)
 				continue
 			}
-			if pktEnc.Magic != nncp.MagicNNCPEv4 {
+			switch pktEnc.Magic {
+			case nncp.MagicNNCPEv1.B:
+				err = nncp.MagicNNCPEv1.TooOld()
+			case nncp.MagicNNCPEv2.B:
+				err = nncp.MagicNNCPEv2.TooOld()
+			case nncp.MagicNNCPEv3.B:
+				err = nncp.MagicNNCPEv3.TooOld()
+			case nncp.MagicNNCPEv4.B:
+				err = nncp.MagicNNCPEv4.TooOld()
+			case nncp.MagicNNCPEv5.B:
+			default:
+				err = errors.New("Bad packet magic number")
+			}
+			if err != nil {
 				ctx.LogD(
 					"bundle-rx",
-					append(les, nncp.LE{K: "Err", V: "Bad packet magic number"}),
+					append(les, nncp.LE{K: "Err", V: err.Error()}),
 					logMsg,
 				)
 				continue
@@ -346,10 +358,7 @@ func main() {
 					})
 					continue
 				}
-				hsh, err := blake2b.New256(nil)
-				if err != nil {
-					log.Fatalln("Error during hasher creation:", err)
-				}
+				hsh := nncp.MTHNew(entry.Size, 0)
 				if _, err = hsh.Write(pktEncBuf); err != nil {
 					log.Fatalln("Error during writing:", err)
 				}
@@ -415,10 +424,7 @@ func main() {
 			}
 			if *doCheck {
 				if *dryRun {
-					hsh, err := blake2b.New256(nil)
-					if err != nil {
-						log.Fatalln("Error during hasher creation:", err)
-					}
+					hsh := nncp.MTHNew(entry.Size, 0)
 					if _, err = hsh.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}

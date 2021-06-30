@@ -26,19 +26,18 @@ import (
 	"io"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/nacl/box"
 	"golang.org/x/crypto/poly1305"
+	"lukechampine.com/blake3"
 )
 
 type PktType uint8
 
 const (
 	EncBlkSize = 128 * (1 << 10)
-	KDFXOFSize = chacha20poly1305.KeySize * 2
 
 	PktTypeFile    PktType = iota
 	PktTypeFreq    PktType = iota
@@ -54,10 +53,8 @@ const (
 )
 
 var (
-	MagicNNCPPv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 3}
-	MagicNNCPEv4 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 4}
-	BadMagic     error   = errors.New("Unknown magic number")
-	BadPktType   error   = errors.New("Unknown packet type")
+	BadMagic   error = errors.New("Unknown magic number")
+	BadPktType error = errors.New("Unknown packet type")
 
 	PktOverhead    int64
 	PktEncOverhead int64
@@ -103,7 +100,7 @@ func init() {
 		panic(err)
 	}
 	pktEnc := PktEnc{
-		Magic:     MagicNNCPEv4,
+		Magic:     MagicNNCPEv5.B,
 		Sender:    dummyId,
 		Recipient: dummyId,
 	}
@@ -119,7 +116,7 @@ func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
 		return nil, errors.New("Too long path")
 	}
 	pkt := Pkt{
-		Magic:   MagicNNCPPv3,
+		Magic:   MagicNNCPPv3.B,
 		Type:    typ,
 		Nice:    nice,
 		PathLen: uint8(len(path)),
@@ -128,14 +125,23 @@ func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
 	return &pkt, nil
 }
 
+func ctrIncr(b []byte) {
+	for i := len(b) - 1; i >= 0; i-- {
+		b[i]++
+		if b[i] != 0 {
+			return
+		}
+	}
+	panic("counter overflow")
+}
+
 func aeadProcess(
 	aead cipher.AEAD,
-	nonce []byte,
+	nonce, ad []byte,
 	doEncrypt bool,
 	r io.Reader,
 	w io.Writer,
 ) (int, error) {
-	var blkCtr uint64
 	ciphCtr := nonce[len(nonce)-8:]
 	buf := make([]byte, EncBlkSize+aead.Overhead())
 	var toRead []byte
@@ -159,12 +165,11 @@ func aeadProcess(
 			}
 		}
 		readBytes += n
-		blkCtr++
-		binary.BigEndian.PutUint64(ciphCtr, blkCtr)
+		ctrIncr(ciphCtr)
 		if doEncrypt {
-			toWrite = aead.Seal(buf[:0], nonce, buf[:n], nil)
+			toWrite = aead.Seal(buf[:0], nonce, buf[:n], ad)
 		} else {
-			toWrite, err = aead.Open(buf[:0], nonce, buf[:n], nil)
+			toWrite, err = aead.Open(buf[:0], nonce, buf[:n], ad)
 			if err != nil {
 				return readBytes, err
 			}
@@ -202,7 +207,7 @@ func PktEncWrite(
 		return nil, err
 	}
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv4,
+		Magic:     MagicNNCPEv5.B,
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
@@ -215,13 +220,14 @@ func PktEncWrite(
 	signature := new([ed25519.SignatureSize]byte)
 	copy(signature[:], ed25519.Sign(our.SignPrv, tbsBuf.Bytes()))
 	pktEnc := PktEnc{
-		Magic:     MagicNNCPEv4,
+		Magic:     MagicNNCPEv5.B,
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
 		ExchPub:   *pubEph,
 		Sign:      *signature,
 	}
+	ad := blake3.Sum256(tbsBuf.Bytes())
 	tbsBuf.Reset()
 	if _, err = xdr.Marshal(&tbsBuf, &pktEnc); err != nil {
 		return nil, err
@@ -232,18 +238,9 @@ func PktEncWrite(
 	}
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, prvEph, their.ExchPub)
-	kdf, err := blake2b.NewXOF(KDFXOFSize, sharedKey[:])
-	if err != nil {
-		return nil, err
-	}
-	if _, err = kdf.Write(MagicNNCPEv4[:]); err != nil {
-		return nil, err
-	}
 
 	key := make([]byte, chacha20poly1305.KeySize)
-	if _, err = io.ReadFull(kdf, key); err != nil {
-		return nil, err
-	}
+	blake3.DeriveKey(key, string(MagicNNCPEv5.B[:]), sharedKey[:])
 	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return nil, err
@@ -253,13 +250,13 @@ func PktEncWrite(
 	fullSize := pktBuf.Len() + int(size)
 	sizeBuf := make([]byte, 8+aead.Overhead())
 	binary.BigEndian.PutUint64(sizeBuf, uint64(sizeWithTags(int64(fullSize))))
-	if _, err = out.Write(aead.Seal(sizeBuf[:0], nonce, sizeBuf[:8], nil)); err != nil {
+	if _, err = out.Write(aead.Seal(sizeBuf[:0], nonce, sizeBuf[:8], ad[:])); err != nil {
 		return nil, err
 	}
 
 	lr := io.LimitedReader{R: data, N: size}
 	mr := io.MultiReader(&pktBuf, &lr)
-	written, err := aeadProcess(aead, nonce, true, mr, out)
+	written, err := aeadProcess(aead, nonce, ad[:], true, mr, out)
 	if err != nil {
 		return nil, err
 	}
@@ -267,23 +264,18 @@ func PktEncWrite(
 		return nil, io.ErrUnexpectedEOF
 	}
 	if padSize > 0 {
-		if _, err = io.ReadFull(kdf, key); err != nil {
-			return nil, err
-		}
-		kdf, err = blake2b.NewXOF(blake2b.OutputLengthUnknown, key)
-		if err != nil {
-			return nil, err
-		}
-		if _, err = io.CopyN(out, kdf, padSize); err != nil {
+		blake3.DeriveKey(key, string(MagicNNCPEv5.B[:])+" PAD", sharedKey[:])
+		xof := blake3.New(32, key).XOF()
+		if _, err = io.CopyN(out, xof, padSize); err != nil {
 			return nil, err
 		}
 	}
 	return pktEncRaw, nil
 }
 
-func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
+func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) ([]byte, bool, error) {
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv4,
+		Magic:     MagicNNCPEv5.B,
 		Nice:      pktEnc.Nice,
 		Sender:    their.Id,
 		Recipient: our.Id,
@@ -291,9 +283,9 @@ func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) (bool, error) {
 	}
 	var tbsBuf bytes.Buffer
 	if _, err := xdr.Marshal(&tbsBuf, &tbs); err != nil {
-		return false, err
+		return nil, false, err
 	}
-	return ed25519.Verify(their.SignPub, tbsBuf.Bytes(), pktEnc.Sign[:]), nil
+	return tbsBuf.Bytes(), ed25519.Verify(their.SignPub, tbsBuf.Bytes(), pktEnc.Sign[:]), nil
 }
 
 func PktEncRead(
@@ -307,8 +299,21 @@ func PktEncRead(
 	if err != nil {
 		return nil, 0, err
 	}
-	if pktEnc.Magic != MagicNNCPEv4 {
-		return nil, 0, BadMagic
+	switch pktEnc.Magic {
+	case MagicNNCPEv1.B:
+		err = MagicNNCPEv1.TooOld()
+	case MagicNNCPEv2.B:
+		err = MagicNNCPEv2.TooOld()
+	case MagicNNCPEv3.B:
+		err = MagicNNCPEv3.TooOld()
+	case MagicNNCPEv4.B:
+		err = MagicNNCPEv4.TooOld()
+	case MagicNNCPEv5.B:
+	default:
+		err = BadMagic
+	}
+	if err != nil {
+		return nil, 0, err
 	}
 	their, known := nodes[*pktEnc.Sender]
 	if !known {
@@ -317,27 +322,19 @@ func PktEncRead(
 	if *pktEnc.Recipient != *our.Id {
 		return nil, 0, errors.New("Invalid recipient")
 	}
-	verified, err := TbsVerify(our, their, &pktEnc)
+	tbsRaw, verified, err := TbsVerify(our, their, &pktEnc)
 	if err != nil {
 		return nil, 0, err
 	}
 	if !verified {
 		return their, 0, errors.New("Invalid signature")
 	}
+	ad := blake3.Sum256(tbsRaw)
 	sharedKey := new([32]byte)
 	curve25519.ScalarMult(sharedKey, our.ExchPrv, &pktEnc.ExchPub)
-	kdf, err := blake2b.NewXOF(KDFXOFSize, sharedKey[:])
-	if err != nil {
-		return their, 0, err
-	}
-	if _, err = kdf.Write(MagicNNCPEv4[:]); err != nil {
-		return their, 0, err
-	}
 
 	key := make([]byte, chacha20poly1305.KeySize)
-	if _, err = io.ReadFull(kdf, key); err != nil {
-		return their, 0, err
-	}
+	blake3.DeriveKey(key, string(MagicNNCPEv5.B[:]), sharedKey[:])
 	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return their, 0, err
@@ -348,14 +345,14 @@ func PktEncRead(
 	if _, err = io.ReadFull(data, sizeBuf); err != nil {
 		return their, 0, err
 	}
-	sizeBuf, err = aead.Open(sizeBuf[:0], nonce, sizeBuf, nil)
+	sizeBuf, err = aead.Open(sizeBuf[:0], nonce, sizeBuf, ad[:])
 	if err != nil {
 		return their, 0, err
 	}
 	size := int64(binary.BigEndian.Uint64(sizeBuf))
 
 	lr := io.LimitedReader{R: data, N: size}
-	written, err := aeadProcess(aead, nonce, false, &lr, out)
+	written, err := aeadProcess(aead, nonce, ad[:], false, &lr, out)
 	if err != nil {
 		return their, int64(written), err
 	}

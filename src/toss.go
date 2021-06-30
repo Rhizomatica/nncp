@@ -38,7 +38,6 @@ import (
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
 	"github.com/klauspost/compress/zstd"
-	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/poly1305"
 )
 
@@ -593,7 +592,7 @@ func (ctx *Ctx) Toss(
 			if noTrns {
 				goto Closing
 			}
-			dst := new([blake2b.Size256]byte)
+			dst := new([MTHSize]byte)
 			copy(dst[:], pkt.Path[:int(pkt.PathLen)])
 			nodeId := NodeId(*dst)
 			node, known := ctx.Neigh[nodeId]
