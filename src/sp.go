@@ -53,8 +53,6 @@ type SPCheckerTask struct {
 }
 
 var (
-	MagicNNCPLv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'S', 0, 0, 1}
-
 	SPInfoOverhead    int
 	SPFreqOverhead    int
 	SPFileOverhead    int
@@ -279,7 +277,7 @@ func (state *SPState) dirUnlock() {
 func (state *SPState) WriteSP(dst io.Writer, payload []byte, ping bool) error {
 	state.writeSPBuf.Reset()
 	n, err := xdr.Marshal(&state.writeSPBuf, SPRaw{
-		Magic:   MagicNNCPLv1,
+		Magic:   MagicNNCPSv1.B,
 		Payload: payload,
 	})
 	if err != nil {
@@ -307,7 +305,7 @@ func (state *SPState) ReadSP(src io.Reader) ([]byte, error) {
 	}
 	state.RxLastSeen = time.Now()
 	state.RxBytes += int64(n)
-	if sp.Magic != MagicNNCPLv1 {
+	if sp.Magic != MagicNNCPSv1.B {
 		return nil, BadMagic
 	}
 	return sp.Payload, nil

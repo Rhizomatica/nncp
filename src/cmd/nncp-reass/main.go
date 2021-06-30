@@ -67,7 +67,11 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		return false
 	}
 	fd.Close() // #nosec G104
-	if metaPkt.Magic != nncp.MagicNNCPMv2 {
+	if metaPkt.Magic == nncp.MagicNNCPMv1.B {
+		ctx.LogE("reass", les, nncp.MagicNNCPMv1.TooOld(), logMsg)
+		return false
+	}
+	if metaPkt.Magic != nncp.MagicNNCPMv2.B {
 		ctx.LogE("reass", les, nncp.BadMagic, logMsg)
 		return false
 	}

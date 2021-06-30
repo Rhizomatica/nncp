@@ -18,8 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 var (
-	MagicNNCPMv2 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'M', 0, 0, 2}
-
 	ChunkedSuffixMeta = ".nncp.meta"
 	ChunkedSuffixPart = ".nncp.chunk"
 )

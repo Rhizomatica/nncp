@@ -306,10 +306,23 @@ func main() {
 				)
 				continue
 			}
-			if pktEnc.Magic != nncp.MagicNNCPEv5 {
+			switch pktEnc.Magic {
+			case nncp.MagicNNCPEv1.B:
+				err = nncp.MagicNNCPEv1.TooOld()
+			case nncp.MagicNNCPEv2.B:
+				err = nncp.MagicNNCPEv2.TooOld()
+			case nncp.MagicNNCPEv3.B:
+				err = nncp.MagicNNCPEv3.TooOld()
+			case nncp.MagicNNCPEv4.B:
+				err = nncp.MagicNNCPEv4.TooOld()
+			case nncp.MagicNNCPEv5.B:
+			default:
+				err = errors.New("Bad packet magic number")
+			}
+			if err != nil {
 				ctx.LogD(
 					"bundle-rx",
-					append(les, nncp.LE{K: "Err", V: "Bad packet magic number"}),
+					append(les, nncp.LE{K: "Err", V: err.Error()}),
 					logMsg,
 				)
 				continue

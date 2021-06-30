@@ -53,10 +53,8 @@ const (
 )
 
 var (
-	MagicNNCPPv3 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 3}
-	MagicNNCPEv5 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 5}
-	BadMagic     error   = errors.New("Unknown magic number")
-	BadPktType   error   = errors.New("Unknown packet type")
+	BadMagic   error = errors.New("Unknown magic number")
+	BadPktType error = errors.New("Unknown packet type")
 
 	PktOverhead    int64
 	PktEncOverhead int64
@@ -102,7 +100,7 @@ func init() {
 		panic(err)
 	}
 	pktEnc := PktEnc{
-		Magic:     MagicNNCPEv5,
+		Magic:     MagicNNCPEv5.B,
 		Sender:    dummyId,
 		Recipient: dummyId,
 	}
@@ -118,7 +116,7 @@ func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
 		return nil, errors.New("Too long path")
 	}
 	pkt := Pkt{
-		Magic:   MagicNNCPPv3,
+		Magic:   MagicNNCPPv3.B,
 		Type:    typ,
 		Nice:    nice,
 		PathLen: uint8(len(path)),
@@ -209,7 +207,7 @@ func PktEncWrite(
 		return nil, err
 	}
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv5,
+		Magic:     MagicNNCPEv5.B,
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
@@ -222,7 +220,7 @@ func PktEncWrite(
 	signature := new([ed25519.SignatureSize]byte)
 	copy(signature[:], ed25519.Sign(our.SignPrv, tbsBuf.Bytes()))
 	pktEnc := PktEnc{
-		Magic:     MagicNNCPEv5,
+		Magic:     MagicNNCPEv5.B,
 		Nice:      nice,
 		Sender:    our.Id,
 		Recipient: their.Id,
@@ -242,7 +240,7 @@ func PktEncWrite(
 	curve25519.ScalarMult(sharedKey, prvEph, their.ExchPub)
 
 	key := make([]byte, chacha20poly1305.KeySize)
-	blake3.DeriveKey(key, string(MagicNNCPEv5[:]), sharedKey[:])
+	blake3.DeriveKey(key, string(MagicNNCPEv5.B[:]), sharedKey[:])
 	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return nil, err
@@ -266,7 +264,7 @@ func PktEncWrite(
 		return nil, io.ErrUnexpectedEOF
 	}
 	if padSize > 0 {
-		blake3.DeriveKey(key, string(MagicNNCPEv5[:])+" PAD", sharedKey[:])
+		blake3.DeriveKey(key, string(MagicNNCPEv5.B[:])+" PAD", sharedKey[:])
 		xof := blake3.New(32, key).XOF()
 		if _, err = io.CopyN(out, xof, padSize); err != nil {
 			return nil, err
@@ -277,7 +275,7 @@ func PktEncWrite(
 
 func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) ([]byte, bool, error) {
 	tbs := PktTbs{
-		Magic:     MagicNNCPEv5,
+		Magic:     MagicNNCPEv5.B,
 		Nice:      pktEnc.Nice,
 		Sender:    their.Id,
 		Recipient: our.Id,
@@ -301,8 +299,21 @@ func PktEncRead(
 	if err != nil {
 		return nil, 0, err
 	}
-	if pktEnc.Magic != MagicNNCPEv5 {
-		return nil, 0, BadMagic
+	switch pktEnc.Magic {
+	case MagicNNCPEv1.B:
+		err = MagicNNCPEv1.TooOld()
+	case MagicNNCPEv2.B:
+		err = MagicNNCPEv2.TooOld()
+	case MagicNNCPEv3.B:
+		err = MagicNNCPEv3.TooOld()
+	case MagicNNCPEv4.B:
+		err = MagicNNCPEv4.TooOld()
+	case MagicNNCPEv5.B:
+	default:
+		err = BadMagic
+	}
+	if err != nil {
+		return nil, 0, err
 	}
 	their, known := nodes[*pktEnc.Sender]
 	if !known {
@@ -323,7 +334,7 @@ func PktEncRead(
 	curve25519.ScalarMult(sharedKey, our.ExchPrv, &pktEnc.ExchPub)
 
 	key := make([]byte, chacha20poly1305.KeySize)
-	blake3.DeriveKey(key, string(MagicNNCPEv5[:]), sharedKey[:])
+	blake3.DeriveKey(key, string(MagicNNCPEv5.B[:]), sharedKey[:])
 	aead, err := chacha20poly1305.New(key)
 	if err != nil {
 		return their, 0, err
