@@ -25,7 +25,7 @@ import (
 	"log"
 	"os"
 
-	"go.cypherpunks.ru/nncp/v6"
+	"go.cypherpunks.ru/nncp/v7"
 	"go.cypherpunks.ru/recfile"
 )
 

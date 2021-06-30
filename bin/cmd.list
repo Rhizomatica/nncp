@@ -10,6 +10,7 @@ nncp-daemon
 nncp-exec
 nncp-file
 nncp-freq
+nncp-hash
 nncp-log
 nncp-pkt
 nncp-reass

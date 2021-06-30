@@ -1,7 +1,7 @@
 @node Chunked
 @unnumbered Chunked files
 
-There is ability to transfer huge files with splitting them into smaller
+There is ability to transfer huge files with dividing them into smaller
 chunks. Each chunk is treated like a separate file, producing separate
 outbound packet unrelated with other ones.
 
@@ -32,7 +32,7 @@ size and their hash checksums. This is
 @headitem @tab XDR type @tab Value
 @item Magic number @tab
     8-byte, fixed length opaque data @tab
-    @verb{|N N C P M 0x00 0x00 0x01|}
+    @verb{|N N C P M 0x00 0x00 0x02|}
 @item File size @tab
     unsigned hyper integer @tab
     Whole reassembled file's size
@@ -41,7 +41,7 @@ size and their hash checksums. This is
     Size of each chunk (except for the last one, that could be smaller)
 @item Checksums @tab
     variable length array of 32 byte fixed length opaque data @tab
-    BLAKE2b-256 checksum of each chunk
+    @ref{MTH} checksum of each chunk
 @end multitable
 
 @anchor{ChunkedZFS}

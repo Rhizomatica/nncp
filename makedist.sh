@@ -17,7 +17,7 @@ rm -r \
     github.com/flynn/noise/vector* \
     github.com/gorhill/cronexpr/APLv2 \
     github.com/hjson/hjson-go/build_release.sh \
-    github.com/klauspost/compress/snappy \
+    github.com/golang/snappy \
     github.com/klauspost/compress/zstd/snappy.go \
     golang.org/x/sys/plan9 \
     golang.org/x/sys/windows

@@ -43,9 +43,7 @@ type MCDAddr struct {
 }
 
 var (
-	MagicNNCPDv1 [8]byte = [8]byte{'N', 'N', 'C', 'P', 'D', 0, 0, 1}
-
-	mcdIP           = net.ParseIP("ff02::1")
+	mcdIP           = net.ParseIP("ff02::4e4e:4350")
 	mcdAddrLifetime = 2 * time.Minute
 
 	mcdPktSize int
@@ -125,7 +123,7 @@ func (ctx *Ctx) MCDRx(ifiName string) error {
 				})
 				continue
 			}
-			if mcd.Magic != MagicNNCPDv1 {
+			if mcd.Magic != MagicNNCPDv1.B {
 				ctx.LogD("mcd", les, func(les LEs) string {
 					return fmt.Sprintf(
 						"MCD Rx %s/%d: unexpected magic: %s",
@@ -186,7 +184,7 @@ func (ctx *Ctx) MCDTx(ifiName string, port int, interval time.Duration) error {
 		return err
 	}
 	var buf bytes.Buffer
-	mcd := MCD{Magic: MagicNNCPDv1, Sender: ctx.Self.Id}
+	mcd := MCD{Magic: MagicNNCPDv1.B, Sender: ctx.Self.Id}
 	if _, err := xdr.Marshal(&buf, mcd); err != nil {
 		panic(err)
 	}

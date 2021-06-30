@@ -28,7 +28,7 @@ import (
 	"os"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"go.cypherpunks.ru/nncp/v6"
+	"go.cypherpunks.ru/nncp/v7"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/term"
 )
@@ -79,7 +79,13 @@ func main() {
 		if _, err := xdr.Unmarshal(bytes.NewReader(data), &eblob); err != nil {
 			log.Fatalln(err)
 		}
-		if eblob.Magic != nncp.MagicNNCPBv3 {
+		switch eblob.Magic {
+		case nncp.MagicNNCPBv1.B:
+			log.Fatalln(nncp.MagicNNCPBv1.TooOld())
+		case nncp.MagicNNCPBv2.B:
+			log.Fatalln(nncp.MagicNNCPBv2.TooOld())
+		case nncp.MagicNNCPBv3.B:
+		default:
 			log.Fatalln(errors.New("Unknown eblob type"))
 		}
 		fmt.Println("Strengthening function: Balloon with BLAKE2b-256")
@@ -91,27 +97,19 @@ func main() {
 	}
 
 	os.Stderr.WriteString("Passphrase:") // #nosec G104
-	password, err := term.ReadPassword(0)
+	password1, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	os.Stderr.WriteString("\n") // #nosec G104
-
 	if *decrypt {
-		cfgRaw, err := nncp.DeEBlob(data, password)
+		cfgRaw, err := nncp.DeEBlob(data, password1)
 		if err != nil {
 			log.Fatalln(err)
 		}
 		os.Stdout.Write(cfgRaw) // #nosec G104
 		return
 	}
-
-	password1, err := term.ReadPassword(0)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	os.Stderr.WriteString("\n")                 // #nosec G104
-	os.Stderr.WriteString("Repeat passphrase:") // #nosec G104
+	os.Stderr.WriteString("\nRepeat passphrase:") // #nosec G104
 	password2, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)
