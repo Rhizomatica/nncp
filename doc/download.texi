@@ -28,6 +28,10 @@ Tarballs include all necessary required libraries:
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
 
+@item @ref{Release 7.0.0, 7.0.0} @tab 2021-06-30 @tab 1123 KiB
+@tab @url{download/nncp-7.0.0.tar.xz, link} @url{download/nncp-7.0.0.tar.xz.sig, sign}
+@tab @code{D4D28E9A CF40FE12 68BDE134 9CD36076 282395BE 70094EFB 0DB75CE8 C32EA664}
+
 @item @ref{Release 6.6.0, 6.6.0} @tab 2021-06-26 @tab 1041 KiB
 @tab @url{download/nncp-6.6.0.tar.xz, link} @url{download/nncp-6.6.0.tar.xz.sig, sign}
 @tab @code{73DB666F A5C30282 770516B2 F39F1240 74117B45 A9F4B484 0361861A 183577F1}
