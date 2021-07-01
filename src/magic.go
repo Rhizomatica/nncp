@@ -29,6 +29,10 @@ type Magic struct {
 }
 
 var (
+	MagicNNCPAv1 = Magic{
+		B:    [8]byte{'N', 'N', 'C', 'P', 'A', 0, 0, 1},
+		Name: "NNCPAv1 (area packet v1)", Till: "now",
+	}
 	MagicNNCPBv1 = Magic{
 		B:    [8]byte{'N', 'N', 'C', 'P', 'B', 0, 0, 1},
 		Name: "NNCPBv1 (EBlob v1)", Till: "1.0",

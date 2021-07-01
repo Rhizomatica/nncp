@@ -19,10 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"crypto/rand"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/hjson/hjson-go"
+	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/nacl/box"
 
 	"go.cypherpunks.ru/nncp/v7"
 )
@@ -35,6 +41,7 @@ func usage() {
 
 func main() {
 	var (
+		areaName   = flag.String("area", "", "Generate area's keypairs")
 		noComments = flag.Bool("nocomments", false, "Do not include descriptive comments")
 		version    = flag.Bool("version", false, "Print version information")
 		warranty   = flag.Bool("warranty", false, "Print warranty information")
@@ -50,9 +57,75 @@ func main() {
 		fmt.Println(nncp.VersionGet())
 		return
 	}
+	if *areaName != "" {
+		pub, prv, err := box.GenerateKey(rand.Reader)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		areaId := nncp.AreaId(blake2b.Sum256(pub[:]))
+		var cfgRaw string
+		if *noComments {
+			cfgRaw = fmt.Sprintf(`areas: {
+  %s: {
+    id: %s
+    # KEEP AWAY keypair from the nodes you want only participate in multicast
+    pub: %s
+    prv: %s
+  }
+}`,
+				*areaName,
+				areaId.String(),
+				nncp.Base32Codec.EncodeToString(pub[:]),
+				nncp.Base32Codec.EncodeToString(prv[:]),
+			)
+		} else {
+			cfgRaw = fmt.Sprintf(`areas: {
+  %s: {
+    id: %s
+
+    # KEEP AWAY keypair from the nodes you want only participate in multicast
+    pub: %s
+    prv: %s
+
+    # List of subscribers you should multicast area messages to
+    # subs: ["alice"]
+
+    # Allow incoming files (from the area) saving in that directory
+    # incoming: /home/areas/%s/incoming
+
+    # Allow incoming area commands execution
+    # exec: {sendmail: ["%s"]}
+
+    # Allow unknown sender's message tossing (relaying will be made anyway)
+    # allow-unknown: true
+  }
+}`,
+				*areaName,
+				areaId.String(),
+				nncp.Base32Codec.EncodeToString(pub[:]),
+				nncp.Base32Codec.EncodeToString(prv[:]),
+				*areaName,
+				nncp.DefaultSendmailPath,
+			)
+		}
+		var cfgGeneral map[string]interface{}
+		if err = hjson.Unmarshal([]byte(cfgRaw), &cfgGeneral); err != nil {
+			panic(err)
+		}
+		marshaled, err := json.Marshal(cfgGeneral)
+		if err != nil {
+			panic(err)
+		}
+		var areas map[string]nncp.AreaJSON
+		if err = json.Unmarshal(marshaled, &areas); err != nil {
+			panic(err)
+		}
+		fmt.Println(cfgRaw)
+		return
+	}
 	nodeOur, err := nncp.NewNodeGenerate()
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	var cfgRaw string
 	if *noComments {

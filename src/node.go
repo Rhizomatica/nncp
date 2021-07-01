@@ -30,6 +30,8 @@ import (
 	"golang.org/x/crypto/nacl/box"
 )
 
+const DummyB32Id = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+
 type NodeId [blake2b.Size256]byte
 
 func (id NodeId) String() string {

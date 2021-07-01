@@ -145,7 +145,7 @@ requests, Internet mail and commands transmission. All packets are
 integrity checked, end-to-end encrypted (E2EE), explicitly authenticated
 by known participants public keys. Onion encryption is applied to
 relayed packets. Each node acts both as a client and server, can use
-push and poll behaviour model.
+push and poll behaviour model. Also there is multicasting areas support.
 
 Out-of-box offline sneakernet/floppynet, dead drops, sequential and
 append-only CD-ROM/tape storages, air-gapped computers support. But
@@ -191,7 +191,7 @@ NNCP (Node to Node copy) это набор утилит упрощающий б�
 ключами участников. Луковичное (onion) шифрование применяется ко всем
 ретранслируемым пакетам. Каждый узел выступает одновременно в роли
 клиента и сервера, может использовать как push, так и poll модель
-поведения.
+поведения. А также есть поддержка мультивещательной рассылки пакетов.
 
 Поддержка из коробки offline флоппинета, тайников для сброса информации
 (dead drop), последовательных и только-для-записи CD-ROM/ленточных

@@ -3,6 +3,27 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_1_0
+@section Release 7.1.0
+@itemize
+
+@item
+Fixed invalid @file{.hdr} generation when transitional packets are used.
+
+@item
+@option{-all} option appeared in @command{nncp-rm} command, applying to
+all the nodes at once.
+
+@item
+@command{nncp-pkt} can parse @file{.hdr} files.
+
+@item
+Multicasting areas feature appeared. Implemented merely by an additional
+plain packet type with @command{nncp-toss}, @command{nncp-file} and
+@command{nncp-exec} commands modification.
+
+@end itemize
+
 @node Release 7_0_0
 @section Release 7.0.0
 @itemize

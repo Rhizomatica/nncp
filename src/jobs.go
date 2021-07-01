@@ -20,6 +20,7 @@ package nncp
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,9 +45,9 @@ type Job struct {
 	HshValue *[MTHSize]byte
 }
 
-func (ctx *Ctx) HdrRead(fd *os.File) (*PktEnc, []byte, error) {
+func (ctx *Ctx) HdrRead(r io.Reader) (*PktEnc, []byte, error) {
 	var pktEnc PktEnc
-	_, err := xdr.Unmarshal(fd, &pktEnc)
+	_, err := xdr.Unmarshal(r, &pktEnc)
 	if err != nil {
 		return nil, nil, err
 	}

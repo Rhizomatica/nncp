@@ -43,6 +43,7 @@ There are also articles about its usage outside this website:
 * Installation::
 * Configuration::
 * Call configuration: Call.
+* Multicast areas: Multicast.
 * Integration::
 * Commands::
 * Administration::
@@ -67,17 +68,18 @@ There are also articles about its usage outside this website:
 @include news.texi
 @include russian.texi
 @include install.texi
-@include cfg.texi
+@include cfg/index.texi
 @include call.texi
+@include multicast.texi
 @include integration.texi
-@include cmds.texi
+@include cmd/index.texi
 @include admin.texi
 @include niceness.texi
 @include chunked.texi
 @include bundles.texi
 @include spool.texi
 @include log.texi
-@include pkt.texi
+@include pkt/index.texi
 @include mth.texi
 @include sp.texi
 @include mcd.texi
