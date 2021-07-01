@@ -37,8 +37,7 @@ func TempFile(dir, prefix string) (*os.File, error) {
 
 func (ctx *Ctx) NewTmpFile() (*os.File, error) {
 	jobsPath := filepath.Join(ctx.Spool, "tmp")
-	var err error
-	if err = os.MkdirAll(jobsPath, os.FileMode(0777)); err != nil {
+	if err := os.MkdirAll(jobsPath, os.FileMode(0777)); err != nil {
 		return nil, err
 	}
 	fd, err := TempFile(jobsPath, "")
