@@ -91,6 +91,7 @@ type CallJSON struct {
 	AutoTossNoFreq *bool `json:"autotoss-nofreq,omitempty"`
 	AutoTossNoExec *bool `json:"autotoss-noexec,omitempty"`
 	AutoTossNoTrns *bool `json:"autotoss-notrns,omitempty"`
+	AutoTossNoArea *bool `json:"autotoss-noarea,omitempty"`
 }
 
 type NodeOurJSON struct {
@@ -114,6 +115,19 @@ type NotifyJSON struct {
 	Exec map[string]*FromToJSON `json:"exec,omitempty"`
 }
 
+type AreaJSON struct {
+	Id  string  `json:"id"`
+	Pub string  `json:"pub"`
+	Prv *string `json:"prv,omitempty"`
+
+	Subs []string `json:"subs"`
+
+	Exec     map[string][]string `json:"exec,omitempty"`
+	Incoming *string             `json:"incoming,omitempty"`
+
+	AllowUnknown *bool `json:"allow-unknown,omitempty"`
+}
+
 type CfgJSON struct {
 	Spool string `json:"spool"`
 	Log   string `json:"log"`
@@ -129,6 +143,8 @@ type CfgJSON struct {
 
 	MCDRxIfis []string       `json:"mcd-listen"`
 	MCDTxIfis map[string]int `json:"mcd-send"`
+
+	Areas map[string]AreaJSON `json:"areas"`
 }
 
 func NewNode(name string, cfg NodeJSON) (*Node, error) {
@@ -314,6 +330,9 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		if callCfg.AutoTossNoTrns != nil {
 			call.AutoTossNoTrns = *callCfg.AutoTossNoTrns
 		}
+		if callCfg.AutoTossNoArea != nil {
+			call.AutoTossNoArea = *callCfg.AutoTossNoArea
+		}
 
 		calls = append(calls, &call)
 	}
@@ -412,6 +431,52 @@ func NewNodeOur(cfg *NodeOurJSON) (*NodeOur, error) {
 	copy(node.NoisePub[:], noisePub)
 	copy(node.NoisePrv[:], noisePrv)
 	return &node, nil
+}
+
+func NewArea(ctx *Ctx, name string, cfg *AreaJSON) (*Area, error) {
+	areaId, err := AreaIdFromString(cfg.Id)
+	if err != nil {
+		return nil, err
+	}
+	subs := make([]*NodeId, 0, len(cfg.Subs))
+	for _, s := range cfg.Subs {
+		node, err := ctx.FindNode(s)
+		if err != nil {
+			return nil, err
+		}
+		subs = append(subs, node.Id)
+	}
+	area := Area{
+		Name:     name,
+		Id:       areaId,
+		Pub:      new([32]byte),
+		Subs:     subs,
+		Exec:     cfg.Exec,
+		Incoming: cfg.Incoming,
+	}
+	pub, err := Base32Codec.DecodeString(cfg.Pub)
+	if err != nil {
+		return nil, err
+	}
+	if len(pub) != 32 {
+		return nil, errors.New("Invalid pub size")
+	}
+	copy(area.Pub[:], pub)
+	if cfg.Prv != nil {
+		prv, err := Base32Codec.DecodeString(*cfg.Prv)
+		if err != nil {
+			return nil, err
+		}
+		if len(prv) != 32 {
+			return nil, errors.New("Invalid prv size")
+		}
+		area.Prv = new([32]byte)
+		copy(area.Prv[:], prv)
+	}
+	if cfg.AllowUnknown != nil {
+		area.AllowUnknown = *cfg.AllowUnknown
+	}
+	return &area, nil
 }
 
 func CfgParse(data []byte) (*Ctx, error) {
@@ -527,6 +592,16 @@ func CfgParse(data []byte) (*Ctx, error) {
 				foundNodeId.Id,
 			)
 		}
+	}
+	ctx.AreaId2Area = make(map[AreaId]*Area, len(cfgJSON.Areas))
+	ctx.AreaName2Id = make(map[string]*AreaId, len(cfgJSON.Areas))
+	for name, areaJSON := range cfgJSON.Areas {
+		area, err := NewArea(&ctx, name, &areaJSON)
+		if err != nil {
+			return nil, err
+		}
+		ctx.AreaId2Area[*area.Id] = area
+		ctx.AreaName2Id[name] = area.Id
 	}
 	return &ctx, nil
 }

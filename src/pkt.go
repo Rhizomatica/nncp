@@ -44,6 +44,7 @@ const (
 	PktTypeExec    PktType = iota
 	PktTypeTrns    PktType = iota
 	PktTypeExecFat PktType = iota
+	PktTypeArea    PktType = iota
 
 	MaxPathSize = 1<<8 - 1
 
@@ -94,7 +95,7 @@ func init() {
 	PktOverhead = int64(n)
 	buf.Reset()
 
-	dummyId, err := NodeIdFromString("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+	dummyId, err := NodeIdFromString(DummyB32Id)
 	if err != nil {
 		panic(err)
 	}
@@ -272,7 +273,7 @@ func PktEncWrite(
 	return pktEncRaw, nil
 }
 
-func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) ([]byte, bool, error) {
+func TbsPrepare(our *NodeOur, their *Node, pktEnc *PktEnc) []byte {
 	tbs := PktTbs{
 		Magic:     MagicNNCPEv5.B,
 		Nice:      pktEnc.Nice,
@@ -282,9 +283,14 @@ func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) ([]byte, bool, error) 
 	}
 	var tbsBuf bytes.Buffer
 	if _, err := xdr.Marshal(&tbsBuf, &tbs); err != nil {
-		return nil, false, err
+		panic(err)
 	}
-	return tbsBuf.Bytes(), ed25519.Verify(their.SignPub, tbsBuf.Bytes(), pktEnc.Sign[:]), nil
+	return tbsBuf.Bytes()
+}
+
+func TbsVerify(our *NodeOur, their *Node, pktEnc *PktEnc) ([]byte, bool, error) {
+	tbs := TbsPrepare(our, their, pktEnc)
+	return tbs, ed25519.Verify(their.SignPub, tbs, pktEnc.Sign[:]), nil
 }
 
 func PktEncRead(
@@ -292,11 +298,13 @@ func PktEncRead(
 	nodes map[NodeId]*Node,
 	data io.Reader,
 	out io.Writer,
-) (*Node, int64, error) {
+	signatureVerify bool,
+	sharedKeyCached []byte,
+) ([]byte, *Node, int64, error) {
 	var pktEnc PktEnc
 	_, err := xdr.Unmarshal(data, &pktEnc)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, 0, err
 	}
 	switch pktEnc.Magic {
 	case MagicNNCPEv1.B:
@@ -312,51 +320,62 @@ func PktEncRead(
 		err = BadMagic
 	}
 	if err != nil {
-		return nil, 0, err
-	}
-	their, known := nodes[*pktEnc.Sender]
-	if !known {
-		return nil, 0, errors.New("Unknown sender")
+		return nil, nil, 0, err
 	}
 	if *pktEnc.Recipient != *our.Id {
-		return nil, 0, errors.New("Invalid recipient")
+		return nil, nil, 0, errors.New("Invalid recipient")
 	}
-	tbsRaw, verified, err := TbsVerify(our, their, &pktEnc)
-	if err != nil {
-		return nil, 0, err
-	}
-	if !verified {
-		return their, 0, errors.New("Invalid signature")
+	var tbsRaw []byte
+	var their *Node
+	if signatureVerify {
+		their = nodes[*pktEnc.Sender]
+		if their == nil {
+			return nil, nil, 0, errors.New("Unknown sender")
+		}
+		var verified bool
+		tbsRaw, verified, err = TbsVerify(our, their, &pktEnc)
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		if !verified {
+			return nil, their, 0, errors.New("Invalid signature")
+		}
+	} else {
+		tbsRaw = TbsPrepare(our, &Node{Id: pktEnc.Sender}, &pktEnc)
 	}
 	ad := blake3.Sum256(tbsRaw)
 	sharedKey := new([32]byte)
-	curve25519.ScalarMult(sharedKey, our.ExchPrv, &pktEnc.ExchPub)
+	if sharedKeyCached == nil {
+		curve25519.ScalarMult(sharedKey, our.ExchPrv, &pktEnc.ExchPub)
+	} else {
+		copy(sharedKey[:], sharedKeyCached)
+	}
 
 	key := make([]byte, chacha20poly1305.KeySize)
 	blake3.DeriveKey(key, string(MagicNNCPEv5.B[:]), sharedKey[:])
 	aead, err := chacha20poly1305.New(key)
 	if err != nil {
-		return their, 0, err
+		return sharedKey[:], their, 0, err
 	}
 	nonce := make([]byte, aead.NonceSize())
 
 	sizeBuf := make([]byte, 8+aead.Overhead())
 	if _, err = io.ReadFull(data, sizeBuf); err != nil {
-		return their, 0, err
+		return sharedKey[:], their, 0, err
 	}
 	sizeBuf, err = aead.Open(sizeBuf[:0], nonce, sizeBuf, ad[:])
 	if err != nil {
-		return their, 0, err
+		return sharedKey[:], their, 0, err
 	}
 	size := int64(binary.BigEndian.Uint64(sizeBuf))
 
 	lr := io.LimitedReader{R: data, N: size}
 	written, err := aeadProcess(aead, nonce, ad[:], false, &lr, out)
 	if err != nil {
-		return their, int64(written), err
+		return sharedKey[:], their, int64(written), err
 	}
 	if written != int(size) {
-		return their, int64(written), io.ErrUnexpectedEOF
+		return sharedKey[:], their, int64(written), io.ErrUnexpectedEOF
 	}
-	return their, size, nil
+	return sharedKey[:], their, size, nil
 }

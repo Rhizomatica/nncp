@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"go.cypherpunks.ru/nncp/v7"
 )
@@ -31,7 +32,9 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintf(os.Stderr, "nncp-exec -- send execution command\n\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE HANDLE [ARG0 ARG1 ...]\nOptions:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE HANDLE [ARG0 ARG1 ...]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] %s:AREA HANDLE [ARG0 ARG1 ...]\nOptions:\n",
+		os.Args[0], nncp.AreaDir)
 	flag.PrintDefaults()
 }
 
@@ -93,9 +96,19 @@ func main() {
 		log.Fatalln("Config lacks private keys")
 	}
 
-	node, err := ctx.FindNode(flag.Arg(0))
-	if err != nil {
-		log.Fatalln("Invalid NODE specified:", err)
+	var areaId *nncp.AreaId
+	var node *nncp.Node
+	if strings.HasPrefix(flag.Arg(0), nncp.AreaDir+":") {
+		areaId = ctx.AreaName2Id[flag.Arg(0)[len(nncp.AreaDir)+1:]]
+		if areaId == nil {
+			log.Fatalln("Unknown area specified")
+		}
+		node = ctx.Neigh[*ctx.SelfId]
+	} else {
+		node, err = ctx.FindNode(flag.Arg(0))
+		if err != nil {
+			log.Fatalln("Invalid NODE specified:", err)
+		}
 	}
 
 	nncp.ViaOverride(*viaOverride, ctx, node)
@@ -111,6 +124,7 @@ func main() {
 		int64(*minSize)*1024,
 		*useTmp,
 		*noCompress,
+		areaId,
 	); err != nil {
 		log.Fatalln(err)
 	}

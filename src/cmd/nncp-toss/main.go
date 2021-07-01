@@ -47,6 +47,7 @@ func main() {
 		noFreq    = flag.Bool("nofreq", false, "Do not process \"freq\" packets")
 		noExec    = flag.Bool("noexec", false, "Do not process \"exec\" packets")
 		noTrns    = flag.Bool("notrns", false, "Do not process \"transitional\" packets")
+		noArea    = flag.Bool("noarea", false, "Do not process \"area\" packets")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -106,14 +107,18 @@ Cycle:
 		}
 		isBad = ctx.Toss(
 			node.Id,
+			nncp.TRx,
 			nice,
-			*dryRun,
-			*doSeen,
-			*noFile,
-			*noFreq,
-			*noExec,
-			*noTrns,
-		)
+			*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea,
+		) || isBad
+		if nodeId == *ctx.SelfId {
+			isBad = ctx.Toss(
+				node.Id,
+				nncp.TTx,
+				nice,
+				*dryRun, false, true, true, true, true, *noArea,
+			) || isBad
+		}
 	}
 	if *cycle > 0 {
 		time.Sleep(time.Duration(*cycle) * time.Second)

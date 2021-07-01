@@ -14,6 +14,7 @@
 @item Передача почты @tab @strong{Да} @tab @strong{Да} @tab @strong{Да} @tab @strong{Да}
 @item Передача новостей @tab @strong{Да} @tab @strong{Да} @tab @strong{Да} @tab Нет
 @item Передача файлов @tab @strong{Да} @tab @strong{Да} @tab @strong{Да} @tab Нет
+@item Мультвещательная передача @tab Нет @tab @strong{Да} @tab @strong{Да} @tab Нет
 @item Разбиение файлов на части @tab Нет @tab @strong{Да} @tab @strong{Да} @tab Нет
 @item Удалённое исполнение команд @tab @strong{Да} @tab Нет @tab @strong{Да} @tab Нет
 @item Возобновляемое скачивание @tab @strong{Да} @tab @strong{Да} @tab @strong{Да} @tab Нет

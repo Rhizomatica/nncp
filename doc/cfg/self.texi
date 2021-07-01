@@ -1,0 +1,10 @@
+@node CfgSelf
+@section Configuration self-node keypairs
+
+@strong{self} section contains our node's private keypairs.
+
+@strong{exch*} and @strong{sign*} are used during @ref{Encrypted,
+encrypted} packet creation.
+
+@strong{noise*} are used during @ref{Sync, synchronization protocol}
+working in @ref{nncp-call}, @ref{nncp-caller}, @ref{nncp-daemon}.

@@ -157,6 +157,7 @@ func main() {
 		autoTossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
 		autoTossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
 		autoTossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
+		autoTossNoArea = flag.Bool("autotoss-noarea", false, "Do not process \"area\" packets during tossing")
 	)
 	log.SetFlags(log.Lshortfile)
 	flag.Usage = usage
@@ -208,6 +209,7 @@ func main() {
 				*autoTossNoFreq,
 				*autoTossNoExec,
 				*autoTossNoTrns,
+				*autoTossNoArea,
 			)
 		}
 		<-nodeIdC // call completion
@@ -273,6 +275,7 @@ func main() {
 					*autoTossNoFreq,
 					*autoTossNoExec,
 					*autoTossNoTrns,
+					*autoTossNoArea,
 				)
 			}
 			<-nodeIdC // call completion
