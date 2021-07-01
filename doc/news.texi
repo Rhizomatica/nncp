@@ -8,6 +8,9 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+Minimal required Go version 1.13.
+
+@item
 Merkle Tree-based Hashing with BLAKE3 (MTH) is used instead of BLAKE2b.
 Because of that, there are backward @strong{incompatible} changes of
 encrypted files (everything laying in the spool directory) and
