@@ -77,10 +77,7 @@ func doPlain(pkt nncp.Pkt, dump, decompress bool) {
 	switch pkt.Type {
 	case nncp.PktTypeExec, nncp.PktTypeExecFat:
 		path = string(bytes.Replace(
-			pkt.Path[:pkt.PathLen],
-			[]byte{0},
-			[]byte(" "),
-			-1,
+			pkt.Path[:pkt.PathLen], []byte{0}, []byte(" "), -1,
 		))
 	case nncp.PktTypeTrns:
 		path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
@@ -168,7 +165,27 @@ func main() {
 	}
 
 	beginning := make([]byte, nncp.PktOverhead)
-	if _, err := io.ReadFull(os.Stdin, beginning); err != nil {
+	if _, err := io.ReadFull(os.Stdin, beginning[:nncp.PktEncOverhead]); err != nil {
+		log.Fatalln("Not enough data to read")
+	}
+	var pktEnc nncp.PktEnc
+	if _, err := xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc); err == nil {
+		switch pktEnc.Magic {
+		case nncp.MagicNNCPEv1.B:
+			log.Fatalln(nncp.MagicNNCPEv1.TooOld())
+		case nncp.MagicNNCPEv2.B:
+			log.Fatalln(nncp.MagicNNCPEv2.TooOld())
+		case nncp.MagicNNCPEv3.B:
+			log.Fatalln(nncp.MagicNNCPEv3.TooOld())
+		case nncp.MagicNNCPEv4.B:
+			log.Fatalln(nncp.MagicNNCPEv4.TooOld())
+		case nncp.MagicNNCPEv5.B:
+			doEncrypted(pktEnc, *dump, *cfgPath, beginning[:nncp.PktEncOverhead])
+			return
+		}
+	}
+
+	if _, err := io.ReadFull(os.Stdin, beginning[nncp.PktEncOverhead:]); err != nil {
 		log.Fatalln("Not enough data to read")
 	}
 	var pkt nncp.Pkt
@@ -180,22 +197,6 @@ func main() {
 			log.Fatalln(nncp.MagicNNCPPv2.TooOld())
 		case nncp.MagicNNCPPv3.B:
 			doPlain(pkt, *dump, *decompress)
-			return
-		}
-	}
-	var pktEnc nncp.PktEnc
-	if _, err := xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc); err == nil {
-		switch pkt.Magic {
-		case nncp.MagicNNCPEv1.B:
-			log.Fatalln(nncp.MagicNNCPEv1.TooOld())
-		case nncp.MagicNNCPEv2.B:
-			log.Fatalln(nncp.MagicNNCPEv2.TooOld())
-		case nncp.MagicNNCPEv3.B:
-			log.Fatalln(nncp.MagicNNCPEv3.TooOld())
-		case nncp.MagicNNCPEv4.B:
-			log.Fatalln(nncp.MagicNNCPEv4.TooOld())
-		case nncp.MagicNNCPEv5.B:
-			doEncrypted(pktEnc, *dump, *cfgPath, beginning)
 			return
 		}
 	}
