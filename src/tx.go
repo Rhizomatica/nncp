@@ -80,9 +80,9 @@ func (ctx *Ctx) Tx(
 	}
 
 	errs := make(chan error)
+	pktEncRaws := make(chan []byte)
 	curSize := size
 	pipeR, pipeW := io.Pipe()
-	var pktEncRaw []byte
 	go func(size int64, src io.Reader, dst io.WriteCloser) {
 		ctx.LogD("tx", LEs{
 			{"Node", hops[0].Id},
@@ -96,9 +96,10 @@ func (ctx *Ctx) Tx(
 				NicenessFmt(nice),
 			)
 		})
-		pktEncRaw, err = PktEncWrite(
+		pktEncRaw, err := PktEncWrite(
 			ctx.Self, hops[0], pkt, nice, size, padSize, src, dst,
 		)
+		pktEncRaws <- pktEncRaw
 		errs <- err
 		dst.Close() // #nosec G104
 	}(curSize, src, pipeW)
@@ -109,7 +110,10 @@ func (ctx *Ctx) Tx(
 
 	var pipeRPrev io.Reader
 	for i := 1; i < len(hops); i++ {
-		pktTrns, _ := NewPkt(PktTypeTrns, 0, hops[i-1].Id[:])
+		pktTrns, err := NewPkt(PktTypeTrns, 0, hops[i-1].Id[:])
+		if err != nil {
+			panic(err)
+		}
 		pipeRPrev = pipeR
 		pipeR, pipeW = io.Pipe()
 		go func(node *Node, pkt *Pkt, size int64, src io.Reader, dst io.WriteCloser) {
@@ -125,7 +129,8 @@ func (ctx *Ctx) Tx(
 					NicenessFmt(nice),
 				)
 			})
-			_, err := PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
+			pktEncRaw, err := PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
+			pktEncRaws <- pktEncRaw
 			errs <- err
 			dst.Close() // #nosec G104
 		}(hops[i], pktTrns, curSize, pipeRPrev, pipeW)
@@ -139,6 +144,10 @@ func (ctx *Ctx) Tx(
 		)
 		errs <- err
 	}()
+	var pktEncRaw []byte
+	for i := 0; i < len(hops); i++ {
+		pktEncRaw = <-pktEncRaws
+	}
 	for i := 0; i <= len(hops); i++ {
 		err = <-errs
 		if err != nil {
