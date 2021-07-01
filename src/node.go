@@ -119,8 +119,7 @@ func NodeIdFromString(raw string) (*NodeId, error) {
 	if len(decoded) != blake2b.Size256 {
 		return nil, errors.New("Invalid node id size")
 	}
-	buf := new([blake2b.Size256]byte)
-	copy(buf[:], decoded)
-	nodeId := NodeId(*buf)
-	return &nodeId, nil
+	nodeId := new(NodeId)
+	copy(nodeId[:], decoded)
+	return nodeId, nil
 }
