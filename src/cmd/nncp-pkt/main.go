@@ -95,16 +95,26 @@ func doPlain(pkt nncp.Pkt, dump, decompress bool) {
 }
 
 func doEncrypted(pktEnc nncp.PktEnc, dump bool, cfgPath string, beginning []byte) {
-	if !dump {
-		fmt.Printf(
-			"Packet type: encrypted\nNiceness: %s (%d)\nSender: %s\nRecipient: %s\n",
-			nncp.NicenessFmt(pktEnc.Nice), pktEnc.Nice, pktEnc.Sender, pktEnc.Recipient,
-		)
-		return
-	}
 	ctx, err := nncp.CtxFromCmdline(cfgPath, "", "", false, false, false, false)
 	if err != nil {
 		log.Fatalln("Error during initialization:", err)
+	}
+	if !dump {
+		senderS := "unknown"
+		recipientS := "unknown"
+		if n, ok := ctx.Neigh[*pktEnc.Sender]; ok {
+			senderS = n.Name
+		}
+		if n, ok := ctx.Neigh[*pktEnc.Recipient]; ok {
+			recipientS = n.Name
+		}
+		fmt.Printf(
+			"Packet type: encrypted\nNiceness: %s (%d)\nSender: %s (%s)\nRecipient: %s (%s)\n",
+			nncp.NicenessFmt(pktEnc.Nice), pktEnc.Nice,
+			pktEnc.Sender, senderS,
+			pktEnc.Recipient, recipientS,
+		)
+		return
 	}
 	if ctx.Self == nil {
 		log.Fatalln("Config lacks private keys")
