@@ -123,3 +123,12 @@ func NodeIdFromString(raw string) (*NodeId, error) {
 	copy(nodeId[:], decoded)
 	return nodeId, nil
 }
+
+func (ctx *Ctx) NodeName(id *NodeId) string {
+	idS := id.String()
+	node, err := ctx.FindNode(idS)
+	if err == nil {
+		return node.Name
+	}
+	return idS
+}
