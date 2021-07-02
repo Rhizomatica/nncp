@@ -20,6 +20,7 @@ package nncp
 import (
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -114,7 +115,7 @@ func (nodeOur *NodeOur) Their() *Node {
 func NodeIdFromString(raw string) (*NodeId, error) {
 	decoded, err := Base32Codec.DecodeString(raw)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Can not parse node: %s: %s", raw, err)
 	}
 	if len(decoded) != blake2b.Size256 {
 		return nil, errors.New("Invalid node id size")
