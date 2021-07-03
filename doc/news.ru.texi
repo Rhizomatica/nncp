@@ -21,6 +21,10 @@
 ко всем нодам сразу.
 
 @item
+У @command{nncp-check} команды появилась @option{-cycle} опция, вводящая
+проверку в бесконечный цикл.
+
+@item
 @command{nncp-pkt} может парсить @file{.hdr} файлы.
 
 @item
