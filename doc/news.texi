@@ -22,6 +22,10 @@ Fixed invalid @file{.hdr} generation when transitional packets are used.
 all the nodes at once.
 
 @item
+@option{-cycle} option appeared in @command{nncp-check} command, looping
+the check in infinite cycle.
+
+@item
 @command{nncp-pkt} can parse @file{.hdr} files.
 
 @item
