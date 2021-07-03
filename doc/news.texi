@@ -8,6 +8,10 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+Fixed workability of @command{nncp-file} and @command{nncp-exec}
+commands, that use temporary file (stdin and @option{-use-tmp}).
+
+@item
 Fixed invalid @file{.hdr} generation when transitional packets are used.
 
 @item
