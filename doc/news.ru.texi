@@ -25,6 +25,9 @@
 проверку в бесконечный цикл.
 
 @item
+У @command{nncp-rm} команды можно указывать alias-ы имён нод.
+
+@item
 @command{nncp-pkt} может парсить @file{.hdr} файлы.
 
 @item

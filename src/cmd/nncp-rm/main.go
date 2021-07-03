@@ -175,10 +175,11 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
-		nodeId, err = nncp.NodeIdFromString(*nodeRaw)
+		node, err := ctx.FindNode(*nodeRaw)
 		if err != nil {
 			log.Fatalln("Invalid -node specified:", err)
 		}
+		nodeId = node.Id
 	}
 	for _, node := range ctx.Neigh {
 		if nodeId != nil && node.Id != nodeId {
