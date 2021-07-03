@@ -690,9 +690,9 @@ func (ctx *Ctx) TxExec(
 	if noCompress {
 		pktType = PktTypeExecFat
 	}
-	pkt, err := NewPkt(pktType, replyNice, bytes.Join(path, []byte{0}))
-	if err != nil {
-		return err
+	pkt, rerr := NewPkt(pktType, replyNice, bytes.Join(path, []byte{0}))
+	if rerr != nil {
+		return rerr
 	}
 	var size int64
 
@@ -713,15 +713,15 @@ func (ctx *Ctx) TxExec(
 			return err
 		}
 		size = int64(compressed.Len())
-		_, err = ctx.Tx(node, pkt, nice, size, minSize, &compressed, handle, areaId)
+		_, rerr = ctx.Tx(node, pkt, nice, size, minSize, &compressed, handle, areaId)
 	}
 	if noCompress && !useTmp {
 		var data bytes.Buffer
-		if _, err = io.Copy(&data, in); err != nil {
+		if _, err := io.Copy(&data, in); err != nil {
 			return err
 		}
 		size = int64(data.Len())
-		_, err = ctx.Tx(node, pkt, nice, size, minSize, &data, handle, areaId)
+		_, rerr = ctx.Tx(node, pkt, nice, size, minSize, &data, handle, areaId)
 	}
 	if !noCompress && useTmp {
 		r, w := io.Pipe()
@@ -752,7 +752,7 @@ func (ctx *Ctx) TxExec(
 			return err
 		}
 		size = fileSize
-		_, err = ctx.Tx(node, pkt, nice, size, minSize, tmpReader, handle, areaId)
+		_, rerr = ctx.Tx(node, pkt, nice, size, minSize, tmpReader, handle, areaId)
 	}
 	if noCompress && useTmp {
 		tmpReader, closer, fileSize, err := throughTmpFile(in)
@@ -763,7 +763,7 @@ func (ctx *Ctx) TxExec(
 			return err
 		}
 		size = fileSize
-		_, err = ctx.Tx(node, pkt, nice, size, minSize, tmpReader, handle, areaId)
+		_, rerr = ctx.Tx(node, pkt, nice, size, minSize, tmpReader, handle, areaId)
 	}
 
 	dst := strings.Join(append([]string{handle}, args...), " ")
@@ -781,12 +781,12 @@ func (ctx *Ctx) TxExec(
 			ctx.NodeName(node.Id), dst, humanize.IBytes(uint64(size)),
 		)
 	}
-	if err == nil {
+	if rerr == nil {
 		ctx.LogI("tx", les, logMsg)
 	} else {
-		ctx.LogE("tx", les, err, logMsg)
+		ctx.LogE("tx", les, rerr, logMsg)
 	}
-	return err
+	return rerr
 }
 
 func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error {
