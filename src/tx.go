@@ -316,6 +316,9 @@ func throughTmpFile(r io.Reader) (
 	}
 	r, w := io.Pipe()
 	go func() {
+		for i := 0; i < aead.NonceSize(); i++ {
+			nonce[i] = 0
+		}
 		if _, err := aeadProcess(aead, nonce, nil, false, bufio.NewReader(src), w); err != nil {
 			w.CloseWithError(err) // #nosec G104
 		}
