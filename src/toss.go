@@ -199,7 +199,18 @@ func jobProcess(
 		if !dryRun && jobPath != "" {
 			if doSeen {
 				if fd, err := os.Create(jobPath + SeenSuffix); err == nil {
-					fd.Close() // #nosec G104
+					fd.Close()
+					if err = DirSync(filepath.Base(jobPath)); err != nil {
+						ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
+							return fmt.Sprintf(
+								"Tossing file %s/%s (%s): %s: dirsyncing",
+								sender.Name, pktName,
+								humanize.IBytes(pktSize),
+								filepath.Base(jobPath),
+							)
+						})
+						return err
+					}
 				}
 			}
 			if err = os.Remove(jobPath); err != nil {
@@ -381,7 +392,18 @@ func jobProcess(
 			if jobPath != "" {
 				if doSeen {
 					if fd, err := os.Create(jobPath + SeenSuffix); err == nil {
-						fd.Close() // #nosec G104
+						fd.Close()
+						if err = DirSync(filepath.Base(jobPath)); err != nil {
+							ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
+								return fmt.Sprintf(
+									"Tossing file %s/%s (%s): %s: dirsyncing",
+									sender.Name, pktName,
+									humanize.IBytes(pktSize),
+									filepath.Base(jobPath),
+								)
+							})
+							return err
+						}
 					}
 				}
 				if err = os.Remove(jobPath); err != nil {
@@ -495,7 +517,18 @@ func jobProcess(
 			if jobPath != "" {
 				if doSeen {
 					if fd, err := os.Create(jobPath + SeenSuffix); err == nil {
-						fd.Close() // #nosec G104
+						fd.Close()
+						if err = DirSync(filepath.Base(jobPath)); err != nil {
+							ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
+								return fmt.Sprintf(
+									"Tossing file %s/%s (%s): %s: dirsyncing",
+									sender.Name, pktName,
+									humanize.IBytes(pktSize),
+									filepath.Base(jobPath),
+								)
+							})
+							return err
+						}
 					}
 				}
 				if err = os.Remove(jobPath); err != nil {
@@ -573,7 +606,18 @@ func jobProcess(
 		if !dryRun && jobPath != "" {
 			if doSeen {
 				if fd, err := os.Create(jobPath + SeenSuffix); err == nil {
-					fd.Close() // #nosec G104
+					fd.Close()
+					if err = DirSync(filepath.Base(jobPath)); err != nil {
+						ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
+							return fmt.Sprintf(
+								"Tossing file %s/%s (%s): %s: dirsyncing",
+								sender.Name, pktName,
+								humanize.IBytes(pktSize),
+								filepath.Base(jobPath),
+							)
+						})
+						return err
+					}
 				}
 			}
 			if err = os.Remove(jobPath); err != nil {
