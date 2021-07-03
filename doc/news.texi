@@ -26,6 +26,9 @@ all the nodes at once.
 the check in infinite cycle.
 
 @item
+@command{nncp-rm} command can take node alias name.
+
+@item
 @command{nncp-pkt} can parse @file{.hdr} files.
 
 @item
