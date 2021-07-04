@@ -112,7 +112,7 @@ func TestPktEncRead(t *testing.T) {
 		var pt bytes.Buffer
 		nodes := make(map[NodeId]*Node)
 		nodes[*node1.Id] = node1.Their()
-		node, sizeGot, err := PktEncRead(node2, nodes, &ct, &pt)
+		_, node, sizeGot, err := PktEncRead(node2, nodes, &ct, &pt, true, nil)
 		if err != nil {
 			return false
 		}

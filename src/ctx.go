@@ -36,6 +36,9 @@ type Ctx struct {
 	Neigh  map[NodeId]*Node
 	Alias  map[string]*NodeId
 
+	AreaId2Area map[AreaId]*Area
+	AreaName2Id map[string]*AreaId
+
 	Spool      string
 	LogPath    string
 	UmaskForce *int

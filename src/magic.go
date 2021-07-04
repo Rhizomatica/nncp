@@ -17,7 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package nncp
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Magic struct {
 	B    [8]byte
@@ -26,6 +29,10 @@ type Magic struct {
 }
 
 var (
+	MagicNNCPAv1 = Magic{
+		B:    [8]byte{'N', 'N', 'C', 'P', 'A', 0, 0, 1},
+		Name: "NNCPAv1 (area packet v1)", Till: "now",
+	}
 	MagicNNCPBv1 = Magic{
 		B:    [8]byte{'N', 'N', 'C', 'P', 'B', 0, 0, 1},
 		Name: "NNCPBv1 (EBlob v1)", Till: "1.0",
@@ -86,6 +93,8 @@ var (
 		B:    [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 3},
 		Name: "NNCPPv3 (plain packet v3)", Till: "now",
 	}
+
+	BadMagic error = errors.New("Unknown magic number")
 )
 
 func (m *Magic) TooOld() error {

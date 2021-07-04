@@ -40,7 +40,7 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "Packet is read from stdin.")
 }
 
-func doPlain(pkt nncp.Pkt, dump, decompress bool) {
+func doPlain(ctx *nncp.Ctx, pkt nncp.Pkt, dump, decompress bool) {
 	if dump {
 		bufW := bufio.NewWriter(os.Stdout)
 		var r io.Reader
@@ -68,22 +68,30 @@ func doPlain(pkt nncp.Pkt, dump, decompress bool) {
 		payloadType = "file request"
 	case nncp.PktTypeExec:
 		payloadType = "exec compressed"
-	case nncp.PktTypeExecFat:
-		payloadType = "exec uncompressed"
 	case nncp.PktTypeTrns:
 		payloadType = "transitional"
+	case nncp.PktTypeExecFat:
+		payloadType = "exec uncompressed"
+	case nncp.PktTypeArea:
+		payloadType = "area"
 	}
 	var path string
 	switch pkt.Type {
 	case nncp.PktTypeExec, nncp.PktTypeExecFat:
 		path = string(bytes.Replace(
-			pkt.Path[:pkt.PathLen],
-			[]byte{0},
-			[]byte(" "),
-			-1,
+			pkt.Path[:pkt.PathLen], []byte{0}, []byte(" "), -1,
 		))
 	case nncp.PktTypeTrns:
 		path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
+		node, err := ctx.FindNode(path)
+		if err != nil {
+			path = fmt.Sprintf("%s (%s)", path, node.Name)
+		}
+	case nncp.PktTypeArea:
+		path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
+		if areaId, err := nncp.AreaIdFromString(path); err == nil {
+			path = fmt.Sprintf("%s (%s)", path, ctx.AreaName(areaId))
+		}
 	default:
 		path = string(pkt.Path[:pkt.PathLen])
 	}
@@ -94,31 +102,62 @@ func doPlain(pkt nncp.Pkt, dump, decompress bool) {
 	return
 }
 
-func doEncrypted(pktEnc nncp.PktEnc, dump bool, cfgPath string, beginning []byte) {
+func doEncrypted(
+	ctx *nncp.Ctx,
+	pktEnc nncp.PktEnc,
+	dump bool,
+	beginning []byte,
+) {
+	senderName := "unknown"
+	senderNode := ctx.Neigh[*pktEnc.Sender]
+	if senderNode != nil {
+		senderName = senderNode.Name
+	}
+
+	recipientName := "unknown"
+	var area *nncp.Area
+	recipientNode := ctx.Neigh[*pktEnc.Recipient]
+	if recipientNode == nil {
+		area = ctx.AreaId2Area[nncp.AreaId(*pktEnc.Recipient)]
+		recipientName = "area " + area.Name
+	} else {
+		recipientName = recipientNode.Name
+	}
+
 	if !dump {
-		fmt.Printf(
-			"Packet type: encrypted\nNiceness: %s (%d)\nSender: %s\nRecipient: %s\n",
-			nncp.NicenessFmt(pktEnc.Nice), pktEnc.Nice, pktEnc.Sender, pktEnc.Recipient,
+		fmt.Printf(`Packet type: encrypted
+Niceness: %s (%d)
+Sender: %s (%s)
+Recipient: %s (%s)
+`,
+			nncp.NicenessFmt(pktEnc.Nice), pktEnc.Nice,
+			pktEnc.Sender, senderName,
+			pktEnc.Recipient, recipientName,
 		)
 		return
-	}
-	ctx, err := nncp.CtxFromCmdline(cfgPath, "", "", false, false, false, false)
-	if err != nil {
-		log.Fatalln("Error during initialization:", err)
 	}
 	if ctx.Self == nil {
 		log.Fatalln("Config lacks private keys")
 	}
 	bufW := bufio.NewWriter(os.Stdout)
-	if _, _, err = nncp.PktEncRead(
-		ctx.Self,
-		ctx.Neigh,
-		io.MultiReader(
-			bytes.NewReader(beginning),
-			bufio.NewReader(os.Stdin),
-		),
-		bufW,
-	); err != nil {
+	var err error
+	if area == nil {
+		_, _, _, err = nncp.PktEncRead(
+			ctx.Self, ctx.Neigh,
+			io.MultiReader(bytes.NewReader(beginning), bufio.NewReader(os.Stdin)),
+			bufW, senderNode != nil, nil,
+		)
+	} else {
+		areaNode := nncp.NodeOur{Id: new(nncp.NodeId), ExchPrv: new([32]byte)}
+		copy(areaNode.Id[:], area.Id[:])
+		copy(areaNode.ExchPrv[:], area.Prv[:])
+		_, _, _, err = nncp.PktEncRead(
+			&areaNode, ctx.Neigh,
+			io.MultiReader(bytes.NewReader(beginning), bufio.NewReader(os.Stdin)),
+			bufW, senderNode != nil, nil,
+		)
+	}
+	if err != nil {
 		log.Fatalln(err)
 	}
 	if err = bufW.Flush(); err != nil {
@@ -147,6 +186,11 @@ func main() {
 		return
 	}
 
+	ctx, err := nncp.CtxFromCmdline(*cfgPath, "", "", false, false, false, false)
+	if err != nil {
+		log.Fatalln("Error during initialization:", err)
+	}
+
 	if *overheads {
 		fmt.Printf(
 			"Plain: %d\nEncrypted: %d\nSize: %d\n",
@@ -158,7 +202,27 @@ func main() {
 	}
 
 	beginning := make([]byte, nncp.PktOverhead)
-	if _, err := io.ReadFull(os.Stdin, beginning); err != nil {
+	if _, err := io.ReadFull(os.Stdin, beginning[:nncp.PktEncOverhead]); err != nil {
+		log.Fatalln("Not enough data to read")
+	}
+	var pktEnc nncp.PktEnc
+	if _, err := xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc); err == nil {
+		switch pktEnc.Magic {
+		case nncp.MagicNNCPEv1.B:
+			log.Fatalln(nncp.MagicNNCPEv1.TooOld())
+		case nncp.MagicNNCPEv2.B:
+			log.Fatalln(nncp.MagicNNCPEv2.TooOld())
+		case nncp.MagicNNCPEv3.B:
+			log.Fatalln(nncp.MagicNNCPEv3.TooOld())
+		case nncp.MagicNNCPEv4.B:
+			log.Fatalln(nncp.MagicNNCPEv4.TooOld())
+		case nncp.MagicNNCPEv5.B:
+			doEncrypted(ctx, pktEnc, *dump, beginning[:nncp.PktEncOverhead])
+			return
+		}
+	}
+
+	if _, err := io.ReadFull(os.Stdin, beginning[nncp.PktEncOverhead:]); err != nil {
 		log.Fatalln("Not enough data to read")
 	}
 	var pkt nncp.Pkt
@@ -169,23 +233,7 @@ func main() {
 		case nncp.MagicNNCPPv2.B:
 			log.Fatalln(nncp.MagicNNCPPv2.TooOld())
 		case nncp.MagicNNCPPv3.B:
-			doPlain(pkt, *dump, *decompress)
-			return
-		}
-	}
-	var pktEnc nncp.PktEnc
-	if _, err := xdr.Unmarshal(bytes.NewReader(beginning), &pktEnc); err == nil {
-		switch pkt.Magic {
-		case nncp.MagicNNCPEv1.B:
-			log.Fatalln(nncp.MagicNNCPEv1.TooOld())
-		case nncp.MagicNNCPEv2.B:
-			log.Fatalln(nncp.MagicNNCPEv2.TooOld())
-		case nncp.MagicNNCPEv3.B:
-			log.Fatalln(nncp.MagicNNCPEv3.TooOld())
-		case nncp.MagicNNCPEv4.B:
-			log.Fatalln(nncp.MagicNNCPEv4.TooOld())
-		case nncp.MagicNNCPEv5.B:
-			doEncrypted(pktEnc, *dump, *cfgPath, beginning)
+			doPlain(ctx, pkt, *dump, *decompress)
 			return
 		}
 	}

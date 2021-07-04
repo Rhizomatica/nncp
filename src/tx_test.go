@@ -84,6 +84,7 @@ func TestTx(t *testing.T) {
 			int64(padSize),
 			src,
 			"pktName",
+			nil,
 		)
 		if err != nil {
 			return false
@@ -110,7 +111,9 @@ func TestTx(t *testing.T) {
 		vias := append(nodeTgt.Via, nodeTgt.Id)
 		for i, hopId := range vias {
 			hopOur := privates[*hopId]
-			foundNode, _, err := PktEncRead(hopOur, ctx.Neigh, &bufR, &bufW)
+			_, foundNode, _, err := PktEncRead(
+				hopOur, ctx.Neigh, &bufR, &bufW, true, nil,
+			)
 			if err != nil {
 				return false
 			}

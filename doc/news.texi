@@ -3,9 +3,47 @@
 
 See also this page @ref{Новости, on russian}.
 
-@node Release 7.0.0
+@node Release 7_1_0
+@section Release 7.1.0
+@itemize
+
+@item
+Fixed workability of @command{nncp-file} and @command{nncp-exec}
+commands, that use temporary file (stdin and @option{-use-tmp}).
+
+@item
+Fixed disappearing bad return code in @command{nncp-exec} command.
+
+@item
+Fixed invalid @file{.hdr} generation when transitional packets are used.
+
+@item
+@option{-all} option appeared in @command{nncp-rm} command, applying to
+all the nodes at once.
+
+@item
+@option{-cycle} option appeared in @command{nncp-check} command, looping
+the check in infinite cycle.
+
+@item
+@command{nncp-rm} command can take node alias name.
+
+@item
+@command{nncp-pkt} can parse @file{.hdr} files.
+
+@item
+Multicasting areas feature appeared. Implemented merely by an additional
+plain packet type with @command{nncp-toss}, @command{nncp-file} and
+@command{nncp-exec} commands modification.
+
+@end itemize
+
+@node Release 7_0_0
 @section Release 7.0.0
 @itemize
+
+@item
+Minimal required Go version 1.13.
 
 @item
 Merkle Tree-based Hashing with BLAKE3 (MTH) is used instead of BLAKE2b.
@@ -46,7 +84,7 @@ Updated dependencies.
 
 @end itemize
 
-@node Release 6.6.0
+@node Release 6_6_0
 @section Release 6.6.0
 @itemize
 
@@ -61,7 +99,7 @@ in local area network, so called MCD (MultiCast Discovery).
 
 @end itemize
 
-@node Release 6.5.0
+@node Release 6_5_0
 @section Release 6.5.0
 @itemize
 
@@ -81,7 +119,7 @@ Kill all packet transmission progress bars in @command{nncp-daemon},
 
 @end itemize
 
-@node Release 6.4.0
+@node Release 6_4_0
 @section Release 6.4.0
 @itemize
 
@@ -90,7 +128,7 @@ Fixed possible race in online protocol, that lead to panic.
 
 @end itemize
 
-@node Release 6.3.0
+@node Release 6_3_0
 @section Release 6.3.0
 @itemize
 
@@ -99,7 +137,7 @@ Fixed possible panic while showing progress during online protocol.
 
 @end itemize
 
-@node Release 6.2.1
+@node Release 6_2_1
 @section Release 6.2.1
 @itemize
 
@@ -108,7 +146,7 @@ Three places in logs contained excess @code{%s}.
 
 @end itemize
 
-@node Release 6.2.0
+@node Release 6_2_0
 @section Release 6.2.0
 @itemize
 
@@ -121,7 +159,7 @@ Should be no visible differences to the end user.
 
 @end itemize
 
-@node Release 6.1.0
+@node Release 6_1_0
 @section Release 6.1.0
 @itemize
 
@@ -150,7 +188,7 @@ listing on filesystems with big block's size.
 
 @end itemize
 
-@node Release 6.0.0
+@node Release 6_0_0
 @section Release 6.0.0
 @itemize
 
@@ -175,7 +213,7 @@ expectations of specified cron expression.
 
 @end itemize
 
-@node Release 5.6.0
+@node Release 5_6_0
 @section Release 5.6.0
 @itemize
 
@@ -197,7 +235,7 @@ supports modules.
 
 @end itemize
 
-@node Release 5.5.1
+@node Release 5_5_1
 @section Release 5.5.1
 @itemize
 
@@ -207,7 +245,7 @@ variables in @file{config} during installation.
 
 @end itemize
 
-@node Release 5.5.0
+@node Release 5_5_0
 @section Release 5.5.0
 @itemize
 
@@ -232,7 +270,7 @@ Updated dependencies. Minimal required Go version is 1.12.
 
 @end itemize
 
-@node Release 5.4.1
+@node Release 5_4_1
 @section Release 5.4.1
 @itemize
 
@@ -241,7 +279,7 @@ Fixed @code{SENDMAIL} variable usage during the build.
 
 @end itemize
 
-@node Release 5.4.0
+@node Release 5_4_0
 @section Release 5.4.0
 @itemize
 
@@ -255,7 +293,7 @@ implementation is included in tarball.
 
 @end itemize
 
-@node Release 5.3.3
+@node Release 5_3_3
 @section Release 5.3.3
 @itemize
 
@@ -267,7 +305,7 @@ Updated dependencies.
 
 @end itemize
 
-@node Release 5.3.2
+@node Release 5_3_2
 @section Release 5.3.2
 @itemize
 
@@ -278,7 +316,7 @@ forcefully disconnect.
 
 @end itemize
 
-@node Release 5.3.1
+@node Release 5_3_1
 @section Release 5.3.1
 @itemize
 
@@ -292,7 +330,7 @@ about each packet in the spool.
 
 @end itemize
 
-@node Release 5.3.0
+@node Release 5_3_0
 @section Release 5.3.0
 @itemize
 
@@ -322,7 +360,7 @@ SP-connection. That allows faster determining of connection unworkability.
 
 @end itemize
 
-@node Release 5.2.1
+@node Release 5_2_1
 @section Release 5.2.1
 @itemize
 
@@ -331,7 +369,7 @@ Fixed SP protocol error handling, sometimes causing program panic.
 
 @end itemize
 
-@node Release 5.2.0
+@node Release 5_2_0
 @section Release 5.2.0
 @itemize
 
@@ -349,7 +387,7 @@ Free disk space check during @command{nncp-bundle -rx} call.
 
 @end itemize
 
-@node Release 5.1.2
+@node Release 5_1_2
 @section Release 5.1.2
 @itemize
 
@@ -367,7 +405,7 @@ Explicit directories fsync-ing for guaranteed files renaming.
 
 @end itemize
 
-@node Release 5.1.1
+@node Release 5_1_1
 @section Release 5.1.1
 @itemize
 
@@ -376,7 +414,7 @@ Fixed workability of @command{nncp-file} with @option{-chunked 0} option.
 
 @end itemize
 
-@node Release 5.1.0
+@node Release 5_1_0
 @section Release 5.1.0
 @itemize
 
@@ -402,7 +440,7 @@ Ability to notify about successfully executed commands (exec) with
 
 @end itemize
 
-@node Release 5.0.0
+@node Release 5_0_0
 @section Release 5.0.0
 @itemize
 
@@ -450,13 +488,13 @@ Forbid any later GNU GPL version autousage
 
 @end itemize
 
-@node Release 4.1
+@node Release 4_1
 @section Release 4.1
 @itemize
 @item Workability on GNU/Linux systems and Go 1.10 is fixed.
 @end itemize
 
-@node Release 4.0
+@node Release 4_0
 @section Release 4.0
 @itemize
 
@@ -492,13 +530,13 @@ Begin using of @code{go.mod} subsystem.
 
 @end itemize
 
-@node Release 3.4
+@node Release 3_4
 @section Release 3.4
 @itemize
 @item @command{nncp-daemon} can be run as @command{inetd}-service.
 @end itemize
 
-@node Release 3.3
+@node Release 3_3
 @section Release 3.3
 @itemize
 
@@ -528,7 +566,7 @@ for @command{nncp-file} from 196 to 224.
 
 @end itemize
 
-@node Release 3.2
+@node Release 3_2
 @section Release 3.2
 @itemize
 @item
@@ -540,14 +578,14 @@ inside. NNCP accidentally was dependant on that bug. Explicit adding of
 archives.
 @end itemize
 
-@node Release 3.1
+@node Release 3_1
 @section Release 3.1
 @itemize
 @item
 Ability to disable relaying at all using @verb{|-via -|} command line option.
 @end itemize
 
-@node Release 3.0
+@node Release 3_0
 @section Release 3.0
 @itemize
 
@@ -600,7 +638,7 @@ off by specifying zero value.
 
 @end itemize
 
-@node Release 2.0
+@node Release 2_0
 @section Release 2.0
 @itemize
 
@@ -619,7 +657,7 @@ identical to BLAKE2).
 
 @end itemize
 
-@node Release 1.0
+@node Release 1_0
 @section Release 1.0
 @itemize
 
@@ -653,19 +691,19 @@ command line argument, or environment variable.
 
 @end itemize
 
-@node Release 0.12
+@node Release 0_12
 @section Release 0.12
 @itemize
 @item Sendmail command is called with @env{NNCP_SENDER} environment variable.
 @end itemize
 
-@node Release 0.11
+@node Release 0_11
 @section Release 0.11
 @itemize
 @item @command{nncp-stat}'s command output is sorted by node name.
 @end itemize
 
-@node Release 0.10
+@node Release 0_10
 @section Release 0.10
 @itemize
 @item
@@ -673,7 +711,7 @@ command line argument, or environment variable.
 @file{SRC} path's element will be used by default.
 @end itemize
 
-@node Release 0.9
+@node Release 0_9
 @section Release 0.9
 @itemize
 @item
@@ -681,7 +719,7 @@ Fix @option{-rx}/@option{-tx} arguments processing in
 @command{nncp-call} command. They were ignored.
 @end itemize
 
-@node Release 0.8
+@node Release 0_8
 @section Release 0.8
 @itemize
 @item
@@ -689,7 +727,7 @@ Little bugfix in @command{nncp-file} command, where @option{-minsize}
 option for unchunked transfer was not in KiBs, but in bytes.
 @end itemize
 
-@node Release 0.7
+@node Release 0_7
 @section Release 0.7
 @itemize
 
@@ -729,14 +767,14 @@ Cryptographic libraries (dependencies) are updated.
 
 @end itemize
 
-@node Release 0.6
+@node Release 0_6
 @section Release 0.6
 @itemize
 @item Small @command{nncp-rm} command appeared.
 @item Cryptographic libraries (dependencies) are updated.
 @end itemize
 
-@node Release 0.5
+@node Release 0_5
 @section Release 0.5
 @itemize
 @item
@@ -744,7 +782,7 @@ Trivial small fix in default niceness level of @command{nncp-file}
 and @command{nncp-freq} commands.
 @end itemize
 
-@node Release 0.4
+@node Release 0_4
 @section Release 0.4
 @itemize
 
@@ -764,13 +802,13 @@ is useful during @command{nncp-xfer} usage.
 
 @end itemize
 
-@node Release 0.3
+@node Release 0_3
 @section Release 0.3
 @itemize
 @item Fixed compatibility with Go 1.6.
 @end itemize
 
-@node Release 0.2
+@node Release 0_2
 @section Release 0.2
 @itemize
 

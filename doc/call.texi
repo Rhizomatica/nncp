@@ -1,7 +1,7 @@
 @node Call
 @unnumbered Call configuration
 
-Call is a rule when and how node can be called.
+Call is a rule when and how node can be called by @ref{nncp-caller}.
 
 Example list of call structures:
 

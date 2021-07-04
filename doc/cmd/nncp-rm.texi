@@ -1,0 +1,53 @@
+@node nncp-rm
+@section nncp-rm
+
+@example
+$ nncp-rm [options] -tmp
+$ nncp-rm [options] -lock
+$ nncp-rm [options] @{-all|-node NODE@} -part
+$ nncp-rm [options] @{-all|-node NODE@} -seen
+$ nncp-rm [options] @{-all|-node NODE@} -nock
+$ nncp-rm [options] @{-all|-node NODE@} -hdr
+$ nncp-rm [options] @{-all|-node NODE@} -area
+$ nncp-rm [options] @{-all|-node NODE@} [-rx] [-tx]
+$ nncp-rm [options] @{-all|-node NODE@} -pkt PKT
+@end example
+
+This command is aimed to delete various files from your spool directory:
+
+@itemize
+
+@item If @option{-tmp} option is specified, then it will delete all
+temporary files in @file{spool/tmp} directory. Files may stay in it when
+commands like @ref{nncp-file} fail for some reason.
+
+@item If @option{-lock} option is specified, then all @file{.lock} files
+will be deleted in your spool directory.
+
+@item If @option{-pkt} option is specified, then @file{PKT} packet (its
+Base32 name) will be deleted. This is useful when you see some packet
+failing to be processed.
+
+@item When either @option{-rx} or @option{-tx} options are specified
+(maybe both of them), then delete all packets from that given queues.
+
+@item @option{-part} option deletes @file{.part}ly downloaded files.
+
+@item @option{-seen} option deletes @file{.seen} files. But it does not
+apply to @ref{Multicast, multicast areas} @file{.seen} ones!
+
+@item @option{-nock} option deletes non-checksummed (non-verified)
+@file{.nock} files.
+
+@item @option{-hdr} option deletes cached @file{.hdr} files.
+
+@item @option{-area} option deletes @file{.seen} files in @file{area/}
+subdirectories.
+
+@end itemize
+
+@option{-dryrun} option just prints what will be deleted.
+
+You can also select files that only have modification date older than specified
+@option{-older} time units (@code{10s} (10 seconds), @code{5m} (5 minutes),
+@code{12h} (12 hours), @code{2d} (2 days)).
