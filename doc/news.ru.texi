@@ -6,6 +6,11 @@
 @itemize
 
 @item
+Появилась возможность мультивещательной (multicast) рассылки пакетов.
+Реализовано всего лишь дополнительным типом простых пакетов и изменением
+@command{nncp-toss}, @command{nncp-file} и @command{nncp-exec} команд.
+
+@item
 Исправлена работоспособность @command{nncp-file} и @command{nncp-exec}
 команд использующих временный файл (stdin и @option{-use-tmp}).
 
@@ -29,11 +34,6 @@
 
 @item
 @command{nncp-pkt} может парсить @file{.hdr} файлы.
-
-@item
-Появилась возможность мультивещательной (multicast) рассылки пакетов.
-Реализовано всего лишь дополнительным типом простых пакетов и изменением
-@command{nncp-toss}, @command{nncp-file} и @command{nncp-exec} команд.
 
 @end itemize
 
