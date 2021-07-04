@@ -120,9 +120,10 @@ size=$(( $(stat -f %z $tarball) / 1024 ))
 hash=$(gpg --print-md SHA256 < $tarball)
 release_date=$(date "+%Y-%m-%d")
 
+release_underscored=`echo $release | tr . _`
 cat <<EOF
 An entry for documentation:
-@item @ref{Release $release, $release} @tab $release_date @tab $size KiB
+@item @ref{Release $release_underscored, $release} @tab $release_date @tab $size KiB
 @tab @url{download/nncp-${release}.tar.xz, link} @url{download/nncp-${release}.tar.xz.sig, sign}
 @tab @code{$hash}
 EOF
