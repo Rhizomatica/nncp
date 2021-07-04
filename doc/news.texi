@@ -8,6 +8,11 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+Multicasting areas feature appeared. Implemented merely by an additional
+plain packet type with @command{nncp-toss}, @command{nncp-file} and
+@command{nncp-exec} commands modification.
+
+@item
 Fixed workability of @command{nncp-file} and @command{nncp-exec}
 commands, that use temporary file (stdin and @option{-use-tmp}).
 
@@ -30,11 +35,6 @@ the check in infinite cycle.
 
 @item
 @command{nncp-pkt} can parse @file{.hdr} files.
-
-@item
-Multicasting areas feature appeared. Implemented merely by an additional
-plain packet type with @command{nncp-toss}, @command{nncp-file} and
-@command{nncp-exec} commands modification.
 
 @end itemize
 
