@@ -20,6 +20,7 @@ package nncp
 import (
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -28,6 +29,8 @@ import (
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/nacl/box"
 )
+
+const DummyB32Id = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 
 type NodeId [blake2b.Size256]byte
 
@@ -114,13 +117,21 @@ func (nodeOur *NodeOur) Their() *Node {
 func NodeIdFromString(raw string) (*NodeId, error) {
 	decoded, err := Base32Codec.DecodeString(raw)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Can not parse node: %s: %s", raw, err)
 	}
 	if len(decoded) != blake2b.Size256 {
 		return nil, errors.New("Invalid node id size")
 	}
-	buf := new([blake2b.Size256]byte)
-	copy(buf[:], decoded)
-	nodeId := NodeId(*buf)
-	return &nodeId, nil
+	nodeId := new(NodeId)
+	copy(nodeId[:], decoded)
+	return nodeId, nil
+}
+
+func (ctx *Ctx) NodeName(id *NodeId) string {
+	idS := id.String()
+	node, err := ctx.FindNode(idS)
+	if err == nil {
+		return node.Name
+	}
+	return idS
 }

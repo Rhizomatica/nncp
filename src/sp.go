@@ -658,6 +658,17 @@ func (state *SPState) StartWorkers(
 	}
 	if !state.NoCK {
 		spCheckerOnce.Do(func() { go SPChecker(state.Ctx) })
+		go func() {
+			for job := range state.Ctx.JobsNoCK(state.Node.Id) {
+				if job.PktEnc.Nice <= state.Nice {
+					spCheckerTasks <- SPCheckerTask{
+						nodeId: state.Node.Id,
+						hsh:    job.HshValue,
+						done:   state.payloads,
+					}
+				}
+			}
+		}()
 	}
 
 	// Remaining handshake payload sending

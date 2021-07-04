@@ -16,4 +16,4 @@ require (
 	lukechampine.com/blake3 v1.1.5
 )
 
-go 1.12
+go 1.13

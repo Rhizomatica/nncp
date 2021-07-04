@@ -25,15 +25,6 @@ import (
 	"go.cypherpunks.ru/recfile"
 )
 
-func (ctx *Ctx) NodeName(id *NodeId) string {
-	idS := id.String()
-	node, err := ctx.FindNode(idS)
-	if err == nil {
-		return node.Name
-	}
-	return idS
-}
-
 func (ctx *Ctx) HumanizeRec(rec string) string {
 	r := recfile.NewReader(strings.NewReader(rec))
 	le, err := r.NextMap()

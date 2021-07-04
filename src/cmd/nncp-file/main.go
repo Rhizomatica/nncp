@@ -31,7 +31,9 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintf(os.Stderr, "nncp-file -- send file\n\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] SRC NODE:[DST]\nOptions:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] SRC NODE:[DST]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] SRC %s:AREA:[DST]\nOptions:\n",
+		os.Args[0], nncp.AreaDir)
 	flag.PrintDefaults()
 	fmt.Fprint(os.Stderr, `
 If SRC equals to -, then read data from stdin to temporary file.
@@ -93,14 +95,30 @@ func main() {
 		log.Fatalln("Config lacks private keys")
 	}
 
-	splitted := strings.SplitN(flag.Arg(1), ":", 2)
-	if len(splitted) != 2 {
+	splitted := strings.Split(flag.Arg(1), ":")
+	if len(splitted) < 2 {
 		usage()
 		os.Exit(1)
 	}
-	node, err := ctx.FindNode(splitted[0])
-	if err != nil {
-		log.Fatalln("Invalid NODE specified:", err)
+	var areaId *nncp.AreaId
+	var node *nncp.Node
+	if splitted[0] == nncp.AreaDir {
+		if len(splitted) < 3 {
+			usage()
+			os.Exit(1)
+		}
+		areaId = ctx.AreaName2Id[splitted[1]]
+		if areaId == nil {
+			log.Fatalln("Unknown area specified")
+		}
+		node = ctx.Neigh[*ctx.SelfId]
+		splitted = splitted[2:]
+	} else {
+		node, err = ctx.FindNode(splitted[0])
+		if err != nil {
+			log.Fatalln("Invalid NODE specified:", err)
+		}
+		splitted = splitted[1:]
 	}
 
 	nncp.ViaOverride(*viaOverride, ctx, node)
@@ -127,10 +145,11 @@ func main() {
 		node,
 		nice,
 		flag.Arg(0),
-		splitted[1],
+		strings.Join(splitted, ":"),
 		chunkSize,
 		minSize,
 		nncp.MaxFileSize,
+		areaId,
 	); err != nil {
 		log.Fatalln(err)
 	}

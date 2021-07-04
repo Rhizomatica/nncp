@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"go.cypherpunks.ru/nncp/v7"
 )
@@ -38,6 +39,7 @@ func usage() {
 func main() {
 	var (
 		nock      = flag.Bool("nock", false, "Process .nock files")
+		cycle     = flag.Uint("cycle", 0, "Repeat check after N seconds in infinite loop")
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		nodeRaw   = flag.String("node", "", "Process only that node")
 		spoolPath = flag.String("spool", "", "Override path to spool")
@@ -83,6 +85,7 @@ func main() {
 		}
 	}
 
+Cycle:
 	isBad := false
 	for nodeId, node := range ctx.Neigh {
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
@@ -104,6 +107,10 @@ func main() {
 		} else if !ctx.Check(node.Id) {
 			isBad = true
 		}
+	}
+	if *cycle > 0 {
+		time.Sleep(time.Duration(*cycle) * time.Second)
+		goto Cycle
 	}
 	if isBad {
 		os.Exit(1)

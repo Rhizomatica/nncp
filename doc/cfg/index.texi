@@ -1,0 +1,49 @@
+@node Configuration
+@unnumbered Configuration file
+
+NNCP uses single file configuration file in @url{https://hjson.org/,
+Hjson} format. Initially it is created with @ref{nncp-cfgnew} command
+and at minimum it can look like this:
+
+@verbatim
+spool: /var/spool/nncp
+log: /var/spool/nncp/log
+
+self: {
+  id: RKOLY...KAMXQ
+  exchpub: 2NZKH...CMI7A
+  exchprv: KETPP...2OJZA
+  signpub: EXD7M...YAOFA
+  signprv: B3EMS..XMAHCQ
+  noiseprv: 3TJDF...2D7DQ
+  noisepub: MIXYN...BGNDQ
+}
+
+neigh: {
+  self: {
+    id: RKOLY...KAMXQ
+    exchpub: 2NZKH...CMI7A
+    signpub: EXD7M...YAOFA
+    noisepub: MIXYN...BGNDQ
+  }
+}
+@end verbatim
+
+And for being able to communicate with at least one other node, you just
+need to add single key to the @code{neigh} section similar to the "self".
+
+All configuration file can be separated on five sections:
+
+@menu
+* General options: CfgGeneral.
+* Self-node keypairs: CfgSelf.
+* Notifications: CfgNotify.
+* Neighbours: CfgNeigh.
+* Areas: CfgAreas.
+@end menu
+
+@include cfg/general.texi
+@include cfg/self.texi
+@include cfg/notify.texi
+@include cfg/neigh.texi
+@include cfg/areas.texi
