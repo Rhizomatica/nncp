@@ -28,175 +28,175 @@ Tarballs include all necessary required libraries:
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
 
-@item @ref{Release 7.0.0, 7.0.0} @tab 2021-06-30 @tab 1123 KiB
+@item @ref{Release 7_0_0, 7.0.0} @tab 2021-06-30 @tab 1123 KiB
 @tab @url{download/nncp-7.0.0.tar.xz, link} @url{download/nncp-7.0.0.tar.xz.sig, sign}
 @tab @code{D4D28E9A CF40FE12 68BDE134 9CD36076 282395BE 70094EFB 0DB75CE8 C32EA664}
 
-@item @ref{Release 6.6.0, 6.6.0} @tab 2021-06-26 @tab 1041 KiB
+@item @ref{Release 6_6_0, 6.6.0} @tab 2021-06-26 @tab 1041 KiB
 @tab @url{download/nncp-6.6.0.tar.xz, link} @url{download/nncp-6.6.0.tar.xz.sig, sign}
 @tab @code{73DB666F A5C30282 770516B2 F39F1240 74117B45 A9F4B484 0361861A 183577F1}
 
-@item @ref{Release 6.5.0, 6.5.0} @tab 2021-05-30 @tab 1041 KiB
+@item @ref{Release 6_5_0, 6.5.0} @tab 2021-05-30 @tab 1041 KiB
 @tab @url{download/nncp-6.5.0.tar.xz, link} @url{download/nncp-6.5.0.tar.xz.sig, sign}
 @tab @code{241D2AA7 27275CCF 86F06797 1AA8B3B8 D625C85C 4279DFDE 560216E3 38670B9A}
 
-@item @ref{Release 6.4.0, 6.4.0} @tab 2021-04-22 @tab 1042 KiB
+@item @ref{Release 6_4_0, 6.4.0} @tab 2021-04-22 @tab 1042 KiB
 @tab @url{download/nncp-6.4.0.tar.xz, link} @url{download/nncp-6.4.0.tar.xz.sig, sign}
 @tab @code{3D0D1156 D69AF698 D402663C F84E51CC 3D40A50D 300E34D1 105A6F75 32E4B99B}
 
-@item @ref{Release 6.3.0, 6.3.0} @tab 2021-04-14 @tab 1042 KiB
+@item @ref{Release 6_3_0, 6.3.0} @tab 2021-04-14 @tab 1042 KiB
 @tab @url{download/nncp-6.3.0.tar.xz, link} @url{download/nncp-6.3.0.tar.xz.sig, sign}
 @tab @code{76C26A11 E3423540 BB7B8470 820176A3 5FCD0493 B21A872E C223EB94 43BA466B}
 
-@item @ref{Release 6.2.1, 6.2.1} @tab 2021-03-26 @tab 1038 KiB
+@item @ref{Release 6_2_1, 6.2.1} @tab 2021-03-26 @tab 1038 KiB
 @tab @url{download/nncp-6.2.1.tar.xz, link} @url{download/nncp-6.2.1.tar.xz.sig, sign}
 @tab @code{D9682D95 4D68025A F5B07516 258D9FFC DA29A4D7 E7E1635B E0C219A1 C5DDB067}
 
-@item @ref{Release 6.2.0, 6.2.0} @tab 2021-03-07 @tab 1038 KiB
+@item @ref{Release 6_2_0, 6.2.0} @tab 2021-03-07 @tab 1038 KiB
 @tab @url{download/nncp-6.2.0.tar.xz, link} @url{download/nncp-6.2.0.tar.xz.sig, sign}
 @tab @code{272CEDED 69FFF3B3 78767297 3199481A C610B753 BB82C22E ECEC45FC 05DA40FE}
 
-@item @ref{Release 6.1.0, 6.1.0} @tab 2021-02-24 @tab 1040 KiB
+@item @ref{Release 6_1_0, 6.1.0} @tab 2021-02-24 @tab 1040 KiB
 @tab @url{download/nncp-6.1.0.tar.xz, link} @url{download/nncp-6.1.0.tar.xz.sig, sign}
 @tab @code{083A533F 7D021206 9AE07F9F D6CD22E3 C5BE09E8 30F2C9C4 97D97CF6 14E5413F}
 
-@item @ref{Release 6.0.0, 6.0.0} @tab 2021-01-23 @tab 1028 KiB
+@item @ref{Release 6_0_0, 6.0.0} @tab 2021-01-23 @tab 1028 KiB
 @tab @url{download/nncp-6.0.0.tar.xz, link} @url{download/nncp-6.0.0.tar.xz.sig, sign}
 @tab @code{42FE8AA5 4520B3A1 ABB50D66 1BBBA6A1 41CE4E74 9B4816B0 D4C6845D 67465916}
 
-@item @ref{Release 5.6.0, 5.6.0} @tab 2021-01-17 @tab 1024 KiB
+@item @ref{Release 5_6_0, 5.6.0} @tab 2021-01-17 @tab 1024 KiB
 @tab @url{download/nncp-5.6.0.tar.xz, link} @url{download/nncp-5.6.0.tar.xz.sig, sign}
 @tab @code{1DC83F05 F14A3C3B 95820046 C60B170E B8C8936F 142A5B9A 1E943E6F 4CEFBDE3}
 
-@item @ref{Release 5.5.1, 5.5.1} @tab 2021-01-11 @tab 1165 KiB
+@item @ref{Release 5_5_1, 5.5.1} @tab 2021-01-11 @tab 1165 KiB
 @tab @url{download/nncp-5.5.1.tar.xz, link} @url{download/nncp-5.5.1.tar.xz.sig, sign}
 @tab @code{E7DEED7A D3BA696C F64359C0 DC0A93AD 109950C5 6660D028 5FD7BB57 120C9CF7}
 
-@item @ref{Release 5.5.0, 5.5.0} @tab 2021-01-07 @tab 1161 KiB
+@item @ref{Release 5_5_0, 5.5.0} @tab 2021-01-07 @tab 1161 KiB
 @tab @url{download/nncp-5.5.0.tar.xz, link} @url{download/nncp-5.5.0.tar.xz.sig, sign}
 @tab @code{EF0CBEE1 520BE97D A210794C 172BF444 E6F75DB2 84F5BD05 66919193 326AED77}
 
-@item @ref{Release 5.4.1, 5.4.1} @tab 2020-09-28 @tab 1143 KiB
+@item @ref{Release 5_4_1, 5.4.1} @tab 2020-09-28 @tab 1143 KiB
 @tab @url{download/nncp-5.4.1.tar.xz, link} @url{download/nncp-5.4.1.tar.xz.sig, sign}
 @tab @code{A02D0C9B 51533DF8 115C17E1 02F8C485 9F7B805A 64290CDF 79151BA9 E627FA63}
 
-@item @ref{Release 5.3.3, 5.3.3} @tab 2020-01-23 @tab 1116 KiB
+@item @ref{Release 5_3_3, 5.3.3} @tab 2020-01-23 @tab 1116 KiB
 @tab @url{download/nncp-5.3.3.tar.xz, link} @url{download/nncp-5.3.3.tar.xz.sig, sign}
 @tab @code{707CD852 4E424C24 BCB22D6B 4BC81709 71C42A5F E0062B93 A8D1DD9D 7FB365D0}
 
-@item @ref{Release 5.3.2, 5.3.2} @tab 2019-12-28 @tab 1118 KiB
+@item @ref{Release 5_3_2, 5.3.2} @tab 2019-12-28 @tab 1118 KiB
 @tab @url{download/nncp-5.3.2.tar.xz, link} @url{download/nncp-5.3.2.tar.xz.sig, sign}
 @tab @code{6E2D1B3C CA0DD462 A6F5F8DE 5CB8DE15 C3D33C74 238A2C52 373C7BD6 A126A834}
 
-@item @ref{Release 5.3.1, 5.3.1} @tab 2019-12-25 @tab 1117 KiB
+@item @ref{Release 5_3_1, 5.3.1} @tab 2019-12-25 @tab 1117 KiB
 @tab @url{download/nncp-5.3.1.tar.xz, link} @url{download/nncp-5.3.1.tar.xz.sig, sign}
 @tab @code{23A52819 F0395A6A E05E4176 017DCA3C 4A20A023 EEADA6A3 3168E58D BEE34A5B}
 
-@item @ref{Release 5.3.0, 5.3.0} @tab 2019-12-22 @tab 1112 KiB
+@item @ref{Release 5_3_0, 5.3.0} @tab 2019-12-22 @tab 1112 KiB
 @tab @url{download/nncp-5.3.0.tar.xz, link} @url{download/nncp-5.3.0.tar.xz.sig, sign}
 @tab @code{9F093115 506D00E7 2E41ACD6 3F283172 8430E1C2 8BA4A941 FFA3C65D 89AD4ED0}
 
-@item @ref{Release 5.2.1, 5.2.1} @tab 2019-12-15 @tab 1109 KiB
+@item @ref{Release 5_2_1, 5.2.1} @tab 2019-12-15 @tab 1109 KiB
 @tab @url{download/nncp-5.2.1.tar.xz, link} @url{download/nncp-5.2.1.tar.xz.sig, sign}
 @tab @code{983D1A8A 4398C281 76356AE1 C5541124 B0755555 D115063B D1388F85 9C4A6B3E}
 
-@item @ref{Release 5.2.0, 5.2.0} @tab 2019-12-14 @tab 1109 KiB
+@item @ref{Release 5_2_0, 5.2.0} @tab 2019-12-14 @tab 1109 KiB
 @tab @url{download/nncp-5.2.0.tar.xz, link} @url{download/nncp-5.2.0.tar.xz.sig, sign}
 @tab @code{FFC55467 8B4ECCA6 92D90F42 ACC0286D 209E054E EA1CBF87 0307003E CF219610}
 
-@item @ref{Release 5.1.2, 5.1.2} @tab 2019-12-13 @tab 1106 KiB
+@item @ref{Release 5_1_2, 5.1.2} @tab 2019-12-13 @tab 1106 KiB
 @tab @url{download/nncp-5.1.2.tar.xz, link} @url{download/nncp-5.1.2.tar.xz.sig, sign}
 @tab @code{52B2043B 1B22D20F C44698EC AFE5FF46 F99B4DD5 2C392D4D 25FE1580 993263B3}
 
-@item @ref{Release 5.1.1, 5.1.1} @tab 2019-12-01 @tab 1103 KiB
+@item @ref{Release 5_1_1, 5.1.1} @tab 2019-12-01 @tab 1103 KiB
 @tab @url{download/nncp-5.1.1.tar.xz, link} @url{download/nncp-5.1.1.tar.xz.sig, sign}
 @tab @code{B9537678 E5B549BA 6FA0D20D 41B2D4A9 4ED31F2C AB9FAF63 A388D95E 7662A93F}
 
-@item @ref{Release 5.1.0, 5.1.0} @tab 2019-11-24 @tab 1103 KiB
+@item @ref{Release 5_1_0, 5.1.0} @tab 2019-11-24 @tab 1103 KiB
 @tab @url{download/nncp-5.1.0.tar.xz, link} @url{download/nncp-5.1.0.tar.xz.sig, sign}
 @tab @code{6F5B74EC 952EAFEC 2A787463 CE1E808E CC990F03 D46F28E9 A89BAB55 5A2C2214}
 
-@item @ref{Release 5.0.0, 5.0.0} @tab 2019-11-15 @tab 1099 KiB
+@item @ref{Release 5_0_0, 5.0.0} @tab 2019-11-15 @tab 1099 KiB
 @tab @url{download/nncp-5.0.0.tar.xz, link} @url{download/nncp-5.0.0.tar.xz.sig, sign}
 @tab @code{3696D7EE B0783E91 87E5EEF4 EFC35235 10452353 7C51FA4C 9BD3CBEE A22678B3}
 
-@item @ref{Release 4.1, 4.1} @tab 2019-05-01 @tab 1227 KiB
+@item @ref{Release 4_1, 4.1} @tab 2019-05-01 @tab 1227 KiB
 @tab @url{download/nncp-4.1.tar.xz, link} @url{download/nncp-4.1.tar.xz.sig, sign}
 @tab @code{29AEC53D EC914906 D7C47194 0955A32E 2BF470E6 9B8E09D3 AF3B62D8 CC8E541E}
 
-@item @ref{Release 4.0, 4.0} @tab 2019-04-28 @tab 1227 KiB
+@item @ref{Release 4_0, 4.0} @tab 2019-04-28 @tab 1227 KiB
 @tab @url{download/nncp-4.0.tar.xz, link} @url{download/nncp-4.0.tar.xz.sig, sign}
 @tab @code{EAFA6272 22E355FC EB772A90 FC6DEA8E AE1F1695 3F48A4A3 57ADA0B4 FF918452}
 
-@item @ref{Release 3.4, 3.4} @tab 2018-06-10 @tab 1154 KiB
+@item @ref{Release 3_4, 3.4} @tab 2018-06-10 @tab 1154 KiB
 @tab @url{download/nncp-3.4.tar.xz, link} @url{download/nncp-3.4.tar.xz.sig, sign}
 @tab @code{9796C4CB 7B670FC7 5FEED3CD 467CA556 B230387D 935B09BB 4B19FD57 FD17FFBA}
 
-@item @ref{Release 3.3, 3.3} @tab 2018-06-02 @tab 1152 KiB
+@item @ref{Release 3_3, 3.3} @tab 2018-06-02 @tab 1152 KiB
 @tab @url{download/nncp-3.3.tar.xz, link} @url{download/nncp-3.3.tar.xz.sig, sign}
 @tab @code{1F8FA9B4 6125D8A9 0608298B A1ED87E1 12DB2D8B 81C766DE F4DFE191 C7B1BFC2}
 
-@item @ref{Release 3.2, 3.2} @tab 2018-05-27 @tab 1147 KiB
+@item @ref{Release 3_2, 3.2} @tab 2018-05-27 @tab 1147 KiB
 @tab @url{download/nncp-3.2.tar.xz, link} @url{download/nncp-3.2.tar.xz.sig, sign}
 @tab @code{BE76802F 1E273D1D E91F0648 A7CB23C5 989F5390 A36F2D0C FD873046 51B9141E}
 
-@item @ref{Release 3.1, 3.1} @tab 2018-02-18 @tab 1145 KiB
+@item @ref{Release 3_1, 3.1} @tab 2018-02-18 @tab 1145 KiB
 @tab @url{download/nncp-3.1.tar.xz, link} @url{download/nncp-3.1.tar.xz.sig, sign}
 @tab @code{B9344516 4230B58E 8AAADAA2 066F37F2 493CCB71 B025126B BCAD8FAD 6535149F}
 
-@item @ref{Release 3.0, 3.0} @tab 2017-12-30 @tab 993 KiB
+@item @ref{Release 3_0, 3.0} @tab 2017-12-30 @tab 993 KiB
 @tab @url{download/nncp-3.0.tar.xz, link} @url{download/nncp-3.0.tar.xz.sig, sign}
 @tab @code{248B2257 2F576E79 A19672E9 B82EB649 18FC95A9 194408C0 67EA4DD3 0468286D}
 
-@item @ref{Release 2.0, 2.0} @tab 2017-12-02 @tab 986 KiB
+@item @ref{Release 2_0, 2.0} @tab 2017-12-02 @tab 986 KiB
 @tab @url{download/nncp-2.0.tar.xz, link} @url{download/nncp-2.0.tar.xz.sig, sign}
 @tab @code{BEF31B13 FB25381E A511FB77 067798AB 27409238 BDF5600F E2EADB29 E5E78996}
 
-@item @ref{Release 1.0, 1.0} @tab 2017-12-02 @tab 987 KiB
+@item @ref{Release 1_0, 1.0} @tab 2017-12-02 @tab 987 KiB
 @tab @url{download/nncp-1.0.tar.xz, link} @url{download/nncp-1.0.tar.xz.sig, sign}
 @tab @code{68BF7803 CD25F59A 56D9FD6C 695002B5 BFBAF591 8A6583F4 3139FC28 CA1AB4AF}
 
-@item @ref{Release 0.12, 0.12} @tab 2017-10-08 @tab 978 KiB
+@item @ref{Release 0_12, 0.12} @tab 2017-10-08 @tab 978 KiB
 @tab @url{download/nncp-0.12.tar.xz, link} @url{download/nncp-0.12.tar.xz.sig, sign}
 @tab @code{707B4005 97753B29 73A5F3E5 DAB51B92 21CC296D 690EF4BC ADE93E0D 2595A5F2}
 
-@item @ref{Release 0.11, 0.11} @tab 2017-08-21 @tab 1031 KiB
+@item @ref{Release 0_11, 0.11} @tab 2017-08-21 @tab 1031 KiB
 @tab @url{download/nncp-0.11.tar.xz, link} @url{download/nncp-0.11.tar.xz.sig, sign}
 @tab @code{D0F73C3B ADBF6B8B 13641A61 4D34F65F 20AF4C84 90894331 BF1F1609 2D65E719}
 
-@item @ref{Release 0.10, 0.10} @tab 2017-07-04 @tab 949 KiB
+@item @ref{Release 0_10, 0.10} @tab 2017-07-04 @tab 949 KiB
 @tab @url{download/nncp-0.10.tar.xz, link} @url{download/nncp-0.10.tar.xz.sig, sign}
 @tab @code{DCE7C762 2F9281EB 282F1A67 5CA6500E 854F2DEC D60F3264 07872B91 4F4E6FA0}
 
-@item @ref{Release 0.9, 0.9} @tab 2017-05-17 @tab 942 KiB
+@item @ref{Release 0_9, 0.9} @tab 2017-05-17 @tab 942 KiB
 @tab @url{download/nncp-0.9.tar.xz, link} @url{download/nncp-0.9.tar.xz.sig, sign}
 @tab @code{8D0765A5 F9D81086 7E1F5AB4 52A9464D C5035CCB 4E09A29A 9C9A4934 1A72AB2C}
 
-@item @ref{Release 0.8, 0.8} @tab 2017-04-30 @tab 932 KiB
+@item @ref{Release 0_8, 0.8} @tab 2017-04-30 @tab 932 KiB
 @tab @url{download/nncp-0.8.tar.xz, link} @url{download/nncp-0.8.tar.xz.sig, sign}
 @tab @code{9BD607D5 C5551857 B7E9277D 0E857936 1DB7353A E0F1556E EA9B1D91 8305B184}
 
-@item @ref{Release 0.7, 0.7} @tab 2017-04-02 @tab 783 KiB
+@item @ref{Release 0_7, 0.7} @tab 2017-04-02 @tab 783 KiB
 @tab @url{download/nncp-0.7.tar.xz, link} @url{download/nncp-0.7.tar.xz.sig, sign}
 @tab @code{D3407323 F89296DD 743FA764 51964B43 794E61BE 0E1D2DD4 ABD02042 B94FFC4F}
 
-@item @ref{Release 0.6, 0.6} @tab 2017-02-05 @tab 746 KiB
+@item @ref{Release 0_6, 0.6} @tab 2017-02-05 @tab 746 KiB
 @tab @url{download/nncp-0.6.tar.xz, link} @url{download/nncp-0.6.tar.xz.sig, sign}
 @tab @code{DCFEE3F9 F669AC28 563C50DB 67BB8B43 0CFF4AB6 EC770ACE B5378D0B B40C0656}
 
-@item @ref{Release 0.5, 0.5} @tab 2017-01-19 @tab 743 KiB
+@item @ref{Release 0_5, 0.5} @tab 2017-01-19 @tab 743 KiB
 @tab @url{download/nncp-0.5.tar.xz, link} @url{download/nncp-0.5.tar.xz.sig, sign}
 @tab @code{D98F9149 5A6D6726 4C659640 1AD7F400 271A58CE 5D8D4AC5 5D1CF934 59BEDFA6}
 
-@item @ref{Release 0.4, 0.4} @tab 2017-01-17 @tab 741 KiB
+@item @ref{Release 0_4, 0.4} @tab 2017-01-17 @tab 741 KiB
 @tab @url{download/nncp-0.4.tar.xz, link} @url{download/nncp-0.4.tar.xz.sig, sign}
 @tab @code{93577327 B3DEBFE3 A80BEB0D 8325B2E6 0939EC55 4DBB05F3 4CA34B99 229C3722}
 
-@item @ref{Release 0.3, 0.3} @tab 2017-01-17 @tab 741 KiB
+@item @ref{Release 0_3, 0.3} @tab 2017-01-17 @tab 741 KiB
 @tab @url{download/nncp-0.3.tar.xz, link} @url{download/nncp-0.3.tar.xz.sig, sign}
 @tab @code{6E76EC5E 6B575C65 BF2D6388 870F2A1C 417D63E4 1628CAA1 BB499D0D 0634473B}
 
-@item @ref{Release 0.2, 0.2} @tab 2017-01-17 @tab 740 KiB
+@item @ref{Release 0_2, 0.2} @tab 2017-01-17 @tab 740 KiB
 @tab @url{download/nncp-0.2.tar.xz, link} @url{download/nncp-0.2.tar.xz.sig, sign}
 @tab @code{00BEAC5A 0C4083B0 42E3152B ACA6FF20 12768B82 CE24D716 8E04279C ECE14DB7}
 
