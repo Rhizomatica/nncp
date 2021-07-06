@@ -1,9 +1,23 @@
 @node Новости
 @section Новости
 
+@node Релиз 7.1.1
+@subsection Релиз 7.1.1
+@itemize
+
+@item
+Исправлено падение при fsync директорий после создания @file{.seen} файлов.
+
+@end itemize
+
 @node Релиз 7.1.0
 @subsection Релиз 7.1.0
 @itemize
+
+@item
+Появилась возможность мультивещательной (multicast) рассылки пакетов.
+Реализовано всего лишь дополнительным типом простых пакетов и изменением
+@command{nncp-toss}, @command{nncp-file} и @command{nncp-exec} команд.
 
 @item
 Исправлена работоспособность @command{nncp-file} и @command{nncp-exec}
@@ -29,11 +43,6 @@
 
 @item
 @command{nncp-pkt} может парсить @file{.hdr} файлы.
-
-@item
-Появилась возможность мультивещательной (multicast) рассылки пакетов.
-Реализовано всего лишь дополнительным типом простых пакетов и изменением
-@command{nncp-toss}, @command{nncp-file} и @command{nncp-exec} команд.
 
 @end itemize
 

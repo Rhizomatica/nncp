@@ -3,9 +3,22 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_1_1
+@section Release 7.1.1
+@itemize
+
+@item
+Fixed failing directories fsync after @file{.seen} file creation.
+@end itemize
+
 @node Release 7_1_0
 @section Release 7.1.0
 @itemize
+
+@item
+Multicasting areas feature appeared. Implemented merely by an additional
+plain packet type with @command{nncp-toss}, @command{nncp-file} and
+@command{nncp-exec} commands modification.
 
 @item
 Fixed workability of @command{nncp-file} and @command{nncp-exec}
@@ -30,11 +43,6 @@ the check in infinite cycle.
 
 @item
 @command{nncp-pkt} can parse @file{.hdr} files.
-
-@item
-Multicasting areas feature appeared. Implemented merely by an additional
-plain packet type with @command{nncp-toss}, @command{nncp-file} and
-@command{nncp-exec} commands modification.
 
 @end itemize
 
