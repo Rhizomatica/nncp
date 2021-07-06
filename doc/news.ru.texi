@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 7.1.1
+@subsection Релиз 7.1.1
+@itemize
+
+@item
+Исправлено падение при fsync директорий после создания @file{.seen} файлов.
+
+@end itemize
+
 @node Релиз 7.1.0
 @subsection Релиз 7.1.0
 @itemize
