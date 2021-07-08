@@ -9,6 +9,11 @@ See also this page @ref{Новости, on russian}.
 
 @item
 @command{nncp-trns} command appeared for manual transition packets creation.
+
+@item
+If destination node of transitional packet has non empty @option{via}
+route, then do not ignore, but use it.
+
 @end itemize
 
 @node Release 7_1_1
