@@ -729,7 +729,7 @@ func jobProcess(
 					})
 					continue
 				}
-				if nodeId != sender.Id {
+				if nodeId != sender.Id && nodeId != pktEnc.Sender {
 					ctx.LogI("rx-area-echo", lesEcho, logMsgNode)
 					if _, err = ctx.Tx(
 						node, &pkt, nice, int64(pktSize), 0, fullPipeR, pktName, nil,

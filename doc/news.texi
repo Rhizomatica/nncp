@@ -14,6 +14,10 @@ See also this page @ref{Новости, on russian}.
 If destination node of transitional packet has non empty @option{via}
 route, then do not ignore, but use it.
 
+@item
+Do not relay multicast packet to area message's originator, that
+obviously has seen its own packet.
+
 @end itemize
 
 @node Release 7_1_1
