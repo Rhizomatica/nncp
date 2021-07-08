@@ -42,6 +42,7 @@ func main() {
 	var (
 		fn        = flag.String("file", "", "Read the file instead of stdin")
 		seek      = flag.Uint64("seek", 0, "Seek the file, hash, rewind, hash remaining")
+		forceFat  = flag.Bool("force-fat", false, "Force MTHFat implementation usage")
 		showPrgrs = flag.Bool("progress", false, "Progress showing")
 		debug     = flag.Bool("debug", false, "Print MTH steps calculations")
 		version   = flag.Bool("version", false, "Print version information")
@@ -75,15 +76,20 @@ func main() {
 		}
 		size = fi.Size()
 	}
-	mth := nncp.MTHNew(size, int64(*seek))
+	var mth nncp.MTH
+	if *forceFat {
+		mth = nncp.MTHFatNew(size, int64(*seek))
+	} else {
+		mth = nncp.MTHNew(size, int64(*seek))
+	}
 	var debugger sync.WaitGroup
 	if *debug {
 		fmt.Println("Leaf BLAKE3 key:", hex.EncodeToString(nncp.MTHLeafKey[:]))
 		fmt.Println("Node BLAKE3 key:", hex.EncodeToString(nncp.MTHNodeKey[:]))
-		mth.Events = make(chan nncp.MTHEvent)
+		events := mth.Events()
 		debugger.Add(1)
 		go func() {
-			for e := range mth.Events {
+			for e := range events {
 				var t string
 				switch e.Type {
 				case nncp.MTHEventAppend:
@@ -121,7 +127,7 @@ func main() {
 			log.Fatalln(err)
 		}
 		if *showPrgrs {
-			mth.PktName = *fn
+			mth.SetPktName(*fn)
 		}
 		if _, err = mth.PrependFrom(bufio.NewReaderSize(fd, nncp.MTHBlockSize)); err != nil {
 			log.Fatalln(err)

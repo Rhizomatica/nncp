@@ -84,7 +84,7 @@ func doPlain(ctx *nncp.Ctx, pkt nncp.Pkt, dump, decompress bool) {
 	case nncp.PktTypeTrns:
 		path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
 		node, err := ctx.FindNode(path)
-		if err != nil {
+		if err == nil {
 			path = fmt.Sprintf("%s (%s)", path, node.Name)
 		}
 	case nncp.PktTypeArea:
@@ -119,7 +119,9 @@ func doEncrypted(
 	recipientNode := ctx.Neigh[*pktEnc.Recipient]
 	if recipientNode == nil {
 		area = ctx.AreaId2Area[nncp.AreaId(*pktEnc.Recipient)]
-		recipientName = "area " + area.Name
+		if area != nil {
+			recipientName = "area " + area.Name
+		}
 	} else {
 		recipientName = recipientNode.Name
 	}
