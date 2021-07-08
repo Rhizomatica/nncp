@@ -3,12 +3,35 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_2_0
+@section Release 7.2.0
+@itemize
+
+@item
+@command{nncp-trns} command appeared for manual transition packets creation.
+
+@item
+If destination node of transitional packet has non empty @option{via}
+route, then do not ignore, but use it.
+
+@item
+Do not relay multicast packet to area message's originator, that
+obviously has seen its own packet.
+
+@item
+Much less memory usage during MTH hashing when offset is zero: when
+packet is not resumed, but for example checked with @command{nncp-check}
+command.
+
+@end itemize
+
 @node Release 7_1_1
 @section Release 7.1.1
 @itemize
 
 @item
 Fixed failing directories fsync after @file{.seen} file creation.
+
 @end itemize
 
 @node Release 7_1_0

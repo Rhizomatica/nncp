@@ -79,7 +79,7 @@ func (ctx *Ctx) Check(nodeId *NodeId) bool {
 	return !(ctx.checkXxIsBad(nodeId, TRx) || ctx.checkXxIsBad(nodeId, TTx))
 }
 
-func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[MTHSize]byte, mth *MTH) (int64, error) {
+func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[MTHSize]byte, mth MTH) (int64, error) {
 	dirToSync := filepath.Join(ctx.Spool, nodeId.String(), string(TRx))
 	pktName := Base32Codec.EncodeToString(hshValue[:])
 	pktPath := filepath.Join(dirToSync, pktName)
@@ -103,7 +103,7 @@ func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[MTHSize]byte, mth *MTH) (in
 	if mth == nil {
 		gut, err = Check(fd, size, hshValue[:], les, ctx.ShowPrgrs)
 	} else {
-		mth.PktName = pktName
+		mth.SetPktName(pktName)
 		if _, err = mth.PrependFrom(bufio.NewReaderSize(fd, MTHSize)); err != nil {
 			return 0, err
 		}

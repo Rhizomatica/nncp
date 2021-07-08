@@ -588,11 +588,35 @@ func jobProcess(
 		}
 		ctx.LogD("rx-tx", les, logMsg)
 		if !dryRun {
-			if err = ctx.TxTrns(node, nice, int64(pktSize), pipeR); err != nil {
-				ctx.LogE("rx", les, err, func(les LEs) string {
-					return logMsg(les) + ": txing"
-				})
-				return err
+			if len(node.Via) == 0 {
+				if err = ctx.TxTrns(node, nice, int64(pktSize), pipeR); err != nil {
+					ctx.LogE("rx", les, err, func(les LEs) string {
+						return logMsg(les) + ": txing"
+					})
+					return err
+				}
+			} else {
+				via := node.Via[:len(node.Via)-1]
+				node = ctx.Neigh[*node.Via[len(node.Via)-1]]
+				node = &Node{Id: node.Id, Via: via, ExchPub: node.ExchPub}
+				pktTrns, err := NewPkt(PktTypeTrns, 0, nodeId[:])
+				if err != nil {
+					panic(err)
+				}
+				if _, err = ctx.Tx(
+					node,
+					pktTrns,
+					nice,
+					int64(pktSize), 0,
+					pipeR,
+					pktName,
+					nil,
+				); err != nil {
+					ctx.LogE("rx", les, err, func(les LEs) string {
+						return logMsg(les) + ": txing"
+					})
+					return err
+				}
 			}
 		}
 		ctx.LogI("rx", les, func(les LEs) string {
@@ -705,7 +729,7 @@ func jobProcess(
 					})
 					continue
 				}
-				if nodeId != sender.Id {
+				if nodeId != sender.Id && nodeId != pktEnc.Sender {
 					ctx.LogI("rx-area-echo", lesEcho, logMsgNode)
 					if _, err = ctx.Tx(
 						node, &pkt, nice, int64(pktSize), 0, fullPipeR, pktName, nil,
@@ -820,7 +844,7 @@ func jobProcess(
 			)
 			if err != nil {
 				pipeW.CloseWithError(err)
-				go func() { <-errs }()
+				<-errs
 				return err
 			}
 			pipeW.Close()
@@ -917,6 +941,18 @@ func (ctx *Ctx) Toss(
 			isBad = true
 			continue
 		}
+		sender := ctx.Neigh[*job.PktEnc.Sender]
+		if sender == nil {
+			err := errors.New("unknown node")
+			ctx.LogE("rx-open", les, err, func(les LEs) string {
+				return fmt.Sprintf(
+					"Tossing %s/%s",
+					ctx.NodeName(job.PktEnc.Sender), pktName,
+				)
+			})
+			isBad = true
+			continue
+		}
 		errs := make(chan error, 1)
 		var sharedKey []byte
 	Retry:
@@ -927,7 +963,7 @@ func (ctx *Ctx) Toss(
 				pipeR,
 				pktName,
 				les,
-				ctx.Neigh[*job.PktEnc.Sender],
+				sender,
 				job.PktEnc.Nice,
 				uint64(pktSizeWithoutEnc(job.Size)),
 				job.Path,
@@ -955,7 +991,7 @@ func (ctx *Ctx) Toss(
 		if err != nil {
 			isBad = true
 			fd.Close()
-			go func() { <-errs }()
+			<-errs
 			continue
 		}
 		if err = <-errs; err == JobRepeatProcess {
