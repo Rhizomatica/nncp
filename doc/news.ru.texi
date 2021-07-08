@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 7.2.0
+@subsection Релиз 7.2.0
+@itemize
+
+@item
+Появилась @command{nncp-trns} команда для ручного создания транзитных пакетов.
+
+@end itemize
+
 @node Релиз 7.1.1
 @subsection Релиз 7.1.1
 @itemize
