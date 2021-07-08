@@ -41,14 +41,14 @@ const (
 )
 
 type MTHAndOffset struct {
-	mth    *MTH
+	mth    MTH
 	offset uint64
 }
 
 type SPCheckerTask struct {
 	nodeId *NodeId
 	hsh    *[MTHSize]byte
-	mth    *MTH
+	mth    MTH
 	done   chan []byte
 }
 
@@ -1439,7 +1439,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			}
 			if hasherAndOffset != nil {
 				delete(state.fileHashers, filePath)
-				if hasherAndOffset.mth.PrependSize == 0 {
+				if hasherAndOffset.mth.PrependSize() == 0 {
 					if bytes.Compare(hasherAndOffset.mth.Sum(nil), file.Hash[:]) != 0 {
 						state.Ctx.LogE(
 							"sp-file-bad-checksum", lesp,

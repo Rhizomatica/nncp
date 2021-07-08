@@ -18,6 +18,11 @@ route, then do not ignore, but use it.
 Do not relay multicast packet to area message's originator, that
 obviously has seen its own packet.
 
+@item
+Much less memory usage during MTH hashing when offset is zero: when
+packet is not resumed, but for example checked with @command{nncp-check}
+command.
+
 @end itemize
 
 @node Release 7_1_1
