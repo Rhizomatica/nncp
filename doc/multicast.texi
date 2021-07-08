@@ -100,7 +100,7 @@ A -- B -- C
 @end example
 
 @example
-$ nncp-file nodelist-20210704.rec area:nodelist-updates:
+$ nncp-file nodelist-20210704.rec.zst area:nodelist-updates:
 $ nncp-toss -node self
 @end example
 
@@ -126,7 +126,7 @@ not read area's message because it lacks the keys.
 
 @item
 @code{nodeC} does not relay it to anyone. Just stores
-@file{nodelist-20210704.rec} in the incoming directory.
+@file{nodelist-20210704.rec.zst} in the incoming directory.
 
 @item
 @code{nodeD} receives packets from both @code{nodeA} and @code{nodeB}.
