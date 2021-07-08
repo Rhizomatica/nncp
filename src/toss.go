@@ -820,7 +820,7 @@ func jobProcess(
 			)
 			if err != nil {
 				pipeW.CloseWithError(err)
-				go func() { <-errs }()
+				<-errs
 				return err
 			}
 			pipeW.Close()
@@ -955,7 +955,7 @@ func (ctx *Ctx) Toss(
 		if err != nil {
 			isBad = true
 			fd.Close()
-			go func() { <-errs }()
+			<-errs
 			continue
 		}
 		if err = <-errs; err == JobRepeatProcess {
