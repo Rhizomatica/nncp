@@ -17,4 +17,5 @@ nncp-reass
 nncp-rm
 nncp-stat
 nncp-toss
+nncp-trns
 nncp-xfer

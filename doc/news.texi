@@ -3,12 +3,21 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_2_0
+@section Release 7.2.0
+@itemize
+
+@item
+@command{nncp-trns} command appeared for manual transition packets creation.
+@end itemize
+
 @node Release 7_1_1
 @section Release 7.1.1
 @itemize
 
 @item
 Fixed failing directories fsync after @file{.seen} file creation.
+
 @end itemize
 
 @node Release 7_1_0
