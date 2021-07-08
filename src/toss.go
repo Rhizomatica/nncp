@@ -917,6 +917,18 @@ func (ctx *Ctx) Toss(
 			isBad = true
 			continue
 		}
+		sender := ctx.Neigh[*job.PktEnc.Sender]
+		if sender == nil {
+			err := errors.New("unknown node")
+			ctx.LogE("rx-open", les, err, func(les LEs) string {
+				return fmt.Sprintf(
+					"Tossing %s/%s",
+					ctx.NodeName(job.PktEnc.Sender), pktName,
+				)
+			})
+			isBad = true
+			continue
+		}
 		errs := make(chan error, 1)
 		var sharedKey []byte
 	Retry:
@@ -927,7 +939,7 @@ func (ctx *Ctx) Toss(
 				pipeR,
 				pktName,
 				les,
-				ctx.Neigh[*job.PktEnc.Sender],
+				sender,
 				job.PktEnc.Nice,
 				uint64(pktSizeWithoutEnc(job.Size)),
 				job.Path,
