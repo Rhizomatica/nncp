@@ -1324,9 +1324,9 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			}
 			fullsize := int64(0)
 			state.RLock()
-			infoTheir, ok := state.infosTheir[*file.Hash]
+			infoTheir := state.infosTheir[*file.Hash]
 			state.RUnlock()
-			if !ok {
+			if infoTheir == nil {
 				state.Ctx.LogE("sp-file-open", lesp, err, func(les LEs) string {
 					return logMsg(les) + ": unknown file"
 				})
