@@ -806,6 +806,7 @@ func (state *SPState) StartWorkers(
 		defer conn.Close()
 		defer state.SetDead()
 		defer state.wg.Done()
+		buf := make([]byte, MaxSPSize-SPHeadOverhead-SPFileOverhead)
 		for {
 			if state.NotAlive() {
 				return
@@ -895,7 +896,7 @@ func (state *SPState) StartWorkers(
 				}
 				fd := fdAndFullSize.fd
 				fullSize := fdAndFullSize.fullSize
-				var buf []byte
+				var bufRead []byte
 				if freq.Offset < uint64(fullSize) {
 					state.Ctx.LogD("sp-file-seek", lesp, func(les LEs) string {
 						return logMsg(les) + ": seeking"
@@ -906,7 +907,6 @@ func (state *SPState) StartWorkers(
 						})
 						return
 					}
-					buf = make([]byte, MaxSPSize-SPHeadOverhead-SPFileOverhead)
 					n, err := fd.Read(buf)
 					if err != nil {
 						state.Ctx.LogE("sp-file-read", lesp, err, func(les LEs) string {
@@ -914,7 +914,7 @@ func (state *SPState) StartWorkers(
 						})
 						return
 					}
-					buf = buf[:n]
+					bufRead = buf[:n]
 					lesp = append(
 						les,
 						LE{"XX", string(TTx)},
@@ -932,9 +932,9 @@ func (state *SPState) StartWorkers(
 				payload = MarshalSP(SPTypeFile, SPFile{
 					Hash:    freq.Hash,
 					Offset:  freq.Offset,
-					Payload: buf,
+					Payload: bufRead,
 				})
-				ourSize := freq.Offset + uint64(len(buf))
+				ourSize := freq.Offset + uint64(len(bufRead))
 				lesp = append(
 					les,
 					LE{"XX", string(TTx)},
@@ -947,7 +947,8 @@ func (state *SPState) StartWorkers(
 					Progress("Tx", lesp)
 				}
 				state.Lock()
-				if len(state.queueTheir) > 0 && *state.queueTheir[0].freq.Hash == *freq.Hash {
+				if len(state.queueTheir) > 0 &&
+					*state.queueTheir[0].freq.Hash == *freq.Hash {
 					if ourSize == uint64(fullSize) {
 						state.Ctx.LogD("sp-file-finished", lesp, func(les LEs) string {
 							return logMsg(les) + ": finished"
@@ -961,7 +962,7 @@ func (state *SPState) StartWorkers(
 							delete(state.progressBars, pktName)
 						}
 					} else {
-						state.queueTheir[0].freq.Offset += uint64(len(buf))
+						state.queueTheir[0].freq.Offset = ourSize
 					}
 				} else {
 					state.Ctx.LogD("sp-file-disappeared", lesp, func(les LEs) string {
