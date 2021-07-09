@@ -1516,16 +1516,17 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.Lock()
 			delete(state.infosTheir, *file.Hash)
 			state.Unlock()
-			if hasherAndOffset != nil {
-				go func() {
-					spCheckerTasks <- SPCheckerTask{
-						nodeId: state.Node.Id,
-						hsh:    file.Hash,
-						mth:    hasherAndOffset.mth,
-						done:   state.payloads,
-					}
-				}()
-			}
+			go func() {
+				t := SPCheckerTask{
+					nodeId: state.Node.Id,
+					hsh:    file.Hash,
+					done:   state.payloads,
+				}
+				if hasherAndOffset != nil {
+					t.mth = hasherAndOffset.mth
+				}
+				spCheckerTasks <- t
+			}()
 
 		case SPTypeDone:
 			lesp := append(les, LE{"Type", "done"})
