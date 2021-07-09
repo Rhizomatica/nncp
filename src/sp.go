@@ -947,27 +947,25 @@ func (state *SPState) StartWorkers(
 					Progress("Tx", lesp)
 				}
 				state.Lock()
-				if len(state.queueTheir) > 0 &&
-					*state.queueTheir[0].freq.Hash == *freq.Hash {
+				for i, q := range state.queueTheir {
+					if *q.freq.Hash != *freq.Hash {
+						continue
+					}
 					if ourSize == uint64(fullSize) {
 						state.Ctx.LogD("sp-file-finished", lesp, func(les LEs) string {
 							return logMsg(les) + ": finished"
 						})
-						if len(state.queueTheir) > 1 {
-							state.queueTheir = state.queueTheir[1:]
-						} else {
-							state.queueTheir = state.queueTheir[:0]
-						}
+						state.queueTheir = append(
+							state.queueTheir[:i],
+							state.queueTheir[i+1:]...,
+						)
 						if state.Ctx.ShowPrgrs {
 							delete(state.progressBars, pktName)
 						}
 					} else {
-						state.queueTheir[0].freq.Offset = ourSize
+						q.freq.Offset = ourSize
 					}
-				} else {
-					state.Ctx.LogD("sp-file-disappeared", lesp, func(les LEs) string {
-						return logMsg(les) + ": queue disappeared"
-					})
+					break
 				}
 				state.Unlock()
 			}
