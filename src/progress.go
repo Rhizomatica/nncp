@@ -132,9 +132,9 @@ func Progress(prefix string, les LEs) {
 		}
 	}
 	progressBarsLock.RLock()
-	pb, exists := progressBars[pkt]
+	pb := progressBars[pkt]
 	progressBarsLock.RUnlock()
-	if !exists {
+	if pb == nil {
 		progressBarsLock.Lock()
 		pb = ProgressBarNew(size, fullsize)
 		progressBars[pkt] = pb
@@ -156,8 +156,8 @@ func Progress(prefix string, les LEs) {
 
 func ProgressKill(pkt string) {
 	progressBarsLock.Lock()
-	pb, exists := progressBars[pkt]
-	if exists {
+	pb := progressBars[pkt]
+	if pb != nil {
 		pb.Kill()
 		delete(progressBars, pkt)
 	}
