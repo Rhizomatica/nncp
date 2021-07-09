@@ -932,8 +932,9 @@ func (state *SPState) StartWorkers(
 							logMsg(les), humanize.IBytes(uint64(n)),
 						)
 					})
+				} else {
+					state.closeFd(pth)
 				}
-				state.closeFd(pth)
 				payload = MarshalSP(SPTypeFile, SPFile{
 					Hash:    freq.Hash,
 					Offset:  freq.Offset,
