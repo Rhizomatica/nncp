@@ -88,9 +88,7 @@ func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
 }
 
 func CtxFromCmdline(
-	cfgPath,
-	spoolPath,
-	logPath string,
+	cfgPath, spoolPath, logPath string,
 	quiet, showPrgrs, omitPrgrs, debug bool,
 ) (*Ctx, error) {
 	env := os.Getenv(CfgPathEnv)
@@ -100,11 +98,27 @@ func CtxFromCmdline(
 	if showPrgrs && omitPrgrs {
 		return nil, errors.New("simultaneous -progress and -noprogress")
 	}
-	cfgRaw, err := ioutil.ReadFile(cfgPath)
+	fi, err := os.Stat(cfgPath)
 	if err != nil {
 		return nil, err
 	}
-	ctx, err := CfgParse(cfgRaw)
+	var cfg *CfgJSON
+	if fi.IsDir() {
+		cfg, err = DirToCfg(cfgPath)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		cfgRaw, err := ioutil.ReadFile(cfgPath)
+		if err != nil {
+			return nil, err
+		}
+		cfg, err = CfgParse(cfgRaw)
+		if err != nil {
+			return nil, err
+		}
+	}
+	ctx, err := Cfg2Ctx(cfg)
 	if err != nil {
 		return nil, err
 	}

@@ -51,8 +51,8 @@ type NodeJSON struct {
 	ExchPub  string              `json:"exchpub"`
 	SignPub  string              `json:"signpub"`
 	NoisePub *string             `json:"noisepub,omitempty"`
-	Exec     map[string][]string `json:"exec,omitempty"`
 	Incoming *string             `json:"incoming,omitempty"`
+	Exec     map[string][]string `json:"exec,omitempty"`
 	Freq     *NodeFreqJSON       `json:"freq,omitempty"`
 	Via      []string            `json:"via,omitempty"`
 	Calls    []CallJSON          `json:"calls,omitempty"`
@@ -73,7 +73,7 @@ type NodeFreqJSON struct {
 }
 
 type CallJSON struct {
-	Cron           string
+	Cron           string  `json:"cron"`
 	Nice           *string `json:"nice,omitempty"`
 	Xx             *string `json:"xx,omitempty"`
 	RxRate         *int    `json:"rxrate,omitempty"`
@@ -81,17 +81,17 @@ type CallJSON struct {
 	Addr           *string `json:"addr,omitempty"`
 	OnlineDeadline *uint   `json:"onlinedeadline,omitempty"`
 	MaxOnlineTime  *uint   `json:"maxonlinetime,omitempty"`
-	WhenTxExists   *bool   `json:"when-tx-exists,omitempty"`
-	NoCK           *bool   `json:"nock"`
-	MCDIgnore      *bool   `json:"mcd-ignore"`
+	WhenTxExists   bool    `json:"when-tx-exists,omitempty"`
+	NoCK           bool    `json:"nock,omitempty"`
+	MCDIgnore      bool    `json:"mcd-ignore,omitempty"`
 
-	AutoToss       *bool `json:"autotoss,omitempty"`
-	AutoTossDoSeen *bool `json:"autotoss-doseen,omitempty"`
-	AutoTossNoFile *bool `json:"autotoss-nofile,omitempty"`
-	AutoTossNoFreq *bool `json:"autotoss-nofreq,omitempty"`
-	AutoTossNoExec *bool `json:"autotoss-noexec,omitempty"`
-	AutoTossNoTrns *bool `json:"autotoss-notrns,omitempty"`
-	AutoTossNoArea *bool `json:"autotoss-noarea,omitempty"`
+	AutoToss       bool `json:"autotoss,omitempty"`
+	AutoTossDoSeen bool `json:"autotoss-doseen,omitempty"`
+	AutoTossNoFile bool `json:"autotoss-nofile,omitempty"`
+	AutoTossNoFreq bool `json:"autotoss-nofreq,omitempty"`
+	AutoTossNoExec bool `json:"autotoss-noexec,omitempty"`
+	AutoTossNoTrns bool `json:"autotoss-notrns,omitempty"`
+	AutoTossNoArea bool `json:"autotoss-noarea,omitempty"`
 }
 
 type NodeOurJSON struct {
@@ -100,13 +100,13 @@ type NodeOurJSON struct {
 	ExchPrv  string `json:"exchprv"`
 	SignPub  string `json:"signpub"`
 	SignPrv  string `json:"signprv"`
-	NoisePrv string `json:"noiseprv"`
 	NoisePub string `json:"noisepub"`
+	NoisePrv string `json:"noiseprv"`
 }
 
 type FromToJSON struct {
-	From string
-	To   string
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 type NotifyJSON struct {
@@ -117,34 +117,34 @@ type NotifyJSON struct {
 
 type AreaJSON struct {
 	Id  string  `json:"id"`
-	Pub string  `json:"pub"`
+	Pub *string `json:"pub,omitempty"`
 	Prv *string `json:"prv,omitempty"`
 
 	Subs []string `json:"subs"`
 
-	Exec     map[string][]string `json:"exec,omitempty"`
 	Incoming *string             `json:"incoming,omitempty"`
+	Exec     map[string][]string `json:"exec,omitempty"`
 
-	AllowUnknown *bool `json:"allow-unknown,omitempty"`
+	AllowUnknown bool `json:"allow-unknown,omitempty"`
 }
 
 type CfgJSON struct {
-	Spool string `json:"spool"`
-	Log   string `json:"log"`
-	Umask string `json:"umask,omitempty"`
+	Spool string  `json:"spool"`
+	Log   string  `json:"log"`
+	Umask *string `json:"umask,omitempty"`
 
 	OmitPrgrs bool `json:"noprogress,omitempty"`
 	NoHdr     bool `json:"nohdr,omitempty"`
+
+	MCDRxIfis []string       `json:"mcd-listen,omitempty"`
+	MCDTxIfis map[string]int `json:"mcd-send,omitempty"`
 
 	Notify *NotifyJSON `json:"notify,omitempty"`
 
 	Self  *NodeOurJSON        `json:"self"`
 	Neigh map[string]NodeJSON `json:"neigh"`
 
-	MCDRxIfis []string       `json:"mcd-listen"`
-	MCDTxIfis map[string]int `json:"mcd-send"`
-
-	Areas map[string]AreaJSON `json:"areas"`
+	Areas map[string]AreaJSON `json:"areas,omitempty"`
 }
 
 func NewNode(name string, cfg NodeJSON) (*Node, error) {
@@ -303,36 +303,16 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		if callCfg.MaxOnlineTime != nil {
 			call.MaxOnlineTime = time.Duration(*callCfg.MaxOnlineTime) * time.Second
 		}
-		if callCfg.WhenTxExists != nil {
-			call.WhenTxExists = *callCfg.WhenTxExists
-		}
-		if callCfg.NoCK != nil {
-			call.NoCK = *callCfg.NoCK
-		}
-		if callCfg.MCDIgnore != nil {
-			call.MCDIgnore = *callCfg.MCDIgnore
-		}
-		if callCfg.AutoToss != nil {
-			call.AutoToss = *callCfg.AutoToss
-		}
-		if callCfg.AutoTossDoSeen != nil {
-			call.AutoTossDoSeen = *callCfg.AutoTossDoSeen
-		}
-		if callCfg.AutoTossNoFile != nil {
-			call.AutoTossNoFile = *callCfg.AutoTossNoFile
-		}
-		if callCfg.AutoTossNoFreq != nil {
-			call.AutoTossNoFreq = *callCfg.AutoTossNoFreq
-		}
-		if callCfg.AutoTossNoExec != nil {
-			call.AutoTossNoExec = *callCfg.AutoTossNoExec
-		}
-		if callCfg.AutoTossNoTrns != nil {
-			call.AutoTossNoTrns = *callCfg.AutoTossNoTrns
-		}
-		if callCfg.AutoTossNoArea != nil {
-			call.AutoTossNoArea = *callCfg.AutoTossNoArea
-		}
+		call.WhenTxExists = callCfg.WhenTxExists
+		call.NoCK = callCfg.NoCK
+		call.MCDIgnore = callCfg.MCDIgnore
+		call.AutoToss = callCfg.AutoToss
+		call.AutoTossDoSeen = callCfg.AutoTossDoSeen
+		call.AutoTossNoFile = callCfg.AutoTossNoFile
+		call.AutoTossNoFreq = callCfg.AutoTossNoFreq
+		call.AutoTossNoExec = callCfg.AutoTossNoExec
+		call.AutoTossNoTrns = callCfg.AutoTossNoTrns
+		call.AutoTossNoArea = callCfg.AutoTossNoArea
 
 		calls = append(calls, &call)
 	}
@@ -449,19 +429,21 @@ func NewArea(ctx *Ctx, name string, cfg *AreaJSON) (*Area, error) {
 	area := Area{
 		Name:     name,
 		Id:       areaId,
-		Pub:      new([32]byte),
 		Subs:     subs,
 		Exec:     cfg.Exec,
 		Incoming: cfg.Incoming,
 	}
-	pub, err := Base32Codec.DecodeString(cfg.Pub)
-	if err != nil {
-		return nil, err
+	if cfg.Pub != nil {
+		pub, err := Base32Codec.DecodeString(*cfg.Pub)
+		if err != nil {
+			return nil, err
+		}
+		if len(pub) != 32 {
+			return nil, errors.New("Invalid pub size")
+		}
+		area.Pub = new([32]byte)
+		copy(area.Pub[:], pub)
 	}
-	if len(pub) != 32 {
-		return nil, errors.New("Invalid pub size")
-	}
-	copy(area.Pub[:], pub)
 	if cfg.Prv != nil {
 		prv, err := Base32Codec.DecodeString(*cfg.Prv)
 		if err != nil {
@@ -473,13 +455,11 @@ func NewArea(ctx *Ctx, name string, cfg *AreaJSON) (*Area, error) {
 		area.Prv = new([32]byte)
 		copy(area.Prv[:], prv)
 	}
-	if cfg.AllowUnknown != nil {
-		area.AllowUnknown = *cfg.AllowUnknown
-	}
+	area.AllowUnknown = cfg.AllowUnknown
 	return &area, nil
 }
 
-func CfgParse(data []byte) (*Ctx, error) {
+func CfgParse(data []byte) (*CfgJSON, error) {
 	var err error
 	if bytes.Compare(data[:8], MagicNNCPBv3.B[:]) == 0 {
 		os.Stderr.WriteString("Passphrase:") // #nosec G104
@@ -506,14 +486,17 @@ func CfgParse(data []byte) (*Ctx, error) {
 		return nil, err
 	}
 	var cfgJSON CfgJSON
-	if err = json.Unmarshal(marshaled, &cfgJSON); err != nil {
-		return nil, err
-	}
+	err = json.Unmarshal(marshaled, &cfgJSON)
+	return &cfgJSON, err
+}
+
+func Cfg2Ctx(cfgJSON *CfgJSON) (*Ctx, error) {
 	if _, exists := cfgJSON.Neigh["self"]; !exists {
 		return nil, errors.New("self neighbour missing")
 	}
 	var self *NodeOur
 	if cfgJSON.Self != nil {
+		var err error
 		self, err = NewNodeOur(cfgJSON.Self)
 		if err != nil {
 			return nil, err
@@ -528,8 +511,8 @@ func CfgParse(data []byte) (*Ctx, error) {
 		return nil, errors.New("Log path must be absolute")
 	}
 	var umaskForce *int
-	if cfgJSON.Umask != "" {
-		r, err := strconv.ParseUint(cfgJSON.Umask, 8, 16)
+	if cfgJSON.Umask != nil {
+		r, err := strconv.ParseUint(*cfgJSON.Umask, 8, 16)
 		if err != nil {
 			return nil, err
 		}

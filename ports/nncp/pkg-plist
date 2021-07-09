@@ -1,6 +1,7 @@
 bin/nncp-bundle
 bin/nncp-call
 bin/nncp-caller
+bin/nncp-cfgdir
 bin/nncp-cfgenc
 bin/nncp-cfgmin
 bin/nncp-cfgnew
