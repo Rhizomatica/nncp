@@ -4,6 +4,7 @@
 See also this page @ref{Новости, on russian}.
 
 @menu
+* Release 7.2.1: Release 7_2_1.
 * Release 7.2.0: Release 7_2_0.
 * Release 7.1.1: Release 7_1_1.
 * Release 7.1.0: Release 7_1_0.
@@ -52,6 +53,15 @@ See also this page @ref{Новости, on russian}.
 * Release 0.3: Release 0_3.
 * Release 0.2: Release 0_2.
 @end menu
+
+@node Release 7_2_1
+@section Release 7.2.1
+@itemize
+
+@item
+Small optimizations in online commands.
+
+@end itemize
 
 @node Release 7_2_0
 @section Release 7.2.0
