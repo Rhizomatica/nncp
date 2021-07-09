@@ -875,6 +875,9 @@ func (state *SPState) StartWorkers(
 				fdAndFullSize, exists := state.fds[pth]
 				state.fdsLock.RUnlock()
 				if !exists {
+					state.Ctx.LogD("sp-queue-open", lesp, func(les LEs) string {
+						return logMsg(les) + ": opening"
+					})
 					fd, err := os.Open(pth)
 					if err != nil {
 						state.Ctx.LogE("sp-queue-open", lesp, err, func(les LEs) string {
@@ -896,6 +899,7 @@ func (state *SPState) StartWorkers(
 				}
 				fd := fdAndFullSize.fd
 				fullSize := fdAndFullSize.fullSize
+				lesp = append(lesp, LE{"FullSize", fullSize})
 				var bufRead []byte
 				if freq.Offset < uint64(fullSize) {
 					state.Ctx.LogD("sp-file-seek", lesp, func(les LEs) string {
@@ -920,6 +924,7 @@ func (state *SPState) StartWorkers(
 						LE{"XX", string(TTx)},
 						LE{"Pkt", pktName},
 						LE{"Size", int64(n)},
+						LE{"FullSize", fullSize},
 					)
 					state.Ctx.LogD("sp-file-read", lesp, func(les LEs) string {
 						return fmt.Sprintf(
