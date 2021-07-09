@@ -120,8 +120,8 @@ func jobProcess(
 		}
 		argsStr := strings.Join(append([]string{handle}, args...), " ")
 		les = append(les, LE{"Type", "exec"}, LE{"Dst", argsStr})
-		cmdline, exists := sender.Exec[handle]
-		if !exists || len(cmdline) == 0 {
+		cmdline := sender.Exec[handle]
+		if len(cmdline) == 0 {
 			err = errors.New("No handle found")
 			ctx.LogE(
 				"rx-no-handle", les, err,
@@ -165,11 +165,11 @@ func jobProcess(
 				return err
 			}
 			if len(sendmail) > 0 && ctx.NotifyExec != nil {
-				notify, exists := ctx.NotifyExec[sender.Name+"."+handle]
-				if !exists {
-					notify, exists = ctx.NotifyExec["*."+handle]
+				notify := ctx.NotifyExec[sender.Name+"."+handle]
+				if notify == nil {
+					notify = ctx.NotifyExec["*."+handle]
 				}
-				if exists {
+				if notify != nil {
 					cmd := exec.Command(
 						sendmail[0],
 						append(sendmail[1:], notify.To)...,

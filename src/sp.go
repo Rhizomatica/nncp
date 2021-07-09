@@ -806,6 +806,7 @@ func (state *SPState) StartWorkers(
 		defer conn.Close()
 		defer state.SetDead()
 		defer state.wg.Done()
+		buf := make([]byte, MaxSPSize-SPHeadOverhead-SPFileOverhead)
 		for {
 			if state.NotAlive() {
 				return
@@ -874,6 +875,9 @@ func (state *SPState) StartWorkers(
 				fdAndFullSize, exists := state.fds[pth]
 				state.fdsLock.RUnlock()
 				if !exists {
+					state.Ctx.LogD("sp-queue-open", lesp, func(les LEs) string {
+						return logMsg(les) + ": opening"
+					})
 					fd, err := os.Open(pth)
 					if err != nil {
 						state.Ctx.LogE("sp-queue-open", lesp, err, func(les LEs) string {
@@ -895,7 +899,8 @@ func (state *SPState) StartWorkers(
 				}
 				fd := fdAndFullSize.fd
 				fullSize := fdAndFullSize.fullSize
-				var buf []byte
+				lesp = append(lesp, LE{"FullSize", fullSize})
+				var bufRead []byte
 				if freq.Offset < uint64(fullSize) {
 					state.Ctx.LogD("sp-file-seek", lesp, func(les LEs) string {
 						return logMsg(les) + ": seeking"
@@ -906,7 +911,6 @@ func (state *SPState) StartWorkers(
 						})
 						return
 					}
-					buf = make([]byte, MaxSPSize-SPHeadOverhead-SPFileOverhead)
 					n, err := fd.Read(buf)
 					if err != nil {
 						state.Ctx.LogE("sp-file-read", lesp, err, func(les LEs) string {
@@ -914,12 +918,13 @@ func (state *SPState) StartWorkers(
 						})
 						return
 					}
-					buf = buf[:n]
+					bufRead = buf[:n]
 					lesp = append(
 						les,
 						LE{"XX", string(TTx)},
 						LE{"Pkt", pktName},
 						LE{"Size", int64(n)},
+						LE{"FullSize", fullSize},
 					)
 					state.Ctx.LogD("sp-file-read", lesp, func(les LEs) string {
 						return fmt.Sprintf(
@@ -927,14 +932,15 @@ func (state *SPState) StartWorkers(
 							logMsg(les), humanize.IBytes(uint64(n)),
 						)
 					})
+				} else {
+					state.closeFd(pth)
 				}
-				state.closeFd(pth)
 				payload = MarshalSP(SPTypeFile, SPFile{
 					Hash:    freq.Hash,
 					Offset:  freq.Offset,
-					Payload: buf,
+					Payload: bufRead,
 				})
-				ourSize := freq.Offset + uint64(len(buf))
+				ourSize := freq.Offset + uint64(len(bufRead))
 				lesp = append(
 					les,
 					LE{"XX", string(TTx)},
@@ -947,26 +953,25 @@ func (state *SPState) StartWorkers(
 					Progress("Tx", lesp)
 				}
 				state.Lock()
-				if len(state.queueTheir) > 0 && *state.queueTheir[0].freq.Hash == *freq.Hash {
+				for i, q := range state.queueTheir {
+					if *q.freq.Hash != *freq.Hash {
+						continue
+					}
 					if ourSize == uint64(fullSize) {
 						state.Ctx.LogD("sp-file-finished", lesp, func(les LEs) string {
 							return logMsg(les) + ": finished"
 						})
-						if len(state.queueTheir) > 1 {
-							state.queueTheir = state.queueTheir[1:]
-						} else {
-							state.queueTheir = state.queueTheir[:0]
-						}
+						state.queueTheir = append(
+							state.queueTheir[:i],
+							state.queueTheir[i+1:]...,
+						)
 						if state.Ctx.ShowPrgrs {
 							delete(state.progressBars, pktName)
 						}
 					} else {
-						state.queueTheir[0].freq.Offset += uint64(len(buf))
+						q.freq.Offset = ourSize
 					}
-				} else {
-					state.Ctx.LogD("sp-file-disappeared", lesp, func(les LEs) string {
-						return logMsg(les) + ": queue disappeared"
-					})
+					break
 				}
 				state.Unlock()
 			}
@@ -1319,9 +1324,9 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			}
 			fullsize := int64(0)
 			state.RLock()
-			infoTheir, ok := state.infosTheir[*file.Hash]
+			infoTheir := state.infosTheir[*file.Hash]
 			state.RUnlock()
-			if !ok {
+			if infoTheir == nil {
 				state.Ctx.LogE("sp-file-open", lesp, err, func(les LEs) string {
 					return logMsg(les) + ": unknown file"
 				})
@@ -1515,16 +1520,17 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			state.Lock()
 			delete(state.infosTheir, *file.Hash)
 			state.Unlock()
-			if hasherAndOffset != nil {
-				go func() {
-					spCheckerTasks <- SPCheckerTask{
-						nodeId: state.Node.Id,
-						hsh:    file.Hash,
-						mth:    hasherAndOffset.mth,
-						done:   state.payloads,
-					}
-				}()
-			}
+			go func() {
+				t := SPCheckerTask{
+					nodeId: state.Node.Id,
+					hsh:    file.Hash,
+					done:   state.payloads,
+				}
+				if hasherAndOffset != nil {
+					t.mth = hasherAndOffset.mth
+				}
+				spCheckerTasks <- t
+			}()
 
 		case SPTypeDone:
 			lesp := append(les, LE{"Type", "done"})
