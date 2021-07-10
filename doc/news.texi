@@ -4,6 +4,7 @@
 See also this page @ref{Новости, on russian}.
 
 @menu
+* Release 7.3.0: Release 7_3_0.
 * Release 7.2.1: Release 7_2_1.
 * Release 7.2.0: Release 7_2_0.
 * Release 7.1.1: Release 7_1_1.
@@ -53,6 +54,19 @@ See also this page @ref{Новости, on russian}.
 * Release 0.3: Release 0_3.
 * Release 0.2: Release 0_2.
 @end menu
+
+@node Release 7_3_0
+@section Release 7.3.0
+@itemize
+
+@item
+Fixed some workability problems on 32-bit systems with big files.
+
+@item
+Ability to use directory with a bunch of files as a configuration.
+@command{nncp-cfgdir} command appeared.
+
+@end itemize
 
 @node Release 7_2_1
 @section Release 7.2.1

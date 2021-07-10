@@ -1,6 +1,7 @@
 nncp-bundle
 nncp-call
 nncp-caller
+nncp-cfgdir
 nncp-cfgenc
 nncp-cfgmin
 nncp-cfgnew

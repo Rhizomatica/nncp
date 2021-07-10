@@ -108,7 +108,7 @@ func main() {
 	for i := 0; i < flag.NArg(); i++ {
 		node, err := ctx.FindNode(flag.Arg(i))
 		if err != nil {
-			log.Fatalln("Invalid specified:", err)
+			log.Fatalln("Invalid node specified:", err)
 		}
 		nodeIds[*node.Id] = struct{}{}
 	}
