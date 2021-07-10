@@ -46,14 +46,14 @@ const (
 
 type MTHEvent struct {
 	Type  MTHEventType
-	Level int
-	Ctr   int
+	Level int64
+	Ctr   int64
 	Hsh   []byte
 }
 
 type MTH interface {
 	hash.Hash
-	PrependFrom(r io.Reader) (int, error)
+	PrependFrom(r io.Reader) (int64, error)
 	SetPktName(n string)
 	PrependSize() int64
 	Events() chan MTHEvent
@@ -80,14 +80,14 @@ func MTHFatNew(size, offset int64) MTH {
 	if size == 0 {
 		return &mth
 	}
-	prepends := int(offset / MTHBlockSize)
-	skip := MTHBlockSize - (offset - int64(prepends)*MTHBlockSize)
+	prepends := offset / MTHBlockSize
+	skip := MTHBlockSize - (offset - prepends*MTHBlockSize)
 	if skip == MTHBlockSize {
 		skip = 0
 	} else if skip > 0 {
 		prepends++
 	}
-	prependSize := int64(prepends * MTHBlockSize)
+	prependSize := prepends * MTHBlockSize
 	if prependSize > size {
 		prependSize = size
 	}
@@ -139,7 +139,7 @@ func (mth *MTHFat) Write(data []byte) (int, error) {
 		if mth.events != nil {
 			mth.events <- MTHEvent{
 				MTHEventAppend,
-				0, len(mth.hashes) - 1,
+				0, int64(len(mth.hashes) - 1),
 				mth.hashes[len(mth.hashes)-1][:],
 			}
 		}
@@ -147,18 +147,19 @@ func (mth *MTHFat) Write(data []byte) (int, error) {
 	return n, err
 }
 
-func (mth *MTHFat) PrependFrom(r io.Reader) (int, error) {
+func (mth *MTHFat) PrependFrom(r io.Reader) (int64, error) {
 	if mth.finished {
 		return 0, errors.New("already Sum()ed")
 	}
 	var err error
 	buf := make([]byte, MTHBlockSize)
-	var i, n, read int
+	var n int
+	var i, read int64
 	fullsize := mth.prependSize
 	les := LEs{{"Pkt", mth.pktName}, {"FullSize", fullsize}, {"Size", 0}}
 	for mth.prependSize >= MTHBlockSize {
 		n, err = io.ReadFull(r, buf)
-		read += n
+		read += int64(n)
 		mth.prependSize -= MTHBlockSize
 		if err != nil {
 			return read, err
@@ -172,14 +173,14 @@ func (mth *MTHFat) PrependFrom(r io.Reader) (int, error) {
 			mth.events <- MTHEvent{MTHEventPrepend, 0, i, mth.hashes[i][:]}
 		}
 		if mth.pktName != "" {
-			les[len(les)-1].V = int64(read)
+			les[len(les)-1].V = read
 			Progress("check", les)
 		}
 		i++
 	}
 	if mth.prependSize > 0 {
 		n, err = io.ReadFull(r, buf[:mth.prependSize])
-		read += n
+		read += int64(n)
 		if err != nil {
 			return read, err
 		}
@@ -215,7 +216,7 @@ func (mth *MTHFat) Sum(b []byte) []byte {
 		if mth.events != nil {
 			mth.events <- MTHEvent{
 				MTHEventAppend,
-				0, len(mth.hashes) - 1,
+				0, int64(len(mth.hashes) - 1),
 				mth.hashes[len(mth.hashes)-1][:],
 			}
 		}
@@ -240,7 +241,7 @@ func (mth *MTHFat) Sum(b []byte) []byte {
 		}
 	}
 	mth.hasher = blake3.New(MTHSize, MTHNodeKey[:])
-	level := 1
+	level := int64(1)
 	for len(mth.hashes) != 1 {
 		hashesUp := make([][MTHSize]byte, 0, 1+len(mth.hashes)/2)
 		pairs := (len(mth.hashes) / 2) * 2
@@ -258,7 +259,7 @@ func (mth *MTHFat) Sum(b []byte) []byte {
 			if mth.events != nil {
 				mth.events <- MTHEvent{
 					MTHEventFold,
-					level, len(hashesUp) - 1,
+					level, int64(len(hashesUp) - 1),
 					hashesUp[len(hashesUp)-1][:],
 				}
 			}
@@ -268,7 +269,7 @@ func (mth *MTHFat) Sum(b []byte) []byte {
 			if mth.events != nil {
 				mth.events <- MTHEvent{
 					MTHEventAppend,
-					level, len(hashesUp) - 1,
+					level, int64(len(hashesUp) - 1),
 					hashesUp[len(hashesUp)-1][:],
 				}
 			}
@@ -284,7 +285,7 @@ func (mth *MTHFat) Sum(b []byte) []byte {
 }
 
 type MTHSeqEnt struct {
-	l int
+	l int64
 	h [MTHSize]byte
 }
 
@@ -294,7 +295,7 @@ type MTHSeq struct {
 	hashes     []MTHSeqEnt
 	buf        *bytes.Buffer
 	events     chan MTHEvent
-	ctrs       []int
+	ctrs       []int64
 	finished   bool
 }
 
@@ -303,7 +304,7 @@ func MTHSeqNew() *MTHSeq {
 		hasherLeaf: blake3.New(MTHSize, MTHLeafKey[:]),
 		hasherNode: blake3.New(MTHSize, MTHNodeKey[:]),
 		buf:        bytes.NewBuffer(make([]byte, 0, 2*MTHBlockSize)),
-		ctrs:       make([]int, 1, 2),
+		ctrs:       make([]int64, 1, 2),
 	}
 	return &mth
 }
@@ -314,7 +315,7 @@ func (mth *MTHSeq) Size() int { return MTHSize }
 
 func (mth *MTHSeq) BlockSize() int { return MTHBlockSize }
 
-func (mth *MTHSeq) PrependFrom(r io.Reader) (int, error) {
+func (mth *MTHSeq) PrependFrom(r io.Reader) (int64, error) {
 	panic("must not reach that code")
 }
 
@@ -341,8 +342,8 @@ func (mth *MTHSeq) leafAdd() {
 	mth.ctrs[0]++
 }
 
-func (mth *MTHSeq) incr(l int) {
-	if len(mth.ctrs) <= l {
+func (mth *MTHSeq) incr(l int64) {
+	if int64(len(mth.ctrs)) <= l {
 		mth.ctrs = append(mth.ctrs, 0)
 	} else {
 		mth.ctrs[l]++
