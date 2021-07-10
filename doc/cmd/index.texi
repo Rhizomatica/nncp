@@ -48,6 +48,7 @@ Configuration file commands
 * nncp-cfgnew::
 * nncp-cfgmin::
 * nncp-cfgenc::
+* nncp-cfgdir::
 
 Packets creation commands
 
@@ -86,6 +87,7 @@ Maintenance, monitoring and debugging commands:
 @include cmd/nncp-cfgnew.texi
 @include cmd/nncp-cfgmin.texi
 @include cmd/nncp-cfgenc.texi
+@include cmd/nncp-cfgdir.texi
 @include cmd/nncp-file.texi
 @include cmd/nncp-exec.texi
 @include cmd/nncp-freq.texi

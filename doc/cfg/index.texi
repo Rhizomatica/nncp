@@ -2,8 +2,9 @@
 @unnumbered Configuration file
 
 NNCP uses single file configuration file in @url{https://hjson.org/,
-Hjson} format. Initially it is created with @ref{nncp-cfgnew} command
-and at minimum it can look like this:
+Hjson} format (see also section about @ref{Configuration directory,
+directory layout}) . Initially it is created with @ref{nncp-cfgnew}
+command and at minimum it can look like this:
 
 @verbatim
 spool: /var/spool/nncp
@@ -32,7 +33,7 @@ neigh: {
 And for being able to communicate with at least one other node, you just
 need to add single key to the @code{neigh} section similar to the "self".
 
-All configuration file can be separated on five sections:
+Whole configuration file can be separated on five sections:
 
 @menu
 * General options: CfgGeneral.
@@ -40,6 +41,9 @@ All configuration file can be separated on five sections:
 * Notifications: CfgNotify.
 * Neighbours: CfgNeigh.
 * Areas: CfgAreas.
+
+You can optionally convert it to directory layout
+* Configuration directory::
 @end menu
 
 @include cfg/general.texi
@@ -47,3 +51,4 @@ All configuration file can be separated on five sections:
 @include cfg/notify.texi
 @include cfg/neigh.texi
 @include cfg/areas.texi
+@include cfg/dir.texi
