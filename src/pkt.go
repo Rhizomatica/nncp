@@ -141,13 +141,13 @@ func aeadProcess(
 	doEncrypt bool,
 	r io.Reader,
 	w io.Writer,
-) (int, error) {
+) (int64, error) {
 	ciphCtr := nonce[len(nonce)-8:]
 	buf := make([]byte, EncBlkSize+aead.Overhead())
 	var toRead []byte
 	var toWrite []byte
 	var n int
-	var readBytes int
+	var readBytes int64
 	var err error
 	if doEncrypt {
 		toRead = buf[:EncBlkSize]
@@ -161,10 +161,10 @@ func aeadProcess(
 				break
 			}
 			if err != io.ErrUnexpectedEOF {
-				return readBytes + n, err
+				return readBytes + int64(n), err
 			}
 		}
-		readBytes += n
+		readBytes += int64(n)
 		ctrIncr(ciphCtr)
 		if doEncrypt {
 			toWrite = aead.Seal(buf[:0], nonce, buf[:n], ad)
@@ -247,9 +247,9 @@ func PktEncWrite(
 	}
 	nonce := make([]byte, aead.NonceSize())
 
-	fullSize := pktBuf.Len() + int(size)
+	fullSize := int64(pktBuf.Len()) + size
 	sizeBuf := make([]byte, 8+aead.Overhead())
-	binary.BigEndian.PutUint64(sizeBuf, uint64(sizeWithTags(int64(fullSize))))
+	binary.BigEndian.PutUint64(sizeBuf, uint64(sizeWithTags(fullSize)))
 	if _, err = out.Write(aead.Seal(sizeBuf[:0], nonce, sizeBuf[:8], ad[:])); err != nil {
 		return nil, err
 	}
@@ -372,10 +372,10 @@ func PktEncRead(
 	lr := io.LimitedReader{R: data, N: size}
 	written, err := aeadProcess(aead, nonce, ad[:], false, &lr, out)
 	if err != nil {
-		return sharedKey[:], their, int64(written), err
+		return sharedKey[:], their, written, err
 	}
-	if written != int(size) {
-		return sharedKey[:], their, int64(written), io.ErrUnexpectedEOF
+	if written != size {
+		return sharedKey[:], their, written, io.ErrUnexpectedEOF
 	}
 	return sharedKey[:], their, size, nil
 }

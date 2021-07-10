@@ -60,6 +60,9 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+Fixed some workability problems on 32-bit systems with big files.
+
+@item
 Ability to use directory with a bunch of files as a configuration.
 @command{nncp-cfgdir} command appeared.
 
