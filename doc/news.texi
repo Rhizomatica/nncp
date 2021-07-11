@@ -63,6 +63,9 @@ See also this page @ref{Новости, on russian}.
 @item
 Fixed possibly left opened file descriptor in online commands.
 
+@item
+Severely decreased memory usage of MTH hashing.
+
 @end itemize
 
 @node Release 7_3_0

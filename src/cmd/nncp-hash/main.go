@@ -76,64 +76,71 @@ func main() {
 		}
 		size = fi.Size()
 	}
-	var mth nncp.MTH
-	if *forceFat {
-		mth = nncp.MTHFatNew(size, int64(*seek))
-	} else {
-		mth = nncp.MTHNew(size, int64(*seek))
-	}
-	var debugger sync.WaitGroup
+
 	if *debug {
 		fmt.Println("Leaf BLAKE3 key:", hex.EncodeToString(nncp.MTHLeafKey[:]))
 		fmt.Println("Node BLAKE3 key:", hex.EncodeToString(nncp.MTHNodeKey[:]))
-		events := mth.Events()
+	}
+
+	var debugger sync.WaitGroup
+	startDebug := func(events chan nncp.MTHEvent) {
 		debugger.Add(1)
 		go func() {
 			for e := range events {
-				var t string
-				switch e.Type {
-				case nncp.MTHEventAppend:
-					t = "Add"
-				case nncp.MTHEventPrepend:
-					t = "Pre"
-				case nncp.MTHEventFold:
-					t = "Fold"
-				}
-				fmt.Printf(
-					"%s\t%03d\t%06d\t%s\n",
-					t, e.Level, e.Ctr, hex.EncodeToString(e.Hsh),
-				)
+				fmt.Println(e.String())
 			}
 			debugger.Done()
 		}()
 	}
-	if *seek != 0 {
-		if *fn == "" {
-			log.Fatalln("-file is required with -seek")
+	copier := func(w io.Writer) error {
+		_, err := nncp.CopyProgressed(
+			w, bufio.NewReaderSize(fd, nncp.MTHBlockSize), "hash",
+			nncp.LEs{{K: "Pkt", V: *fn}, {K: "FullSize", V: size - int64(*seek)}},
+			*showPrgrs,
+		)
+		return err
+	}
+
+	var sum []byte
+	if *forceFat {
+		mth := nncp.MTHFatNew()
+		if *debug {
+			startDebug(mth.Events())
+
 		}
-		if _, err = fd.Seek(int64(*seek), io.SeekStart); err != nil {
+		if err = copier(mth); err != nil {
 			log.Fatalln(err)
 		}
-	}
-	if _, err = nncp.CopyProgressed(
-		mth, bufio.NewReaderSize(fd, nncp.MTHBlockSize),
-		"hash", nncp.LEs{{K: "Pkt", V: *fn}, {K: "FullSize", V: size - int64(*seek)}},
-		*showPrgrs,
-	); err != nil {
-		log.Fatalln(err)
-	}
-	if *seek != 0 {
-		if _, err = fd.Seek(0, io.SeekStart); err != nil {
+		sum = mth.Sum(nil)
+	} else {
+		mth := nncp.MTHSeqNew(size, int64(*seek))
+		if *debug {
+			startDebug(mth.Events())
+		}
+		if *seek != 0 {
+			if *fn == "" {
+				log.Fatalln("-file is required with -seek")
+			}
+			if _, err = fd.Seek(int64(*seek), io.SeekStart); err != nil {
+				log.Fatalln(err)
+			}
+		}
+		if err = copier(mth); err != nil {
 			log.Fatalln(err)
 		}
-		if *showPrgrs {
-			mth.SetPktName(*fn)
+		if *seek != 0 {
+			if _, err = fd.Seek(0, io.SeekStart); err != nil {
+				log.Fatalln(err)
+			}
+			if _, err = mth.PreaddFrom(
+				bufio.NewReaderSize(fd, nncp.MTHBlockSize),
+				*fn, *showPrgrs,
+			); err != nil {
+				log.Fatalln(err)
+			}
 		}
-		if _, err = mth.PrependFrom(bufio.NewReaderSize(fd, nncp.MTHBlockSize)); err != nil {
-			log.Fatalln(err)
-		}
+		sum = mth.Sum(nil)
 	}
-	sum := mth.Sum(nil)
 	debugger.Wait()
 	fmt.Println(hex.EncodeToString(sum))
 }
