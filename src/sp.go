@@ -952,22 +952,25 @@ func (state *SPState) StartWorkers(
 					state.progressBars[pktName] = struct{}{}
 					Progress("Tx", lesp)
 				}
+				if ourSize == uint64(fullSize) {
+					state.closeFd(pth)
+					state.Ctx.LogD("sp-file-finished", lesp, func(les LEs) string {
+						return logMsg(les) + ": finished"
+					})
+					if state.Ctx.ShowPrgrs {
+						delete(state.progressBars, pktName)
+					}
+				}
 				state.Lock()
 				for i, q := range state.queueTheir {
 					if *q.freq.Hash != *freq.Hash {
 						continue
 					}
 					if ourSize == uint64(fullSize) {
-						state.Ctx.LogD("sp-file-finished", lesp, func(les LEs) string {
-							return logMsg(les) + ": finished"
-						})
 						state.queueTheir = append(
 							state.queueTheir[:i],
 							state.queueTheir[i+1:]...,
 						)
-						if state.Ctx.ShowPrgrs {
-							delete(state.progressBars, pktName)
-						}
 					} else {
 						q.freq.Offset = ourSize
 					}
@@ -1444,7 +1447,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			}
 			if hasherAndOffset != nil {
 				delete(state.fileHashers, filePath)
-				if hasherAndOffset.mth.PrependSize() == 0 {
+				if hasherAndOffset.mth.PreaddSize() == 0 {
 					if bytes.Compare(hasherAndOffset.mth.Sum(nil), file.Hash[:]) != 0 {
 						state.Ctx.LogE(
 							"sp-file-bad-checksum", lesp,
