@@ -2,6 +2,7 @@
 @section Новости
 
 @menu
+* Релиз 7.3.2::
 * Релиз 7.3.1::
 * Релиз 7.3.0::
 * Релиз 7.2.1::
@@ -53,6 +54,15 @@
 * Релиз 0.3::
 * Релиз 0.2::
 @end menu
+
+@node Релиз 7.3.2
+@subsection Релиз 7.3.2
+@itemize
+
+@item
+@command{hjson-cli} утилита теперь собирается в vendor-режиме.
+
+@end itemize
 
 @node Релиз 7.3.1
 @subsection Релиз 7.3.1
