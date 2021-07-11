@@ -30,6 +30,14 @@ neigh: {
 }
 @end verbatim
 
+Do not forget that Hjson can be safely converted to JSON and vice versa
+(loosing formatting and comments of course). By default
+@command{hjson-cli} utility from @code{github.com/hjson/hjson-go} is
+built together with @command{nncp-*} commands too. For querying
+information from the JSON from the command line you can use
+@code{github.com/itchyny/gojq} and @code{github.com/skanehira/gjo} for
+building it up.
+
 And for being able to communicate with at least one other node, you just
 need to add single key to the @code{neigh} section similar to the "self".
 
