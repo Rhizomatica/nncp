@@ -17,6 +17,7 @@ $ gpg --verify nncp-@value{VERSION}.tar.xz.sig nncp-@value{VERSION}.tar.xz
 $ xz --decompress --stdout nncp-@value{VERSION}.tar.xz | tar xf -
 $ cd nncp-@value{VERSION}
 $ redo all
+# look for bin/nncp-* binaries (and possibly hjson-cli one)
 @end example
 
 It uses @url{http://cr.yp.to/redo.html, redo} build system for that
@@ -28,7 +29,7 @@ in tarball. Following ones are tested to work with:
 @url{https://redo.readthedocs.io/, apenwarr/redo} (@code{contrib/do} is
 from that project), @url{https://github.com/leahneukirchen/redo-c, redo-c}.
 
-There is @command{install} make-target respecting @env{DESTDIR}. It will
+There is @command{install} target respecting @env{DESTDIR}. It will
 install binaries and info-documentation:
 
 @example

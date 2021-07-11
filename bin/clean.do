@@ -1,1 +1,1 @@
-rm -f `cat cmd.list`
+rm -f `cat cmd.list` hjson-cli
