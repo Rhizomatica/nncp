@@ -103,8 +103,10 @@ func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[MTHSize]byte, mth MTH) (int
 	if mth == nil {
 		gut, err = Check(fd, size, hshValue[:], les, ctx.ShowPrgrs)
 	} else {
-		mth.SetPktName(pktName)
-		if _, err = mth.PrependFrom(bufio.NewReaderSize(fd, MTHSize)); err != nil {
+		if _, err = mth.PreaddFrom(
+			bufio.NewReaderSize(fd, MTHSize),
+			pktName, ctx.ShowPrgrs,
+		); err != nil {
 			return 0, err
 		}
 		if bytes.Compare(mth.Sum(nil), hshValue[:]) == 0 {

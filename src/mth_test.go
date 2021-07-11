@@ -26,7 +26,7 @@ import (
 	"lukechampine.com/blake3"
 )
 
-func TestMTHFatSymmetric(t *testing.T) {
+func TestMTHSeqSymmetric(t *testing.T) {
 	xof := blake3.New(32, nil).XOF()
 	f := func(size uint32, offset uint32) bool {
 		size %= 2 * 1024 * 1024
@@ -36,31 +36,31 @@ func TestMTHFatSymmetric(t *testing.T) {
 		}
 		offset = offset % size
 
-		mth := MTHFatNew(int64(size), 0)
+		mth := MTHSeqNew(int64(size), 0)
 		if _, err := io.Copy(mth, bytes.NewReader(data)); err != nil {
 			panic(err)
 		}
 		hsh0 := mth.Sum(nil)
 
-		mth = MTHFatNew(int64(size), int64(offset))
+		mth = MTHSeqNew(int64(size), int64(offset))
 		if _, err := io.Copy(mth, bytes.NewReader(data[int(offset):])); err != nil {
 			panic(err)
 		}
-		if _, err := mth.PrependFrom(bytes.NewReader(data)); err != nil {
+		if _, err := mth.PreaddFrom(bytes.NewReader(data), "", false); err != nil {
 			panic(err)
 		}
 		if bytes.Compare(hsh0, mth.Sum(nil)) != 0 {
 			return false
 		}
 
-		mth = MTHFatNew(0, 0)
+		mth = MTHSeqNew(0, 0)
 		mth.Write(data)
 		if bytes.Compare(hsh0, mth.Sum(nil)) != 0 {
 			return false
 		}
 
 		data = append(data, 0)
-		mth = MTHFatNew(int64(size)+1, 0)
+		mth = MTHSeqNew(int64(size)+1, 0)
 		if _, err := io.Copy(mth, bytes.NewReader(data)); err != nil {
 			panic(err)
 		}
@@ -69,18 +69,18 @@ func TestMTHFatSymmetric(t *testing.T) {
 			return false
 		}
 
-		mth = MTHFatNew(int64(size)+1, int64(offset))
+		mth = MTHSeqNew(int64(size)+1, int64(offset))
 		if _, err := io.Copy(mth, bytes.NewReader(data[int(offset):])); err != nil {
 			panic(err)
 		}
-		if _, err := mth.PrependFrom(bytes.NewReader(data)); err != nil {
+		if _, err := mth.PreaddFrom(bytes.NewReader(data), "", false); err != nil {
 			panic(err)
 		}
 		if bytes.Compare(hsh00, mth.Sum(nil)) != 0 {
 			return false
 		}
 
-		mth = MTHFatNew(0, 0)
+		mth = MTHSeqNew(0, 0)
 		mth.Write(data)
 		if bytes.Compare(hsh00, mth.Sum(nil)) != 0 {
 			return false
@@ -101,12 +101,12 @@ func TestMTHSeqAndFatEqual(t *testing.T) {
 		if _, err := io.ReadFull(xof, data); err != nil {
 			panic(err)
 		}
-		fat := MTHFatNew(int64(size), 0)
+		fat := MTHFatNew()
 		if _, err := io.Copy(fat, bytes.NewReader(data)); err != nil {
 			panic(err)
 		}
 		hshFat := fat.Sum(nil)
-		seq := MTHSeqNew()
+		seq := MTHSeqNew(int64(size), 0)
 		if _, err := io.Copy(seq, bytes.NewReader(data)); err != nil {
 			panic(err)
 		}
@@ -118,13 +118,13 @@ func TestMTHSeqAndFatEqual(t *testing.T) {
 }
 
 func TestMTHNull(t *testing.T) {
-	fat := MTHFatNew(0, 0)
+	fat := MTHFatNew()
 	if _, err := fat.Write(nil); err != nil {
 		t.Error(err)
 	}
 	hshFat := fat.Sum(nil)
 
-	seq := MTHSeqNew()
+	seq := MTHSeqNew(0, 0)
 	if _, err := seq.Write(nil); err != nil {
 		t.Error(err)
 	}
