@@ -98,7 +98,7 @@ rm -r doc/.well-known doc/nncp.html/.well-known
 
 ########################################################################
 
-perl -i -npe "s/GO build/GO build -mod=vendor/" bin/default.do
+perl -i -npe "s/GO build/GO build -mod=vendor/" bin/default.do bin/hjson-cli.do
 perl -i -npe "s/GO list/GO list -mod=vendor/" bin/default.do
 perl -i -npe "s/GO test/GO test -mod=vendor/" test.do
 rm makedist.sh VERSION.do
