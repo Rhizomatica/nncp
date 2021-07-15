@@ -244,6 +244,9 @@ configuration file) and send all related outbound packets and retrieve
 those the Bob has. All interrupted transfers will be automatically
 resumed.
 
+Ability to do @ref{MCD, multicast nodes discovery} of participant in
+IPv6 networks allows complete ignorance of network addresses specifying.
+
 @node UsecaseAirgap
 @section Highly secure isolated air-gap computers
 
