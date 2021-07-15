@@ -29,4 +29,4 @@ inbound packets that has been already seen, processed and tossed. This
 is helpful to prevent duplicates.
 
 @option{-nofile}, @option{-nofreq}, @option{-noexec}, @option{-notrns},
-@option{-noarea} options allow to disable any kind of packet types processing.
+@option{-noarea} options allow disabling any kind of packet types processing.
