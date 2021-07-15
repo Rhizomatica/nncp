@@ -20,6 +20,10 @@ NNCP uses following files/directories you should be aware of:
     Partly transferred files are stored with @file{.part} suffix. And
     possibly they also require cleanup if they are completely lost.
 
+    It can contain @file{.nock} files: fully downloaded, but still not
+    checksummed. Can be checksummed (with @file{.nock} extension removing)
+    with @ref{nncp-check -nock}.
+
     Also it can contain @file{.seen} files, that should be cleaned too
     from time to time.
 
