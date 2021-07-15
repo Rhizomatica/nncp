@@ -1,4 +1,12 @@
-redo-ifchange ../config ../VERSION *.texi sp.plantuml.txt pedro.txt
+redo-ifchange \
+    ../config \
+    ../VERSION \
+    *.texi \
+    cfg/*.texi \
+    cmd/*.texi \
+    pkt/*.texi \
+    sp.plantuml.txt \
+    pedro.txt
 . ../config
 ${MAKEINFO:-makeinfo} \
     -D "VERSION `cat ../VERSION`" \
