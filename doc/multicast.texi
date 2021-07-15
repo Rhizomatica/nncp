@@ -10,7 +10,7 @@ networks).
 Each multicast group is identified by so-called @strong{area}. Area
 consists of private/public Curve25519 keypairs for @ref{Encrypted area,
 packets encryption}, identity (BLAKE2b-256 hash of the public key) and
-possible subscribers.
+possible subscribers. Areas are created with @ref{nncp-cfgnew} command.
 
 You can make either file or exec transmissions to the areas. Those
 ordinary file/exec packets are double wrapped in:
