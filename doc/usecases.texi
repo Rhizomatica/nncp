@@ -4,18 +4,18 @@
 See also this page @ref{Сценарии, on russian}.
 
 @menu
-* Occasional connection to mail server: UsecaseMail.
-* Lightweight fast POP3/IMAP4 replacement: UsecasePOP.
-* Unreliable/expensive communication link: UsecaseUnreliable.
-* Slow/expensive link for high-volume data, bad QoS: UsecaseQoS.
-* Extreme terrestrial environments, no link: UsecaseNoLink.
-* One-way broadcasting communications: UsecaseBroadcast.
-* Satellite links: UsecaseSatelliteLinks.
-* Private, isolated MitM/Sybil-resistant networks: UsecaseF2F.
-* Highly secure isolated air-gap computers: UsecaseAirgap.
-* Network censorship bypassing, health: UsecaseCensor.
-* Reconnaissance, spying, intelligence, covert agents: UsecaseSpy.
-* Cheap night transfers: UsecaseCaller.
+* Occasional connection to mail server: UsecaseMail
+* Lightweight fast POP3/IMAP4 replacement: UsecasePOP
+* Unreliable/expensive communication link: UsecaseUnreliable
+* Slow/expensive link for high-volume data, bad QoS: UsecaseQoS
+* Extreme terrestrial environments, no link: UsecaseNoLink
+* One-way broadcasting communications: UsecaseBroadcast
+* Satellite links: UsecaseSatelliteLinks
+* Private, isolated MitM/Sybil-resistant networks: UsecaseF2F
+* Highly secure isolated air-gap computers: UsecaseAirgap
+* Network censorship bypassing, health: UsecaseCensor
+* Reconnaissance, spying, intelligence, covert agents: UsecaseSpy
+* Cheap night transfers: UsecaseCaller
 @end menu
 
 @node UsecaseMail
