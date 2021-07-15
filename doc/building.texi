@@ -17,8 +17,13 @@ $ gpg --verify nncp-@value{VERSION}.tar.xz.sig nncp-@value{VERSION}.tar.xz
 $ xz --decompress --stdout nncp-@value{VERSION}.tar.xz | tar xf -
 $ cd nncp-@value{VERSION}
 $ redo all
-# look for bin/nncp-* binaries (and possibly hjson-cli one)
 @end example
+
+After that you should get various @command{bin/nncp-*} binaries and
+@command{bin/hjson-cli} command (only for your convenience, not
+necessary installation). Documentation for example for
+@command{nncp-bundle} command can be get with
+@command{info doc/nncp.info -n nncp-bundle}.
 
 It uses @url{http://cr.yp.to/redo.html, redo} build system for that
 examples. You can use either dozen of various implementations, or at
