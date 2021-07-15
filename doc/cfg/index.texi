@@ -44,11 +44,11 @@ need to add single key to the @code{neigh} section similar to the "self".
 Whole configuration file can be separated on five sections:
 
 @menu
-* General options: CfgGeneral.
-* Self-node keypairs: CfgSelf.
-* Notifications: CfgNotify.
-* Neighbours: CfgNeigh.
-* Areas: CfgAreas.
+* General options: CfgGeneral
+* Self-node keypairs: CfgSelf
+* Notifications: CfgNotify
+* Neighbours: CfgNeigh
+* Areas: CfgAreas
 
 You can optionally convert it to directory layout
 * Configuration directory::

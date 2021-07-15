@@ -25,10 +25,10 @@ Look for general and platform-specific @ref{Build-instructions, build
 instructions}.
 
 @menu
-* Prepared tarballs: Tarballs.
-* Tarballs integrity check: Integrity.
-* Build instructions: Build-instructions.
-* Development source code: Sources.
+* Prepared tarballs: Tarballs
+* Tarballs integrity check: Integrity
+* Build instructions: Build-instructions
+* Development source code: Sources
 @end menu
 
 @include download.texi

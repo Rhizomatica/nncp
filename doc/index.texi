@@ -39,27 +39,27 @@ There are also articles about its usage outside this website:
 * Use cases::
 * Workflow::
 * News::
-* Информация на русском: Русский.
+* Информация на русском: Русский
 * Installation::
 * Configuration::
-* Call configuration: Call.
-* Multicast areas: Multicast.
+* Call configuration: Call
+* Multicast areas: Multicast
 * Integration::
 * Commands::
 * Administration::
 * Niceness::
-* Chunked files: Chunked.
+* Chunked files: Chunked
 * Bundles::
-* Spool directory: Spool.
-* Log format: Log.
-* Packet format: Packet.
-* Merkle Tree Hashing: MTH.
-* Sync protocol: Sync.
-* MultiCast Discovery: MCD.
-* EBlob format: EBlob.
+* Spool directory: Spool
+* Log format: Log
+* Packet format: Packet
+* Merkle Tree Hashing: MTH
+* Sync protocol: Sync
+* MultiCast Discovery: MCD
+* EBlob format: EBlob
 * Thanks::
-* Contacts and feedback: Contacts.
-* Copying conditions: Copying.
+* Contacts and feedback: Contacts
+* Copying conditions: Copying
 @end menu
 
 @include comparison.texi
