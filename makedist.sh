@@ -104,9 +104,9 @@ perl -i -npe "s/GO test/GO test -mod=vendor/" test.do
 rm makedist.sh VERSION.do
 rm -r .git
 redo-cleanup full
-find . -type d -exec chmod 755 {} \;
-find . -type f -exec chmod 644 {} \;
-find . -type f -name "*.sh" -exec chmod +x {} \;
+find . -type d -exec chmod 755 {} +
+find . -type f -exec chmod 644 {} +
+find . -type f -name "*.sh" -exec chmod +x {} +
 chmod +x contrib/do
 
 cd ..
