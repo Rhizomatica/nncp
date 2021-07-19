@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 7.4.0
+@subsection Релиз 7.4.0
+@itemize
+
+@item
+Исправлена работоспособность MCD при одновременном использовании
+@command{nncp-daemon} и @command{nncp-caller}.
+
+@end itemize
+
 @node Релиз 7.3.2
 @subsection Релиз 7.3.2
 @itemize
