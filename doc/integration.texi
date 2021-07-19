@@ -5,15 +5,15 @@ Here is some examples of how you can solve popular tasks with NNCP,
 making them store-and-forward friendly.
 
 @menu
-* Index files for freqing: FreqIndex.
+* Index files for freqing: FreqIndex
 * Postfix::
 * Exim::
-* Web feeds: Feeds.
-* Web pages: WARCs.
-* BitTorrent and huge files: BitTorrent.
-* Downloading service: DownloadService.
+* Web feeds: Feeds
+* Web pages: WARCs
+* BitTorrent and huge files: BitTorrent
+* Downloading service: DownloadService
 * Git::
-* Multimedia streaming: Multimedia.
+* Multimedia streaming: Multimedia
 @end menu
 
 @node FreqIndex

@@ -32,7 +32,7 @@ neigh: {
     calls: [
       {
         cron: "*/2 * * * *"
-      },
+      }
     ]
   }
   bob: {

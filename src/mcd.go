@@ -176,20 +176,24 @@ func (ctx *Ctx) MCDRx(ifiName string) error {
 }
 
 func (ctx *Ctx) MCDTx(ifiName string, port int, interval time.Duration) error {
-	conn, err := net.DialUDP("udp",
-		&net.UDPAddr{Port: port, Zone: ifiName},
-		&net.UDPAddr{IP: mcdIP, Port: MCDPort, Zone: ifiName},
-	)
+	ifi, err := net.InterfaceByName(ifiName)
 	if err != nil {
 		return err
 	}
+	addr := &net.UDPAddr{IP: mcdIP, Port: port, Zone: ifiName}
+	conn, err := net.ListenMulticastUDP("udp", ifi, addr)
+	if err != nil {
+		return err
+	}
+
+	dst := &net.UDPAddr{IP: mcdIP, Port: MCDPort, Zone: ifiName}
 	var buf bytes.Buffer
 	mcd := MCD{Magic: MagicNNCPDv1.B, Sender: ctx.Self.Id}
 	if _, err := xdr.Marshal(&buf, mcd); err != nil {
 		panic(err)
 	}
 	if interval == 0 {
-		_, err = conn.Write(buf.Bytes())
+		_, err = conn.WriteTo(buf.Bytes(), dst)
 		return err
 	}
 	go func() {
@@ -201,7 +205,7 @@ func (ctx *Ctx) MCDTx(ifiName string, port int, interval time.Duration) error {
 					ifiName, MCDPort, port,
 				)
 			})
-			_, err = conn.Write(buf.Bytes())
+			_, err = conn.WriteTo(buf.Bytes(), dst)
 			if err != nil {
 				ctx.LogE("mcd", les, err, func(les LEs) string {
 					return fmt.Sprintf("MCD on %s/%d/%d", ifiName, MCDPort, port)
