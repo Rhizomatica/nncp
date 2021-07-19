@@ -375,20 +375,20 @@ neigh: {
         addr: lan
         nice: MAX
         onlinedeadline: 3600
-      },
+      }
       {
         cron: "*/10 * * * *"
         addr: wan
         nice: PRIORITY
         xx: rx
-      },
+      }
       {
         cron: "*/1 0-7 * * *"
         addr: wan
         nice: BULK
         onlinedeadline: 3600
         maxonlinetime: 3600
-      },
+      }
     ]
   }
 }

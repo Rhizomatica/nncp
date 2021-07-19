@@ -303,7 +303,7 @@ func main() {
     #   #     autotoss-nofreq: true
     #   #     autotoss-noexec: true
     #   #     autotoss-notrns: true
-    #   #   },
+    #   #   }
     #   # ]
     # }
   }

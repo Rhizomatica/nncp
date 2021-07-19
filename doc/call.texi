@@ -14,7 +14,7 @@ calls: [
 
         autotoss: true
         autotoss-doseen: true
-    },
+    }
     {
         cron: "30 * * * SAT,SUN"
         onlinedeadline: 1800
@@ -22,18 +22,18 @@ calls: [
         nice: NORMAL
         rxrate: 10
         txrate: 20
-    },
+    }
     {
         cron: "0 * * * SAT,SUN"
         xx: rx
         addr: lan
-    },
+    }
     {
         cron: "*/5 * * * * * *"
         when-tx-exists: true
         nock: true
         mcd-ignore: true
-    },
+    }
 ]
 @end verbatim
 
