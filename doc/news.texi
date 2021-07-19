@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_4_0
+@section Release 7.4.0
+@itemize
+
+@item
+Fixed simultaneous @command{nncp-daemon} and @command{nncp-caller} MCD work.
+
+@end itemize
+
 @node Release 7_3_2
 @section Release 7.3.2
 @itemize
