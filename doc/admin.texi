@@ -108,7 +108,7 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -
 
 # cat > run <<EOF
 #!/bin/sh -e
-exec envuidgid nncpuser tcpserver -DRHU -l 0 0 uucp \
+exec envuidgid nncpuser tcpserver -DHRU -l 0 0 uucp \
 	/usr/local/bin/nncp-daemon -quiet -inetd
 EOF
 
