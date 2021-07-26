@@ -40,6 +40,7 @@ func usage() {
 func main() {
 	var (
 		cfgPath     = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		ucspi       = flag.Bool("ucspi", false, "Is it started as UCSPI-TCP client")
 		niceRaw     = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
 		rxOnly      = flag.Bool("rx", false, "Only receive packets")
 		txOnly      = flag.Bool("tx", false, "Only transmit packets")
@@ -133,7 +134,9 @@ func main() {
 	}
 
 	var addrs []string
-	if flag.NArg() == 2 {
+	if *ucspi {
+		addrs = append(addrs, nncp.UCSPITCPClient)
+	} else if flag.NArg() == 2 {
 		addrs = append(addrs, flag.Arg(1))
 	} else if len(splitted) == 2 {
 		addr, known := ctx.Neigh[*node.Id].Addrs[splitted[1]]

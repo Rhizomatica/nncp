@@ -12,6 +12,9 @@ See also this page @ref{Новости, on russian}.
 will contain remote side's address (when running under appropriate
 utility). @option{-ucspi} option should be used instead of @option{-inetd}.
 
+@item
+@command{nncp-call} can be UCSPI-TCP client, using @option{-ucspi} option.
+
 @end itemize
 
 @node Release 7_4_0

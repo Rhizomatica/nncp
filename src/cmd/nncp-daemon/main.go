@@ -40,35 +40,6 @@ func usage() {
 	flag.PrintDefaults()
 }
 
-type UCSPIConn struct {
-	r *os.File
-	w *os.File
-}
-
-func (c UCSPIConn) Read(p []byte) (n int, err error) {
-	return c.r.Read(p)
-}
-
-func (c UCSPIConn) Write(p []byte) (n int, err error) {
-	return c.w.Write(p)
-}
-
-func (c UCSPIConn) SetReadDeadline(t time.Time) error {
-	return c.r.SetReadDeadline(t)
-}
-
-func (c UCSPIConn) SetWriteDeadline(t time.Time) error {
-	return c.w.SetWriteDeadline(t)
-}
-
-func (c UCSPIConn) Close() error {
-	if err := c.r.Close(); err != nil {
-		c.w.Close() // #nosec G104
-		return err
-	}
-	return c.w.Close()
-}
-
 func performSP(
 	ctx *nncp.Ctx,
 	conn nncp.ConnDeadlined,
@@ -198,16 +169,11 @@ func main() {
 
 	if *ucspi {
 		os.Stderr.Close() // #nosec G104
-		conn := &UCSPIConn{os.Stdin, os.Stdout}
+		conn := &nncp.UCSPIConn{R: os.Stdin, W: os.Stdout}
 		nodeIdC := make(chan *nncp.NodeId)
-		addr := "PIPE"
-		if proto := os.Getenv("PROTO"); proto == "TCP" {
-			port := os.Getenv("TCPREMOTEPORT")
-			if host := os.Getenv("TCPREMOTEHOST"); host == "" {
-				addr = fmt.Sprintf("[%s]:%s", os.Getenv("TCPREMOTEIP"), port)
-			} else {
-				addr = fmt.Sprintf("%s:%s", host, port)
-			}
+		addr := nncp.UCSPITCPRemoteAddr()
+		if addr == "" {
+			addr = "PIPE"
 		}
 		go performSP(ctx, conn, addr, nice, *noCK, nodeIdC)
 		nodeId := <-nodeIdC
