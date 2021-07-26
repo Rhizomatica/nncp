@@ -1,6 +1,18 @@
 @node Новости
 @section Новости
 
+@node Релиз 7.5.0
+@subsection Релиз 7.5.0
+@itemize
+
+@item
+@command{nncp-daemon} соблюдает UCSPI-TCP интерфейс, благодаря чему в
+журнале будет присутствовать адрес удалённой системы (при запуске под
+совместимой утилитой). Желательно применять @option{-ucspi} опцию вместо
+@option{-inetd}.
+
+@end itemize
+
 @node Релиз 7.4.0
 @subsection Релиз 7.4.0
 @itemize

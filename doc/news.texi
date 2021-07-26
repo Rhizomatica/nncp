@@ -3,6 +3,17 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_5_0
+@section Release 7.5.0
+@itemize
+
+@item
+@command{nncp-daemon} is compatible with UCSPI-TCP interface, so log
+will contain remote side's address (when running under appropriate
+utility). @option{-ucspi} option should be used instead of @option{-inetd}.
+
+@end itemize
+
 @node Release 7_4_0
 @section Release 7.4.0
 @itemize
