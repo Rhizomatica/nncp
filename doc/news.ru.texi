@@ -11,6 +11,10 @@
 совместимой утилитой). Желательно применять @option{-ucspi} опцию вместо
 @option{-inetd}.
 
+@item
+@command{nncp-call} может быть UCSPI-TCP клиентом, используя
+@option{-ucspi} опцию.
+
 @end itemize
 
 @node Релиз 7.4.0
