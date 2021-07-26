@@ -95,7 +95,7 @@ EOF
     @url{https://en.wikipedia.org/wiki/Inetd, inetd} service on UUCP's port:
 
 @example
-uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -inetd
+uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -ucspi
 @end example
 
 @item
@@ -108,8 +108,8 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -
 
 # cat > run <<EOF
 #!/bin/sh -e
-exec envuidgid nncpuser tcpserver -DHRU -l 0 0 uucp \
-	/usr/local/bin/nncp-daemon -quiet -inetd
+exec envuidgid nncpuser tcpserver -DHRU -l 0 ::0 uucp \
+	/usr/local/bin/nncp-daemon -quiet -ucspi
 EOF
 
 # cat > log/run <<EOF
