@@ -4,9 +4,10 @@ redo-ifchange \
     *.texi \
     cfg/*.texi \
     cmd/*.texi \
+    integration/*.texi \
+    pedro.txt \
     pkt/*.texi \
-    sp.plantuml.txt \
-    pedro.txt
+    sp.plantuml.txt
 . ../config
 ${MAKEINFO:-makeinfo} \
     -D "VERSION `cat ../VERSION`" \
