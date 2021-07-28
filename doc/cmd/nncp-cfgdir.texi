@@ -2,7 +2,7 @@
 @section nncp-cfgdir
 
 @example
-$ nncp-cfgdir [options] [-cfg ...] -dump /path/to/dir
+$ nncp-cfgdir [options] [-cfg @dots{}] -dump /path/to/dir
 $ nncp-cfgdir [options] -load /path/to/dir > cfg.hjson
 @end example
 

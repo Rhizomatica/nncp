@@ -75,7 +75,7 @@ willing to relay mail for.
 
 @example
 /usr/local/etc/postfix/main.cf:
-    relay_domains = example.com ...other relay domains...
+    relay_domains = example.com @dots{}other relay domains@dots{}
 @end example
 
 See the @option{relay_domains} configuration parameter description for

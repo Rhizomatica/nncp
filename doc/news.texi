@@ -529,7 +529,7 @@ Free disk space is checked during outbound packets creation.
 @item
 @option{freq}, @option{freqminsize}, @option{freqchunked} configuration
 file options replaced with the structure:
-@option{freq: @{path: ..., minsize: ..., chunked: ...@}}.
+@option{freq: @{path: @dots{}, minsize: @dots{}, chunked: @dots{}@}}.
 
 @item
 Added @option{freq.maxsize} configuration file option, forbidding of
