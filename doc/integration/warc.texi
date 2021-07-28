@@ -45,8 +45,7 @@ $ wget \
     --timestamping \
     -l inf \
     --no-remove-listing \
-    --no-parent \
-    [...]
+    --no-parent [@dots{}] \
     http://www.example.com/
 @end example
 
@@ -59,8 +58,7 @@ output format.
 $ wget \
     --warc-file www.example_com-$(date '+%Y%M%d%H%m%S') \
     --no-warc-compression \
-    --no-warc-keep-log \
-    [...]
+    --no-warc-keep-log [@dots{}] \
     http://www.example.com/
 @end example
 

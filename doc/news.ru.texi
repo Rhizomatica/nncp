@@ -545,7 +545,7 @@ SP протокол порождает меньше вызовов записе�
 @item
 @option{freq}, @option{freqminsize}, @option{freqchunked} опции
 конфигурационного файла заменены на структуру
-@option{freq: @{path: ..., minsize: ..., chunked: ...@}}.
+@option{freq: @{path: @dots{}, minsize: @dots{}, chunked: @dots{}@}}.
 
 @item
 Добавлена @option{freq.maxsize} опция конфигурационного файл,

@@ -23,7 +23,7 @@ to setup it:
 
 @example
 /etc/gettytab:
-    default:pp=/usr/local/bin/ppplogin:...
+    default:pp=/usr/local/bin/ppplogin:@dots{}
 @end example
 
 @example
