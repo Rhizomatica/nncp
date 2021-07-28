@@ -7,7 +7,9 @@ redo-ifchange \
     integration/*.texi \
     pedro.txt \
     pkt/*.texi \
-    sp.plantuml.txt
+    sp.plantuml.txt \
+    usecases.ru/*.texi \
+    usecases/*.texi
 . ../config
 ${MAKEINFO:-makeinfo} \
     -D "VERSION `cat ../VERSION`" \
