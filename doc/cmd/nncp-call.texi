@@ -7,11 +7,12 @@ $ nncp-call [options]
     [-maxonlinetime INT]
     [-rx|-tx]
     [-list]
-    [-pkts PKT,PKT,...]
+    [-pkts PKT,PKT,@dots{}]
     [-rxrate INT]
     [-txrate INT]
     [-autotoss*]
     [-nock]
+    [-ucspi]
     NODE[:ADDR] [FORCEADDR]
 @end example
 
@@ -41,6 +42,10 @@ not specify the exact one, then all will be tried until the first
 success. Optionally you can force @option{FORCEADDR} address usage,
 instead of addresses taken from configuration file. You can specify both
 @verb{|host:port|} and @verb{#|some command#} formats.
+
+If you specify @option{-ucspi} option, then it is assumed that you run
+@command{nncp-call} command under some UCSPI-TCP compatible utility,
+that provides read/write channels through 6/7 file descriptors.
 
 @option{-autotoss} option runs tosser on node's spool every second
 during the call. All @option{-autotoss-*} options is the same as in

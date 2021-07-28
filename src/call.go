@@ -18,8 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"errors"
 	"fmt"
 	"net"
+	"os"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -68,6 +70,19 @@ func (ctx *Ctx) CallNode(
 		var err error
 		if addr[0] == '|' {
 			conn, err = NewPipeConn(addr[1:])
+		} else if addr == UCSPITCPClient {
+			ucspiConn := UCSPIConn{R: os.NewFile(6, "R"), W: os.NewFile(7, "W")}
+			if ucspiConn.R == nil {
+				err = errors.New("no 6 file descriptor")
+			}
+			if ucspiConn.W == nil {
+				err = errors.New("no 7 file descriptor")
+			}
+			conn = ucspiConn
+			addr = UCSPITCPRemoteAddr()
+			if addr == "" {
+				addr = UCSPITCPClient
+			}
 		} else {
 			conn, err = net.Dial("tcp", addr)
 		}

@@ -2,8 +2,8 @@
 @section nncp-exec
 
 @example
-$ nncp-exec [options] [-use-tmp] [-nocompress]      NODE HANDLE [ARG0 ARG1 ...]
-$ nncp-exec [options] [-use-tmp] [-nocompress] area:AREA HANDLE [ARG0 ARG1 ...]
+$ nncp-exec [options] [-use-tmp] [-nocompress]      NODE HANDLE [ARG0 ARG1 @dots{}]
+$ nncp-exec [options] [-use-tmp] [-nocompress] area:AREA HANDLE [ARG0 ARG1 @dots{}]
 @end example
 
 Send execution command to @option{NODE} for specified @option{HANDLE}.

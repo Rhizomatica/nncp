@@ -40,35 +40,6 @@ func usage() {
 	flag.PrintDefaults()
 }
 
-type InetdConn struct {
-	r *os.File
-	w *os.File
-}
-
-func (c InetdConn) Read(p []byte) (n int, err error) {
-	return c.r.Read(p)
-}
-
-func (c InetdConn) Write(p []byte) (n int, err error) {
-	return c.w.Write(p)
-}
-
-func (c InetdConn) SetReadDeadline(t time.Time) error {
-	return c.r.SetReadDeadline(t)
-}
-
-func (c InetdConn) SetWriteDeadline(t time.Time) error {
-	return c.w.SetWriteDeadline(t)
-}
-
-func (c InetdConn) Close() error {
-	if err := c.r.Close(); err != nil {
-		c.w.Close() // #nosec G104
-		return err
-	}
-	return c.w.Close()
-}
-
 func performSP(
 	ctx *nncp.Ctx,
 	conn nncp.ConnDeadlined,
@@ -138,7 +109,8 @@ func main() {
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw   = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
 		bind      = flag.String("bind", "[::]:5400", "Address to bind to")
-		inetd     = flag.Bool("inetd", false, "Is it started as inetd service")
+		ucspi     = flag.Bool("ucspi", false, "Is it started as UCSPI-TCP server")
+		inetd     = flag.Bool("inetd", false, "Obsolete, use -ucspi")
 		maxConn   = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		noCK      = flag.Bool("nock", false, "Do no checksum checking")
 		mcdOnce   = flag.Bool("mcd-once", false, "Send MCDs once and quit")
@@ -174,6 +146,9 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	if *inetd {
+		*ucspi = true
+	}
 
 	ctx, err := nncp.CtxFromCmdline(
 		*cfgPath,
@@ -192,11 +167,15 @@ func main() {
 	}
 	ctx.Umask()
 
-	if *inetd {
+	if *ucspi {
 		os.Stderr.Close() // #nosec G104
-		conn := &InetdConn{os.Stdin, os.Stdout}
+		conn := &nncp.UCSPIConn{R: os.Stdin, W: os.Stdout}
 		nodeIdC := make(chan *nncp.NodeId)
-		go performSP(ctx, conn, "PIPE", nice, *noCK, nodeIdC)
+		addr := nncp.UCSPITCPRemoteAddr()
+		if addr == "" {
+			addr = "PIPE"
+		}
+		go performSP(ctx, conn, addr, nice, *noCK, nodeIdC)
 		nodeId := <-nodeIdC
 		var autoTossFinish chan struct{}
 		var autoTossBadCode chan bool

@@ -63,7 +63,7 @@ There are also articles about its usage outside this website:
 @end menu
 
 @include comparison.texi
-@include usecases.texi
+@include usecases/index.texi
 @include workflow.texi
 @include news.texi
 @include russian.texi
@@ -71,7 +71,7 @@ There are also articles about its usage outside this website:
 @include cfg/index.texi
 @include call.texi
 @include multicast.texi
-@include integration.texi
+@include integration/index.texi
 @include cmd/index.texi
 @include admin.texi
 @include niceness.texi

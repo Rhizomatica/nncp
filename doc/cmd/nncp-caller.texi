@@ -2,7 +2,7 @@
 @section nncp-caller
 
 @example
-$ nncp-caller [options] [NODE ...]
+$ nncp-caller [options] [NODE @dots{}]
 @end example
 
 Croned daemon that calls remote nodes from time to time, according to

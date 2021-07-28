@@ -10,5 +10,5 @@
 
 @include about.ru.texi
 @include comparison.ru.texi
-@include usecases.ru.texi
+@include usecases.ru/index.texi
 @include news.ru.texi
