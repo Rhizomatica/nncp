@@ -28,7 +28,7 @@ every month.
 Slashes describe increments of ranges. For example @verb{|3-59/15|} in
 the minute field indicate the third minute of the hour and every 15
 minutes thereafter. The form @verb{|*/...|} is equivalent to the form
-"first-last/...", that is, an increment over the largest possible range
+"first-last/@dots{}", that is, an increment over the largest possible range
 of the field.
 
 @item Comma (@verb{|,|})

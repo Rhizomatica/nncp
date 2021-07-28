@@ -124,7 +124,7 @@ func main() {
 
 	for _, ifiName := range ctx.MCDRxIfis {
 		if err = ctx.MCDRx(ifiName); err != nil {
-			log.Fatalln("Can not run MCD reception:", err)
+			log.Printf("Can not run MCD reception on %s: %s", ifiName, err)
 		}
 	}
 

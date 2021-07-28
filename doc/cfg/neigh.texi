@@ -27,7 +27,7 @@ neigh: {
     addrs: {
       lan: "[fe80::1234%igb0]:5400"
       internet: alice.com:3389
-      proxied: "|ssh remote.host nncp-daemon -inetd"
+      proxied: "|ssh remote.host nncp-daemon -ucspi"
     }
     calls: [
       {

@@ -3,6 +3,24 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_5_0
+@section Release 7.5.0
+@itemize
+
+@item
+@command{nncp-daemon} is compatible with UCSPI-TCP interface, so log
+will contain remote side's address (when running under appropriate
+utility). @option{-ucspi} option should be used instead of @option{-inetd}.
+
+@item
+@command{nncp-call} can be UCSPI-TCP client, using @option{-ucspi} option.
+
+@item
+Do not exit if some of MCD network interfaces can not be listened --
+only warn about that.
+
+@end itemize
+
 @node Release 7_4_0
 @section Release 7.4.0
 @itemize
@@ -511,7 +529,7 @@ Free disk space is checked during outbound packets creation.
 @item
 @option{freq}, @option{freqminsize}, @option{freqchunked} configuration
 file options replaced with the structure:
-@option{freq: @{path: ..., minsize: ..., chunked: ...@}}.
+@option{freq: @{path: @dots{}, minsize: @dots{}, chunked: @dots{}@}}.
 
 @item
 Added @option{freq.maxsize} configuration file option, forbidding of
