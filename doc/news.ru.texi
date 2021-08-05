@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 7.5.1
+@subsection Релиз 7.5.1
+@itemize
+
+@item
+NNCP собирается на NetBSD.
+
+@end itemize
+
 @node Релиз 7.5.0
 @subsection Релиз 7.5.0
 @itemize
