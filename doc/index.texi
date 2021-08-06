@@ -57,6 +57,7 @@ There are also articles about its usage outside this website:
 * Sync protocol: Sync
 * MultiCast Discovery: MCD
 * EBlob format: EBlob
+* Mirrors::
 * Thanks::
 * Contacts and feedback: Contacts
 * Copying conditions: Copying
@@ -84,6 +85,7 @@ There are also articles about its usage outside this website:
 @include sp.texi
 @include mcd.texi
 @include eblob.texi
+@include mirrors.texi
 @include thanks.texi
 @include contacts.texi
 

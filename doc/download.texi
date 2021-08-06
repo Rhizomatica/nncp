@@ -2,7 +2,8 @@
 @section Prepared tarballs
 
 You can obtain releases source code prepared tarballs from the links below.
-Do not forget to check tarball @ref{Integrity, integrity}.
+Do not forget to check tarball @ref{Integrity, integrity}! Also there
+are @ref{Mirrors, mirrors} of this website.
 
 Tarballs include all necessary required libraries:
 
