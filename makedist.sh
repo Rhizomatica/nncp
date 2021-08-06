@@ -32,8 +32,9 @@ cp ~/work/redo/minimal/do contrib/do
 cat > doc/download.texi <<EOF
 @node Tarballs
 @section Prepared tarballs
-You can obtain releases source code prepared tarballs on
-@url{http://www.nncpgo.org/}.
+You can obtain releases source code prepared tarballs from
+@url{http://www.nncpgo.org/} and from one of its
+@url{http://www.nncpgo.org/Mirrors.html, mirrors}.
 EOF
 perl -i -ne 'print unless /include pedro/' doc/index.texi doc/about.ru.texi
 perl -p -i -e 's/^(.verbatiminclude) .*$/$1 PUBKEY.asc/g' doc/integrity.texi
@@ -170,6 +171,9 @@ SHA256 hash: $hash
 GPG key ID: 0x2B25868E75A1A953 NNCP releases <releases@nncpgo.org>
 Fingerprint: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
 
+There are mirrors where you can also get the source code tarballs:
+http://www.nncpgo.org/Mirrors.html
+
 Please send questions regarding the use of NNCP, bug reports and patches
 to mailing list: http://lists.cypherpunks.ru/nncp_002ddevel.html
 EOF
@@ -218,6 +222,9 @@ $(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 SHA256 хэш: $hash
 Идентификатор GPG ключа: 0x2B25868E75A1A953 NNCP releases <releases@nncpgo.org>
 Отпечаток: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
+
+Есть и зеркала где вы также можете получить архивы с исходным кодом:
+http://www.nncpgo.org/Mirrors.html
 
 Пожалуйста, все вопросы касающиеся использования NNCP, отчёты об ошибках
 и патчи отправляйте в nncp-devel почтовую рассылку:
