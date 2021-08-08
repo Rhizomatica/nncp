@@ -34,7 +34,7 @@ in tarball. Following ones are tested to work with:
 @url{https://redo.readthedocs.io/, apenwarr/redo} (@code{contrib/do} is
 from that project), @url{https://github.com/leahneukirchen/redo-c, redo-c}.
 
-There is @command{install} target respecting @env{DESTDIR}. It will
+There is @command{install} target respecting @env{$DESTDIR}. It will
 install binaries and info-documentation:
 
 @example
