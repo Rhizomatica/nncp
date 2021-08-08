@@ -27,6 +27,10 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const LogFdPrefix = "FD:"
+
+var LogFd *os.File
+
 type LE struct {
 	K string
 	V interface{}
@@ -64,6 +68,10 @@ func (les LEs) Rec() string {
 }
 
 func (ctx *Ctx) Log(rec string) {
+	if LogFd != nil {
+		LogFd.WriteString(rec)
+		return
+	}
 	fdLock, err := os.OpenFile(
 		ctx.LogPath+".lock",
 		os.O_CREATE|os.O_WRONLY,
@@ -90,8 +98,8 @@ func (ctx *Ctx) Log(rec string) {
 		fmt.Fprintln(os.Stderr, "Can not open log:", err)
 		return
 	}
-	fd.WriteString(rec) // #nosec G104
-	fd.Close()          // #nosec G104
+	fd.WriteString(rec)
+	fd.Close()
 }
 
 func (ctx *Ctx) LogD(who string, les LEs, msg func(LEs) string) {

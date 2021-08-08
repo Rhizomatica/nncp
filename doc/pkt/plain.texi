@@ -67,7 +67,7 @@ Also depending on packet's type, niceness level means:
 
 @itemize
 @item Preferable niceness level for files sent by freq
-@item @env{NNCP_NICE} variable's value passed during @ref{CfgExec} invocation.
+@item @env{$NNCP_NICE} variable's value passed during @ref{CfgExec} invocation.
 @end itemize
 
 So plain packets can hold following paths and payloads:

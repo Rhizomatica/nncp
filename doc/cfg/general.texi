@@ -21,7 +21,12 @@ mcd-send: {em0: 60, igb1: 5}
 @item spool
 Absolute path to the @ref{Spool, spool} directory.
 @item log
-Absolute path to the @ref{Log, log} file.
+Either:
+    @itemize
+    @item absolute path to the @ref{Log, log} file
+    @item @code{FD:XXX}, where @code{XXX} is a decimal file descriptor
+        to write records too
+    @end itemize
 @item umask
 Will force all invoked commands to override their umask to specified
 octal mask. Useful for using with @ref{Shared spool, shared spool directories}.

@@ -60,7 +60,7 @@ func (ctx *Ctx) Tx(
 	if areaId != nil {
 		area = ctx.AreaId2Area[*areaId]
 		if area.Prv == nil {
-			return nil, errors.New("unknown area id")
+			return nil, errors.New("area has no encryption keys")
 		}
 	}
 	hops := make([]*Node, 0, 1+len(node.Via))
@@ -116,7 +116,7 @@ func (ctx *Ctx) Tx(
 			)
 			pktEncRaws <- pktEncRaw
 			errs <- err
-			dst.Close() // #nosec G104
+			dst.Close()
 		}(curSize, src, pipeW)
 		curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize)
 		curSize += padSize
@@ -142,7 +142,7 @@ func (ctx *Ctx) Tx(
 			)
 			pktEncRaws <- pktEncRaw
 			errs <- err
-			dst.Close() // #nosec G104
+			dst.Close()
 		}(curSize, padSize, src, pipeW)
 		curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize)
 		curSize += padSize
@@ -170,7 +170,7 @@ func (ctx *Ctx) Tx(
 			)
 			pktEncRaws <- pktEncRaw
 			errs <- err
-			dst.Close() // #nosec G104
+			dst.Close()
 		}(curSize, pipeRPrev, pipeW)
 		curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize)
 	}
@@ -197,7 +197,7 @@ func (ctx *Ctx) Tx(
 			pktEncRaw, err := PktEncWrite(ctx.Self, node, pkt, nice, size, 0, src, dst)
 			pktEncRaws <- pktEncRaw
 			errs <- err
-			dst.Close() // #nosec G104
+			dst.Close()
 		}(hops[i], pktTrns, curSize, pipeRPrev, pipeW)
 		curSize = PktEncOverhead + PktSizeOverhead + sizeWithTags(PktOverhead+curSize)
 	}
@@ -220,13 +220,13 @@ func (ctx *Ctx) Tx(
 	for i := 0; i <= wrappers; i++ {
 		err = <-errs
 		if err != nil {
-			tmp.Fd.Close() // #nosec G104
+			tmp.Fd.Close()
 			return nil, err
 		}
 	}
 	nodePath := filepath.Join(ctx.Spool, lastNode.Id.String())
 	err = tmp.Commit(filepath.Join(nodePath, string(TTx)))
-	os.Symlink(nodePath, filepath.Join(ctx.Spool, lastNode.Name)) // #nosec G104
+	os.Symlink(nodePath, filepath.Join(ctx.Spool, lastNode.Name))
 	if err != nil {
 		return lastNode, err
 	}
@@ -288,7 +288,7 @@ func throughTmpFile(r io.Reader) (
 		rerr = err
 		return
 	}
-	os.Remove(src.Name()) // #nosec G104
+	os.Remove(src.Name())
 	tmpW := bufio.NewWriter(src)
 	tmpKey := make([]byte, chacha20poly1305.KeySize)
 	if _, rerr = rand.Read(tmpKey[:]); rerr != nil {
@@ -320,7 +320,7 @@ func throughTmpFile(r io.Reader) (
 			nonce[i] = 0
 		}
 		if _, err := aeadProcess(aead, nonce, nil, false, bufio.NewReader(src), w); err != nil {
-			w.CloseWithError(err) // #nosec G104
+			w.CloseWithError(err)
 		}
 	}()
 	reader = r
@@ -439,14 +439,14 @@ func prepareTxFile(srcPath string) (
 			}
 			fd, err := os.Open(e.path)
 			if err != nil {
-				fd.Close() // #nosec G104
+				fd.Close()
 				return w.CloseWithError(err)
 			}
 			if _, err = io.Copy(tarWr, bufio.NewReader(fd)); err != nil {
-				fd.Close() // #nosec G104
+				fd.Close()
 				return w.CloseWithError(err)
 			}
-			fd.Close() // #nosec G104
+			fd.Close()
 		}
 		if err = tarWr.Close(); err != nil {
 			return w.CloseWithError(err)
@@ -706,7 +706,7 @@ func (ctx *Ctx) TxExec(
 			return err
 		}
 		if _, err = io.Copy(compressor, in); err != nil {
-			compressor.Close() // #nosec G104
+			compressor.Close()
 			return err
 		}
 		if err = compressor.Close(); err != nil {
@@ -733,7 +733,7 @@ func (ctx *Ctx) TxExec(
 		go func() {
 			_, err := io.Copy(compressor, in)
 			if err != nil {
-				compressor.Close() // #nosec G104
+				compressor.Close()
 				copyErr <- err
 			}
 			err = compressor.Close()
@@ -828,6 +828,6 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 	} else {
 		ctx.LogI("tx", append(les, LE{"Err", err}), logMsg)
 	}
-	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name)) // #nosec G104
+	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name))
 	return err
 }

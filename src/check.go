@@ -62,7 +62,7 @@ func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
 			return true
 		}
 		gut, err := Check(fd, job.Size, job.HshValue[:], les, ctx.ShowPrgrs)
-		fd.Close() // #nosec G104
+		fd.Close()
 		if err != nil {
 			ctx.LogE("checking", les, err, logMsg)
 			return true

@@ -66,7 +66,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		})
 		return false
 	}
-	fd.Close() // #nosec G104
+	fd.Close()
 	if metaPkt.Magic == nncp.MagicNNCPMv1.B {
 		ctx.LogE("reass", les, nncp.MagicNNCPMv1.TooOld(), logMsg)
 		return false
@@ -163,7 +163,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		); err != nil {
 			log.Fatalln(err)
 		}
-		fd.Close() // #nosec G104
+		fd.Close()
 		if bytes.Compare(hsh.Sum(nil), metaPkt.Checksums[chunkNum][:]) != 0 {
 			ctx.LogE(
 				"reass-chunk",
@@ -219,7 +219,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		); err != nil {
 			log.Fatalln(err)
 		}
-		fd.Close() // #nosec G104
+		fd.Close()
 		if !keep {
 			if err = os.Remove(chunkPath); err != nil {
 				ctx.LogE(
@@ -298,7 +298,7 @@ func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 		return nil
 	}
 	fis, err := dir.Readdir(0)
-	dir.Close() // #nosec G104
+	dir.Close()
 	if err != nil {
 		ctx.LogE("reass", nncp.LEs{{K: "Path", V: dirPath}}, err, logMsg)
 		return nil

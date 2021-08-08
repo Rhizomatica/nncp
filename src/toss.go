@@ -309,7 +309,7 @@ func jobProcess(
 				return err
 			}
 			if err = bufW.Flush(); err != nil {
-				tmp.Close() // #nosec G104
+				tmp.Close()
 				ctx.LogE("rx-flush", les, err, func(les LEs) string {
 					return fmt.Sprintf(
 						"Tossing file %s/%s (%s): %s: flushing",
@@ -320,7 +320,7 @@ func jobProcess(
 				return err
 			}
 			if err = tmp.Sync(); err != nil {
-				tmp.Close() // #nosec G104
+				tmp.Close()
 				ctx.LogE("rx-sync", les, err, func(les LEs) string {
 					return fmt.Sprintf(
 						"Tossing file %s/%s (%s): %s: syncing",

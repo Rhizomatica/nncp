@@ -134,13 +134,13 @@ func (ctx *Ctx) CallNode(
 				)
 			})
 			isGood = true
-			conn.Close() // #nosec G104
+			conn.Close()
 			break
 		} else {
 			ctx.LogE("call-started", les, err, func(les LEs) string {
 				return fmt.Sprintf("Connection to %s (%s)", node.Name, addr)
 			})
-			conn.Close() // #nosec G104
+			conn.Close()
 		}
 	}
 	return
