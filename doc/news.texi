@@ -12,6 +12,10 @@ Logging may be done to specified opened file descriptor
 (@env{$NNCPLOG=FD:5} for example).
 That is friendly to use under @command{daemontools}.
 
+@item
+Added additional checks of public keys existence in configuration file,
+preventing some commands from failing.
+
 @end itemize
 
 @node Release 7_5_1
