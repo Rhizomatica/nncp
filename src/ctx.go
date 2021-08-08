@@ -23,6 +23,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"syscall"
 )
@@ -134,6 +136,18 @@ func CtxFromCmdline(
 		}
 	} else {
 		ctx.LogPath = logPath
+	}
+	if strings.HasPrefix(ctx.LogPath, LogFdPrefix) {
+		ptr, err := strconv.ParseUint(
+			strings.TrimPrefix(ctx.LogPath, LogFdPrefix), 10, 64,
+		)
+		if err != nil {
+			return nil, err
+		}
+		LogFd = os.NewFile(uintptr(ptr), CfgLogEnv)
+		if LogFd == nil {
+			return nil, errors.New("can not open:" + ctx.LogPath)
+		}
 	}
 	if showPrgrs {
 		ctx.ShowPrgrs = true
