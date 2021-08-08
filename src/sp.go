@@ -438,7 +438,7 @@ func (state *SPState) StartI(conn ConnDeadlined) error {
 			NicenessFmt(state.Nice),
 		)
 	})
-	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
+	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline))
 	if err = state.WriteSP(conn, buf, false); err != nil {
 		state.Ctx.LogE("sp-startI", les, err, func(les LEs) string {
 			return fmt.Sprintf(
@@ -457,7 +457,7 @@ func (state *SPState) StartI(conn ConnDeadlined) error {
 			NicenessFmt(state.Nice),
 		)
 	})
-	conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
+	conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
 	if buf, err = state.ReadSP(conn); err != nil {
 		state.Ctx.LogE("sp-startI-read", les, err, func(les LEs) string {
 			return fmt.Sprintf(
@@ -537,7 +537,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	}
 	les := LEs{{"Nice", int(state.Nice)}}
 	state.Ctx.LogD("sp-startR", les, logMsg)
-	conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
+	conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
 	if buf, err = state.ReadSP(conn); err != nil {
 		state.Ctx.LogE("sp-startR-read", les, err, logMsg)
 		return err
@@ -611,7 +611,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 		state.dirUnlock()
 		return err
 	}
-	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
+	conn.SetWriteDeadline(time.Now().Add(DefaultDeadline))
 	if err = state.WriteSP(conn, buf, false); err != nil {
 		state.Ctx.LogE("sp-startR-write", les, err, func(les LEs) string {
 			return fmt.Sprintf(
@@ -752,7 +752,7 @@ func (state *SPState) StartWorkers(
 				break
 			Deadlined:
 				state.SetDead()
-				conn.Close() // #nosec G104
+				conn.Close()
 			case now := <-pingTicker.C:
 				if now.After(state.TxLastSeen.Add(PingTimeout)) {
 					state.wg.Add(1)
@@ -986,7 +986,7 @@ func (state *SPState) StartWorkers(
 				)
 			}
 			state.Ctx.LogD("sp-sending", append(les, LE{"Size", int64(len(payload))}), logMsg)
-			conn.SetWriteDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
+			conn.SetWriteDeadline(time.Now().Add(DefaultDeadline))
 			ct, err := state.csOur.Encrypt(nil, nil, payload)
 			if err != nil {
 				state.Ctx.LogE("sp-encrypting", les, err, logMsg)
@@ -1013,7 +1013,7 @@ func (state *SPState) StartWorkers(
 				)
 			}
 			state.Ctx.LogD("sp-recv-wait", les, logMsg)
-			conn.SetReadDeadline(time.Now().Add(DefaultDeadline)) // #nosec G104
+			conn.SetReadDeadline(time.Now().Add(DefaultDeadline))
 			payload, err := state.ReadSP(conn)
 			if err != nil {
 				if err == io.EOF {
@@ -1087,7 +1087,7 @@ func (state *SPState) StartWorkers(
 		state.SetDead()
 		state.wg.Done()
 		state.SetDead()
-		conn.Close() // #nosec G104
+		conn.Close()
 	}()
 
 	return nil

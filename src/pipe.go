@@ -69,7 +69,7 @@ func (c PipeConn) Close() (err error) {
 	err = c.w.Close()
 	go c.cmd.Wait()
 	time.AfterFunc(time.Duration(10*time.Second), func() {
-		c.cmd.Process.Kill() // #nosec G104
+		c.cmd.Process.Kill()
 	})
 	return
 }
