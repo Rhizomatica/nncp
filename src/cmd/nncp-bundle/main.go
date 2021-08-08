@@ -221,7 +221,7 @@ func main() {
 				if err == io.EOF {
 					break
 				}
-				bufStdin.Discard(bufStdin.Buffered() - (len(nncp.NNCPBundlePrefix) - 1)) // #nosec G104
+				bufStdin.Discard(bufStdin.Buffered() - (len(nncp.NNCPBundlePrefix) - 1))
 				continue
 			}
 			if _, err = bufStdin.Discard(prefixIdx); err != nil {

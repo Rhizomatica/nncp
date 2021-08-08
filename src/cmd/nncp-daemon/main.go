@@ -168,7 +168,7 @@ func main() {
 	ctx.Umask()
 
 	if *ucspi {
-		os.Stderr.Close() // #nosec G104
+		os.Stderr.Close()
 		conn := &nncp.UCSPIConn{R: os.Stdin, W: os.Stdout}
 		nodeIdC := make(chan *nncp.NodeId)
 		addr := nncp.UCSPITCPRemoteAddr()
@@ -196,7 +196,7 @@ func main() {
 			close(autoTossFinish)
 			<-autoTossBadCode
 		}
-		conn.Close() // #nosec G104
+		conn.Close()
 		return
 	}
 
@@ -262,7 +262,7 @@ func main() {
 				close(autoTossFinish)
 				<-autoTossBadCode
 			}
-			conn.Close() // #nosec G104
+			conn.Close()
 		}(conn)
 	}
 }

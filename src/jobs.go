@@ -99,7 +99,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock, part bool) chan Job {
 			return
 		}
 		fis, err := dir.Readdir(0)
-		dir.Close() // #nosec G104
+		dir.Close()
 		if err != nil {
 			return
 		}
