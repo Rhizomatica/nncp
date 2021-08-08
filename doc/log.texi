@@ -6,3 +6,28 @@ Log is a plaintext file consisting of
 read by human, but it is better to use either @ref{nncp-log}, or
 @command{recutils} utilities for selecting and formatting the required
 fields.
+
+Two example records from it:
+
+@verbatim
+When: 2021-08-07T20:30:49.042460622Z
+Who: sp-file-done
+Node: BYRRQUULEHINPKEFN7CHMSHR5I5CK7PMX5HQNCYERTBAR4BOCG6Q
+Nice: 255
+Type: file
+XX: rx
+Pkt: VQFR6KXC5N4UGL3HKKJKPXE4TN3G4UQGFXQTEYFZ7ZZIKWUVKOGA
+Size: 5229
+FullSize: 5229
+Msg: Got packet VQFR6KXC5N4UGL3HKKJKPXE4TN3G4UQGFXQTEYFZ7ZZIKWUVKOGA 100% (5.1 KiB / 5.1 KiB): done
+
+When: 2021-08-07T20:30:49.131766306Z
+Who: rx
+Node: BYRRQUULEHINPKEFN7CHMSHR5I5CK7PMX5HQNCYERTBAR4BOCG6Q
+Pkt: VQFR6KXC5N4UGL3HKKJKPXE4TN3G4UQGFXQTEYFZ7ZZIKWUVKOGA
+Nice: 96
+Size: 4741
+Type: exec
+Dst: sendmail stargrave@stargrave.org
+Msg: Got exec from gw to sendmail stargrave@stargrave.org (4.6 KiB)
+@end verbatim

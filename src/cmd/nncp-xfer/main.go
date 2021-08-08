@@ -141,7 +141,7 @@ func main() {
 		goto Tx
 	}
 	fis, err = dir.Readdir(0)
-	dir.Close() // #nosec G104
+	dir.Close()
 	if err != nil {
 		ctx.LogE("xfer-self-read", les, err, func(les nncp.LEs) string {
 			return logMsg(les) + ": reading"
@@ -185,7 +185,7 @@ func main() {
 			continue
 		}
 		fisInt, err := dir.Readdir(0)
-		dir.Close() // #nosec G104
+		dir.Close()
 		if err != nil {
 			ctx.LogE("xfer-rx-read", les, err, func(les nncp.LEs) string {
 				return logMsg(les) + ": reading"
@@ -241,14 +241,14 @@ func main() {
 						return logMsg(les) + ": not valid packet: " + err.Error()
 					},
 				)
-				fd.Close() // #nosec G104
+				fd.Close()
 				continue
 			}
 			if pktEnc.Nice > nice {
 				ctx.LogD("xfer-rx-too-nice", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": too nice"
 				})
-				fd.Close() // #nosec G104
+				fd.Close()
 				continue
 			}
 			les = append(les, nncp.LE{K: "Size", V: fiInt.Size()})
@@ -261,7 +261,7 @@ func main() {
 			}
 			if !ctx.IsEnoughSpace(fiInt.Size()) {
 				ctx.LogE("xfer-rx", les, errors.New("is not enough space"), logMsg)
-				fd.Close() // #nosec G104
+				fd.Close()
 				continue
 			}
 			if _, err = fd.Seek(0, 0); err != nil {
@@ -279,7 +279,7 @@ func main() {
 				}
 				if err != nil {
 					ctx.LogE("xfer-rx", les, err, logMsg)
-					w.CloseWithError(err) // #nosec G104
+					w.CloseWithError(err)
 				}
 			}()
 			if _, err = nncp.CopyProgressed(
@@ -294,7 +294,7 @@ func main() {
 				ctx.LogE("xfer-rx", les, err, logMsg)
 				isBad = true
 			}
-			fd.Close() // #nosec G104
+			fd.Close()
 			if isBad {
 				tmp.Cancel()
 				continue
@@ -446,7 +446,7 @@ Tx:
 				ctx.LogE("xfer-tx-open", les, err, func(les nncp.LEs) string {
 					return logMsg(les) + ": opening"
 				})
-				tmp.Close() // #nosec G104
+				tmp.Close()
 				isBad = true
 				continue
 			}
@@ -456,17 +456,17 @@ Tx:
 				append(les, nncp.LE{K: "FullSize", V: job.Size}),
 				ctx.ShowPrgrs,
 			)
-			fd.Close() // #nosec G104
+			fd.Close()
 			if err != nil {
 				ctx.LogE("xfer-tx-copy", les, err, func(les nncp.LEs) string {
 					return logMsg(les) + ": copying"
 				})
-				tmp.Close() // #nosec G104
+				tmp.Close()
 				isBad = true
 				continue
 			}
 			if err = bufW.Flush(); err != nil {
-				tmp.Close() // #nosec G104
+				tmp.Close()
 				ctx.LogE("xfer-tx-flush", les, err, func(les nncp.LEs) string {
 					return logMsg(les) + ": flushing"
 				})
@@ -474,7 +474,7 @@ Tx:
 				continue
 			}
 			if err = tmp.Sync(); err != nil {
-				tmp.Close() // #nosec G104
+				tmp.Close()
 				ctx.LogE("xfer-tx-sync", les, err, func(les nncp.LEs) string {
 					return logMsg(les) + ": syncing"
 				})
@@ -500,7 +500,7 @@ Tx:
 				isBad = true
 				continue
 			}
-			os.Remove(filepath.Join(dstPath, pktName+".part")) // #nosec G104
+			os.Remove(filepath.Join(dstPath, pktName+".part"))
 			les = les[:len(les)-1]
 			ctx.LogI(
 				"xfer-tx",

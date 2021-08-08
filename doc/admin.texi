@@ -100,7 +100,8 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -
 
 @item
     Or it can be also run as a @command{daemontools} daemon under
-    @url{http://cr.yp.to/ucspi-tcp.html, UCSPI-TCP}:
+    @url{http://cr.yp.to/ucspi-tcp.html, UCSPI-TCP}. In the example
+    below it uses native daemontools's logging capability:
 
 @example
 # mkdir -p /var/service/.nncp-daemon/log
@@ -108,13 +109,13 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -
 
 # cat > run <<EOF
 #!/bin/sh -e
-exec envuidgid nncpuser tcpserver -DHRU -l 0 ::0 uucp \
-	/usr/local/bin/nncp-daemon -quiet -ucspi
+NNCPLOG=FD:4 exec envuidgid nncpuser tcpserver -DHRU -l 0 ::0 uucp \
+	/usr/local/bin/nncp-daemon -quiet -ucspi 4>&1
 EOF
 
 # cat > log/run <<EOF
 #!/bin/sh -e
-exec setuidgid uucp multilog t ./main
+exec setuidgid uucp multilog ./main
 EOF
 
 # chmod -R 755 /var/service/.nncp-daemon

@@ -20,7 +20,7 @@ convenience. @url{https://www.gnu.org/software/texinfo/, Texinfo} is
 used for building documentation (although tarballs already include it).
 
 In general you must get @ref{Tarballs, the tarball}, check its
-@ref{Integrity, integrity and authenticity} and run @command{make}.
+@ref{Integrity, integrity and authenticity} and run @command{redo}.
 Look for general and platform-specific @ref{Build-instructions, build
 instructions}.
 

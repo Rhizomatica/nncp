@@ -21,20 +21,20 @@ $ redo all
 
 After that you should get various @command{bin/nncp-*} binaries and
 @command{bin/hjson-cli} command (only for your convenience, not
-necessary installation). Documentation for example for
+necessary installation). For example, documentation for
 @command{nncp-bundle} command can be get with
 @command{info doc/nncp.info -n nncp-bundle}.
 
 It uses @url{http://cr.yp.to/redo.html, redo} build system for that
-examples. You can use either dozen of various implementations, or at
-least minimalistic POSIX shell @command{contrib/do} (just replace
+examples. You can use one of its various implementations, or at least
+minimalistic POSIX shell @command{contrib/do} (just replace
 @command{redo} with @command{contrib/do} in the example above) included
 in tarball. Following ones are tested to work with:
 @url{http://www.goredo.cypherpunks.ru/, goredo} (NNCP's author creation),
 @url{https://redo.readthedocs.io/, apenwarr/redo} (@code{contrib/do} is
 from that project), @url{https://github.com/leahneukirchen/redo-c, redo-c}.
 
-There is @command{install} target respecting @env{DESTDIR}. It will
+There is @command{install} target respecting @env{$DESTDIR}. It will
 install binaries and info-documentation:
 
 @example

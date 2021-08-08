@@ -3,6 +3,21 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_6_0
+@section Release 7.6.0
+@itemize
+
+@item
+Logging may be done to specified opened file descriptor
+(@env{$NNCPLOG=FD:5} for example).
+That is friendly to use under @command{daemontools}.
+
+@item
+Added additional checks of public keys existence in configuration file,
+preventing some commands from failing.
+
+@end itemize
+
 @node Release 7_5_1
 @section Release 7.5.1
 @itemize
@@ -339,7 +354,7 @@ second while it is active.
 automatic tosser options.
 
 @item
-Use vendoring, instead of @env{GOPATH} overriding during tarball
+Use vendoring, instead of @env{$GOPATH} overriding during tarball
 installation, because current minimal Go's version is 1.12 and it
 supports modules.
 
@@ -350,7 +365,7 @@ supports modules.
 @itemize
 
 @item
-Respect for @env{BINDIR}, @env{INFODIR} and @env{DOCDIR} environment
+Respect for @env{$BINDIR}, @env{$INFODIR} and @env{$DOCDIR} environment
 variables in @file{config} during installation.
 
 @end itemize
@@ -727,8 +742,8 @@ Chunked files, having size less than specified chunk size, will be sent
 as an ordinary single file.
 
 @item
-Exec commands are invoked with additional @env{NNCP_NICE} and
-@env{NNCP_SELF} environment variables.
+Exec commands are invoked with additional @env{$NNCP_NICE} and
+@env{$NNCP_SELF} environment variables.
 
 @item
 Files, that are sent as a reply to freq, have niceness level taken from
@@ -804,7 +819,7 @@ command line argument, or environment variable.
 @node Release 0_12
 @section Release 0.12
 @itemize
-@item Sendmail command is called with @env{NNCP_SENDER} environment variable.
+@item Sendmail command is called with @env{$NNCP_SENDER} environment variable.
 @end itemize
 
 @node Release 0_11

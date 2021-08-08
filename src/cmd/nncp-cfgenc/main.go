@@ -96,7 +96,7 @@ func main() {
 		return
 	}
 
-	os.Stderr.WriteString("Passphrase:") // #nosec G104
+	os.Stderr.WriteString("Passphrase:")
 	password1, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)
@@ -106,15 +106,15 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		os.Stdout.Write(cfgRaw) // #nosec G104
+		os.Stdout.Write(cfgRaw)
 		return
 	}
-	os.Stderr.WriteString("\nRepeat passphrase:") // #nosec G104
+	os.Stderr.WriteString("\nRepeat passphrase:")
 	password2, err := term.ReadPassword(0)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	os.Stderr.WriteString("\n") // #nosec G104
+	os.Stderr.WriteString("\n")
 	if bytes.Compare(password1, password2) != 0 {
 		log.Fatalln(errors.New("Passphrases do not match"))
 	}
@@ -122,5 +122,5 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	os.Stdout.Write(eblob) // #nosec G104
+	os.Stdout.Write(eblob)
 }

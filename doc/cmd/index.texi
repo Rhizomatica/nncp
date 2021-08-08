@@ -5,7 +5,7 @@ Nearly all commands have the following common options:
 
 @table @option
 @item -cfg
-    Path to configuration file. May be overridden by @env{NNCPCFG}
+    Path to configuration file. May be overridden by @env{$NNCPCFG}
     environment variable. If file file is an encrypted @ref{EBlob,
     eblob}, then ask for passphrase to decrypt it first.
 @item -debug
@@ -26,9 +26,9 @@ Nearly all commands have the following common options:
     With @verb{|-via -|} you can disable relaying at all.
 @item -spool
     Override path to spool directory. May be specified by
-    @env{NNCPSPOOL} environment variable.
+    @env{$NNCPSPOOL} environment variable.
 @item -log
-    Override path to logfile. May be specified by @env{NNCPLOG}
+    Override path to logfile. May be specified by @env{$NNCPLOG}
     environment variable.
 @item -quiet
     Print only errors, omit simple informational messages. In any case
