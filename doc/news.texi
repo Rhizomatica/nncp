@@ -3,6 +3,17 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_6_0
+@section Release 7.6.0
+@itemize
+
+@item
+Logging may be done to specified opened file descriptor
+(@env{$NNCPLOG=FD:5} for example).
+That is friendly to use under @command{daemontools}.
+
+@end itemize
+
 @node Release 7_5_1
 @section Release 7.5.1
 @itemize
