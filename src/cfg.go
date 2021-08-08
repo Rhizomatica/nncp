@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -445,6 +446,9 @@ func NewArea(ctx *Ctx, name string, cfg *AreaJSON) (*Area, error) {
 		copy(area.Pub[:], pub)
 	}
 	if cfg.Prv != nil {
+		if area.Pub == nil {
+			return nil, fmt.Errorf("area %s: prv requires pub presence", name)
+		}
 		prv, err := Base32Codec.DecodeString(*cfg.Prv)
 		if err != nil {
 			return nil, err

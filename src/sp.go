@@ -549,6 +549,9 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 
 	var node *Node
 	for _, n := range state.Ctx.Neigh {
+		if n.NoisePub == nil {
+			continue
+		}
 		if subtle.ConstantTimeCompare(state.hs.PeerStatic(), n.NoisePub[:]) == 1 {
 			node = n
 			break

@@ -94,6 +94,9 @@ func main() {
 			if err != nil {
 				log.Fatalln("Invalid NODE specified:", err)
 			}
+			if node.NoisePub == nil {
+				log.Fatalln("Node", nodeId, "does not have online communication capability")
+			}
 			if len(node.Calls) == 0 {
 				ctx.LogD(
 					"caller-no-calls",
