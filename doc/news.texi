@@ -350,7 +350,7 @@ second while it is active.
 automatic tosser options.
 
 @item
-Use vendoring, instead of @env{GOPATH} overriding during tarball
+Use vendoring, instead of @env{$GOPATH} overriding during tarball
 installation, because current minimal Go's version is 1.12 and it
 supports modules.
 
@@ -361,7 +361,7 @@ supports modules.
 @itemize
 
 @item
-Respect for @env{BINDIR}, @env{INFODIR} and @env{DOCDIR} environment
+Respect for @env{$BINDIR}, @env{$INFODIR} and @env{$DOCDIR} environment
 variables in @file{config} during installation.
 
 @end itemize
@@ -738,8 +738,8 @@ Chunked files, having size less than specified chunk size, will be sent
 as an ordinary single file.
 
 @item
-Exec commands are invoked with additional @env{NNCP_NICE} and
-@env{NNCP_SELF} environment variables.
+Exec commands are invoked with additional @env{$NNCP_NICE} and
+@env{$NNCP_SELF} environment variables.
 
 @item
 Files, that are sent as a reply to freq, have niceness level taken from
@@ -815,7 +815,7 @@ command line argument, or environment variable.
 @node Release 0_12
 @section Release 0.12
 @itemize
-@item Sendmail command is called with @env{NNCP_SENDER} environment variable.
+@item Sendmail command is called with @env{$NNCP_SENDER} environment variable.
 @end itemize
 
 @node Release 0_11

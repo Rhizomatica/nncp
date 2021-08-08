@@ -21,7 +21,7 @@ file and copy everything taken from @code{stdin} to it and use for outbound
 packet creation. Pay attention that if you want to send 1 GiB of data
 taken from @code{stdin}, then you have to have more than 2 GiB of disk space
 for that temporary file and resulting encrypted packet. You can control
-temporary file location directory with @env{TMPDIR} environment
+temporary file location directory with @env{$TMPDIR} environment
 variable. Encryption is performed in AEAD mode with
 @url{https://cr.yp.to/chacha.html, ChaCha20}-@url{https://en.wikipedia.org/wiki/Poly1305, Poly1305}
 algorithms. Data is divided on 128 KiB blocks. Each block is encrypted
