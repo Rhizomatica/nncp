@@ -85,7 +85,11 @@ during the call. You can control either are @file{.seen} files must be
 created, or skip any kind of packet processing.
 
 @item when-tx-exists
-Call only if packets for sending exists.
+Call only if packets for sending exists. The check of outbound packets
+existence is performed @strong{every} time we are going to make a call,
+but @emph{when-tx-exists} does not influence @emph{cron}. When
+@emph{cron} configuration decides that it is time to make a call, with
+@emph{when-tx-exists} option it checks packets existence first.
 
 @anchor{CfgNoCK}
 @item nock
