@@ -257,9 +257,15 @@ func (ctx *Ctx) Tx(
 				msgHash,
 			)
 		}
-		if err = os.MkdirAll(seenDir, os.FileMode(0777)); err != nil {
-			ctx.LogE("tx-mkdir", les, err, logMsg)
-			return lastNode, err
+		if _, err = os.Stat(seenDir); err != nil {
+			if !os.IsNotExist(err) {
+				ctx.LogE("tx-mkdir", les, err, logMsg)
+				return lastNode, err
+			}
+			if err = os.MkdirAll(seenDir, os.FileMode(0777)); err != nil {
+				ctx.LogE("tx-mkdir", les, err, logMsg)
+				return lastNode, err
+			}
 		}
 		if fd, err := os.Create(seenPath); err == nil {
 			fd.Close()
