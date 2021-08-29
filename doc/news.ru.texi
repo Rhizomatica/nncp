@@ -1,6 +1,17 @@
 @node Новости
 @section Новости
 
+@node Релиз 7.7.0
+@subsection Релиз 7.7.0
+@itemize
+
+@item
+Экспериментальная поддержка @code{kqueue} и @code{inotify} оповещений об
+изменениях в spool директориях, для сокращения накладных расходов на их
+частое чтение.
+
+@end itemize
+
 @node Релиз 7.6.0
 @subsection Релиз 7.6.0
 @itemize

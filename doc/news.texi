@@ -3,6 +3,17 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 7_7_0
+@section Release 7.7.0
+@itemize
+
+@item
+Experimental @code{kqueue} and @code{inotify} based notifications
+support about spool directory changes, for reducing their often reading
+overhead.
+
+@end itemize
+
 @node Release 7_6_0
 @section Release 7.6.0
 @itemize

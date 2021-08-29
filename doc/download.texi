@@ -12,6 +12,7 @@ Tarballs include all necessary required libraries:
 @item @code{github.com/davecgh/go-xdr} @tab ISC
 @item @code{github.com/dustin/go-humanize} @tab MIT
 @item @code{github.com/flynn/noise} @tab BSD 3-Clause
+@item @code{github.com/fsnotify/fsnotify} @tab BSD 3-Clause
 @item @code{github.com/gorhill/cronexpr} @tab GNU GPLv3
 @item @code{github.com/gosuri/uilive} @tab MIT
 @item @code{github.com/hjson/hjson-go} @tab MIT

@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"go.cypherpunks.ru/nncp/v7"
@@ -99,32 +100,66 @@ func main() {
 
 	ctx.Umask()
 
-Cycle:
-	isBad := false
+	if *cycle == 0 {
+		isBad := false
+		for nodeId, node := range ctx.Neigh {
+			if nodeOnly != nil && nodeId != *nodeOnly.Id {
+				continue
+			}
+			isBad = ctx.Toss(
+				node.Id,
+				nncp.TRx,
+				nice,
+				*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea,
+			) || isBad
+			if nodeId == *ctx.SelfId {
+				isBad = ctx.Toss(
+					node.Id,
+					nncp.TTx,
+					nice,
+					*dryRun, false, true, true, true, true, *noArea,
+				) || isBad
+			}
+		}
+		if isBad {
+			os.Exit(1)
+		}
+		return
+	}
+
+	nodeIds := make(chan *nncp.NodeId)
 	for nodeId, node := range ctx.Neigh {
 		if nodeOnly != nil && nodeId != *nodeOnly.Id {
 			continue
 		}
-		isBad = ctx.Toss(
-			node.Id,
-			nncp.TRx,
-			nice,
-			*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea,
-		) || isBad
-		if nodeId == *ctx.SelfId {
-			isBad = ctx.Toss(
-				node.Id,
+		dw, err := ctx.NewDirWatcher(
+			filepath.Join(ctx.Spool, node.Id.String(), string(nncp.TRx)),
+			time.Second*time.Duration(*cycle),
+		)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		go func(nodeId *nncp.NodeId) {
+			for range dw.C {
+				nodeIds <- nodeId
+			}
+		}(node.Id)
+	}
+	for nodeId := range nodeIds {
+		if *nodeId == *ctx.SelfId {
+			ctx.Toss(
+				nodeId,
 				nncp.TTx,
 				nice,
 				*dryRun, false, true, true, true, true, *noArea,
-			) || isBad
+			)
+		} else {
+			ctx.Toss(
+				nodeId,
+				nncp.TRx,
+				nice,
+				*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea,
+			)
 		}
-	}
-	if *cycle > 0 {
-		time.Sleep(time.Duration(*cycle) * time.Second)
-		goto Cycle
-	}
-	if isBad {
-		os.Exit(1)
 	}
 }

@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -772,14 +773,21 @@ func (state *SPState) StartWorkers(
 	if !state.listOnly && (state.xxOnly == "" || state.xxOnly == TTx) {
 		state.wg.Add(1)
 		go func() {
-			ticker := time.NewTicker(time.Second)
+			dw, err := state.Ctx.NewDirWatcher(
+				filepath.Join(state.Ctx.Spool, state.Node.Id.String(), string(TTx)),
+				time.Second,
+			)
+			if err != nil {
+				state.Ctx.LogE("sp-queue-dir-watch", les, err, logMsg)
+				log.Fatalln(err)
+			}
 			for {
 				select {
 				case <-state.isDead:
+					dw.Close()
 					state.wg.Done()
-					ticker.Stop()
 					return
-				case <-ticker.C:
+				case <-dw.C:
 					for _, payload := range state.Ctx.infosOur(
 						state.Node.Id,
 						state.Nice,

@@ -1020,6 +1020,13 @@ func (ctx *Ctx) AutoToss(
 	nice uint8,
 	doSeen, noFile, noFreq, noExec, noTrns, noArea bool,
 ) (chan struct{}, chan bool) {
+	dw, err := ctx.NewDirWatcher(
+		filepath.Join(ctx.Spool, nodeId.String(), string(TRx)),
+		time.Second,
+	)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	finish := make(chan struct{})
 	badCode := make(chan bool)
 	go func() {
@@ -1027,14 +1034,14 @@ func (ctx *Ctx) AutoToss(
 		for {
 			select {
 			case <-finish:
+				dw.Close()
 				badCode <- bad
-				break
-			default:
+				return
+			case <-dw.C:
+				bad = !ctx.Toss(
+					nodeId, TRx, nice, false,
+					doSeen, noFile, noFreq, noExec, noTrns, noArea) || bad
 			}
-			time.Sleep(time.Second)
-			bad = !ctx.Toss(
-				nodeId, TRx, nice, false,
-				doSeen, noFile, noFreq, noExec, noTrns, noArea) || bad
 		}
 	}()
 	return finish, badCode
