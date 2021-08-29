@@ -40,3 +40,9 @@ install binaries and info-documentation:
 @example
 # PREFIX=/usr/local redo install
 @end example
+
+NNCP depends on @code{github.com/fsnotify/fsnotify} library, that is
+solely relies on OS-specific mechanisms. There is possibility that you
+have either broken or unsupported ones. You can still build NNCP with
+@code{-tags nofsnotify} build option, to skip @code{fsnotify} library
+usage at all.
