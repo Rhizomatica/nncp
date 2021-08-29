@@ -74,14 +74,20 @@ func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
 	logMsg := func(les LEs) string {
 		return fmt.Sprintf("Ensuring directory %s existence", dirPath)
 	}
-	if err := os.MkdirAll(dirPath, os.FileMode(0777)); err != nil {
-		ctx.LogE("dir-ensure-mkdir", LEs{{"Dir", dirPath}}, err, logMsg)
-		return err
-	}
 	fd, err := os.Open(dirPath)
 	if err != nil {
-		ctx.LogE("dir-ensure-open", LEs{{"Dir", dirPath}}, err, logMsg)
-		return err
+		if !os.IsNotExist(err) {
+			return err
+		}
+		if err := os.MkdirAll(dirPath, os.FileMode(0777)); err != nil {
+			ctx.LogE("dir-ensure-mkdir", LEs{{"Dir", dirPath}}, err, logMsg)
+			return err
+		}
+		fd, err = os.Open(dirPath)
+		if err != nil {
+			ctx.LogE("dir-ensure-open", LEs{{"Dir", dirPath}}, err, logMsg)
+			return err
+		}
 	}
 	return fd.Close()
 }
