@@ -146,19 +146,18 @@ func main() {
 		}(node.Id)
 	}
 	for nodeId := range nodeIds {
+		ctx.Toss(
+			nodeId,
+			nncp.TRx,
+			nice,
+			*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea,
+		)
 		if *nodeId == *ctx.SelfId {
 			ctx.Toss(
 				nodeId,
 				nncp.TTx,
 				nice,
 				*dryRun, false, true, true, true, true, *noArea,
-			)
-		} else {
-			ctx.Toss(
-				nodeId,
-				nncp.TRx,
-				nice,
-				*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea,
 			)
 		}
 	}
