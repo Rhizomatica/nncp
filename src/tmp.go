@@ -37,13 +37,8 @@ func TempFile(dir, prefix string) (*os.File, error) {
 
 func (ctx *Ctx) NewTmpFile() (*os.File, error) {
 	jobsPath := filepath.Join(ctx.Spool, "tmp")
-	if _, err := os.Stat(jobsPath); err != nil {
-		if !os.IsNotExist(err) {
-			return nil, err
-		}
-		if err := os.MkdirAll(jobsPath, os.FileMode(0777)); err != nil {
-			return nil, err
-		}
+	if err := ensureDir(jobsPath); err != nil {
+		return nil, err
 	}
 	fd, err := TempFile(jobsPath, "")
 	if err == nil {
@@ -100,13 +95,8 @@ func (tmp *TmpFileWHash) Checksum() string {
 
 func (tmp *TmpFileWHash) Commit(dir string) error {
 	var err error
-	if _, err = os.Stat(dir); err != nil {
-		if !os.IsNotExist(err) {
-			return err
-		}
-		if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
-			return err
-		}
+	if err = ensureDir(dir); err != nil {
+		return err
 	}
 	if err = tmp.W.Flush(); err != nil {
 		tmp.Fd.Close()

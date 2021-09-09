@@ -22,7 +22,6 @@ package nncp
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -39,21 +38,14 @@ func (ctx *Ctx) NewDirWatcher(dir string, d time.Duration) (*DirWatcher, error) 
 	if err != nil {
 		return nil, err
 	}
+	err = ensureDir(dir)
+	if err != nil {
+		return nil, err
+	}
 	err = w.Add(dir)
 	if err != nil {
-		if !os.IsNotExist(err) {
-			w.Close()
-			return nil, err
-		}
-		if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
-			w.Close()
-			return nil, err
-		}
-		err = w.Add(dir)
-		if err != nil {
-			w.Close()
-			return nil, err
-		}
+		w.Close()
+		return nil, err
 	}
 	dw := DirWatcher{
 		w:      w,
