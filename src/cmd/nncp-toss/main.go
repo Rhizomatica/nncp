@@ -42,7 +42,7 @@ func main() {
 		nodeRaw   = flag.String("node", "", "Process only that node")
 		niceRaw   = flag.String("nice", nncp.NicenessFmt(255), "Minimal required niceness")
 		dryRun    = flag.Bool("dryrun", false, "Do not actually write any tossed data")
-		doSeen    = flag.Bool("seen", false, "Create .seen files")
+		doSeen    = flag.Bool("seen", false, "Create seen/ files")
 		cycle     = flag.Uint("cycle", 0, "Repeat tossing after N seconds in infinite loop")
 		noFile    = flag.Bool("nofile", false, "Do not process \"file\" packets")
 		noFreq    = flag.Bool("nofreq", false, "Do not process \"freq\" packets")

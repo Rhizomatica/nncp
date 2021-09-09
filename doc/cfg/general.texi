@@ -36,7 +36,7 @@ You can always force its showing with @option{-progress} command line
 option anyway.
 @anchor{CfgNoHdr}
 @item nohdr
-@strong{nohdr} option disables @ref{HdrFile, .hdr} files usage.
+@strong{nohdr} option disables @ref{HdrFile, @file{hdr/}} files usage.
 @end table
 
 And optional @ref{MCD, MultiCast Discovery} options:

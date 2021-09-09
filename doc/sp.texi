@@ -182,7 +182,7 @@ payloads, then send all of remaining in the transport stage.
     Ignore it if it is too nice.
     @item If already downloaded file exists, then queue @emph{DONE}
     sending.
-    @item If @file{.seen} exists, then queue @emph{DONE} sending.
+    @item If @file{seen/XXX} exists, then queue @emph{DONE} sending.
     @item If @file{.part} exists, then queue @emph{FREQ} sending with
     corresponding offset.
     @end itemize

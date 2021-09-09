@@ -81,7 +81,7 @@ configuration option when calling.
 
 @item autotoss, -doseen, -nofile, -nofreq, -noexec, -notrns
 Optionally enable auto tossing: run tosser on node's spool every second
-during the call. You can control either are @file{.seen} files must be
+during the call. You can control either are @file{seen/} files must be
 created, or skip any kind of packet processing.
 
 @item when-tx-exists

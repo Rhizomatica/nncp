@@ -69,7 +69,8 @@ func (ctx *Ctx) FindNode(id string) (*Node, error) {
 	return node, nil
 }
 
-func ensureDir(p string) error {
+func ensureDir(dirs ...string) error {
+	p := filepath.Join(dirs...)
 	fi, err := os.Stat(p)
 	if err == nil {
 		if fi.IsDir() {
