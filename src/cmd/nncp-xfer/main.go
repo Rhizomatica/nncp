@@ -423,7 +423,9 @@ Tx:
 				})
 				continue
 			}
-			if _, err = os.Stat(filepath.Join(dstPath, pktName+nncp.SeenSuffix)); err == nil || !os.IsNotExist(err) {
+			if _, err = os.Stat(filepath.Join(
+				dstPath, nncp.SeenDir, pktName,
+			)); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("xfer-tx-seen", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": already seen"
 				})
@@ -518,7 +520,7 @@ Tx:
 					})
 					isBad = true
 				} else if ctx.HdrUsage {
-					os.Remove(job.Path + nncp.HdrSuffix)
+					os.Remove(nncp.JobPath2Hdr(job.Path))
 				}
 			}
 		}

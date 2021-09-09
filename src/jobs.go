@@ -35,7 +35,7 @@ const (
 	TRx TRxTx = "rx"
 	TTx TRxTx = "tx"
 
-	HdrSuffix = ".hdr"
+	HdrDir = "hdr"
 )
 
 type Job struct {
@@ -43,6 +43,10 @@ type Job struct {
 	Path     string
 	Size     int64
 	HshValue *[MTHSize]byte
+}
+
+func JobPath2Hdr(jobPath string) string {
+	return filepath.Join(filepath.Dir(jobPath), HdrDir, filepath.Base(jobPath))
 }
 
 func (ctx *Ctx) HdrRead(r io.Reader) (*PktEnc, []byte, error) {
@@ -80,7 +84,13 @@ func (ctx *Ctx) HdrWrite(pktEncRaw []byte, tgt string) error {
 		os.Remove(tmpHdr.Name())
 		return err
 	}
-	if err = os.Rename(tmpHdr.Name(), tgt+HdrSuffix); err != nil {
+	if err = ensureDir(filepath.Dir(tgt), HdrDir); err != nil {
+		ctx.LogE("hdr-write-ensure-mkdir", nil, err, func(les LEs) string {
+			return "Header writing: ensuring directory"
+		})
+		return err
+	}
+	if err = os.Rename(tmpHdr.Name(), JobPath2Hdr(tgt)); err != nil {
 		ctx.LogE("hdr-write-rename", nil, err, func(les LEs) string {
 			return "Header writing: renaming"
 		})
@@ -137,7 +147,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock, part bool) chan Job {
 			if nock || part {
 				fd, err = os.Open(pth)
 			} else {
-				fd, err = os.Open(pth + HdrSuffix)
+				fd, err = os.Open(JobPath2Hdr(pth))
 				if err != nil && os.IsNotExist(err) {
 					hdrExists = false
 					fd, err = os.Open(pth)

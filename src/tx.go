@@ -239,7 +239,7 @@ func (ctx *Ctx) Tx(
 		seenDir := filepath.Join(
 			ctx.Spool, ctx.SelfId.String(), AreaDir, areaId.String(),
 		)
-		seenPath := filepath.Join(seenDir, msgHash+SeenSuffix)
+		seenPath := filepath.Join(seenDir, msgHash)
 		les := LEs{
 			{"Node", node.Id},
 			{"Nice", int(nice)},

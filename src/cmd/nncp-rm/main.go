@@ -54,15 +54,15 @@ func main() {
 		cfgPath   = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		doAll     = flag.Bool("all", false, "Apply remove rules to all nodes")
 		doTmp     = flag.Bool("tmp", false, "Remove all temporary files")
-		doHdr     = flag.Bool("hdr", false, "Remove all .hdr files")
+		doHdr     = flag.Bool("hdr", false, "Remove all hdr/ files")
 		doLock    = flag.Bool("lock", false, "Remove all lock files")
 		nodeRaw   = flag.String("node", "", "Node to remove files in")
 		doRx      = flag.Bool("rx", false, "Process received packets")
 		doTx      = flag.Bool("tx", false, "Process transfered packets")
 		doPart    = flag.Bool("part", false, "Remove only .part files")
-		doSeen    = flag.Bool("seen", false, "Remove only .seen files")
+		doSeen    = flag.Bool("seen", false, "Remove only seen/ files")
 		doNoCK    = flag.Bool("nock", false, "Remove only .nock files")
-		doArea    = flag.Bool("area", false, "Remove only area/*.seen files")
+		doArea    = flag.Bool("area", false, "Remove only area/* seen files")
 		older     = flag.String("older", "", "XXX{smhd}: only older than XXX number of time units")
 		dryRun    = flag.Bool("dryrun", false, "Do not actually remove files")
 		pktRaw    = flag.String("pkt", "", "Packet to remove")
@@ -204,9 +204,7 @@ func main() {
 						})
 						return nil
 					}
-					if (*doSeen && strings.HasSuffix(info.Name(), nncp.SeenSuffix)) ||
-						(*doNoCK && strings.HasSuffix(info.Name(), nncp.NoCKSuffix)) ||
-						(*doHdr && strings.HasSuffix(info.Name(), nncp.HdrSuffix)) ||
+					if (*doNoCK && strings.HasSuffix(info.Name(), nncp.NoCKSuffix)) ||
 						(*doPart && strings.HasSuffix(info.Name(), nncp.PartSuffix)) {
 						ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, logMsg)
 						if *dryRun {
@@ -233,13 +231,70 @@ func main() {
 					return nil
 				})
 		}
-		if *pktRaw != "" || *doRx || *doSeen || *doNoCK || *doHdr || *doPart {
+		if *pktRaw != "" || *doRx || *doNoCK || *doPart {
 			if err = remove(nncp.TRx); err != nil {
 				log.Fatalln("Can not remove:", err)
 			}
 		}
 		if *pktRaw != "" || *doTx || *doHdr {
 			if err = remove(nncp.TTx); err != nil {
+				log.Fatalln("Can not remove:", err)
+			}
+		}
+		removeSub := func(p string, everything bool) error {
+			return filepath.Walk(
+				p, func(path string, info os.FileInfo, err error) error {
+					if err != nil {
+						if os.IsNotExist(err) {
+							return nil
+						}
+						return err
+					}
+					if info.IsDir() {
+						return nil
+					}
+					logMsg := func(les nncp.LEs) string {
+						return fmt.Sprintf("File %s: removed", path)
+					}
+					if everything {
+						ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, logMsg)
+						if *dryRun {
+							return nil
+						}
+						return os.Remove(path)
+					}
+					if now.Sub(info.ModTime()) < oldBoundary {
+						ctx.LogD(
+							"rm-skip", nncp.LEs{{K: "File", V: path}},
+							func(les nncp.LEs) string {
+								return fmt.Sprintf("File %s: too fresh, skipping", path)
+							},
+						)
+					} else if !*dryRun {
+						return os.Remove(path)
+					}
+					return nil
+				},
+			)
+		}
+		if *doRx || *doSeen {
+			if err = removeSub(filepath.Join(
+				ctx.Spool, node.Id.String(), string(nncp.TRx), nncp.SeenDir,
+			), *doSeen); err != nil {
+				log.Fatalln("Can not remove:", err)
+			}
+		}
+		if *doRx || *doHdr {
+			if err = removeSub(filepath.Join(
+				ctx.Spool, node.Id.String(), string(nncp.TRx), nncp.HdrDir,
+			), *doHdr); err != nil {
+				log.Fatalln("Can not remove:", err)
+			}
+		}
+		if *doTx || *doHdr {
+			if err = removeSub(filepath.Join(
+				ctx.Spool, node.Id.String(), string(nncp.TTx), nncp.HdrDir,
+			), *doHdr); err != nil {
 				log.Fatalln("Can not remove:", err)
 			}
 		}
@@ -262,20 +317,17 @@ func main() {
 						})
 						return nil
 					}
-					if strings.HasSuffix(info.Name(), nncp.SeenSuffix) {
-						ctx.LogI(
-							"rm",
-							nncp.LEs{{K: "File", V: path}},
-							func(les nncp.LEs) string {
-								return fmt.Sprintf("File %s: removed", path)
-							},
-						)
-						if *dryRun {
-							return nil
-						}
-						return os.Remove(path)
+					ctx.LogI(
+						"rm",
+						nncp.LEs{{K: "File", V: path}},
+						func(les nncp.LEs) string {
+							return fmt.Sprintf("File %s: removed", path)
+						},
+					)
+					if *dryRun {
+						return nil
 					}
-					return nil
+					return os.Remove(path)
 				}); err != nil {
 				log.Fatalln("Can not remove:", err)
 			}

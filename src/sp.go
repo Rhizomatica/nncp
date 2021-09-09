@@ -1263,7 +1263,10 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				}
 				continue
 			}
-			if _, err = os.Stat(pktPath + SeenSuffix); err == nil {
+			if _, err = os.Stat(filepath.Join(
+				state.Ctx.Spool, state.Node.Id.String(), string(TRx),
+				SeenDir, Base32Codec.EncodeToString(info.Hash[:]),
+			)); err == nil {
 				state.Ctx.LogI("sp-info-seen", lesp, func(les LEs) string {
 					return logMsg(les) + ": already seen"
 				})
@@ -1584,7 +1587,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					return fmt.Sprintf("Packet %s is sent", pktName)
 				})
 				if state.Ctx.HdrUsage {
-					os.Remove(pth + HdrSuffix)
+					os.Remove(JobPath2Hdr(pth))
 				}
 			} else {
 				state.Ctx.LogE("sp-done", lesp, err, logMsg)

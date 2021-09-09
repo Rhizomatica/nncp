@@ -50,9 +50,9 @@ non-checksummed (NoCK) @strong{fully} received file. Its checksum is
 verified against its filename either by @ref{nncp-check}, or by working
 online daemons. If it is correct, then its extension is trimmed.
 
-@item LYT64MWSNDK34CVYOO7TA6ZCJ3NWI2OUDBBMX2A4QWF34FIRY4DQ.seen
+@item seen/LYT64MWSNDK34CVYOO7TA6ZCJ3NWI2OUDBBMX2A4QWF34FIRY4DQ
 @ref{nncp-toss} utility can be invoked with @option{-seen} option,
-leading to creation of @file{.seen} files, telling that the file with
+leading to creation of @file{seen/} files, telling that the file with
 specified hash has already been processed before. It could be useful
 when there are use-cases where multiple ways of packets transfer
 available and there is possibility of duplicates reception. You have to
@@ -60,9 +60,9 @@ manually remove them, when you do not need them (probably because they
 are expired).
 
 @anchor{HdrFile}
-@item LYT64MWSNDK34CVYOO7TA6ZCJ3NWI2OUDBBMX2A4QWF34FIRY4DQ.hdr
+@item hdr/LYT64MWSNDK34CVYOO7TA6ZCJ3NWI2OUDBBMX2A4QWF34FIRY4DQ
 If no @ref{CfgNoHdr, nohdr} option is enabled in configuration file,
-then @file{.hdr} files are automatically created for every ordinary
+then @file{hdr/} files are automatically created for every ordinary
 (fully received and checksummed) packet. It literally contains just the
 header of the corresponding packet. It will be automatically created
 even during simple @ref{nncp-stat} call. On filesystems with big
@@ -71,9 +71,9 @@ directories, because it prevents unnecessary read-amplification. On
 other filesystems probably it won't help at all, or even harm
 performance.
 
-There is a hack: you can create more dense @file{.hdr} allocation by
-removing all @file{.hdr} files and then running @command{nncp-stat},
-that will recreate them. In many cases many @file{.hdr} files will be
+There is a hack: you can create more dense @file{hdr/} allocation by
+removing all @file{hdr/} files and then running @command{nncp-stat},
+that will recreate them. In many cases many @file{hdr/} files will be
 allocated more or less linearly on the disk, decreasing listing time
 even more.
 
