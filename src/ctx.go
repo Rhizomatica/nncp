@@ -69,27 +69,29 @@ func (ctx *Ctx) FindNode(id string) (*Node, error) {
 	return node, nil
 }
 
+func ensureDir(p string) error {
+	fi, err := os.Stat(p)
+	if err == nil {
+		if fi.IsDir() {
+			return nil
+		}
+		return fmt.Errorf("%s: is not a directory", p)
+	}
+	if !os.IsNotExist(err) {
+		return err
+	}
+	return os.MkdirAll(p, os.FileMode(0777))
+}
+
 func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
 	dirPath := filepath.Join(ctx.Spool, nodeId.String(), string(TRx))
-	logMsg := func(les LEs) string {
-		return fmt.Sprintf("Ensuring directory %s existence", dirPath)
-	}
-	fd, err := os.Open(dirPath)
+	err := ensureDir(dirPath)
 	if err != nil {
-		if !os.IsNotExist(err) {
-			return err
-		}
-		if err := os.MkdirAll(dirPath, os.FileMode(0777)); err != nil {
-			ctx.LogE("dir-ensure-mkdir", LEs{{"Dir", dirPath}}, err, logMsg)
-			return err
-		}
-		fd, err = os.Open(dirPath)
-		if err != nil {
-			ctx.LogE("dir-ensure-open", LEs{{"Dir", dirPath}}, err, logMsg)
-			return err
-		}
+		ctx.LogE("dir-ensure-mkdir", LEs{{"Dir", dirPath}}, err, func(les LEs) string {
+			return fmt.Sprintf("Ensuring directory %s existence", dirPath)
+		})
 	}
-	return fd.Close()
+	return err
 }
 
 func CtxFromCmdline(
