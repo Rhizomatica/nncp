@@ -1,3 +1,4 @@
+//go:build !netbsd
 // +build !netbsd
 
 // NNCP -- Node to Node copy, utilities for store-and-forward data exchange
