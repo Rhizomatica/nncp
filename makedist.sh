@@ -38,7 +38,7 @@ You can obtain releases source code prepared tarballs from
 EOF
 perl -i -ne 'print unless /include pedro/' doc/index.texi doc/about.ru.texi
 perl -p -i -e 's/^(.verbatiminclude) .*$/$1 PUBKEY.asc/g' doc/integrity.texi
-mv doc/.well-known/openpgpkey/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY.asc
+mv doc/.well-known/openpgpkey/nncpgo.org/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY.asc
 ln -s ../PUBKEY.asc doc
 redo doc
 
@@ -95,7 +95,7 @@ EOF
 mkinfo --output THANKS $texi
 
 rm -f $texi
-rm -r doc/.well-known doc/nncp.html/.well-known
+rm -r doc/.well-known
 
 ########################################################################
 
