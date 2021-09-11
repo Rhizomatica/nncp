@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -772,14 +773,21 @@ func (state *SPState) StartWorkers(
 	if !state.listOnly && (state.xxOnly == "" || state.xxOnly == TTx) {
 		state.wg.Add(1)
 		go func() {
-			ticker := time.NewTicker(time.Second)
+			dw, err := state.Ctx.NewDirWatcher(
+				filepath.Join(state.Ctx.Spool, state.Node.Id.String(), string(TTx)),
+				time.Second,
+			)
+			if err != nil {
+				state.Ctx.LogE("sp-queue-dir-watch", les, err, logMsg)
+				log.Fatalln(err)
+			}
 			for {
 				select {
 				case <-state.isDead:
+					dw.Close()
 					state.wg.Done()
-					ticker.Stop()
 					return
-				case <-ticker.C:
+				case <-dw.C:
 					for _, payload := range state.Ctx.infosOur(
 						state.Node.Id,
 						state.Nice,
@@ -1255,7 +1263,10 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 				}
 				continue
 			}
-			if _, err = os.Stat(pktPath + SeenSuffix); err == nil {
+			if _, err = os.Stat(filepath.Join(
+				state.Ctx.Spool, state.Node.Id.String(), string(TRx),
+				SeenDir, Base32Codec.EncodeToString(info.Hash[:]),
+			)); err == nil {
 				state.Ctx.LogI("sp-info-seen", lesp, func(les LEs) string {
 					return logMsg(les) + ": already seen"
 				})
@@ -1576,7 +1587,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					return fmt.Sprintf("Packet %s is sent", pktName)
 				})
 				if state.Ctx.HdrUsage {
-					os.Remove(pth + HdrSuffix)
+					os.Remove(JobPath2Hdr(pth))
 				}
 			} else {
 				state.Ctx.LogE("sp-done", lesp, err, logMsg)

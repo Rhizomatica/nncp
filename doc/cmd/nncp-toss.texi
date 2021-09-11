@@ -22,7 +22,7 @@ tells what it will do.
 @option{INT} seconds in an infinite loop. That can be useful when
 running this command as a daemon.
 
-@option{-seen} option creates empty @file{XXX.seen} file after
+@option{-seen} option creates empty @file{seen/XXX} file after
 successful tossing of @file{XXX} packet. @ref{nncp-xfer},
 @ref{nncp-bundle}, @ref{nncp-daemon} and @ref{nncp-call} commands skip
 inbound packets that has been already seen, processed and tossed. This

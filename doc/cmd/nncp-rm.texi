@@ -33,16 +33,15 @@ failing to be processed.
 
 @item @option{-part} option deletes @file{.part}ly downloaded files.
 
-@item @option{-seen} option deletes @file{.seen} files. But it does not
-apply to @ref{Multicast, multicast areas} @file{.seen} ones!
+@item @option{-seen} option deletes @file{seen/} files. But it does not
+apply to @ref{Multicast, multicast areas} ones!
 
 @item @option{-nock} option deletes non-checksummed (non-verified)
 @file{.nock} files.
 
-@item @option{-hdr} option deletes cached @file{.hdr} files.
+@item @option{-hdr} option deletes cached @file{hdr/} files.
 
-@item @option{-area} option deletes @file{.seen} files in @file{area/}
-subdirectories.
+@item @option{-area} option deletes seen files in @file{area/} subdirectories.
 
 @end itemize
 

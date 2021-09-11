@@ -24,8 +24,8 @@ NNCP uses following files/directories you should be aware of:
     checksummed. Can be checksummed (with @file{.nock} extension removing)
     with @command{nncp-check -nock}.
 
-    Also it can contain @file{.seen} files, that should be cleaned too
-    from time to time.
+    Also it can contain @file{seen/} and @file{hdr/} subdirectories,
+    that should be cleaned too from time to time.
 
     All of that cleaning tasks can be done with @ref{nncp-rm} utility.
 

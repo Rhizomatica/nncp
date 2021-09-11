@@ -12,6 +12,7 @@ Tarballs include all necessary required libraries:
 @item @code{github.com/davecgh/go-xdr} @tab ISC
 @item @code{github.com/dustin/go-humanize} @tab MIT
 @item @code{github.com/flynn/noise} @tab BSD 3-Clause
+@item @code{github.com/fsnotify/fsnotify} @tab BSD 3-Clause
 @item @code{github.com/gorhill/cronexpr} @tab GNU GPLv3
 @item @code{github.com/gosuri/uilive} @tab MIT
 @item @code{github.com/hjson/hjson-go} @tab MIT
@@ -28,6 +29,10 @@ Tarballs include all necessary required libraries:
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
+
+@item @ref{Release 7_6_0, 7.6.0} @tab 2021-08-08 @tab 1153 KiB
+@tab @url{download/nncp-7.6.0.tar.xz, link} @url{download/nncp-7.6.0.tar.xz.sig, sign}
+@tab @code{00852E80 70415154 197A5555 DDAE636E 6E3940EC DD53D39E A69E5FF1 531BA4C6}
 
 @item @ref{Release 7_5_1, 7.5.1} @tab 2021-08-05 @tab 1147 KiB
 @tab @url{download/nncp-7.5.1.tar.xz, link} @url{download/nncp-7.5.1.tar.xz.sig, sign}

@@ -25,7 +25,7 @@ $ gpg --auto-key-locate wkd --locate-keys releases at nncpgo dot org
 @end example
 
 @item
-@verbatiminclude .well-known/openpgpkey/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc
+@verbatiminclude .well-known/openpgpkey/nncpgo.org/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc
 
 @end itemize
 

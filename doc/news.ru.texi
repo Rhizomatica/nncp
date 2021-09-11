@@ -1,6 +1,40 @@
 @node Новости
 @section Новости
 
+@node Релиз 7.7.0
+@subsection Релиз 7.7.0
+@itemize
+
+@item
+Экспериментальная поддержка @code{kqueue} и @code{inotify} оповещений об
+изменениях в spool директориях, для сокращения накладных расходов на их
+частое чтение.
+
+@item
+@file{.seen} и @file{.hdr} файлы находятся в @file{seen/} и @file{hdr/}
+поддиректориях теперь, дабы ускорить сканирование spool областей.
+Необходима миграция текущих файлов:
+
+@example
+$ find $NNCPSPOOL -type f -name "*.hdr" -exec rm @{@} +
+
+$ find $NNCPSPOOL -type d -name rx | while read rx ; do
+    cd $rx
+    mkdir -p seen
+    find . -type f -name "*.seen" | while read fn ; do
+        mv $fn seen/$@{fn%.seen@}
+    done
+done
+
+$ find $NNCPSPOOL -type d -name area | while read area ; do
+    find $area -type f -name "*.seen" | while read fn ; do
+        mv $fn $@{fn%.seen@}
+    done
+done
+@end example
+
+@end itemize
+
 @node Релиз 7.6.0
 @subsection Релиз 7.6.0
 @itemize

@@ -239,7 +239,7 @@ func (ctx *Ctx) Tx(
 		seenDir := filepath.Join(
 			ctx.Spool, ctx.SelfId.String(), AreaDir, areaId.String(),
 		)
-		seenPath := filepath.Join(seenDir, msgHash+SeenSuffix)
+		seenPath := filepath.Join(seenDir, msgHash)
 		les := LEs{
 			{"Node", node.Id},
 			{"Nice", int(nice)},
@@ -257,7 +257,7 @@ func (ctx *Ctx) Tx(
 				msgHash,
 			)
 		}
-		if err = os.MkdirAll(seenDir, os.FileMode(0777)); err != nil {
+		if err = ensureDir(seenDir); err != nil {
 			ctx.LogE("tx-mkdir", les, err, logMsg)
 			return lastNode, err
 		}

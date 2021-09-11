@@ -61,5 +61,5 @@ node won't be notified that the file is finished. If you run
 @ref{nncp-check, @command{nncp-check -nock}}, that will checksum files
 and strip the @file{.nock} extension, then repeated call to remote node
 will notify about packet's completion. Also it will be notified if
-@ref{nncp-toss, tossing} created @file{.seen} file.
+@ref{nncp-toss, tossing} created @file{seen/} file.
 Read @ref{CfgNoCK, more} about @option{-nock} option.

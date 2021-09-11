@@ -187,7 +187,7 @@ func main() {
 					if err = os.Remove(job.Path); err != nil {
 						log.Fatalln("Error during deletion:", err)
 					} else if ctx.HdrUsage {
-						os.Remove(job.Path + nncp.HdrSuffix)
+						os.Remove(nncp.JobPath2Hdr(job.Path))
 					}
 				}
 				ctx.LogI(
@@ -376,7 +376,7 @@ func main() {
 					if !*dryRun {
 						os.Remove(dstPath)
 						if ctx.HdrUsage {
-							os.Remove(dstPath + nncp.HdrSuffix)
+							os.Remove(nncp.JobPath2Hdr(dstPath))
 						}
 					}
 				} else {
@@ -416,7 +416,9 @@ func main() {
 				})
 				continue
 			}
-			if _, err = os.Stat(dstPath + nncp.SeenSuffix); err == nil || !os.IsNotExist(err) {
+			if _, err = os.Stat(filepath.Join(
+				dstDirPath, nncp.SeenDir, pktName,
+			)); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("bundle-rx-seen", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": packet already seen"
 				})
