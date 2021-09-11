@@ -39,12 +39,12 @@ following:
     @itemize
     @item check if that message was already seen (sent or received from)
         before by the destination node: check existence of
-        @file{SPOOL/NODE/area/AREA/MsgHash.seen} file. Skip that node if
+        @file{SPOOL/NODE/area/AREA/MsgHash} file. Skip that node if
         it exists
     @item if subscriber's node is not the one we received the packet
         from, then create outgoing encrypted packet to it, with that
         area packet inside
-    @item create corresponding @file{MsgHash.seen} file
+    @item create corresponding @file{MsgHash} file
     @item "rewind" the outer encrypted file to the beginning and repeat
         the whole cycle again, while all of subscribers will "seen" that
         area's message.
@@ -55,7 +55,7 @@ following:
         consumption.
     @end itemize
 @item check if we have seen that area's message before by looking at
-    @file{SPOOL/SELF/area/AREA/MsgHash.seen}. If so, remove the packet,
+    @file{SPOOL/SELF/area/AREA/MsgHash}. If so, remove the packet,
     because it is just a ordinary possible duplicate, finish its processing
 @item check if we have got corresponding area's private key. If no key
     exists, then remove the packet, finish its processing -- we just
@@ -109,15 +109,15 @@ $ nncp-toss -node self
 @command{nncp-file} creates an encrypted packet with area packet and
 encrypted packet inside it, with our own @code{self} node as a recipient
 (in the @file{SPOOL/SELF/tx} directory). It also creates the
-@file{SPOOL/SELF/area/AREA/MSGHASH.seen} file.
+@file{SPOOL/SELF/area/AREA/MsgHash} file.
 
 @item
 @command{nncp-toss} sees @file{tx/} file and "opens" it, applying the
 area message tossing procedure as described above. That will create
 outgoing packets in @file{SPOOL/nodeB/tx} and @file{SPOOL/nodeD/tx}
-directories with @file{SPOOL/nodeB/area/AREA/MSGHASH.seen}
-@file{SPOOL/nodeD/area/AREA/MSGHASH.seen} files. Because we already have
-@file{SPOOL/SELF/area/AREA/MSGHASH.seen}, that packet is removed then.
+directories with @file{SPOOL/nodeB/area/AREA/MsgHash}
+@file{SPOOL/nodeD/area/AREA/MsgHash} files. Because we already have
+@file{SPOOL/SELF/area/AREA/MsgHash}, that packet is removed then.
 
 @item
 When @code{nodeB} receives the encrypted packet, it sees the area one
@@ -131,7 +131,7 @@ not read area's message because it lacks the keys.
 @item
 @code{nodeD} receives packets from both @code{nodeA} and @code{nodeB}.
 Only one of them processed, and other is ignored because corresponding
-@file{MSGHASH.seen} file will exist.
+@file{MsgHash} file will exist.
 
 If @code{nodeD} will receive packet from the @code{nodeB} first, it will
 relay it to the @code{nodeA} also, that will silently remove it when

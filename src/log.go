@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"go.cypherpunks.ru/recfile"
@@ -29,7 +30,10 @@ import (
 
 const LogFdPrefix = "FD:"
 
-var LogFd *os.File
+var (
+	LogFd     *os.File
+	LogFdLock sync.Mutex
+)
 
 type LE struct {
 	K string
@@ -69,7 +73,9 @@ func (les LEs) Rec() string {
 
 func (ctx *Ctx) Log(rec string) {
 	if LogFd != nil {
+		LogFdLock.Lock()
 		LogFd.WriteString(rec)
+		LogFdLock.Unlock()
 		return
 	}
 	fdLock, err := os.OpenFile(

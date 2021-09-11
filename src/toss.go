@@ -43,8 +43,12 @@ import (
 )
 
 const (
-	SeenSuffix = ".seen"
+	SeenDir = "seen"
 )
+
+func jobPath2Seen(jobPath string) string {
+	return filepath.Join(filepath.Dir(jobPath), SeenDir, filepath.Base(jobPath))
+}
 
 func newNotification(fromTo *FromToJSON, subject string, body []byte) io.Reader {
 	lines := []string{
@@ -198,7 +202,10 @@ func jobProcess(
 		})
 		if !dryRun && jobPath != "" {
 			if doSeen {
-				if fd, err := os.Create(jobPath + SeenSuffix); err == nil {
+				if err := ensureDir(filepath.Dir(jobPath), SeenDir); err != nil {
+					return err
+				}
+				if fd, err := os.Create(jobPath2Seen(jobPath)); err == nil {
 					fd.Close()
 					if err = DirSync(filepath.Dir(jobPath)); err != nil {
 						ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
@@ -223,7 +230,7 @@ func jobProcess(
 				})
 				return err
 			} else if ctx.HdrUsage {
-				os.Remove(jobPath + HdrSuffix)
+				os.Remove(JobPath2Hdr(jobPath))
 			}
 		}
 
@@ -391,7 +398,10 @@ func jobProcess(
 		if !dryRun {
 			if jobPath != "" {
 				if doSeen {
-					if fd, err := os.Create(jobPath + SeenSuffix); err == nil {
+					if err := ensureDir(filepath.Dir(jobPath), SeenDir); err != nil {
+						return err
+					}
+					if fd, err := os.Create(jobPath2Seen(jobPath)); err == nil {
 						fd.Close()
 						if err = DirSync(filepath.Dir(jobPath)); err != nil {
 							ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
@@ -416,7 +426,7 @@ func jobProcess(
 					})
 					return err
 				} else if ctx.HdrUsage {
-					os.Remove(jobPath + HdrSuffix)
+					os.Remove(JobPath2Hdr(jobPath))
 				}
 			}
 			if len(sendmail) > 0 && ctx.NotifyFile != nil {
@@ -516,7 +526,10 @@ func jobProcess(
 		if !dryRun {
 			if jobPath != "" {
 				if doSeen {
-					if fd, err := os.Create(jobPath + SeenSuffix); err == nil {
+					if err := ensureDir(filepath.Dir(jobPath), SeenDir); err != nil {
+						return err
+					}
+					if fd, err := os.Create(jobPath2Seen(jobPath)); err == nil {
 						fd.Close()
 						if err = DirSync(filepath.Dir(jobPath)); err != nil {
 							ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
@@ -541,7 +554,7 @@ func jobProcess(
 					})
 					return err
 				} else if ctx.HdrUsage {
-					os.Remove(jobPath + HdrSuffix)
+					os.Remove(JobPath2Hdr(jobPath))
 				}
 			}
 			if len(sendmail) > 0 && ctx.NotifyFreq != nil {
@@ -629,7 +642,10 @@ func jobProcess(
 		})
 		if !dryRun && jobPath != "" {
 			if doSeen {
-				if fd, err := os.Create(jobPath + SeenSuffix); err == nil {
+				if err := ensureDir(filepath.Dir(jobPath), SeenDir); err != nil {
+					return err
+				}
+				if fd, err := os.Create(jobPath2Seen(jobPath)); err == nil {
 					fd.Close()
 					if err = DirSync(filepath.Dir(jobPath)); err != nil {
 						ctx.LogE("rx-dirsync", les, err, func(les LEs) string {
@@ -655,7 +671,7 @@ func jobProcess(
 				})
 				return err
 			} else if ctx.HdrUsage {
-				os.Remove(jobPath + HdrSuffix)
+				os.Remove(JobPath2Hdr(jobPath))
 			}
 		}
 
@@ -698,7 +714,7 @@ func jobProcess(
 				seenDir := filepath.Join(
 					ctx.Spool, nodeId.String(), AreaDir, area.Id.String(),
 				)
-				seenPath := filepath.Join(seenDir, msgHash+SeenSuffix)
+				seenPath := filepath.Join(seenDir, msgHash)
 				logMsgNode := func(les LEs) string {
 					return fmt.Sprintf(
 						"%s: echoing to: %s", logMsg(les), node.Name,
@@ -719,7 +735,7 @@ func jobProcess(
 				seenDir := filepath.Join(
 					ctx.Spool, nodeId.String(), AreaDir, area.Id.String(),
 				)
-				seenPath := filepath.Join(seenDir, msgHash+SeenSuffix)
+				seenPath := filepath.Join(seenDir, msgHash)
 				logMsgNode := func(les LEs) string {
 					return fmt.Sprintf("%s: echo to: %s", logMsg(les), node.Name)
 				}
@@ -759,7 +775,7 @@ func jobProcess(
 		seenDir := filepath.Join(
 			ctx.Spool, ctx.SelfId.String(), AreaDir, area.Id.String(),
 		)
-		seenPath := filepath.Join(seenDir, msgHash+SeenSuffix)
+		seenPath := filepath.Join(seenDir, msgHash)
 		if _, err := os.Stat(seenPath); err == nil {
 			ctx.LogD("rx-area-seen", les, func(les LEs) string {
 				return logMsg(les) + ": already seen"
@@ -776,7 +792,7 @@ func jobProcess(
 					})
 					return err
 				} else if ctx.HdrUsage {
-					os.Remove(jobPath + HdrSuffix)
+					os.Remove(JobPath2Hdr(jobPath))
 				}
 			}
 			return nil
@@ -876,7 +892,7 @@ func jobProcess(
 				})
 				return err
 			} else if ctx.HdrUsage {
-				os.Remove(jobPath + HdrSuffix)
+				os.Remove(JobPath2Hdr(jobPath))
 			}
 		}
 
@@ -1020,6 +1036,13 @@ func (ctx *Ctx) AutoToss(
 	nice uint8,
 	doSeen, noFile, noFreq, noExec, noTrns, noArea bool,
 ) (chan struct{}, chan bool) {
+	dw, err := ctx.NewDirWatcher(
+		filepath.Join(ctx.Spool, nodeId.String(), string(TRx)),
+		time.Second,
+	)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	finish := make(chan struct{})
 	badCode := make(chan bool)
 	go func() {
@@ -1027,14 +1050,14 @@ func (ctx *Ctx) AutoToss(
 		for {
 			select {
 			case <-finish:
+				dw.Close()
 				badCode <- bad
-				break
-			default:
+				return
+			case <-dw.C:
+				bad = !ctx.Toss(
+					nodeId, TRx, nice, false,
+					doSeen, noFile, noFreq, noExec, noTrns, noArea) || bad
 			}
-			time.Sleep(time.Second)
-			bad = !ctx.Toss(
-				nodeId, TRx, nice, false,
-				doSeen, noFile, noFreq, noExec, noTrns, noArea) || bad
 		}
 	}()
 	return finish, badCode
