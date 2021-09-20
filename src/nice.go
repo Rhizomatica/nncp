@@ -64,12 +64,11 @@ func NicenessParse(s string) (uint8, error) {
 			return 0, errors.New("too big niceness delta")
 		}
 		return baseNice - uint8(delta), nil
-	} else {
-		if delta > 32 || (baseNice == NiceBulk && delta > 31) {
-			return 0, errors.New("too big niceness delta")
-		}
-		return baseNice + uint8(delta), nil
 	}
+	if delta > 32 || (baseNice == NiceBulk && delta > 31) {
+		return 0, errors.New("too big niceness delta")
+	}
+	return baseNice + uint8(delta), nil
 }
 
 func NicenessFmt(nice uint8) string {
