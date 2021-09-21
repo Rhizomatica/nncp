@@ -14,7 +14,7 @@ require (
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
 	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
-	lukechampine.com/blake3 v1.1.5
+	lukechampine.com/blake3 v1.1.6
 )
 
 go 1.13
