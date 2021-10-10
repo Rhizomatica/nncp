@@ -157,9 +157,12 @@ func jobProcess(
 			} else {
 				cmd.Stdin = pipeR
 			}
-			output, err := cmd.Output()
+			output, err := cmd.CombinedOutput()
 			if err != nil {
-				ctx.LogE("rx-hande", les, err, func(les LEs) string {
+				les = append(les, LE{"Output", strings.Split(
+					strings.Trim(string(output), "\n"), "\n"),
+				})
+				ctx.LogE("rx-handle", les, err, func(les LEs) string {
 					return fmt.Sprintf(
 						"Tossing exec %s/%s (%s): %s: handling",
 						sender.Name, pktName,
