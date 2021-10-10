@@ -42,31 +42,44 @@ type LE struct {
 type LEs []LE
 
 func (les LEs) Rec() string {
-	fields := make([]recfile.Field, 0, len(les)+1)
-	fields = append(fields, recfile.Field{
-		Name: "When", Value: time.Now().UTC().Format(time.RFC3339Nano),
-	})
-	var val string
-	for _, le := range les {
-		switch v := le.V.(type) {
-		case int, int8, uint8, int64, uint64:
-			val = fmt.Sprintf("%d", v)
-		case bool:
-			val = fmt.Sprintf("%v", v)
-		default:
-			val = fmt.Sprintf("%s", v)
-		}
-		fields = append(fields, recfile.Field{Name: le.K, Value: val})
-	}
 	b := bytes.NewBuffer(make([]byte, 0, 1<<10))
 	w := recfile.NewWriter(b)
 	_, err := w.RecordStart()
 	if err != nil {
 		panic(err)
 	}
-	_, err = w.WriteFields(fields...)
+	_, err = w.WriteFields(recfile.Field{
+		Name:  "When",
+		Value: time.Now().UTC().Format(time.RFC3339Nano),
+	})
 	if err != nil {
 		panic(err)
+	}
+	for _, le := range les {
+		switch v := le.V.(type) {
+		case int, int8, uint8, int64, uint64:
+			_, err = w.WriteFields(recfile.Field{
+				Name:  le.K,
+				Value: fmt.Sprintf("%d", v),
+			})
+		case bool:
+			_, err = w.WriteFields(recfile.Field{
+				Name:  le.K,
+				Value: fmt.Sprintf("%v", v),
+			})
+		case []string:
+			if len(v) > 0 {
+				_, err = w.WriteFieldMultiline(le.K, v)
+			}
+		default:
+			_, err = w.WriteFields(recfile.Field{
+				Name:  le.K,
+				Value: fmt.Sprintf("%s", v),
+			})
+		}
+		if err != nil {
+			panic(err)
+		}
 	}
 	return b.String()
 }
