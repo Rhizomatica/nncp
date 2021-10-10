@@ -134,6 +134,9 @@ func (ctx *Ctx) LogI(who string, les LEs, msg func(LEs) string) {
 	les = append(LEs{{"Who", who}}, les...)
 	les = append(les, LE{"Msg", msg(les)})
 	rec := les.Rec()
+	if ctx.Debug {
+		fmt.Fprint(os.Stderr, rec)
+	}
 	if !ctx.Quiet {
 		fmt.Fprintln(os.Stderr, ctx.HumanizeRec(rec))
 	}
@@ -144,6 +147,9 @@ func (ctx *Ctx) LogE(who string, les LEs, err error, msg func(LEs) string) {
 	les = append(LEs{{"Err", err.Error()}, {"Who", who}}, les...)
 	les = append(les, LE{"Msg", msg(les)})
 	rec := les.Rec()
+	if ctx.Debug {
+		fmt.Fprint(os.Stderr, rec)
+	}
 	if !ctx.Quiet {
 		fmt.Fprintln(os.Stderr, ctx.HumanizeRec(rec))
 	}
