@@ -862,6 +862,7 @@ func jobProcess(
 				nil,
 			)
 			if err != nil {
+				ctx.LogE("rx-area-pkt-enc-read2", les, err, logMsg)
 				pipeW.CloseWithError(err)
 				<-errs
 				return err
