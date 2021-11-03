@@ -7,12 +7,12 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/hjson/hjson-go v3.1.0+incompatible
-	github.com/klauspost/compress v1.13.1
+	github.com/klauspost/compress v1.13.6
 	go.cypherpunks.ru/balloon v1.1.1
 	go.cypherpunks.ru/recfile v0.4.3
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
-	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf
+	golang.org/x/sys v0.0.0-20211102192858-4dd72447c267
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
 	lukechampine.com/blake3 v1.1.6
 )
