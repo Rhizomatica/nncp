@@ -67,7 +67,11 @@ var (
 	}
 	MagicNNCPEv5 = Magic{
 		B:    [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 5},
-		Name: "NNCPEv5 (encrypted packet v5)", Till: "now",
+		Name: "NNCPEv5 (encrypted packet v5)", Till: "7.7.0",
+	}
+	MagicNNCPEv6 = Magic{
+		B:    [8]byte{'N', 'N', 'C', 'P', 'E', 0, 0, 6},
+		Name: "NNCPEv6 (encrypted packet v6)", Till: "now",
 	}
 	MagicNNCPSv1 = Magic{
 		B:    [8]byte{'N', 'N', 'C', 'P', 'S', 0, 0, 1},

@@ -29,7 +29,7 @@ import (
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/klauspost/compress/zstd"
-	"go.cypherpunks.ru/nncp/v7"
+	"go.cypherpunks.ru/nncp/v8"
 )
 
 func usage() {
@@ -219,6 +219,8 @@ func main() {
 		case nncp.MagicNNCPEv4.B:
 			log.Fatalln(nncp.MagicNNCPEv4.TooOld())
 		case nncp.MagicNNCPEv5.B:
+			log.Fatalln(nncp.MagicNNCPEv5.TooOld())
+		case nncp.MagicNNCPEv6.B:
 			doEncrypted(ctx, pktEnc, *dump, beginning[:nncp.PktEncOverhead])
 			return
 		}

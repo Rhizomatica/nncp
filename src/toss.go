@@ -619,11 +619,11 @@ func jobProcess(
 				if err != nil {
 					panic(err)
 				}
-				if _, err = ctx.Tx(
+				if _, _, err = ctx.Tx(
 					node,
 					pktTrns,
 					nice,
-					int64(pktSize), 0,
+					int64(pktSize), 0, MaxFileSize,
 					pipeR,
 					pktName,
 					nil,
@@ -750,8 +750,14 @@ func jobProcess(
 				}
 				if nodeId != sender.Id && nodeId != pktEnc.Sender {
 					ctx.LogI("rx-area-echo", lesEcho, logMsgNode)
-					if _, err = ctx.Tx(
-						node, &pkt, nice, int64(pktSize), 0, fullPipeR, pktName, nil,
+					if _, _, err = ctx.Tx(
+						node,
+						&pkt,
+						nice,
+						int64(pktSize), 0, MaxFileSize,
+						fullPipeR,
+						pktName,
+						nil,
 					); err != nil {
 						ctx.LogE("rx-area", lesEcho, err, logMsgNode)
 						return err

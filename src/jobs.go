@@ -181,6 +181,8 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock, part bool) chan Job {
 			case MagicNNCPEv4.B:
 				err = MagicNNCPEv4.TooOld()
 			case MagicNNCPEv5.B:
+				err = MagicNNCPEv5.TooOld()
+			case MagicNNCPEv6.B:
 			default:
 				err = BadMagic
 			}
