@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v7/uilive"
+	"go.cypherpunks.ru/nncp/v8/uilive"
 )
 
 func init() {
@@ -114,6 +114,18 @@ func CopyProgressed(
 			break
 		}
 	}
+	if showPrgrs {
+		for _, le := range les {
+			if le.K == "FullSize" {
+				if le.V.(int64) == 0 {
+					Progress(prgrsPrefix, append(
+						les, LE{"Size", written}, LE{"FullSize", written},
+					))
+				}
+				break
+			}
+		}
+	}
 	return
 }
 
@@ -146,7 +158,7 @@ func Progress(prefix string, les LEs) {
 	}
 	what = prefix + " " + what
 	pb.Render(what, size)
-	if size >= fullsize {
+	if fullsize != 0 && size >= fullsize {
 		pb.Kill()
 		progressBarsLock.Lock()
 		delete(progressBars, pkt)

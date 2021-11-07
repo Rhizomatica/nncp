@@ -97,8 +97,7 @@ func TestTossExec(t *testing.T) {
 				handle,
 				[]string{"arg0", "arg1"},
 				strings.NewReader("BODY\n"),
-				1<<15,
-				false,
+				1<<15, MaxFileSize,
 				false,
 				nil,
 			); err != nil {
@@ -165,6 +164,10 @@ func TestTossFile(t *testing.T) {
 		}
 		files := make(map[string][]byte)
 		for i, fileSize := range fileSizes {
+			if fileSize == 0 {
+				// to prevent chunked send
+				fileSize++
+			}
 			data := make([]byte, fileSize)
 			if _, err := io.ReadFull(rand.Reader, data); err != nil {
 				panic(err)
@@ -222,8 +225,10 @@ func TestTossFile(t *testing.T) {
 			return false
 		}
 		ctx.Neigh[*nodeOur.Id].Incoming = &incomingPath
-		ctx.Toss(ctx.Self.Id, TRx, DefaultNiceFile,
-			false, false, false, false, false, false, false)
+		if ctx.Toss(ctx.Self.Id, TRx, DefaultNiceFile,
+			false, false, false, false, false, false, false) {
+			return false
+		}
 		if len(dirFiles(rxPath)) != 0 {
 			return false
 		}
@@ -347,6 +352,10 @@ func TestTossFreq(t *testing.T) {
 		ctx.Neigh[*nodeOur.Id] = nodeOur.Their()
 		files := make(map[string][]byte)
 		for i, fileSize := range fileSizes {
+			if fileSize == 0 {
+				// to prevent chunked send
+				fileSize++
+			}
 			fileData := make([]byte, fileSize)
 			if _, err := io.ReadFull(rand.Reader, fileData); err != nil {
 				panic(err)
@@ -472,13 +481,12 @@ func TestTossTrns(t *testing.T) {
 			}
 			copy(pktTrans.Path[:], nodeOur.Id[:])
 			var dst bytes.Buffer
-			if _, err := PktEncWrite(
+			if _, _, err := PktEncWrite(
 				ctx.Self,
 				ctx.Neigh[*nodeOur.Id],
 				&pktTrans,
 				123,
-				int64(len(data)),
-				0,
+				0, MaxFileSize, 1,
 				bytes.NewReader(data),
 				&dst,
 			); err != nil {

@@ -27,7 +27,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go.cypherpunks.ru/nncp/v7"
+	"go.cypherpunks.ru/nncp/v8"
 )
 
 func usage() {
@@ -137,7 +137,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if _, err = ctx.Tx(node, pktTrns, nice, fi.Size(), 0, fd, pktName, nil); err != nil {
+	if _, _, err = ctx.Tx(
+		node,
+		pktTrns,
+		nice,
+		fi.Size(), 0, nncp.MaxFileSize,
+		fd,
+		pktName,
+		nil,
+	); err != nil {
 		log.Fatalln(err)
 	}
 }
