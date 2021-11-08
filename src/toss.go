@@ -157,9 +157,12 @@ func jobProcess(
 			} else {
 				cmd.Stdin = pipeR
 			}
-			output, err := cmd.Output()
+			output, err := cmd.CombinedOutput()
 			if err != nil {
-				ctx.LogE("rx-hande", les, err, func(les LEs) string {
+				les = append(les, LE{"Output", strings.Split(
+					strings.Trim(string(output), "\n"), "\n"),
+				})
+				ctx.LogE("rx-handle", les, err, func(les LEs) string {
 					return fmt.Sprintf(
 						"Tossing exec %s/%s (%s): %s: handling",
 						sender.Name, pktName,
@@ -616,11 +619,11 @@ func jobProcess(
 				if err != nil {
 					panic(err)
 				}
-				if _, err = ctx.Tx(
+				if _, _, err = ctx.Tx(
 					node,
 					pktTrns,
 					nice,
-					int64(pktSize), 0,
+					int64(pktSize), 0, MaxFileSize,
 					pipeR,
 					pktName,
 					nil,
@@ -747,8 +750,14 @@ func jobProcess(
 				}
 				if nodeId != sender.Id && nodeId != pktEnc.Sender {
 					ctx.LogI("rx-area-echo", lesEcho, logMsgNode)
-					if _, err = ctx.Tx(
-						node, &pkt, nice, int64(pktSize), 0, fullPipeR, pktName, nil,
+					if _, _, err = ctx.Tx(
+						node,
+						&pkt,
+						nice,
+						int64(pktSize), 0, MaxFileSize,
+						fullPipeR,
+						pktName,
+						nil,
 					); err != nil {
 						ctx.LogE("rx-area", lesEcho, err, logMsgNode)
 						return err
@@ -859,6 +868,7 @@ func jobProcess(
 				nil,
 			)
 			if err != nil {
+				ctx.LogE("rx-area-pkt-enc-read2", les, err, logMsg)
 				pipeW.CloseWithError(err)
 				<-errs
 				return err

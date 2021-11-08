@@ -19,6 +19,8 @@ package nncp
 
 import (
 	"bytes"
+	"crypto/rand"
+	"io"
 	"testing"
 	"testing/quick"
 
@@ -34,24 +36,37 @@ func TestPktEncWrite(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	f := func(path string, pathSize uint8, data [1 << 16]byte, size, padSize uint16) bool {
-		dataR := bytes.NewReader(data[:])
+	f := func(
+		path string,
+		pathSize uint8,
+		dataSize uint32,
+		size, minSize uint16,
+		wrappers uint8,
+	) bool {
+		dataSize %= 1 << 20
+		data := make([]byte, dataSize)
+		if _, err = io.ReadFull(rand.Reader, data); err != nil {
+			panic(err)
+		}
 		var ct bytes.Buffer
 		if len(path) > int(pathSize) {
 			path = path[:int(pathSize)]
 		}
-		pkt, err := NewPkt(PktTypeFile, 123, []byte(path))
+		nice := uint8(123)
+		pkt, err := NewPkt(PktTypeFile, nice, []byte(path))
 		if err != nil {
 			panic(err)
 		}
-		_, err = PktEncWrite(
+		wrappers %= 8
+		_, _, err = PktEncWrite(
 			nodeOur,
 			nodeTheir.Their(),
 			pkt,
-			123,
-			int64(size),
-			int64(padSize),
-			dataR,
+			nice,
+			int64(minSize),
+			MaxFileSize,
+			int(wrappers),
+			bytes.NewReader(data),
 			&ct,
 		)
 		if err != nil {
@@ -83,32 +98,39 @@ func TestPktEncRead(t *testing.T) {
 	f := func(
 		path string,
 		pathSize uint8,
-		data [1 << 16]byte,
-		size, padSize uint16,
-		junk []byte) bool {
-		dataR := bytes.NewReader(data[:])
+		dataSize uint32,
+		minSize uint16,
+		wrappers uint8,
+	) bool {
+		dataSize %= 1 << 20
+		data := make([]byte, dataSize)
+		if _, err = io.ReadFull(rand.Reader, data); err != nil {
+			panic(err)
+		}
 		var ct bytes.Buffer
 		if len(path) > int(pathSize) {
 			path = path[:int(pathSize)]
 		}
-		pkt, err := NewPkt(PktTypeFile, 123, []byte(path))
+		nice := uint8(123)
+		pkt, err := NewPkt(PktTypeFile, nice, []byte(path))
 		if err != nil {
 			panic(err)
 		}
-		_, err = PktEncWrite(
+		wrappers %= 8
+		_, _, err = PktEncWrite(
 			node1,
 			node2.Their(),
 			pkt,
-			123,
-			int64(size),
-			int64(padSize),
-			dataR,
+			nice,
+			int64(minSize),
+			MaxFileSize,
+			int(wrappers),
+			bytes.NewReader(data),
 			&ct,
 		)
 		if err != nil {
 			return false
 		}
-		ct.Write(junk)
 		var pt bytes.Buffer
 		nodes := make(map[NodeId]*Node)
 		nodes[*node1.Id] = node1.Their()
@@ -119,12 +141,12 @@ func TestPktEncRead(t *testing.T) {
 		if *node.Id != *node1.Id {
 			return false
 		}
-		if sizeGot != sizeWithTags(PktOverhead+int64(size)) {
+		if sizeGot != int64(len(data)+int(PktOverhead)) {
 			return false
 		}
 		var pktBuf bytes.Buffer
 		xdr.Marshal(&pktBuf, &pkt)
-		return bytes.Compare(pt.Bytes(), append(pktBuf.Bytes(), data[:int(size)]...)) == 0
+		return bytes.Compare(pt.Bytes(), append(pktBuf.Bytes(), data...)) == 0
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)

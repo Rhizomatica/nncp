@@ -25,7 +25,7 @@ import (
 	"os"
 	"strings"
 
-	"go.cypherpunks.ru/nncp/v7"
+	"go.cypherpunks.ru/nncp/v8"
 )
 
 func usage() {
@@ -36,7 +36,8 @@ func usage() {
 		os.Args[0], nncp.AreaDir)
 	flag.PrintDefaults()
 	fmt.Fprint(os.Stderr, `
-If SRC equals to -, then read data from stdin to temporary file.
+If SRC equals to "-", then data is read from stdin.
+If SRC is directory, then create pax archive with its contents.
 
 -minsize/-chunked take NODE's freq.minsize/freq.chunked configuration
 options by default. You can forcefully turn them off by specifying 0 value.
@@ -48,6 +49,7 @@ func main() {
 		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw      = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Outbound packet niceness")
 		argMinSize   = flag.Int64("minsize", -1, "Minimal required resulting packet size, in KiB")
+		argMaxSize   = flag.Uint64("maxsize", 0, "Maximal allowable resulting packets size, in KiB")
 		argChunkSize = flag.Int64("chunked", -1, "Split file on specified size chunks, in KiB")
 		viaOverride  = flag.String("via", "", "Override Via path to destination node")
 		spoolPath    = flag.String("spool", "", "Override path to spool")
@@ -124,6 +126,13 @@ func main() {
 	nncp.ViaOverride(*viaOverride, ctx, node)
 	ctx.Umask()
 
+	var chunkSize int64
+	if *argChunkSize < 0 {
+		chunkSize = node.FreqChunked
+	} else if *argChunkSize > 0 {
+		chunkSize = *argChunkSize * 1024
+	}
+
 	var minSize int64
 	if *argMinSize < 0 {
 		minSize = node.FreqMinSize
@@ -131,14 +140,9 @@ func main() {
 		minSize = *argMinSize * 1024
 	}
 
-	var chunkSize int64
-	if *argChunkSize < 0 {
-		chunkSize = node.FreqChunked
-	} else if *argChunkSize > 0 {
-		chunkSize = *argChunkSize * 1024
-	}
-	if chunkSize == 0 {
-		chunkSize = nncp.MaxFileSize
+	maxSize := int64(nncp.MaxFileSize)
+	if *argMaxSize > 0 {
+		maxSize = int64(*argMaxSize) * 1024
 	}
 
 	if err = ctx.TxFile(
@@ -148,7 +152,7 @@ func main() {
 		strings.Join(splitted, ":"),
 		chunkSize,
 		minSize,
-		nncp.MaxFileSize,
+		maxSize,
 		areaId,
 	); err != nil {
 		log.Fatalln(err)

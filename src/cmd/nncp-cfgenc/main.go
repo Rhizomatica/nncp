@@ -28,7 +28,7 @@ import (
 	"os"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"go.cypherpunks.ru/nncp/v7"
+	"go.cypherpunks.ru/nncp/v8"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/term"
 )

@@ -29,7 +29,7 @@ import (
 	"strings"
 	"time"
 
-	"go.cypherpunks.ru/nncp/v7"
+	"go.cypherpunks.ru/nncp/v8"
 )
 
 func usage() {
@@ -186,8 +186,11 @@ func main() {
 			continue
 		}
 		remove := func(xx nncp.TRxTx) error {
-			return filepath.Walk(
-				filepath.Join(ctx.Spool, node.Id.String(), string(xx)),
+			p := filepath.Join(ctx.Spool, node.Id.String(), string(xx))
+			if _, err := os.Stat(p); err != nil && os.IsNotExist(err) {
+				return nil
+			}
+			return filepath.Walk(p,
 				func(path string, info os.FileInfo, err error) error {
 					if err != nil {
 						return err

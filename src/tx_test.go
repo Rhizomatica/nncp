@@ -19,11 +19,11 @@ package nncp
 
 import (
 	"bytes"
+	"crypto/rand"
 	"io"
 	"io/ioutil"
 	"os"
 	"path"
-	"strings"
 	"testing"
 	"testing/quick"
 
@@ -31,12 +31,23 @@ import (
 )
 
 func TestTx(t *testing.T) {
-	f := func(hops uint8, pathSrc, data string, nice, replyNice uint8, padSize int16) bool {
+	f := func(
+		hops uint8,
+		pathSrc string,
+		dataSize uint32,
+		nice, replyNice uint8,
+		minSize uint32,
+	) bool {
+		dataSize %= 1 << 20
+		data := make([]byte, dataSize)
+		if _, err := io.ReadFull(rand.Reader, data); err != nil {
+			panic(err)
+		}
+		minSize %= 1 << 20
 		if len(pathSrc) > int(MaxPathSize) {
 			pathSrc = pathSrc[:MaxPathSize]
 		}
 		hops = hops % 4
-		hops = 1
 		spool, err := ioutil.TempDir("", "testtx")
 		if err != nil {
 			panic(err)
@@ -75,13 +86,14 @@ func TestTx(t *testing.T) {
 			nodeTgt.Via = append(nodeTgt.Via, node.Id)
 		}
 		pkt, err := NewPkt(PktTypeExec, replyNice, []byte(pathSrc))
-		src := strings.NewReader(data)
-		dstNode, err := ctx.Tx(
+		src := bytes.NewReader(data)
+		dstNode, _, err := ctx.Tx(
 			nodeTgt,
 			pkt,
 			123,
 			int64(src.Len()),
-			int64(padSize),
+			int64(minSize),
+			MaxFileSize,
 			src,
 			"pktName",
 			nil,

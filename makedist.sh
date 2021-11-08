@@ -113,10 +113,15 @@ chmod +x contrib/do
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
 xz -9v nncp-"$release".tar
-gpg --detach-sign --sign --local-user releases@nncpgo.org nncp-"$release".tar.xz
-mv -v $tmp/nncp-"$release".tar.xz $tmp/nncp-"$release".tar.xz.sig $cur/doc/download
-
 tarball=$cur/doc/download/nncp-"$release".tar.xz
+gpg --detach-sign --sign --local-user releases@nncpgo.org "$tarball"
+gpg --enarmor < "$tarball".sig |
+    sed "/^Comment:/d ; s/ARMORED FILE/SIGNATURE/" > "$tarball".asc
+meta4-create -file "$tarball" -mtime "$tarball" -sig "$tarball".asc \
+    hhttp://www.nncpgo.org/download/"$tarball" \
+    https://nncp.mirrors.quux.org/download/"$tarball" > "$tarball".meta4
+mv -v $tmp/"$tarball" $tmp/"$tarball".sig $tmp/"$tarball".meta4 $cur/doc/download
+
 size=$(( $(stat -f %z $tarball) / 1024 ))
 hash=$(gpg --print-md SHA256 < $tarball)
 release_date=$(date "+%Y-%m-%d")
@@ -125,7 +130,10 @@ release_underscored=`echo $release | tr . _`
 cat <<EOF
 An entry for documentation:
 @item @ref{Release $release_underscored, $release} @tab $release_date @tab $size KiB
-@tab @url{download/nncp-${release}.tar.xz, link} @url{download/nncp-${release}.tar.xz.sig, sign}
+@tab
+    @url{download/nncp-${release}.tar.xz.meta4, meta4}
+    @url{download/nncp-${release}.tar.xz, link}
+    @url{download/nncp-${release}.tar.xz.sig, sig}
 @tab @code{$hash}
 EOF
 

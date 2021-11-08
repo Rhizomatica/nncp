@@ -3,6 +3,35 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_0_0
+@section Release 8.0.0
+@itemize
+
+@item
+@strong{Incompatible} encrypted packet format change: payload and pad
+sizes are sent in-bound in the encrypted stream. That gives ability to
+streamingly create encrypted packets, without knowing sizes in advance,
+without creating temporary file or buffer data in memory.
+
+@item
+Proper encrypted packet padding verification is done now. This is not
+critical issue, but previously neither padding value, nor its size were
+authenticated, giving ability to iteratively strip trailing bytes and
+determine payload's size by observing the reaction of the encrypted
+packet processing.
+
+@item
+@command{nncp-exec} loses its @option{-use-tmp} option, because of
+streaming-compatible encrypted packets format.
+
+@item
+@command{nncp-file} and @command{nncp-exec} commands have
+@option{-maxsize} option, limiting maximal resulting encrypted packet's
+maximal size (returning error if it is exceeded). Could be useful,
+because no payload size could be known in advance.
+
+@end itemize
+
 @node Release 7_7_0
 @section Release 7.7.0
 @itemize
