@@ -55,28 +55,18 @@ There is a standard for creating
 output format.
 
 @example
-$ wget \
-    --warc-file www.example_com-$(date '+%Y%M%d%H%m%S') \
-    --no-warc-compression \
-    --no-warc-keep-log [@dots{}] \
-    http://www.example.com/
+$ wget [--page-requisites] [--recursive] \
+    --warc-file www.example.com-$(date '+%Y%M%d%H%m%S') \
+    --no-warc-keep-log --no-warc-digests \
+    [--no-warc-compression] [--warc-max-size=XXX] \
+    [@dots{}] http://www.example.com/
 @end example
 
-That command will create uncompressed @file{www.example_com-XXX.warc}
-web archive. By default, WARCs are compressed using
-@url{https://en.wikipedia.org/wiki/Gzip, gzip}, but, in example above,
-we have disabled it to compress with stronger and faster
-@url{https://en.wikipedia.org/wiki/Zstd, zstd}, before sending via
-@command{nncp-file}.
-
-There are plenty of software acting like HTTP proxy for your browser,
-allowing to view that WARC files. However you can extract files from
-that archive using @url{https://pypi.python.org/pypi/Warcat, warcat}
-utility, producing usual directory hierarchy:
-
-@example
-$ python3 -m warcat extract \
-    www.example_com-XXX.warc \
-    --output-dir www.example.com-XXX \
-    --progress
-@end example
+That command will create @file{www.example.com-XXX.warc} web archive.
+It could produce specialized segmented
+@url{https://en.wikipedia.org/wiki/Gzip, gzip} and
+@url{https://en.wikipedia.org/wiki/Zstandard, Zstandard}
+indexing/searching-friendly compressed archives. I can advise my own
+@url{http://www.tofuproxy.stargrave.org/WARCs.html, tofuproxy} software
+(also written on Go) to index, browse and extract those archives
+conveniently.
