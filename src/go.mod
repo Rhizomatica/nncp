@@ -12,8 +12,8 @@ require (
 	go.cypherpunks.ru/recfile v0.4.3
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
-	golang.org/x/sys v0.0.0-20211102192858-4dd72447c267
-	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
+	golang.org/x/sys v0.0.0-20211107104306-e0b2ad06fe42
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	lukechampine.com/blake3 v1.1.6
 )
 
