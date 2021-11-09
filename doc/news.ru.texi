@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.0.1
+@subsection Релиз 8.0.1
+@itemize
+
+@item
+Исправлено некорректное вычисление @code{freq.chunked} значения, при
+отсутствии которого всё равно форсированно включалась chunked передача.
+
+@end itemize
+
 @node Релиз 8.0.0
 @subsection Релиз 8.0.0
 @itemize

@@ -191,7 +191,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 	}
 
 	var freqPath *string
-	freqChunked := int64(MaxFileSize)
+	var freqChunked int64
 	var freqMinSize int64
 	freqMaxSize := int64(MaxFileSize)
 	if cfg.Freq != nil {

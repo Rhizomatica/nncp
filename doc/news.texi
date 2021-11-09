@@ -3,6 +3,16 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_0_1
+@section Release 8.0.1
+@itemize
+
+@item
+Fixed incorrect @code{freq.chunked} value calculation. If it missed,
+then anyway chunked transfer mode was forcefully turned on.
+
+@end itemize
+
 @node Release 8_0_0
 @section Release 8.0.0
 @itemize
