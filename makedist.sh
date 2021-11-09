@@ -17,14 +17,23 @@ rm -r \
     github.com/flynn/noise/vector* \
     github.com/gorhill/cronexpr/APLv2 \
     github.com/hjson/hjson-go/build_release.sh \
-    github.com/golang/snappy \
+    github.com/klauspost/compress/gen.sh \
+    github.com/klauspost/compress/gzhttp \
+    github.com/klauspost/compress/internal \
+    github.com/klauspost/compress/s2* \
+    github.com/klauspost/compress/snappy \
     github.com/klauspost/compress/zstd/snappy.go \
     golang.org/x/sys/plan9 \
     golang.org/x/sys/windows
 find github.com/klauspost/compress golang.org/x/sys -name "*_test.go" -delete
+find . -type d -exec rmdir {} + || :
 cd ../..
 rm -r ports
-find . \( -name .gitignore -o -name .travis.yml \) -delete
+find . \( \
+    -name .gitignore -o \
+    -name .travis.yml -o \
+    -name .goreleaser.yml -o \
+    -name .gitattributes \) -delete
 
 mkdir contrib
 cp ~/work/redo/minimal/do contrib/do
@@ -40,7 +49,7 @@ perl -i -ne 'print unless /include pedro/' doc/index.texi doc/about.ru.texi
 perl -p -i -e 's/^(.verbatiminclude) .*$/$1 PUBKEY.asc/g' doc/integrity.texi
 mv doc/.well-known/openpgpkey/nncpgo.org/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY.asc
 ln -s ../PUBKEY.asc doc
-redo doc
+redo doc/all
 
 ########################################################################
 # Supplementary files autogeneration
@@ -113,18 +122,19 @@ chmod +x contrib/do
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
 xz -9v nncp-"$release".tar
-tarball=$cur/doc/download/nncp-"$release".tar.xz
+tarball=nncp-"$release".tar.xz
 gpg --detach-sign --sign --local-user releases@nncpgo.org "$tarball"
 gpg --enarmor < "$tarball".sig |
     sed "/^Comment:/d ; s/ARMORED FILE/SIGNATURE/" > "$tarball".asc
 meta4-create -file "$tarball" -mtime "$tarball" -sig "$tarball".asc \
-    hhttp://www.nncpgo.org/download/"$tarball" \
+    http://www.nncpgo.org/download/"$tarball" \
     https://nncp.mirrors.quux.org/download/"$tarball" > "$tarball".meta4
-mv -v $tmp/"$tarball" $tmp/"$tarball".sig $tmp/"$tarball".meta4 $cur/doc/download
 
 size=$(( $(stat -f %z $tarball) / 1024 ))
 hash=$(gpg --print-md SHA256 < $tarball)
 release_date=$(date "+%Y-%m-%d")
+
+mv -v $tmp/"$tarball" $tmp/"$tarball".sig $tmp/"$tarball".meta4 $cur/doc/download
 
 release_underscored=`echo $release | tr . _`
 cat <<EOF

@@ -200,10 +200,12 @@ func (ctx *Ctx) Tx(
 	}()
 	var pktEncRaw []byte
 	var pktEncMsg []byte
+	var payloadSize int64
 	if area != nil {
-		pktEncMsg = (<-results).pktEncRaw
+		r := <-results
+		payloadSize = r.size
+		pktEncMsg = r.pktEncRaw
 	}
-	var finalSize int64
 	for i := 0; i <= wrappers; i++ {
 		r := <-results
 		if r.err != nil {
@@ -211,8 +213,10 @@ func (ctx *Ctx) Tx(
 			return nil, 0, err
 		}
 		if r.pktEncRaw != nil {
-			finalSize = r.size
 			pktEncRaw = r.pktEncRaw
+			if payloadSize == 0 {
+				payloadSize = r.size
+			}
 		}
 	}
 	nodePath := filepath.Join(ctx.Spool, lastNode.Id.String())
@@ -261,7 +265,7 @@ func (ctx *Ctx) Tx(
 		}
 		ctx.LogI("tx-area", les, logMsg)
 	}
-	return lastNode, finalSize, err
+	return lastNode, payloadSize, err
 }
 
 type DummyCloser struct{}
