@@ -205,6 +205,7 @@ func (ctx *Ctx) Tx(
 		r := <-results
 		payloadSize = r.size
 		pktEncMsg = r.pktEncRaw
+		wrappers--
 	}
 	for i := 0; i <= wrappers; i++ {
 		r := <-results
