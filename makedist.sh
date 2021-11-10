@@ -195,6 +195,9 @@ http://www.nncpgo.org/Mirrors.html
 Please send questions regarding the use of NNCP, bug reports and patches
 to mailing list: http://lists.cypherpunks.ru/nncp_002ddevel.html
 EOF
+echo mutt -s \"[EN] NNCP $release release announcement\" \
+    nncp-devel@lists.cypherpunks.ru \
+    -a $cur/doc/download/"$tarball".meta4
 
 cat <<EOF
 Subject: [RU] Состоялся релиз NNCP $release
@@ -248,3 +251,6 @@ http://www.nncpgo.org/Mirrors.html
 и патчи отправляйте в nncp-devel почтовую рассылку:
 http://lists.cypherpunks.ru/nncp_002ddevel.html
 EOF
+echo mutt -s \"[RU] Состоялся релиз NNCP $release\" \
+    nncp-devel@lists.cypherpunks.ru \
+    -a $cur/doc/download/"$tarball".meta4
