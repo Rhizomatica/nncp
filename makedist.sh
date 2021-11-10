@@ -26,7 +26,7 @@ rm -r \
     golang.org/x/sys/plan9 \
     golang.org/x/sys/windows
 find github.com/klauspost/compress golang.org/x/sys -name "*_test.go" -delete
-find . -type d -exec rmdir {} + || :
+find . -type d -exec rmdir {} + 2>/dev/null || :
 cd ../..
 rm -r ports
 find . \( \
