@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_0_2
+@section Release 8.0.2
+@itemize
+
+@item
+Fixed sending ability to areas.
+
+@end itemize
+
 @node Release 8_0_1
 @section Release 8.0.1
 @itemize
