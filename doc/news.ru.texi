@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.0.2
+@subsection Релиз 8.0.2
+@itemize
+
+@item
+Исправлена возможность отправки мультивещательных пакетов.
+
+@end itemize
+
 @node Релиз 8.0.1
 @subsection Релиз 8.0.1
 @itemize
