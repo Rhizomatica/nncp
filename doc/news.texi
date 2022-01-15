@@ -3,6 +3,16 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_1_0
+@section Release 8.1.0
+@itemize
+
+@item
+@command{nncp-cfgdir} does not require @code{self} section existence in
+configuration file.
+
+@end itemize
+
 @node Release 8_0_2
 @section Release 8.0.2
 @itemize

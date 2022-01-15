@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.1.0
+@subsection Релиз 8.1.0
+@itemize
+
+@item
+@command{nncp-cfgdir} команда не требует обязательного наличия
+@code{self} секции конфигурационного файла.
+
+@end itemize
+
 @node Релиз 8.0.2
 @subsection Релиз 8.0.2
 @itemize
