@@ -5,6 +5,7 @@
 $ nncp-daemon [options]
     [-maxconn INT] [-bind ADDR] [-ucspi]
     [-autotoss*] [-nock] [-mcd-once]
+    [-yggdrasil PRV;BIND[,...];[PUB,...];[PEER,...]]
 @end example
 
 Start listening TCP daemon, wait for incoming connections and run
@@ -41,3 +42,6 @@ Read @ref{CfgNoCK, more} about @option{-nock} option.
 
 @option{-mcd-once} option sends @ref{MCD} announcements once and quits.
 Could be useful with inetd-based setup, where daemons are not running.
+
+With @option{-yggdrasil} option daemon acts as a @ref{Yggdrasil}
+listener daemon.

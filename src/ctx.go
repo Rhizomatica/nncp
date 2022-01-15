@@ -51,6 +51,8 @@ type Ctx struct {
 
 	MCDRxIfis []string
 	MCDTxIfis map[string]int
+
+	YggdrasilAliases map[string]string
 }
 
 func (ctx *Ctx) FindNode(id string) (*Node, error) {
