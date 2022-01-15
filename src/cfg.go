@@ -146,6 +146,8 @@ type CfgJSON struct {
 	Neigh map[string]NodeJSON `json:"neigh"`
 
 	Areas map[string]AreaJSON `json:"areas,omitempty"`
+
+	YggdrasilAliases map[string]string `json:"yggdrasil-aliases,omitempty"`
 }
 
 func NewNode(name string, cfg NodeJSON) (*Node, error) {
@@ -542,6 +544,8 @@ func Cfg2Ctx(cfgJSON *CfgJSON) (*Ctx, error) {
 		Alias:      make(map[string]*NodeId),
 		MCDRxIfis:  cfgJSON.MCDRxIfis,
 		MCDTxIfis:  cfgJSON.MCDTxIfis,
+
+		YggdrasilAliases: cfgJSON.YggdrasilAliases,
 	}
 	if cfgJSON.Notify != nil {
 		if cfgJSON.Notify.File != nil {

@@ -56,6 +56,7 @@ There are also articles about its usage outside this website:
 * Merkle Tree Hashing: MTH
 * Sync protocol: Sync
 * MultiCast Discovery: MCD
+* Yggdrasil support: Yggdrasil
 * EBlob format: EBlob
 * Mirrors::
 * Thanks::
@@ -84,6 +85,7 @@ There are also articles about its usage outside this website:
 @include mth.texi
 @include sp.texi
 @include mcd.texi
+@include yggdrasil.texi
 @include eblob.texi
 @include mirrors.texi
 @include thanks.texi

@@ -11,6 +11,9 @@ See also this page @ref{Новости, on russian}.
 @command{nncp-cfgdir} does not require @code{self} section existence in
 configuration file.
 
+@item
+Ability to act as Yggdrasil network client, using online protocol on top of it.
+
 @end itemize
 
 @node Release 8_0_2

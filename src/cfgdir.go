@@ -418,6 +418,17 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 		}
 	}
 
+	if len(cfg.YggdrasilAliases) > 0 {
+		if err = cfgDirMkdir(dst, "yggdrasil-aliases"); err != nil {
+			return
+		}
+		for alias, v := range cfg.YggdrasilAliases {
+			if err = cfgDirSave(v, dst, "yggdrasil-aliases", alias); err != nil {
+				return
+			}
+		}
+	}
+
 	return
 }
 
@@ -903,6 +914,25 @@ func DirToCfg(src string) (*CfgJSON, error) {
 			area.AllowUnknown = true
 		}
 		cfg.Areas[n] = area
+	}
+
+	fis, err = ioutil.ReadDir(filepath.Join(src, "yggdrasil-aliases"))
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	}
+	if len(fis) > 0 {
+		cfg.YggdrasilAliases = make(map[string]string, len(fis))
+	}
+	for _, fi := range fis {
+		n := fi.Name()
+		if n[0] == '.' {
+			continue
+		}
+		b, err := ioutil.ReadFile(filepath.Join(src, "yggdrasil-aliases", fi.Name()))
+		if err != nil {
+			return nil, err
+		}
+		cfg.YggdrasilAliases[n] = strings.TrimSuffix(string(b), "\n")
 	}
 
 	return &cfg, nil

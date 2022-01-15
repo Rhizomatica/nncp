@@ -40,8 +40,9 @@ Each @option{NODE} can contain several uniquely identified
 @option{ADDR}esses in @ref{CfgAddrs, configuration} file. If you do
 not specify the exact one, then all will be tried until the first
 success. Optionally you can force @option{FORCEADDR} address usage,
-instead of addresses taken from configuration file. You can specify both
-@verb{|host:port|} and @verb{#|some command#} formats.
+instead of addresses taken from configuration file. You can specify
+@verb{|host:port|}, @verb{#|some command#} and
+@verb{|yggdrasil:PUB;PRV;PEER[,...]|} formats.
 
 If you specify @option{-ucspi} option, then it is assumed that you run
 @command{nncp-call} command under some UCSPI-TCP compatible utility,

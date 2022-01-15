@@ -27,6 +27,20 @@ Tarballs include all necessary required libraries:
 @item @code{lukechampine.com/blake3} @tab MIT
 @end multitable
 
+And additional ones for Yggdrasil support:
+
+@multitable @columnfractions .50 .50
+@headitem Library @tab Licence
+@item @code{github.com/anacrolix/missinggo} @tab MIT
+@item @code{github.com/anacrolix/sync} @tab Unfortunately, no licence information, probably it can be a problem
+@item @code{github.com/Arceliar/ironwood} @tab MPLv2
+@item @code{github.com/Arceliar/phony} @tab MPLv2
+@item @code{github.com/gologme/log} @tab BSD 3-Clause
+@item @code{github.com/huandu/xstrings} @tab MIT
+@item @code{github.com/neilalexander/utp} @tab MPLv2
+@item @code{github.com/yggdrasil-network/yggdrasil-go} @tab GNU LGPLv3
+@end multitable
+
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {meta4 link sig} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
 
