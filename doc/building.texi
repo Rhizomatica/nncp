@@ -32,7 +32,8 @@ minimalistic POSIX shell @command{contrib/do} (just replace
 in tarball. Following ones are tested to work with:
 @url{http://www.goredo.cypherpunks.ru/, goredo} (NNCP's author creation),
 @url{https://redo.readthedocs.io/, apenwarr/redo} (@code{contrib/do} is
-from that project), @url{https://github.com/leahneukirchen/redo-c, redo-c}.
+from that project), @url{https://github.com/leahneukirchen/redo-c, redo-c},
+@url{https://github.com/gotroyb127/baredo, baredo}.
 
 There is @command{install} target respecting @env{$DESTDIR}. It will
 install binaries and info-documentation:
