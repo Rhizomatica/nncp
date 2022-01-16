@@ -75,12 +75,12 @@ allowed incoming connections, identified by a public key, and optionally
 a list of another similar listening peers, through which you can route
 and discover packets to the other nodes. @option{-yggdrasil} option
 takes that information in form of:
-@code{PRV;BIND[,...];[PUB,...];[PEER,...]}, where @code{PEER} is in
-Yggdrasil's URL format, like @code{tcp://HOST:PORT} or
-@code{tcp://HOST:PORT?key=PUBKEY}.
+@code{PRV;BIND[,...];[PUB,...];[PEER,...]}, where
+@code{BIND}/@code{PEER} is in Yggdrasil's URL format, like
+@code{tcp://HOST:PORT} or @code{tcp://HOST:PORT?key=PUBKEY}.
 
 @example
-$ nncp-daemon -yggdrasil "571f...07ea;[::]:1234,[::1]:2345;;tcp://some.peer?key=ITSPUBKEY"
+$ nncp-daemon -yggdrasil "571f...07ea;tcp://[::]:1234,tcp://[::1]:2345;;tcp://some.peer?key=ITSPUBKEY"
 @end example
 
 Here we did not specify any allowable public key -- anyone can connect
@@ -94,8 +94,8 @@ section, where you can alias all of entities and reference them in
 @verbatim
 yggdrasil-aliases: {
   myprv: 571f...07ea
-  bindPublic: [::]:1234
-  bindLocalhost: [::1]:2345
+  bindPublic: tcp://[::]:1234
+  bindLocalhost: tcp://[::1]:2345
   peerBE: tcp://some.peer.be?key=BEPUBKEY
   peerRU: tcp://some.peer.ru?key=RUPUBKEY
   defPeers: peerBE,peerRU
