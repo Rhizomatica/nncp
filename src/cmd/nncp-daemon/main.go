@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -111,6 +111,7 @@ func main() {
 		bind      = flag.String("bind", "[::]:5400", "Address to bind to")
 		ucspi     = flag.Bool("ucspi", false, "Is it started as UCSPI-TCP server")
 		inetd     = flag.Bool("inetd", false, "Obsolete, use -ucspi")
+		yggdrasil = flag.String("yggdrasil", "", "Start Yggdrasil listener: PRV;BIND[,...];[PUB,...];[PEER,...]")
 		maxConn   = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		noCK      = flag.Bool("nock", false, "Do no checksum checking")
 		mcdOnce   = flag.Bool("mcd-once", false, "Send MCDs once and quit")
@@ -200,29 +201,37 @@ func main() {
 		return
 	}
 
-	cols := strings.Split(*bind, ":")
-	port, err := strconv.Atoi(cols[len(cols)-1])
-	if err != nil {
-		log.Fatalln("Can not parse port:", err)
-	}
-
-	if *mcdOnce {
-		for ifiName := range ctx.MCDTxIfis {
-			if err = ctx.MCDTx(ifiName, port, 0); err != nil {
-				log.Fatalln("Can not do MCD transmission:", err)
-			}
+	var ln net.Listener
+	if *yggdrasil != "" {
+		ln, err = nncp.NewYggdrasilListener(ctx.YggdrasilAliases, *yggdrasil)
+		if err != nil {
+			log.Fatalln("Can not listen:", err)
 		}
-		return
-	}
+	} else {
+		cols := strings.Split(*bind, ":")
+		port, err := strconv.Atoi(cols[len(cols)-1])
+		if err != nil {
+			log.Fatalln("Can not parse port:", err)
+		}
 
-	ln, err := net.Listen("tcp", *bind)
-	if err != nil {
-		log.Fatalln("Can not listen:", err)
-	}
+		if *mcdOnce {
+			for ifiName := range ctx.MCDTxIfis {
+				if err = ctx.MCDTx(ifiName, port, 0); err != nil {
+					log.Fatalln("Can not do MCD transmission:", err)
+				}
+			}
+			return
+		}
 
-	for ifiName, secs := range ctx.MCDTxIfis {
-		if err = ctx.MCDTx(ifiName, port, time.Duration(secs)*time.Second); err != nil {
-			log.Fatalln("Can not run MCD transmission:", err)
+		ln, err = net.Listen("tcp", *bind)
+		if err != nil {
+			log.Fatalln("Can not listen:", err)
+		}
+
+		for ifiName, secs := range ctx.MCDTxIfis {
+			if err = ctx.MCDTx(ifiName, port, time.Duration(secs)*time.Second); err != nil {
+				log.Fatalln("Can not run MCD transmission:", err)
+			}
 		}
 	}
 

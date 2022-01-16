@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,11 +22,14 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/dustin/go-humanize"
 	"github.com/gorhill/cronexpr"
 )
+
+const YggdrasilPrefix = "yggdrasil:"
 
 type Call struct {
 	Cron           *cronexpr.Expression
@@ -83,11 +86,16 @@ func (ctx *Ctx) CallNode(
 			if addr == "" {
 				addr = UCSPITCPClient
 			}
+		} else if strings.HasPrefix(addr, YggdrasilPrefix) {
+			conn, err = NewYggdrasilConn(
+				ctx.YggdrasilAliases,
+				strings.TrimPrefix(addr, YggdrasilPrefix),
+			)
 		} else {
 			conn, err = net.Dial("tcp", addr)
 		}
 		if err != nil {
-			ctx.LogD("calling", append(les, LE{"Err", err}), func(les LEs) string {
+			ctx.LogE("calling", les, err, func(les LEs) string {
 				return fmt.Sprintf("Calling %s (%s)", node.Name, addr)
 			})
 			continue

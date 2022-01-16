@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -146,6 +146,8 @@ type CfgJSON struct {
 	Neigh map[string]NodeJSON `json:"neigh"`
 
 	Areas map[string]AreaJSON `json:"areas,omitempty"`
+
+	YggdrasilAliases map[string]string `json:"yggdrasil-aliases,omitempty"`
 }
 
 func NewNode(name string, cfg NodeJSON) (*Node, error) {
@@ -542,6 +544,8 @@ func Cfg2Ctx(cfgJSON *CfgJSON) (*Ctx, error) {
 		Alias:      make(map[string]*NodeId),
 		MCDRxIfis:  cfgJSON.MCDRxIfis,
 		MCDTxIfis:  cfgJSON.MCDTxIfis,
+
+		YggdrasilAliases: cfgJSON.YggdrasilAliases,
 	}
 	if cfgJSON.Notify != nil {
 		if cfgJSON.Notify.File != nil {

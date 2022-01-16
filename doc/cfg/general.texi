@@ -15,6 +15,14 @@ nohdr: true
 # MultiCast Discovery
 mcd-listen: ["em0", "igb1"]
 mcd-send: {em0: 60, igb1: 5}
+
+# Yggdrasil aliases
+yggdrasil-aliases: {
+  myprv: 60bb...27aa
+  bob-pub: 98de...ac19d
+  alice-endpoint: tcp://example.com:1234?key=689c...13fb
+  default-endpoints: tcp://[::1]:2345,alice-endpoint
+}
 @end verbatim
 
 @table @code
@@ -51,3 +59,14 @@ incoming @ref{MCD} announcements.
 Specifies list of network interfaces, and intervals in seconds, where
 @ref{nncp-daemon} will send @ref{MCD} announcements.
 @end table
+
+@anchor{CfgYggdrasilAliases}
+Optional @ref{Yggdrasil}-related aliases are used for convenience and
+keeping private keys away being used directly in command line. Each
+@code{PUB}, @code{PRV}, @code{PEER}, @code{BIND} value in
+@ref{nncp-daemon}'s @option{-yggdrasil} and in @code{yggdrasil:}
+addresses is replaced with alias value. Moreover each entry in list of
+@code{PUB}s, @code{PEER}s and @code{BIND} can be an alias too. Pay
+attention, that all aliases ending with @code{prv} will be saved with
+600 permissions when converting to @ref{Configuration directory,
+directory layout}.

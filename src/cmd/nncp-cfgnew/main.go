@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,7 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"crypto/ed25519"
 	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -42,6 +44,7 @@ func usage() {
 func main() {
 	var (
 		areaName   = flag.String("area", "", "Generate area's keypairs")
+		yggdrasil  = flag.Bool("yggdrasil", false, "Generate Yggdrasil keypair")
 		noComments = flag.Bool("nocomments", false, "Do not include descriptive comments")
 		version    = flag.Bool("version", false, "Print version information")
 		warranty   = flag.Bool("warranty", false, "Print warranty information")
@@ -57,6 +60,17 @@ func main() {
 		fmt.Println(nncp.VersionGet())
 		return
 	}
+
+	if *yggdrasil {
+		pub, prv, err := ed25519.GenerateKey(rand.Reader)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		fmt.Println("Public:", hex.EncodeToString(pub))
+		fmt.Println("Private:", hex.EncodeToString(prv))
+		return
+	}
+
 	if *areaName != "" {
 		pub, prv, err := box.GenerateKey(rand.Reader)
 		if err != nil {
@@ -123,6 +137,7 @@ func main() {
 		fmt.Println(cfgRaw)
 		return
 	}
+
 	nodeOur, err := nncp.NewNodeGenerate()
 	if err != nil {
 		log.Fatalln(err)
@@ -187,6 +202,14 @@ func main() {
   # mcd-listen: ["em0", "igb1"]
   # Interfaces and intervals (in seconds) where to send MCD announcements
   # mcd-send: {em0: 60, igb1: 5}
+
+  # Yggdrasil related aliases:
+  # yggdrasil-aliases: {
+  #   myprv: 60bb...27aa
+  #   bob-pub: 98de...ac19d
+  #   alice-endpoint: tcp://example.com:1234?key=689c...13fb
+  #   default-endpoints: tcp://[::1]:2345,alice-endpoint
+  # }
 
   # Enable notification email sending
   # notify: {

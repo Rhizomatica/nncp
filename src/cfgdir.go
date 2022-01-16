@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -168,29 +168,31 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 		}
 	}
 
-	if err = cfgDirMkdir(dst, "self"); err != nil {
-		return
-	}
-	if err = cfgDirSave(cfg.Self.Id, dst, "self", "id"); err != nil {
-		return
-	}
-	if err = cfgDirSave(cfg.Self.ExchPub, dst, "self", "exchpub"); err != nil {
-		return
-	}
-	if err = cfgDirSave(cfg.Self.ExchPrv, dst, "self", "exchprv"); err != nil {
-		return
-	}
-	if err = cfgDirSave(cfg.Self.SignPub, dst, "self", "signpub"); err != nil {
-		return
-	}
-	if err = cfgDirSave(cfg.Self.SignPrv, dst, "self", "signprv"); err != nil {
-		return
-	}
-	if err = cfgDirSave(cfg.Self.NoisePub, dst, "self", "noisepub"); err != nil {
-		return
-	}
-	if err = cfgDirSave(cfg.Self.NoisePrv, dst, "self", "noiseprv"); err != nil {
-		return
+	if cfg.Self != nil {
+		if err = cfgDirMkdir(dst, "self"); err != nil {
+			return
+		}
+		if err = cfgDirSave(cfg.Self.Id, dst, "self", "id"); err != nil {
+			return
+		}
+		if err = cfgDirSave(cfg.Self.ExchPub, dst, "self", "exchpub"); err != nil {
+			return
+		}
+		if err = cfgDirSave(cfg.Self.ExchPrv, dst, "self", "exchprv"); err != nil {
+			return
+		}
+		if err = cfgDirSave(cfg.Self.SignPub, dst, "self", "signpub"); err != nil {
+			return
+		}
+		if err = cfgDirSave(cfg.Self.SignPrv, dst, "self", "signprv"); err != nil {
+			return
+		}
+		if err = cfgDirSave(cfg.Self.NoisePub, dst, "self", "noisepub"); err != nil {
+			return
+		}
+		if err = cfgDirSave(cfg.Self.NoisePrv, dst, "self", "noiseprv"); err != nil {
+			return
+		}
 	}
 
 	for name, n := range cfg.Neigh {
@@ -416,6 +418,17 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 		}
 	}
 
+	if len(cfg.YggdrasilAliases) > 0 {
+		if err = cfgDirMkdir(dst, "yggdrasil-aliases"); err != nil {
+			return
+		}
+		for alias, v := range cfg.YggdrasilAliases {
+			if err = cfgDirSave(v, dst, "yggdrasil-aliases", alias); err != nil {
+				return
+			}
+		}
+	}
+
 	return
 }
 
@@ -569,29 +582,33 @@ func DirToCfg(src string) (*CfgJSON, error) {
 		cfg.Notify = &notify
 	}
 
-	self := NodeOurJSON{}
-	if self.Id, err = cfgDirLoadMust(src, "self", "id"); err != nil {
+	if _, err = ioutil.ReadDir(filepath.Join(src, "self")); err == nil {
+		self := NodeOurJSON{}
+		if self.Id, err = cfgDirLoadMust(src, "self", "id"); err != nil {
+			return nil, err
+		}
+		if self.ExchPub, err = cfgDirLoadMust(src, "self", "exchpub"); err != nil {
+			return nil, err
+		}
+		if self.ExchPrv, err = cfgDirLoadMust(src, "self", "exchprv"); err != nil {
+			return nil, err
+		}
+		if self.SignPub, err = cfgDirLoadMust(src, "self", "signpub"); err != nil {
+			return nil, err
+		}
+		if self.SignPrv, err = cfgDirLoadMust(src, "self", "signprv"); err != nil {
+			return nil, err
+		}
+		if self.NoisePub, err = cfgDirLoadMust(src, "self", "noisepub"); err != nil {
+			return nil, err
+		}
+		if self.NoisePrv, err = cfgDirLoadMust(src, "self", "noiseprv"); err != nil {
+			return nil, err
+		}
+		cfg.Self = &self
+	} else if !os.IsNotExist(err) {
 		return nil, err
 	}
-	if self.ExchPub, err = cfgDirLoadMust(src, "self", "exchpub"); err != nil {
-		return nil, err
-	}
-	if self.ExchPrv, err = cfgDirLoadMust(src, "self", "exchprv"); err != nil {
-		return nil, err
-	}
-	if self.SignPub, err = cfgDirLoadMust(src, "self", "signpub"); err != nil {
-		return nil, err
-	}
-	if self.SignPrv, err = cfgDirLoadMust(src, "self", "signprv"); err != nil {
-		return nil, err
-	}
-	if self.NoisePub, err = cfgDirLoadMust(src, "self", "noisepub"); err != nil {
-		return nil, err
-	}
-	if self.NoisePrv, err = cfgDirLoadMust(src, "self", "noiseprv"); err != nil {
-		return nil, err
-	}
-	cfg.Self = &self
 
 	cfg.Neigh = make(map[string]NodeJSON)
 	fis, err = ioutil.ReadDir(filepath.Join(src, "neigh"))
@@ -897,6 +914,25 @@ func DirToCfg(src string) (*CfgJSON, error) {
 			area.AllowUnknown = true
 		}
 		cfg.Areas[n] = area
+	}
+
+	fis, err = ioutil.ReadDir(filepath.Join(src, "yggdrasil-aliases"))
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	}
+	if len(fis) > 0 {
+		cfg.YggdrasilAliases = make(map[string]string, len(fis))
+	}
+	for _, fi := range fis {
+		n := fi.Name()
+		if n[0] == '.' {
+			continue
+		}
+		b, err := ioutil.ReadFile(filepath.Join(src, "yggdrasil-aliases", fi.Name()))
+		if err != nil {
+			return nil, err
+		}
+		cfg.YggdrasilAliases[n] = strings.TrimSuffix(string(b), "\n")
 	}
 
 	return &cfg, nil

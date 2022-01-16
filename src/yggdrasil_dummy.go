@@ -1,5 +1,5 @@
-//go:build nofsnotify
-// +build nofsnotify
+//go:build noyggdrasil
+// +build noyggdrasil
 
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
@@ -21,26 +21,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
-	"time"
+	"errors"
+	"net"
 )
 
-type DirWatcher struct {
-	C      chan struct{}
-	ticker *time.Ticker
+var NoYggdrasil = errors.New("no Yggdrasil support is compiled in")
+
+func NewYggdrasilConn(aliases map[string]string, in string) (ConnDeadlined, error) {
+	return nil, NoYggdrasil
+
 }
 
-func (ctx *Ctx) NewDirWatcher(dir string, d time.Duration) (*DirWatcher, error) {
-	dw := DirWatcher{C: make(chan struct{}), ticker: time.NewTicker(d)}
-	go func() {
-		for range dw.ticker.C {
-			dw.C <- struct{}{}
-		}
-	}()
-	return &dw, nil
-}
-
-func (dw *DirWatcher) Close() {
-	dw.ticker.Stop()
-	for range dw.C {
-	}
+func NewYggdrasilListener(aliases map[string]string, in string) (net.Listener, error) {
+	return nil, NoYggdrasil
 }
