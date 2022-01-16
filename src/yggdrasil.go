@@ -80,7 +80,7 @@ func NewYggdrasilConn(aliases map[string]string, in string) (ConnDeadlined, erro
 	if err := core.Start(&cfg, glog); err != nil {
 		return nil, err
 	}
-	utpSock, err := utp.NewSocketFromPacketConnNoClose(core)
+	utpSock, err := utp.NewSocketFromPacketConn(core)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func NewYggdrasilListener(aliases map[string]string, in string) (net.Listener, e
 	if err := core.Start(&cfg, glog); err != nil {
 		return nil, err
 	}
-	utpSock, err := utp.NewSocketFromPacketConnNoClose(core)
+	utpSock, err := utp.NewSocketFromPacketConn(core)
 	if err != nil {
 		return nil, err
 	}
