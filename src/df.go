@@ -2,7 +2,7 @@
 // +build !netbsd
 
 // NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-// Copyright (C) 2016-2021 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
 
 package nncp
 
