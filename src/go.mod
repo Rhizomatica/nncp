@@ -2,9 +2,6 @@ module go.cypherpunks.ru/nncp/v8
 
 require (
 	github.com/Arceliar/ironwood v0.0.0-20211125050254-8951369625d0
-	github.com/anacrolix/missinggo v1.3.0 // indirect
-	github.com/anacrolix/missinggo/v2 v2.5.3 // indirect
-	github.com/anacrolix/sync v0.4.0 // indirect
 	github.com/davecgh/go-xdr v0.0.0-20161123171359-e6a2ba005892
 	github.com/dustin/go-humanize v1.0.0
 	github.com/flynn/noise v1.0.0
@@ -13,7 +10,6 @@ require (
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/hjson/hjson-go v3.1.0+incompatible
 	github.com/klauspost/compress v1.13.6
-	github.com/neilalexander/utp v0.1.1-0.20210705212447-691f29ad692b
 	github.com/yggdrasil-network/yggdrasil-go v0.4.2
 	go.cypherpunks.ru/balloon v1.1.1
 	go.cypherpunks.ru/recfile v0.4.3
@@ -21,6 +17,7 @@ require (
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+	gvisor.dev/gvisor v0.0.0-20210306005637-a64c3a1b5a9f
 	lukechampine.com/blake3 v1.1.6
 )
 
