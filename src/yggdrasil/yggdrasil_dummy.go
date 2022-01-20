@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package nncp
+package yggdrasil
 
 import (
 	"errors"
@@ -27,11 +27,11 @@ import (
 
 var NoYggdrasil = errors.New("no Yggdrasil support is compiled in")
 
-func NewYggdrasilConn(aliases map[string]string, in string) (ConnDeadlined, error) {
+func NewConn(aliases map[string]string, in string) (ConnDeadlined, error) {
 	return nil, NoYggdrasil
 
 }
 
-func NewYggdrasilListener(aliases map[string]string, in string) (net.Listener, error) {
+func NewListener(aliases map[string]string, in string) (net.Listener, error) {
 	return nil, NoYggdrasil
 }

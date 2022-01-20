@@ -27,9 +27,8 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/gorhill/cronexpr"
+	nncpYggdrasil "go.cypherpunks.ru/nncp/v8/yggdrasil"
 )
-
-const YggdrasilPrefix = "yggdrasil:"
 
 type Call struct {
 	Cron           *cronexpr.Expression
@@ -86,11 +85,8 @@ func (ctx *Ctx) CallNode(
 			if addr == "" {
 				addr = UCSPITCPClient
 			}
-		} else if strings.HasPrefix(addr, YggdrasilPrefix) {
-			conn, err = NewYggdrasilConn(
-				ctx.YggdrasilAliases,
-				strings.TrimPrefix(addr, YggdrasilPrefix),
-			)
+		} else if strings.HasPrefix(addr, "yggdrasilc://") {
+			conn, err = nncpYggdrasil.NewConn(ctx.YggdrasilAliases, addr)
 		} else {
 			conn, err = net.Dial("tcp", addr)
 		}
