@@ -3,6 +3,32 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_2_0
+@section Release 8.2.0
+@itemize
+
+@item
+Yggdrasil uses pure-Go IPv6+TCP network stack, instead of naked μTP
+transport protocol, making it able to work as an ordinary TCP server
+inside overlay network.
+
+@item
+Yggdrasil's @code{prv;bind1,bind2;pub...}-like configuration strings are
+replaced with URL-like ones (@code{yggdrasils://PRV?bind=BIND1&bind=BIND2&pub=PUB}).
+
+@item
+Ability to pass multicast-related parameters to Yggdrasil configuration.
+
+@item
+@command{nncp-daemon} is able to listen on both TCP and Yggdrasil-driven
+sockets simultaneously.
+
+@item
+@command{nncp-daemon}'s listening on peering endpoint socket is optional
+-- you can be reached through the peers.
+
+@end itemize
+
 @node Release 8_1_0
 @section Release 8.1.0
 @itemize
@@ -30,8 +56,8 @@ Fixed sending ability to areas.
 @itemize
 
 @item
-Fixed incorrect @code{freq.chunked} value calculation. If it missed,
-then anyway chunked transfer mode was forcefully turned on.
+Fixed incorrect @code{freq.chunked} value calculation. If it was missed,
+then chunked transfer mode was forcefully turned on anyway.
 
 @item
 Fixed incorrect full file's size calculation in @file{.nncp.meta}.

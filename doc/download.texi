@@ -31,18 +31,25 @@ And additional ones for Yggdrasil support:
 
 @multitable @columnfractions .50 .50
 @headitem Library @tab Licence
-@item @code{github.com/anacrolix/missinggo} @tab MIT
-@item @code{github.com/anacrolix/sync} @tab Unfortunately, no licence information, probably it can be a problem
 @item @code{github.com/Arceliar/ironwood} @tab MPLv2
 @item @code{github.com/Arceliar/phony} @tab MPLv2
 @item @code{github.com/gologme/log} @tab BSD 3-Clause
+@item @code{github.com/google/btree} @tab Apache 2.0
 @item @code{github.com/huandu/xstrings} @tab MIT
-@item @code{github.com/neilalexander/utp} @tab MPLv2
 @item @code{github.com/yggdrasil-network/yggdrasil-go} @tab GNU LGPLv3
+@item @code{golang.org/x/term} @tab BSD 3-Clause
+@item @code{gvisor.dev/gvisor} @tab Apache 2.0
 @end multitable
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {meta4 link sig} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
+
+@item @ref{Release 8_1_0, 8.1.0} @tab 2022-01-16 @tab 1339 KiB
+@tab
+    @url{download/nncp-8.1.0.tar.xz.meta4, meta4}
+    @url{download/nncp-8.1.0.tar.xz, link}
+    @url{download/nncp-8.1.0.tar.xz.sig, sig}
+@tab @code{777536DF 775E76D6 6B05645D 6F440494 D39DFCBD 7E52DE02 5AF919A3 94CF53EC}
 
 @item @ref{Release 8_0_2, 8.0.2} @tab 2021-11-10 @tab 1204 KiB
 @tab

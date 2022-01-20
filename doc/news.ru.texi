@@ -1,6 +1,32 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.2.0
+@subsection Релиз 8.2.0
+@itemize
+
+@item
+Yggdrasil использует IPv6+TCP сетевой стэк написанный полностью на Go,
+вместо голого μTP транспортного протокола, делая возможным работу в
+качестве обычного TCP сервера внутри overlay сети.
+
+@item
+Конфигурационные строки Yggdrasil вида @code{prv;bind1,bind2;pub...}
+заменены на URL-подобные (@code{yggdrasils://PRV?bind=BIND1&bind=BIND2&pub=PUB}).
+
+@item
+Возможно передавать параметры Yggdrasil конфигурации связанные с multicast.
+
+@item
+@command{nncp-daemon} может слушать одновременно и на TCP и на
+Yggdrasil-управляемом сокетах.
+
+@item
+Слушание на endpoint сокете для пиринга в @command{nncp-daemon}
+опционально -- вы можете быть доступны и через связь с peer-ами.
+
+@end itemize
+
 @node Релиз 8.1.0
 @subsection Релиз 8.1.0
 @itemize

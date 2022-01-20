@@ -5,7 +5,7 @@
 $ nncp-daemon [options]
     [-maxconn INT] [-bind ADDR] [-ucspi]
     [-autotoss*] [-nock] [-mcd-once]
-    [-yggdrasil PRV;BIND[,...];[PUB,...];[PEER,...]]
+    [-yggdrasil yggdrasils://PRV[:PORT]?[bind=BIND][&pub=PUB][&peer=PEER][&mcast=REGEX[:PORT]]]
 @end example
 
 Start listening TCP daemon, wait for incoming connections and run
@@ -15,7 +15,7 @@ time to time.
 
 @option{-maxconn} option specifies how many simultaneous clients daemon
 can handle. @option{-bind} option specifies @option{addr:port} it must
-bind to and listen.
+bind to and listen (empty string means no listening on TCP port).
 
 It could be run as @url{http://cr.yp.to/ucspi-tcp.html, UCSPI-TCP}
 service, by specifying @option{-ucspi} option. Pay attention that
@@ -43,5 +43,5 @@ Read @ref{CfgNoCK, more} about @option{-nock} option.
 @option{-mcd-once} option sends @ref{MCD} announcements once and quits.
 Could be useful with inetd-based setup, where daemons are not running.
 
-With @option{-yggdrasil} option daemon acts as a @ref{Yggdrasil}
+With @option{-yggdrasil} option daemon also acts as a @ref{Yggdrasil}
 listener daemon.

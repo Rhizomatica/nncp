@@ -30,6 +30,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"go.cypherpunks.ru/nncp/v8"
+	nncpYggdrasil "go.cypherpunks.ru/nncp/v8/yggdrasil"
 	"golang.org/x/net/netutil"
 )
 
@@ -111,7 +112,7 @@ func main() {
 		bind      = flag.String("bind", "[::]:5400", "Address to bind to")
 		ucspi     = flag.Bool("ucspi", false, "Is it started as UCSPI-TCP server")
 		inetd     = flag.Bool("inetd", false, "Obsolete, use -ucspi")
-		yggdrasil = flag.String("yggdrasil", "", "Start Yggdrasil listener: PRV;BIND[,...];[PUB,...];[PEER,...]")
+		yggdrasil = flag.String("yggdrasil", "", "Start Yggdrasil listener: yggdrasils://PRV[:PORT]?[bind=BIND][&pub=PUB][&peer=PEER][&mcast=REGEX[:PORT]]")
 		maxConn   = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		noCK      = flag.Bool("nock", false, "Do no checksum checking")
 		mcdOnce   = flag.Bool("mcd-once", false, "Send MCDs once and quit")
@@ -201,13 +202,8 @@ func main() {
 		return
 	}
 
-	var ln net.Listener
-	if *yggdrasil != "" {
-		ln, err = nncp.NewYggdrasilListener(ctx.YggdrasilAliases, *yggdrasil)
-		if err != nil {
-			log.Fatalln("Can not listen:", err)
-		}
-	} else {
+	conns := make(chan net.Conn)
+	if *bind != "" {
 		cols := strings.Split(*bind, ":")
 		port, err := strconv.Atoi(cols[len(cols)-1])
 		if err != nil {
@@ -223,7 +219,7 @@ func main() {
 			return
 		}
 
-		ln, err = net.Listen("tcp", *bind)
+		ln, err := net.Listen("tcp", *bind)
 		if err != nil {
 			log.Fatalln("Can not listen:", err)
 		}
@@ -233,14 +229,37 @@ func main() {
 				log.Fatalln("Can not run MCD transmission:", err)
 			}
 		}
+
+		ln = netutil.LimitListener(ln, *maxConn)
+		go func() {
+			for {
+				conn, err := ln.Accept()
+				if err != nil {
+					log.Fatalln("Can not accept connection on TCP:", err)
+				}
+				conns <- conn
+			}
+		}()
 	}
 
-	ln = netutil.LimitListener(ln, *maxConn)
-	for {
-		conn, err := ln.Accept()
+	if *yggdrasil != "" {
+		ln, err := nncpYggdrasil.NewListener(ctx.YggdrasilAliases, *yggdrasil)
 		if err != nil {
-			log.Fatalln("Can not accept connection:", err)
+			log.Fatalln("Can not listen:", err)
 		}
+		ln = netutil.LimitListener(ln, *maxConn)
+		go func() {
+			for {
+				conn, err := ln.Accept()
+				if err != nil {
+					log.Fatalln("Can not accept connection on Yggdrasil:", err)
+				}
+				conns <- conn
+			}
+		}()
+	}
+
+	for conn := range conns {
 		ctx.LogD(
 			"daemon-accepted",
 			nncp.LEs{{K: "Addr", V: conn.RemoteAddr()}},
@@ -273,5 +292,6 @@ func main() {
 			}
 			conn.Close()
 		}(conn)
+
 	}
 }
