@@ -24,6 +24,7 @@ Tarballs include all necessary required libraries:
 @item @code{golang.org/x/net} @tab BSD 3-Clause
 @item @code{golang.org/x/sys} @tab BSD 3-Clause
 @item @code{golang.org/x/term} @tab BSD 3-Clause
+@item @code{golang.org/x/time} @tab BSD 3-Clause
 @item @code{lukechampine.com/blake3} @tab MIT
 @end multitable
 
@@ -38,7 +39,7 @@ And additional ones for Yggdrasil support:
 @item @code{github.com/huandu/xstrings} @tab MIT
 @item @code{github.com/yggdrasil-network/yggdrasil-go} @tab GNU LGPLv3
 @item @code{golang.org/x/term} @tab BSD 3-Clause
-@item @code{gvisor.dev/gvisor} @tab Apache 2.0
+@item @code{inet.af/netstack} @tab Apache 2.0
 @end multitable
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {meta4 link sig} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
