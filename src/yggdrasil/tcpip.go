@@ -31,13 +31,13 @@ import (
 	iwt "github.com/Arceliar/ironwood/types"
 	yaddr "github.com/yggdrasil-network/yggdrasil-go/src/address"
 	"golang.org/x/crypto/ed25519"
-	"gvisor.dev/gvisor/pkg/tcpip"
-	"gvisor.dev/gvisor/pkg/tcpip/adapters/gonet"
-	"gvisor.dev/gvisor/pkg/tcpip/buffer"
-	"gvisor.dev/gvisor/pkg/tcpip/header"
-	"gvisor.dev/gvisor/pkg/tcpip/network/ipv6"
-	"gvisor.dev/gvisor/pkg/tcpip/stack"
-	"gvisor.dev/gvisor/pkg/tcpip/transport/tcp"
+	"inet.af/netstack/tcpip"
+	"inet.af/netstack/tcpip/adapters/gonet"
+	"inet.af/netstack/tcpip/buffer"
+	"inet.af/netstack/tcpip/header"
+	"inet.af/netstack/tcpip/network/ipv6"
+	"inet.af/netstack/tcpip/stack"
+	"inet.af/netstack/tcpip/transport/tcp"
 )
 
 const IPv6HdrSize = 40
@@ -70,7 +70,6 @@ func (*TCPIPEndpoint) Wait() {}
 
 func (e *TCPIPEndpoint) WritePacket(
 	_ stack.RouteInfo,
-	_ *stack.GSO,
 	_ tcpip.NetworkProtocolNumber,
 	pkt *stack.PacketBuffer,
 ) tcpip.Error {
@@ -96,10 +95,13 @@ func (e *TCPIPEndpoint) WritePacket(
 
 func (e *TCPIPEndpoint) WritePackets(
 	stack.RouteInfo,
-	*stack.GSO,
 	stack.PacketBufferList,
 	tcpip.NetworkProtocolNumber,
 ) (int, tcpip.Error) {
+	panic("not implemented")
+}
+
+func (e *TCPIPEndpoint) WriteRawPacket(*stack.PacketBuffer) tcpip.Error {
 	panic("not implemented")
 }
 
@@ -164,7 +166,11 @@ func NewTCPIPEndpoint(
 	if err := s.CreateNIC(1, &e); err != nil {
 		return nil, fmt.Errorf("%+v", err)
 	}
-	if err := s.AddAddress(1, ipv6.ProtocolNumber, tcpip.Address(ipOur)); err != nil {
+	protoAddr := tcpip.ProtocolAddress{
+		Protocol:          ipv6.ProtocolNumber,
+		AddressWithPrefix: tcpip.Address(ipOur).WithPrefix(),
+	}
+	if err := s.AddProtocolAddress(1, protoAddr, stack.AddressProperties{}); err != nil {
 		return nil, fmt.Errorf("%+v", err)
 	}
 	s.AddRoute(tcpip.Route{Destination: header.IPv6EmptySubnet, NIC: 1})

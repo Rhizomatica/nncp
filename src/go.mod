@@ -7,6 +7,7 @@ require (
 	github.com/flynn/noise v1.0.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gologme/log v1.3.0
+	github.com/google/btree v1.0.1 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/hjson/hjson-go v3.1.0+incompatible
 	github.com/klauspost/compress v1.13.6
@@ -17,7 +18,8 @@ require (
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
-	gvisor.dev/gvisor v0.0.0-20210306005637-a64c3a1b5a9f
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
+	inet.af/netstack v0.0.0-20211120045802-8aa80cf23d3c
 	lukechampine.com/blake3 v1.1.6
 )
 

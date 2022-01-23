@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_3_0
+@section Release 8.3.0
+@itemize
+
+@item
+Fixed building issues on 32-bit systems.
+
+@end itemize
+
 @node Release 8_2_0
 @section Release 8.2.0
 @itemize
