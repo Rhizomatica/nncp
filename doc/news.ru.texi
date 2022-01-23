@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.3.0
+@subsection Релиз 8.3.0
+@itemize
+
+@item
+Исправлена возможность сборки на 32-бит системах.
+
+@end itemize
+
 @node Релиз 8.2.0
 @subsection Релиз 8.2.0
 @itemize
