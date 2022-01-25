@@ -24,6 +24,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -103,6 +104,31 @@ func performSP(
 		)
 	}
 	close(nodeIdC)
+}
+
+func startMCDTx(ctx *nncp.Ctx, port int, zeroInterval bool) error {
+	ifis, err := net.Interfaces()
+	if err != nil {
+		return err
+	}
+	for ifiReString, secs := range ctx.MCDTxIfis {
+		ifiRe, err := regexp.CompilePOSIX(ifiReString)
+		if err != nil {
+			return err
+		}
+		var interval time.Duration
+		if !zeroInterval {
+			interval = time.Duration(secs) * time.Second
+		}
+		for _, ifi := range ifis {
+			if ifiRe.MatchString(ifi.Name) {
+				if err = ctx.MCDTx(ifi.Name, port, interval); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func main() {
@@ -211,10 +237,8 @@ func main() {
 		}
 
 		if *mcdOnce {
-			for ifiName := range ctx.MCDTxIfis {
-				if err = ctx.MCDTx(ifiName, port, 0); err != nil {
-					log.Fatalln("Can not do MCD transmission:", err)
-				}
+			if err = startMCDTx(ctx, port, true); err != nil {
+				log.Fatalln("Can not do MCD transmission:", err)
 			}
 			return
 		}
@@ -223,13 +247,9 @@ func main() {
 		if err != nil {
 			log.Fatalln("Can not listen:", err)
 		}
-
-		for ifiName, secs := range ctx.MCDTxIfis {
-			if err = ctx.MCDTx(ifiName, port, time.Duration(secs)*time.Second); err != nil {
-				log.Fatalln("Can not run MCD transmission:", err)
-			}
+		if err = startMCDTx(ctx, port, false); err != nil {
+			log.Fatalln("Can not do MCD transmission:", err)
 		}
-
 		ln = netutil.LimitListener(ln, *maxConn)
 		go func() {
 			for {

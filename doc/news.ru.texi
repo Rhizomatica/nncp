@@ -1,6 +1,26 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.4.0
+@subsection Релиз 8.4.0
+@itemize
+
+@item
+Имена интерфейсов относящихся к multicast (@code{mcd-listen} и
+@code{mcd-send} опции конфигурации) теперь являются регулярными
+выражениями. По умолчанию @command{nncp-cfgnew} не комментирует
+их теперь и прописывает @code{.*} имя интерфейса.
+
+@item
+У @command{nncp-call} команды появился @option{-mcd-wait} аргумент,
+позволяющий дожидаться multicast сообщения об адресе ноды.
+
+@item
+@command{nncp-file} команда пропускает всё что не является регулярным
+файлом или директорией во время создания pax-архива.
+
+@end itemize
+
 @node Релиз 8.3.0
 @subsection Релиз 8.3.0
 @itemize

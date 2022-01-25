@@ -13,6 +13,7 @@ $ nncp-call [options]
     [-autotoss*]
     [-nock]
     [-ucspi]
+    [-mcd-wait INT]
     NODE[:ADDR] [FORCEADDR]
 @end example
 
@@ -47,6 +48,10 @@ instead of addresses taken from configuration file. You can specify
 If you specify @option{-ucspi} option, then it is assumed that you run
 @command{nncp-call} command under some UCSPI-TCP compatible utility,
 that provides read/write channels through 6/7 file descriptors.
+
+@option{-mcd-wait} options tells to wait up to specified number of
+seconds for the @ref{MCD} packet from the specified @code{NODE}. When
+the packet is received, initiate a call.
 
 @option{-autotoss} option runs tosser on node's spool every second
 during the call. All @option{-autotoss-*} options is the same as in

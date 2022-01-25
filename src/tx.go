@@ -211,7 +211,7 @@ func (ctx *Ctx) Tx(
 		r := <-results
 		if r.err != nil {
 			tmp.Fd.Close()
-			return nil, 0, err
+			return nil, 0, r.err
 		}
 		if r.pktEncRaw != nil {
 			pktEncRaw = r.pktEncRaw
@@ -330,11 +330,11 @@ func prepareTxFile(srcPath string) (
 		if err != nil {
 			return err
 		}
-		if info.IsDir() {
+		if info.Mode().IsDir() {
 			// directory header, PAX record header+contents
 			srcSize += TarBlockSize + 2*TarBlockSize
 			dirs = append(dirs, einfo{path: path, modTime: info.ModTime()})
-		} else {
+		} else if info.Mode().IsRegular() {
 			// file header, PAX record header+contents, file content
 			srcSize += TarBlockSize + 2*TarBlockSize + info.Size()
 			if n := info.Size() % TarBlockSize; n != 0 {
