@@ -12,6 +12,10 @@ Multicast related interface names (@code{mcd-listen} and @code{mcd-send}
 configuration options) are now regular expressions. By default
 @command{nncp-cfgnew} uncomments them now with @code{.*} interface name.
 
+@item
+@command{nncp-call} command has @option{-mcd-wait} option to wait for
+multicast packet about node's address.
+
 @end itemize
 
 @node Release 8_3_0
