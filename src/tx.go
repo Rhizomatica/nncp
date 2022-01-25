@@ -211,7 +211,7 @@ func (ctx *Ctx) Tx(
 		r := <-results
 		if r.err != nil {
 			tmp.Fd.Close()
-			return nil, 0, err
+			return nil, 0, r.err
 		}
 		if r.pktEncRaw != nil {
 			pktEncRaw = r.pktEncRaw
