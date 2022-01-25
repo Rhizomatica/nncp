@@ -1,6 +1,18 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.4.0
+@subsection Релиз 8.4.0
+@itemize
+
+@item
+Имена интерфейсов относящихся к multicast (@code{mcd-listen} и
+@code{mcd-send} опции конфигурации) теперь являются регулярными
+выражениями. По умолчанию @command{nncp-cfgnew} не комментирует
+их теперь и прописывает @code{.*} имя интерфейса.
+
+@end itemize
+
 @node Релиз 8.3.0
 @subsection Релиз 8.3.0
 @itemize

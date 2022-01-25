@@ -40,7 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.`
 const Base32Encoded32Len = 52
 
 var (
-	Version string = "8.3.0"
+	Version string = "8.4.0"
 
 	Base32Codec *base32.Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)
 )

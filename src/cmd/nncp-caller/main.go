@@ -23,7 +23,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"os"
+	"regexp"
 	"sync"
 	"time"
 
@@ -125,9 +127,21 @@ func main() {
 		}
 	}
 
-	for _, ifiName := range ctx.MCDRxIfis {
-		if err = ctx.MCDRx(ifiName); err != nil {
-			log.Printf("Can not run MCD reception on %s: %s", ifiName, err)
+	ifis, err := net.Interfaces()
+	if err != nil {
+		log.Fatalln("Can not get network interfaces list:", err)
+	}
+	for _, ifiReString := range ctx.MCDRxIfis {
+		ifiRe, err := regexp.CompilePOSIX(ifiReString)
+		if err != nil {
+			log.Fatalf("Can not compile POSIX regexp \"%s\": %s", ifiReString, err)
+		}
+		for _, ifi := range ifis {
+			if ifiRe.MatchString(ifi.Name) {
+				if err = ctx.MCDRx(ifi.Name); err != nil {
+					log.Printf("Can not run MCD reception on %s: %s", ifi.Name, err)
+				}
+			}
 		}
 	}
 

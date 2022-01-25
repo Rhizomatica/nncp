@@ -13,8 +13,8 @@ noprogress: true
 nohdr: true
 
 # MultiCast Discovery
-mcd-listen: ["em0", "igb1"]
-mcd-send: {em0: 60, igb1: 5}
+mcd-listen: ["em[0-3]", "igb_.*"]
+mcd-send: {"em[0-3]": 60, igb_.*: 5}
 
 # Yggdrasil aliases
 yggdrasil-aliases: {
@@ -52,12 +52,12 @@ And optional @ref{MCD, MultiCast Discovery} options:
 @table @code
 @anchor{CfgMCDListen}
 @item mcd-listen
-Specifies list of network interfaces @ref{nncp-caller} will listen for
-incoming @ref{MCD} announcements.
+Specifies list of network interfaces regular expression
+@ref{nncp-caller} will listen for incoming @ref{MCD} announcements.
 @anchor{CfgMCDSend}
 @item mcd-send
-Specifies list of network interfaces, and intervals in seconds, where
-@ref{nncp-daemon} will send @ref{MCD} announcements.
+Specifies list of network interfaces regular expressions, and intervals
+in seconds, where @ref{nncp-daemon} will send @ref{MCD} announcements.
 @end table
 
 @anchor{CfgYggdrasilAliases}
