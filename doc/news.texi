@@ -16,6 +16,10 @@ configuration options) are now regular expressions. By default
 @command{nncp-call} command has @option{-mcd-wait} option to wait for
 multicast packet about node's address.
 
+@item
+@command{nncp-file} command skips everything that is neither regular
+file nor directory during pax-archive creation.
+
 @end itemize
 
 @node Release 8_3_0
