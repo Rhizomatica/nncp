@@ -198,10 +198,11 @@ func main() {
   # nohdr: true
 
   # MultiCast Discovery:
-  # List of interfaces where to listen for MCD announcements
-  # mcd-listen: ["em0", "igb1"]
-  # Interfaces and intervals (in seconds) where to send MCD announcements
-  # mcd-send: {em0: 60, igb1: 5}
+  # List of interface regular expressions where to listen for MCD announcements
+  mcd-listen: [".*"]
+  # Interfaces regular expressions and intervals (in seconds) where to send
+  # MCD announcements
+  mcd-send: {.*: 10}
 
   # Yggdrasil related aliases:
   # yggdrasil-aliases: {

@@ -22,7 +22,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -47,6 +49,7 @@ func main() {
 		listOnly    = flag.Bool("list", false, "Only list remote packets")
 		noCK        = flag.Bool("nock", false, "Do no checksum checking")
 		onlyPktsRaw = flag.String("pkts", "", "Recieve only that packets, comma separated")
+		mcdWait     = flag.Uint("mcd-wait", 60, "Wait for MCD for specified number of seconds")
 		rxRate      = flag.Int("rxrate", 0, "Maximal receive rate, pkts/sec")
 		txRate      = flag.Int("txrate", 0, "Maximal transmit rate, pkts/sec")
 		spoolPath   = flag.String("spool", "", "Override path to spool")
@@ -147,6 +150,41 @@ func main() {
 	} else {
 		for _, addr := range ctx.Neigh[*node.Id].Addrs {
 			addrs = append(addrs, addr)
+		}
+	}
+
+	if *mcdWait > 0 {
+		ifis, err := net.Interfaces()
+		if err != nil {
+			log.Fatalln("Can not get network interfaces list:", err)
+		}
+		for _, ifiReString := range ctx.MCDRxIfis {
+			ifiRe, err := regexp.CompilePOSIX(ifiReString)
+			if err != nil {
+				log.Fatalf("Can not compile POSIX regexp \"%s\": %s", ifiReString, err)
+			}
+			for _, ifi := range ifis {
+				if ifiRe.MatchString(ifi.Name) {
+					if err = ctx.MCDRx(ifi.Name); err != nil {
+						log.Printf("Can not run MCD reception on %s: %s", ifi.Name, err)
+					}
+				}
+			}
+		}
+		addrs = nil
+		for i := int(*mcdWait); i > 0; i-- {
+			nncp.MCDAddrsM.RLock()
+			for _, mcdAddr := range nncp.MCDAddrs[*node.Id] {
+				addrs = append(addrs, mcdAddr.Addr.String())
+			}
+			if len(addrs) > 0 {
+				break
+			}
+			nncp.MCDAddrsM.RUnlock()
+			time.Sleep(time.Second)
+		}
+		if len(addrs) == 0 {
+			log.Fatalf("No MCD packets from the node during %d seconds", *mcdWait)
 		}
 	}
 

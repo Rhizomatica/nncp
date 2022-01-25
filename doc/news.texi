@@ -3,6 +3,25 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_4_0
+@section Release 8.4.0
+@itemize
+
+@item
+Multicast related interface names (@code{mcd-listen} and @code{mcd-send}
+configuration options) are now regular expressions. By default
+@command{nncp-cfgnew} uncomments them now with @code{.*} interface name.
+
+@item
+@command{nncp-call} command has @option{-mcd-wait} option to wait for
+multicast packet about node's address.
+
+@item
+@command{nncp-file} command skips everything that is neither regular
+file nor directory during pax-archive creation.
+
+@end itemize
+
 @node Release 8_3_0
 @section Release 8.3.0
 @itemize
