@@ -10,6 +10,10 @@ See also this page @ref{Новости, on russian}.
 @item
 Fixed @command{nncp-bundle} workability.
 
+@item
+Mistakenly @option{-mcd-wait} option was enabled by default in
+@command{nncp-call}.
+
 @end itemize
 
 @node Release 8_4_0

@@ -8,6 +8,10 @@
 @item
 Исправлена работоспособность @command{nncp-bundle}.
 
+@item
+По ошибке @option{-mcd-wait} опция у @command{nncp-call} была включена
+по умолчанию.
+
 @end itemize
 
 @node Релиз 8.4.0
