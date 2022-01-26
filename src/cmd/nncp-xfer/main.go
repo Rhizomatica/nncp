@@ -218,7 +218,7 @@ func main() {
 				continue
 			}
 			pktEnc, pktEncRaw, err := ctx.HdrRead(fd)
-			if err != nil {
+			if err == nil {
 				switch pktEnc.Magic {
 				case nncp.MagicNNCPEv1.B:
 					err = nncp.MagicNNCPEv1.TooOld()
@@ -229,6 +229,8 @@ func main() {
 				case nncp.MagicNNCPEv4.B:
 					err = nncp.MagicNNCPEv4.TooOld()
 				case nncp.MagicNNCPEv5.B:
+					err = nncp.MagicNNCPEv5.TooOld()
+				case nncp.MagicNNCPEv6.B:
 				default:
 					err = errors.New("is not an encrypted packet")
 				}
