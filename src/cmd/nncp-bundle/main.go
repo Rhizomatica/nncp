@@ -316,6 +316,8 @@ func main() {
 			case nncp.MagicNNCPEv4.B:
 				err = nncp.MagicNNCPEv4.TooOld()
 			case nncp.MagicNNCPEv5.B:
+				err = nncp.MagicNNCPEv5.TooOld()
+			case nncp.MagicNNCPEv6.B:
 			default:
 				err = errors.New("Bad packet magic number")
 			}

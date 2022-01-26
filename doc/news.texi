@@ -3,6 +3,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_5_0
+@section Release 8.5.0
+@itemize
+
+@item
+Fixed @command{nncp-bundle} workability.
+
+@end itemize
+
 @node Release 8_4_0
 @section Release 8.4.0
 @itemize
