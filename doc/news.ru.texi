@@ -1,6 +1,27 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.5.0
+@subsection Релиз 8.5.0
+@itemize
+
+@item
+Исправлена работоспособность @command{nncp-bundle}.
+
+@item
+По ошибке @option{-mcd-wait} опция у @command{nncp-call} была включена
+по умолчанию.
+
+@item
+Возможность переопределять внутренний timeout по умолчанию для протокола
+синхронизации через @env{$NNCPDEADLINE} переменную окружения. Может быть
+полезно для каналов с очень большими задержками.
+
+@item
+NNCP собирается на OpenBSD.
+
+@end itemize
+
 @node Релиз 8.4.0
 @subsection Релиз 8.4.0
 @itemize

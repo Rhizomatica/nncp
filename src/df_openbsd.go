@@ -1,5 +1,5 @@
-//go:build !netbsd && !openbsd
-// +build !netbsd,!openbsd
+//go:build openbsd
+// +build openbsd
 
 package nncp
 
@@ -14,5 +14,5 @@ func (ctx *Ctx) IsEnoughSpace(want int64) bool {
 	if err := unix.Statfs(ctx.Spool, &s); err != nil {
 		log.Fatalln("Can not stat spool:", err)
 	}
-	return int64(s.Bavail)*int64(s.Bsize) > want
+	return int64(s.F_bavail)*int64(s.F_bsize) > want
 }

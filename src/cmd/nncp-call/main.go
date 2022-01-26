@@ -49,7 +49,7 @@ func main() {
 		listOnly    = flag.Bool("list", false, "Only list remote packets")
 		noCK        = flag.Bool("nock", false, "Do no checksum checking")
 		onlyPktsRaw = flag.String("pkts", "", "Recieve only that packets, comma separated")
-		mcdWait     = flag.Uint("mcd-wait", 60, "Wait for MCD for specified number of seconds")
+		mcdWait     = flag.Uint("mcd-wait", 0, "Wait for MCD for specified number of seconds")
 		rxRate      = flag.Int("rxrate", 0, "Maximal receive rate, pkts/sec")
 		txRate      = flag.Int("txrate", 0, "Maximal transmit rate, pkts/sec")
 		spoolPath   = flag.String("spool", "", "Override path to spool")
