@@ -12,6 +12,11 @@ high-delay links, so acknowledging of each received packet, like
 @url{https://en.wikipedia.org/wiki/XMODEM, XMODEM} does, causes
 unacceptable performance degradation.
 
+Internally it uses various timeouts and deadlines. One of them used
+extensively is 10 seconds default deadline timeout. You can override it
+with @env{$NNCPDEADLINE} environment variable, that could be useful with
+very high delay links.
+
 SP works on top of
 @url{http://noiseprotocol.org/noise.html#interactive-patterns,
 @code{Noise_IK_25519_ChaChaPoly_BLAKE2b}} protocol. Each Noise packet

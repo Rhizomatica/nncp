@@ -27,6 +27,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 
@@ -39,6 +40,7 @@ const (
 	MaxSPSize      = 1<<16 - 256
 	PartSuffix     = ".part"
 	SPHeadOverhead = 4
+	CfgDeadline    = "NNCPDEADLINE"
 )
 
 type MTHAndOffset struct {
@@ -132,6 +134,14 @@ type ConnDeadlined interface {
 }
 
 func init() {
+	if v := os.Getenv(CfgDeadline); v != "" {
+		i, err := strconv.Atoi(v)
+		if err != nil {
+			log.Fatalln("Can not convert", CfgDeadline, "to integer:", err)
+		}
+		DefaultDeadline = time.Duration(i) * time.Second
+	}
+
 	var buf bytes.Buffer
 	spHead := SPHead{Type: SPTypeHalt}
 	if _, err := xdr.Marshal(&buf, spHead); err != nil {
