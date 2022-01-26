@@ -14,6 +14,11 @@ Fixed @command{nncp-bundle} workability.
 Mistakenly @option{-mcd-wait} option was enabled by default in
 @command{nncp-call}.
 
+@item
+Ability to override internal default timeout for online protocol through
+@env{$NNCPDEADLINE} environment variable. Can be useful for very high
+delay links.
+
 @end itemize
 
 @node Release 8_4_0
