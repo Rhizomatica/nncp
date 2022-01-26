@@ -19,6 +19,9 @@ Ability to override internal default timeout for online protocol through
 @env{$NNCPDEADLINE} environment variable. Can be useful for very high
 delay links.
 
+@item
+NNCP builds on OpenBSD.
+
 @end itemize
 
 @node Release 8_4_0
