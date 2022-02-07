@@ -42,4 +42,4 @@ endpoint, and other carrying it for intermediate relaying node.
 Pay attention that relaying node knows nothing about the packet inside,
 but just its size and priority. Transition packets are encrypted too:
 using well-known @url{https://en.wikipedia.org/wiki/Onion_routing, onion
-routing} technology. @emph{bob} can not read @emph{bob-airgap}'s packets.
+encryption} technology. @emph{bob} can not read @emph{bob-airgap}'s packets.
