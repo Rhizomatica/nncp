@@ -4,11 +4,14 @@
 Possibly NNCP package already exists for your distribution:
 
 @itemize
-@item @url{https://www.freshports.org/net/nncp/, FreeBSD ports}
+@item Arch Linux @url{https://aur.archlinux.org/packages/nncp, AUR}
+@item @url{https://tracker.debian.org/pkg/nncp, Debian packages}
 @item @url{https://github.com/DragonFlyBSD/DPorts/tree/master/net/nncp, DragonFly BSD ports}
+@item @url{https://www.freshports.org/net/nncp/, FreeBSD ports}
+@item GNU @url{https://git.savannah.gnu.org/cgit/guix.git/tree/gnu/packages/uucp.scm, Guix}
+@item @url{https://pkgsrc.se/wip/nncp, NetBSD package}
 @item @url{https://github.com/NixOS/nixpkgs/tree/master/pkgs/tools/misc/nncp, NixOS packages}
 @item @url{https://github.com/void-linux/void-packages/blob/master/srcpkgs/nncp/template, Void Linux}
-@item @url{https://tracker.debian.org/pkg/nncp, Debian packages}
 @end itemize
 
 NNCP should run on any POSIX-compatible operating system.
