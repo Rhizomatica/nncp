@@ -8,7 +8,7 @@ of those servers supports TLS and another just proxies the traffic to
 it. So TLS-capable version has less availability.
 
 It can be authenticated with
-@url{http://ca.cypherpunks.ru/, ca.cypherpunks.ru} certificate, through the
+@url{http://www.ca.cypherpunks.ru/, ca.cypherpunks.ru} certificate, through the
 @url{https://datatracker.ietf.org/doc/html/rfc6698, DANE} record, that
 in turn can be authenticated with
 @url{https://dnscurve.org/, DNSCurve}-secured
