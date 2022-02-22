@@ -18,6 +18,9 @@ signed with @code{CF60 E89A 5923 1E76 E263 6422 AE1A 8109 E498 57EF}
 @url{https://en.wikipedia.org/wiki/OpenPGP, OpenPGP}
 @url{http://www.stargrave.org/Contacts.html, public key}.
 
+Also there is @url{https://yggdrasil-network.github.io/, Yggdrasil}
+accessible address: @url{http://y.www.nncpgo.org/}.
+
 @table @asis
 
 @item @url{https://nncp.mirrors.quux.org/}
