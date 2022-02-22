@@ -26,6 +26,7 @@ A copy of the license is included in the section entitled "Copying conditions".
 There are also articles about its usage outside this website:
 
 @itemize
+@item @url{https://www.complete.org/nncp/, Various related articles} by John Goerzen
 @item @url{https://habr.com/en/post/330712/, NNCP: лечение online- и цензуро- зависимости store-and-forward методом} (on russian)
 @item @url{https://changelog.complete.org/archives/tag/nncp, Series of descriptive articles} by John Goerzen
 @item @url{https://www.youtube.com/watch?v=0i3r63pnyHM, Presentation of NNCP on Internet Freedom Conference 2019} (on russian)
