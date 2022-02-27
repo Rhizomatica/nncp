@@ -1,4 +1,6 @@
 @node Postfix
+@cindex Postfix integration
+@pindex postfix
 @section Integration with Postfix
 
 This section is taken from @url{http://www.postfix.org/UUCP_README.html,
@@ -31,6 +33,9 @@ node and after replacing @var{$recipient} by the recipients. The
 command without assistance from the shell, so there are no problems with
 shell meta characters in command-line parameters.
 
+@pindex sendmail.sh
+@vindex Return-Path
+@pindex reformail
 Pay attention to @code{flags}, containing @code{R}, telling Postfix to
 include @code{Return-Path:} header. Otherwise that envelope sender
 information may be lost. Possibly you will also need somehow to
@@ -42,6 +47,9 @@ extract with:
 
 @verbatiminclude sendmail.sh
 
+@vindex From_
+@cindex mbox
+@pindex maildrop
 Also pay attention that @command{maildrop} does not like @code{From_}
 mbox-style header, so you possibly want:
 

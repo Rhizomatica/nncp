@@ -1,4 +1,5 @@
 @node News
+@cindex news
 @unnumbered News
 
 See also this page @ref{Новости, on russian}.

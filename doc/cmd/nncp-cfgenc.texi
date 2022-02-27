@@ -1,4 +1,5 @@
 @node nncp-cfgenc
+@pindex nncp-cfgenc
 @section nncp-cfgenc
 
 @example

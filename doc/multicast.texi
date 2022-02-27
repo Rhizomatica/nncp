@@ -1,4 +1,5 @@
 @node Multicast
+@cindex multicast area
 @unnumbered Multicast areas
 
 NNCP has ability to multicast packets: send single packet to multiple
@@ -23,6 +24,7 @@ that encrypted packet to the others)
 can should it to the subscribers further
 @end itemize
 
+@vindex MsgHash
 Area's message identity (@code{MsgHash}) is the hash of the encrypted
 packet header. Because the area packet, containing the encrypted packet,
 is relayed as-is without any modifications, that area message's hash

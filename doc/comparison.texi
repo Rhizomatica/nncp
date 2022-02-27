@@ -1,4 +1,9 @@
 @node Comparison
+@cindex comparison
+@cindex SMTP
+@cindex FTN
+@cindex FidoNet
+@cindex UUCP
 @unnumbered Comparison with existing solutions
 
 Here is comparison with @url{https://en.wikipedia.org/wiki/UUCP, UUCP}
@@ -87,6 +92,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     UUCP and NNCP does not known nothing about routing. You have to
     explicitly tell how to send (what hops to use) packets to each node.
 
+@cindex PSTN
 @item PSTN support
     UUCP and FidoNet always have been working with modems out-of-box.
     Only many years later they gained support for working over TCP/IP
@@ -94,11 +100,15 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
     TCP daemon, but nothing prohibits using of another 8-bit aware
     online transport.
 
+@cindex anonymity
+@cindex Sybil attack
 @item Anonymous peers
     NNCP and FTN are friend-to-friend networks exclusively. This is very
     secure and mitigates many possible man-in-the-middle (MitM) and
     @url{https://en.wikipedia.org/wiki/Sybil_attack, Sybil} attacks.
 
+@cindex sneakernet
+@cindex floppynet
 @item Sneakernet friendliness
     No one, except NNCP, supports data exchanging via removable storages
     likes flash drives, CD-ROMs, tapes and hard drives out-of-box. It
@@ -108,6 +118,7 @@ FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 
 @end table
 
+@cindex UUCP commands
 Also there is
 @url{https://changelog.complete.org/archives/10165-asynchronous-email-exim-over-nncp-or-uucp, copy of}
 comparable commands of UUCP and NNCP, just for the interest:
@@ -115,6 +126,11 @@ comparable commands of UUCP and NNCP, just for the interest:
 @multitable @columnfractions 0.5 0.25 0.25
 @headitem Purpose @tab UUCP @tab NNCP
 
+@pindex uucico
+@pindex uupoll
+@pindex uux
+@pindex uucp
+@pindex uuxqt
 @item Connect to remote system
     @tab @command{uucico -s}, @command{uupoll}
     @tab @command{nncp-call}, @command{nncp-caller}

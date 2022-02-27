@@ -1,4 +1,7 @@
 @node PPP
+@cindex PPP
+@cindex serial link
+@cindex serial connection
 @section Serial connection
 
 It is not trivial to run online @command{nncp-daemon},

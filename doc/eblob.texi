@@ -1,4 +1,6 @@
 @node EBlob
+@cindex eblob
+@cindex encrypted configuration
 @unnumbered EBlob format
 
 EBlob is an encrypted blob (binary large object, in the terms of
@@ -20,6 +22,9 @@ is @strong{not} the password. Password is a short string of high entropy
 low-entropy characters. Low-entropy text is much more easier to
 remember, and its length provides pretty enough entropy as a result.
 
+@cindex password
+@cindex balloon
+@cindex Argon2
 Password strengthening function is applied to that passphrase to
 mitigate brute-force and dictionary attacks on it. Here,
 @url{https://crypto.stanford.edu/balloon/, Balloon} memory-hard password

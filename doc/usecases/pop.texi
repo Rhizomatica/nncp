@@ -1,4 +1,6 @@
 @node UsecasePOP
+@cindex POP3 replacement
+@cindex IMAP4 replacement
 @section Lightweight fast POP3/IMAP4 replacement
 
 @ref{nncp-daemon} can be connected with @ref{nncp-caller} for a long

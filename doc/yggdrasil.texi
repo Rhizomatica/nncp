@@ -1,4 +1,5 @@
 @node Yggdrasil
+@cindex yggdrasil
 @unnumbered Yggdrasil support
 
 NNCP is able to act as a node of
@@ -26,13 +27,13 @@ Only minor modifications were done to current NNCP's tools:
 
 @itemize
 
-@item @ref{nncp-daemon} has @option{-yggdrasil yggdrasils://} option,
+@cindex yggdrasils schema
 making it also as a Yggdrasil listener network node. It can
 automatically connect to other peers and participate in routing. It does
 not have to answer NNCP's online protocol requests at all and just can
 be some intermediate routing point in the whole mesh network.
 
-@item @ref{nncp-call}/@ref{nncp-caller} commands understand
+@cindex yggdrasilc schema
 @code{yggdrasilc://} addresses, pointing to the desired Yggdrasil's
 public key (that also acts as the destination host's address). Yggdrasil
 background goroutine is automatically started, connecting to the
@@ -68,20 +69,24 @@ You have to specify:
 
 @itemize
 
+@vindex PrivateKey
 @item
 Your private key (generated above). Yggdrasil's @code{PrivateKey} analogue.
 
 @item
 Optional non-default port you will listen on Yggdrasil's IPv6 address.
 
+@vindex Listen
 @item
 Optional list of bind addresses, used for peering between the nodes.
 Yggdrasil's @code{Listen} analogue.
 
+@vindex Peers
 @item
 Optional list of peer addresses you should connect to.
 Yggdrasil's @code{Peers} analogue.
 
+@vindex AllowedPublicKeys
 @item
 Optional list of allowed peer public keys, allowed for incoming peering
 connections from. Yggdrasil's @code{AllowedPublicKeys} analogue.

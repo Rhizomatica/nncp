@@ -1,4 +1,7 @@
 @node CfgNotify
+@cindex email notification
+@cindex notification configuration options
+@cindex logging handles
 @section Configuration notification options
 
 That section controls what notifications are enabled and how must be

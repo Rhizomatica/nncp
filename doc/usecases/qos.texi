@@ -1,4 +1,7 @@
 @node UsecaseQoS
+@cindex expensive link
+@cindex slow link
+@cindex bad QoS
 @section Slow/expensive link for high-volume data, bad QoS
 
 Assume that you can give your relatively cheap 2 TiB removable hard

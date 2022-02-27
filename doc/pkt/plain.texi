@@ -1,4 +1,5 @@
 @node Plain
+@cindex plain packet
 @section Plain packet
 
 Plain packet contains either the whole file, or file request (freq), or

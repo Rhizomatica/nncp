@@ -1,4 +1,5 @@
 @node Configuration directory
+@cindex configuration directory
 @section Configuration directory
 
 Optionally you can convert configuration file to the directory layout
@@ -97,6 +98,7 @@ instead of @file{.hjson} file. It will be transparently converted to
 internal JSON representation. However it can not be encrypted with the
 @ref{nncp-cfgenc}.
 
+@cindex private keys
 That layout should be much more machine friendly and scriptable. Each
 string parameters is stored as a single line plain text file. String
 arrays are newline-separated plain text files. Dictionaries are

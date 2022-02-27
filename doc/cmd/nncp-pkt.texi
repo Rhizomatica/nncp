@@ -1,4 +1,5 @@
 @node nncp-pkt
+@pindex nncp-pkt
 @section nncp-pkt
 
 @example

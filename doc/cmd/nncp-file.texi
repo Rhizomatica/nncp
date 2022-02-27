@@ -1,4 +1,5 @@
 @node nncp-file
+@pindex nncp-file
 @section nncp-file
 
 @example

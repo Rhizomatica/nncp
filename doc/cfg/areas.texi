@@ -1,4 +1,5 @@
 @node CfgAreas
+@vindex areas
 @section Configuration areas options
 
 @ref{Multicast} areas configuration only used with multicast packets.
@@ -36,6 +37,7 @@ Each key is human readable multicast group/area/echo name.
 The only required field is the @code{id}. You can not process multicast
 packets that has unknown area identification.
 
+@vindex subs
 @code{subs} contains a list of recipients you must relay incoming
 multicast packet on.
 

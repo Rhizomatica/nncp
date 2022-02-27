@@ -1,4 +1,6 @@
 @node Call
+@cindex call
+@vindex calls
 @unnumbered Call configuration
 
 Call is a rule when and how node can be called by @ref{nncp-caller}.
@@ -51,17 +53,23 @@ It contains the following fields (only @emph{cron} is required):
 
 @table @emph
 
+@vindex cron
 @item cron
 @include cronexpr.texi
 
+@vindex nice
 @item nice
 Optional. Use that @ref{Niceness, niceness} during the call (255 is used
 otherwise).
 
+@vindex xx
+@vindex rx
+@vindex tx
 @item xx
 Optional. Either @verb{|rx|} or @verb{|tx|}. Tells only to either to
 receive or to transmit data during that call.
 
+@vindex addr
 @item addr
 Optional. Call only that address, instead of trying all from
 @ref{CfgAddrs, @emph{addrs}} configuration option. It can be either key
@@ -79,11 +87,13 @@ configuration option when calling.
 Optional. Override @ref{CfgMaxOnlineTime, @emph{maxonlinetime}}
 configuration option when calling.
 
+@vindex autotoss
 @item autotoss, -doseen, -nofile, -nofreq, -noexec, -notrns
 Optionally enable auto tossing: run tosser on node's spool every second
 during the call. You can control either are @file{seen/} files must be
 created, or skip any kind of packet processing.
 
+@vindex when-tx-exists
 @item when-tx-exists
 Call only if packets for sending exists. The check of outbound packets
 existence is performed @strong{every} time we are going to make a call,
@@ -91,6 +101,7 @@ but @emph{when-tx-exists} does not influence @emph{cron}. When
 @emph{cron} configuration decides that it is time to make a call, with
 @emph{when-tx-exists} option it checks packets existence first.
 
+@vindex nock
 @anchor{CfgNoCK}
 @item nock
 NoCK (no-checksumming) tells not to do checksumming of received files,
@@ -101,6 +112,7 @@ received one, but just sequential writing of the file. Pay attention
 that you have to make a call to remote node after checksumming is done,
 to send notification about successful packet reception.
 
+@vindex mcd-ignore
 @anchor{CfgMCDIgnore}
 @item mcd-ignore
 Ignore @ref{MCD} announcements: do not add MCD addresses for possible

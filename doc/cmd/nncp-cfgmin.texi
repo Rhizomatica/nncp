@@ -1,4 +1,7 @@
 @node nncp-cfgmin
+@cindex stripped configuration
+@cindex minimized configuration
+@pindex nncp-cfgmin
 @section nncp-cfgmin
 
 @example

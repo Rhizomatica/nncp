@@ -1,4 +1,6 @@
 @node Niceness
+@cindex niceness
+@cindex priority
 @unnumbered Niceness
 
 Each transmitted packet has niceness level, as Unix has @command{nice}
@@ -18,12 +20,16 @@ There are 1-255 niceness levels. They could be specified either as
 integer, or using aliases with delta modifiers:
 
 @table @emph
+@vindex FLASH
 @item FLASH (F)
 Urgent priority.
+@vindex PRIORITY
 @item PRIORITY (P)
 High priority. Command execution/mail use that priority by default.
+@vindex NORMAL
 @item NORMAL (N)
 Normal priority. File requests use that priority by default.
+@vindex BULK
 @item BULK (B)
 Bundles shipped on a "least effort" basis. File transmission use that
 priority by default.

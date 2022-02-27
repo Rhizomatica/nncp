@@ -1,4 +1,7 @@
 @node Sources
+@cindex sources
+@cindex source code
+@cindex git
 @section Development source code
 
 Development source code contains the latest version of the code. It may

@@ -1,4 +1,5 @@
 @node UsecaseSpy
+@cindex reconnaissance, spying, intelligence, covert operations
 @section Reconnaissance, spying, intelligence, covert agents
 
 Those guys know how Internet is a dangerous place incompatible with

@@ -1,4 +1,5 @@
 @node Integration
+@cindex integration with existing software
 @unnumbered Integration with existing software
 
 Here is some examples of how you can solve popular tasks with NNCP,

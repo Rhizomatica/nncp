@@ -1,4 +1,5 @@
 @node nncp-exec
+@pindex nncp-exec
 @section nncp-exec
 
 @example
@@ -22,6 +23,9 @@ exec: {
 }
 @end verbatim
 
+@vindex NNCP_SELF
+@vindex NNCP_SENDER
+@vindex NNCP_NICE
 then executing @verb{|echo My message | nncp-exec -replynice 123 REMOTE
 sendmail root@localhost|} will lead to execution of:
 

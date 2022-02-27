@@ -1,4 +1,5 @@
 @node Mirrors
+@cindex mirror
 @unnumbered Mirrors
 
 Main NNCP website is hosted on two geographically distant servers
@@ -7,6 +8,9 @@ connectivity is provided by Hurricane Electric tunnel broker. Only one
 of those servers supports TLS and another just proxies the traffic to
 it. So TLS-capable version has less availability.
 
+@cindex DANE
+@cindex DNSCurve
+@cindex ca.cypherpunks.ru
 It can be authenticated with
 @url{http://www.ca.cypherpunks.ru/, ca.cypherpunks.ru} certificate, through the
 @url{https://datatracker.ietf.org/doc/html/rfc6698, DANE} record, that
@@ -23,6 +27,7 @@ accessible address: @url{http://y.www.nncpgo.org/}.
 
 @table @asis
 
+@cindex quux.org
 @item @url{https://nncp.mirrors.quux.org/}
 
 Its creation @url{http://lists.cypherpunks.ru/archive/nncp-devel/2108/0310.html, announcement}.

@@ -1,6 +1,8 @@
 @node Configuration
+@cindex configuration file
 @unnumbered Configuration file
 
+@cindex Hjson
 NNCP uses single file configuration file in @url{https://hjson.org/,
 Hjson} format (see also section about @ref{Configuration directory,
 directory layout}) . Initially it is created with @ref{nncp-cfgnew}
@@ -30,6 +32,10 @@ neigh: {
 }
 @end verbatim
 
+@cindex JSON
+@pindex hjson-cli
+@pindex gojq
+@pindex gjo
 Do not forget that Hjson can be safely converted to JSON and vice versa
 (loosing formatting and comments of course). By default
 @command{hjson-cli} utility from @code{github.com/hjson/hjson-go} is

@@ -1,4 +1,5 @@
 @node nncp-caller
+@pindex nncp-caller
 @section nncp-caller
 
 @example

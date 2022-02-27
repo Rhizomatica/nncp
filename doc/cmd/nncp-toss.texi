@@ -1,4 +1,5 @@
 @node nncp-toss
+@pindex nncp-toss
 @section nncp-toss
 
 @example
