@@ -1,4 +1,8 @@
 @node Tarballs
+@cindex tarball
+@cindex dependency
+@cindex licencing
+@cindex download
 @section Prepared tarballs
 
 You can obtain releases source code prepared tarballs from the links below.

@@ -1,4 +1,5 @@
 @node Administration
+@cindex administration
 @unnumbered Administration
 
 NNCP uses following files/directories you should be aware of:
@@ -29,6 +30,9 @@ NNCP uses following files/directories you should be aware of:
 
     All of that cleaning tasks can be done with @ref{nncp-rm} utility.
 
+    @cindex shared spool
+    @cindex setgid
+    @pindex umask
     @anchor{Shared spool}
     If you want to share single spool directory with multiple grouped
     Unix users, then you can @command{setgid} it and assure that umask
@@ -47,6 +51,7 @@ $ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
     @ref{Log} file, for example @file{/var/spool/nncp/log}. It should be
     rotated. Choose you own preferable way to do it.
 
+    @pindex newsyslog
     Example @url{https://www.newsyslog.org/manual.html, newsyslog}'s entry:
 @example
 /var/spool/nncp/log		644	7	100	*	BCYN
@@ -62,6 +67,9 @@ $ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
 */1	*	*	*	*	nncp-reass -all -noprogress
 @end example
 
+@pindex daemontools
+@pindex supervise
+@pindex multilog
 @item
     Possibly long running @ref{nncp-daemon}, @ref{nncp-caller},
     @ref{nncp-toss}, @ref{nncp-check} daemons. As all software, they can
@@ -90,6 +98,7 @@ EOF
 # mv /var/service/.nncp-toss /var/service/nncp-toss
 @end example
 
+@pindex inetd
 @item
     @ref{nncp-daemon} can also be run as
     @url{https://en.wikipedia.org/wiki/Inetd, inetd} service on UUCP's port:
@@ -98,6 +107,8 @@ EOF
 uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -ucspi
 @end example
 
+@cindex UCSPI
+@pindex tcpserver
 @item
     Or it can be also run as a @command{daemontools} daemon under
     @url{http://cr.yp.to/ucspi-tcp.html, UCSPI-TCP}. In the example

@@ -1,4 +1,6 @@
 @node MCD
+@cindex MCD
+@cindex multicast discovery
 @unnumbered MultiCast Discovery
 
 MCD is an addition to online @ref{Sync, synchronization protocol}, that

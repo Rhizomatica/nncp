@@ -17,12 +17,17 @@ A copy of the license is included in the section entitled "Copying conditions".
 @end copying
 
 @node Top
+@c dummy cindex, to pass through the current info's bug, which can skip
+@c the first index entry during searching
+@cindex 0
 @top NNCP
 
+@cindex Pedro
 @verbatiminclude pedro.txt
 
 @include about.texi
 
+@cindex articles
 There are also articles about its usage outside this website:
 
 @itemize
@@ -61,6 +66,7 @@ There are also articles about its usage outside this website:
 * EBlob format: EBlob
 * Mirrors::
 * Thanks::
+* Indices::
 * Contacts and feedback: Contacts
 * Copying conditions: Copying
 @end menu
@@ -90,6 +96,7 @@ There are also articles about its usage outside this website:
 @include eblob.texi
 @include mirrors.texi
 @include thanks.texi
+@include indices.texi
 @include contacts.texi
 
 @node Copying

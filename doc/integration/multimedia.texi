@@ -1,4 +1,8 @@
 @node Multimedia
+@cindex multimedia integration
+@cindex pindex youtube-dl
+@cindex pindex yt-dlp
+@cindex cindex YouTube
 @section Integration with multimedia streaming
 
 Many video and audio streams could be downloaded using

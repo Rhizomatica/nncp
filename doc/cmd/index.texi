@@ -1,9 +1,11 @@
 @node Commands
+@cindex commands
 @unnumbered Commands
 
 Nearly all commands have the following common options:
 
 @table @option
+@vindex NNCPCFG
 @item -cfg
     Path to configuration file. May be overridden by @env{$NNCPCFG}
     environment variable. If file file is an encrypted @ref{EBlob,
@@ -24,9 +26,11 @@ Nearly all commands have the following common options:
     Override @ref{CfgVia, via} configuration option for destination node.
     Specified nodes must be separated with comma: @verb{|NODE1,NODE2|}.
     With @verb{|-via -|} you can disable relaying at all.
+@vindex NNCPSPOOL
 @item -spool
     Override path to spool directory. May be specified by
     @env{$NNCPSPOOL} environment variable.
+@vindex NNCPLOG
 @item -log
     Override path to logfile. May be specified by @env{$NNCPLOG}
     environment variable.

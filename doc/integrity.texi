@@ -1,4 +1,10 @@
 @node Integrity
+@cindex integrity check
+@cindex authenticity check
+@cindex OpenPGP
+@cindex gpg
+@cindex GnuPG
+@cindex WKD
 @section Tarballs integrity check
 
 You @strong{have to} check downloaded archives integrity and verify

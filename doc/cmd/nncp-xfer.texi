@@ -1,4 +1,5 @@
 @node nncp-xfer
+@pindex nncp-xfer
 @section nncp-xfer
 
 @example

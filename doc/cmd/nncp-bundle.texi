@@ -1,4 +1,5 @@
 @node nncp-bundle
+@pindex nncp-bundle
 @section nncp-bundle
 
 @example

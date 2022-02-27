@@ -1,4 +1,8 @@
 @node Log
+@cindex log format
+@cindex logging
+@cindex recfile
+@pindex recutils
 @unnumbered Log format
 
 Log is a plaintext file consisting of

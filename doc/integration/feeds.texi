@@ -1,6 +1,10 @@
 @node Feeds
+@cindex Web feeds integration
+@cindex RSS feeds integration
+@cindex Atom feeds integration
 @section Integration with Web feeds
 
+@pindex r2e
 RSS and Atom feeds could be collected using
 @url{https://github.com/wking/rss2email, rss2email} program. It converts
 all incoming feed entries to email messages. Read about how to integrate

@@ -1,4 +1,6 @@
 @node UsecaseNoLink
+@cindex extreme environments
+@cindex lack of link
 @section Extreme terrestrial environments, no link
 
 This is some kind of too slow link. Offline delivery methods is the only

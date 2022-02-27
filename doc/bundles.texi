@@ -1,4 +1,7 @@
 @node Bundles
+@cindex bundles
+@cindex tapes
+@cindex streaming media
 @unnumbered Bundles
 
 Usual @ref{nncp-xfer} command requires filesystem it can operate on.
@@ -48,6 +51,8 @@ can contain mix of various recipients.
 
 @end itemize
 
+@pindex pax
+@pindex tar
 Technically bundle is valid POSIX.1-2001
 @url{https://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html#tag_20_92_13_01, pax archive}
 with directory/files hierarchy identical to that is used in

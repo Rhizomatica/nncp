@@ -1,4 +1,5 @@
 @node nncp-log
+@pindex nncp-log
 @section nncp-log
 
 @example

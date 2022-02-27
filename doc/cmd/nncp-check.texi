@@ -1,4 +1,5 @@
 @node nncp-check
+@pindex nncp-check
 @section nncp-check
 
 @example

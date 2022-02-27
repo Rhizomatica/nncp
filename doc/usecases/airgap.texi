@@ -1,4 +1,5 @@
 @node UsecaseAirgap
+@cindex air-gap
 @section Highly secure isolated air-gap computers
 
 If you worry much about security, then air-gapped computer could be the

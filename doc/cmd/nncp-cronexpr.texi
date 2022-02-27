@@ -1,4 +1,5 @@
 @node nncp-cronexpr
+@pindex nncp-cronexpr
 @section nncp-cronexpr
 
 @example

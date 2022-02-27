@@ -1,4 +1,5 @@
 @node nncp-reass
+@pindex nncp-reass
 @section nncp-reass
 
 @example

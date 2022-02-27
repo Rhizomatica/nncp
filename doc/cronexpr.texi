@@ -1,3 +1,4 @@
+@cindex cron
 @anchor{CronExpr}
 This is copy-pasted documentation from
 @code{github.com/gorhill/cronexpr} library used there.

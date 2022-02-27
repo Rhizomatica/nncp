@@ -1,4 +1,5 @@
 @node BitTorrent
+@cindex BitTorrent integration
 @section BitTorrent and huge files
 
 If dealing with @ref{Git}, @ref{Feeds, web feeds} and @ref{Multimedia,
@@ -6,6 +7,7 @@ multimedia} goes relatively fast, then BitTorrent and huge files
 consumes much time. You can not wait for downloads finish, but want to
 queue them after.
 
+@pindex aria2
 @url{http://aria2.github.io/, aria2} multi-protocol download utility
 could be used for solving that issue conveniently. It supports HTTP,
 HTTPS, FTP, SFTP and BitTorrent protocols, together with
@@ -15,6 +17,7 @@ URIs, Web-seeding, selective downloads, LPD. @command{aria2} can
 accelerate HTTP*/*FTP downloads by segmented multiple parallel
 connections.
 
+@pindex aria2-downloaded.sh
 You can queue you files after they are completely downloaded.
 @file{aria2-downloaded.sh} contents:
 
