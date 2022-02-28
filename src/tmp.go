@@ -28,6 +28,12 @@ import (
 	"time"
 )
 
+var NoSync bool
+
+func init() {
+	NoSync = os.Getenv(CfgNoSync) != ""
+}
+
 func TempFile(dir, prefix string) (*os.File, error) {
 	// Assume that probability of suffix collision is negligible
 	suffix := strconv.FormatInt(time.Now().UnixNano()+int64(os.Getpid()), 16)
@@ -77,6 +83,9 @@ func (tmp *TmpFileWHash) Cancel() {
 }
 
 func DirSync(dirPath string) error {
+	if NoSync {
+		return nil
+	}
 	fd, err := os.Open(dirPath)
 	if err != nil {
 		return err
@@ -102,9 +111,11 @@ func (tmp *TmpFileWHash) Commit(dir string) error {
 		tmp.Fd.Close()
 		return err
 	}
-	if err = tmp.Fd.Sync(); err != nil {
-		tmp.Fd.Close()
-		return err
+	if !NoSync {
+		if err = tmp.Fd.Sync(); err != nil {
+			tmp.Fd.Close()
+			return err
+		}
 	}
 	if err = tmp.Fd.Close(); err != nil {
 		return err
