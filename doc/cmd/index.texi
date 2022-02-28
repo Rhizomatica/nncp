@@ -69,6 +69,7 @@ Packets creation commands
 * nncp-exec::
 * nncp-freq::
 * nncp-trns::
+* nncp-ack::
 
 Packets sharing commands
 
@@ -105,6 +106,7 @@ Maintenance, monitoring and debugging commands:
 @include cmd/nncp-exec.texi
 @include cmd/nncp-freq.texi
 @include cmd/nncp-trns.texi
+@include cmd/nncp-ack.texi
 @include cmd/nncp-xfer.texi
 @include cmd/nncp-bundle.texi
 @include cmd/nncp-toss.texi

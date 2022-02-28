@@ -28,6 +28,7 @@ drive.
     @item trns (transition)
     @item exec-fat (uncompressed exec)
     @item area (@ref{Multicast, multicast} area message)
+    @item ack (receipt acknowledgement)
     @end enumerate
 @item Niceness @tab
     unsigned integer @tab
@@ -44,6 +45,7 @@ drive.
     @item UTF-8 encoded, zero byte separated, exec's arguments
     @item Node's id the transition packet must be relayed on
     @item Multicast area's id
+    @item Packet's id (its @ref{MTH} hash)
     @end itemize
 @end multitable
 
@@ -62,6 +64,7 @@ Depending on the packet's type, payload could store:
     compressed exec body
 @item Whole encrypted packet we need to relay on
 @item Multicast area message wrap with another encrypted packet inside
+@item Nothing, if it is acknowledgement packet
 @end itemize
 
 Also depending on packet's type, niceness level means:
@@ -141,5 +144,16 @@ So plain packets can hold following paths and payloads:
    PATHLEN
 @end example
 See also @ref{Encrypted area, encrypted area packet}.
+
+@item ack
+@example
+  +------- PATH --------+
+ /                       \
++-------------------------+
+|  PKT ID | 0x00 ... 0x00 |
++-------------------------+
+ \       /
+  PATHLEN
+@end example
 
 @end table

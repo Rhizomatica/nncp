@@ -36,3 +36,6 @@ $ nncp-xfer /media/usbstick
 to find all packets related to their node and copy them locally for
 further processing. @command{@ref{nncp-xfer}} is the only command used with
 removable devices.
+
+You can also optionally wait for explicit packets receipt
+acknowledgement as described in @command{@ref{nncp-ack}}.
