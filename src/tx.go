@@ -453,7 +453,7 @@ func (ctx *Ctx) TxFile(
 		}
 		logMsg := func(les LEs) string {
 			return fmt.Sprintf(
-				"File %s (%s) sent to %s:%s",
+				"File %s (%s) is sent to %s:%s",
 				srcPath,
 				humanize.IBytes(uint64(finalSize)),
 				ctx.NodeName(node.Id),
@@ -497,7 +497,7 @@ func (ctx *Ctx) TxFile(
 		}
 		logMsg := func(les LEs) string {
 			return fmt.Sprintf(
-				"File %s (%s) sent to %s:%s",
+				"File %s (%s) is sent to %s:%s",
 				srcPath,
 				humanize.IBytes(uint64(size)),
 				ctx.NodeName(node.Id),
@@ -558,7 +558,7 @@ func (ctx *Ctx) TxFile(
 	}
 	logMsg := func(les LEs) string {
 		return fmt.Sprintf(
-			"File %s (%s) sent to %s:%s",
+			"File %s (%s) is sent to %s:%s",
 			srcPath,
 			humanize.IBytes(uint64(metaPktSize)),
 			ctx.NodeName(node.Id),
@@ -604,7 +604,7 @@ func (ctx *Ctx) TxFreq(
 	}
 	logMsg := func(les LEs) string {
 		return fmt.Sprintf(
-			"File request from %s:%s to %s sent",
+			"File request from %s:%s to %s is sent",
 			ctx.NodeName(node.Id), srcPath,
 			dstPath,
 		)
@@ -675,7 +675,7 @@ func (ctx *Ctx) TxExec(
 	}
 	logMsg := func(les LEs) string {
 		return fmt.Sprintf(
-			"Exec sent to %s@%s (%s)",
+			"Exec is sent to %s@%s (%s)",
 			ctx.NodeName(node.Id), dst, humanize.IBytes(uint64(size)),
 		)
 	}
