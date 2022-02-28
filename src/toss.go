@@ -329,16 +329,18 @@ func jobProcess(
 				})
 				return err
 			}
-			if err = tmp.Sync(); err != nil {
-				tmp.Close()
-				ctx.LogE("rx-sync", les, err, func(les LEs) string {
-					return fmt.Sprintf(
-						"Tossing file %s/%s (%s): %s: syncing",
-						sender.Name, pktName,
-						humanize.IBytes(pktSize), dst,
-					)
-				})
-				return err
+			if !NoSync {
+				if err = tmp.Sync(); err != nil {
+					tmp.Close()
+					ctx.LogE("rx-sync", les, err, func(les LEs) string {
+						return fmt.Sprintf(
+							"Tossing file %s/%s (%s): %s: syncing",
+							sender.Name, pktName,
+							humanize.IBytes(pktSize), dst,
+						)
+					})
+					return err
+				}
 			}
 			if err = tmp.Close(); err != nil {
 				ctx.LogE("rx-close", les, err, func(les LEs) string {

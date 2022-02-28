@@ -38,6 +38,7 @@ const (
 	CfgPathEnv  = "NNCPCFG"
 	CfgSpoolEnv = "NNCPSPOOL"
 	CfgLogEnv   = "NNCPLOG"
+	CfgNoSync   = "NNCPNOSYNC"
 )
 
 var (

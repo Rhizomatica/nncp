@@ -4,6 +4,19 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_6_0
+@section Release 8.6.0
+@itemize
+
+@item
+Ability to turn @code{fsync} operation off using @env{$NNCPNOSYNC=1}
+environment variable.
+
+@item
+Added various indices in documentation, that should help searching in it.
+
+@end itemize
+
 @node Release 8_5_0
 @section Release 8.5.0
 @itemize
@@ -298,7 +311,7 @@ command.
 @itemize
 
 @item
-Fixed failing directories fsync after @file{.seen} file creation.
+Fixed failing directories @code{fsync} after @file{.seen} file creation.
 
 @end itemize
 
@@ -700,7 +713,7 @@ Bugfix: private and public Noise keys were swapped in newly created
 configuration files, that lead to inability to authenticate online peers.
 
 @item
-Explicit directories fsync-ing for guaranteed files renaming.
+Explicit directories @code{fsync}-ing for guaranteed files renaming.
 
 @end itemize
 

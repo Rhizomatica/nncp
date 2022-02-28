@@ -49,6 +49,12 @@ Nearly all commands have the following common options:
 @vindex TMPDIR
 All commands respect @env{$TMPDIR} environment variable.
 
+@vindex NNCPNOSYNC
+If you set @env{$NNCPNOSYNC=1}, then all @code{fsync} operations will be
+skipped. That is dangerous option, but if there there are abilities to
+rollback possibly corrupted state to some stable snapshot, then disabled
+@code{fsync} can give considerable increase in performance.
+
 @menu
 Configuration file commands
 

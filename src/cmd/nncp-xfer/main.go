@@ -477,13 +477,15 @@ Tx:
 				isBad = true
 				continue
 			}
-			if err = tmp.Sync(); err != nil {
-				tmp.Close()
-				ctx.LogE("xfer-tx-sync", les, err, func(les nncp.LEs) string {
-					return logMsg(les) + ": syncing"
-				})
-				isBad = true
-				continue
+			if !nncp.NoSync {
+				if err = tmp.Sync(); err != nil {
+					tmp.Close()
+					ctx.LogE("xfer-tx-sync", les, err, func(les nncp.LEs) string {
+						return logMsg(les) + ": syncing"
+					})
+					isBad = true
+					continue
+				}
 			}
 			if err = tmp.Close(); err != nil {
 				ctx.LogE("xfer-tx-close", les, err, func(les nncp.LEs) string {

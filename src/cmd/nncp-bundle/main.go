@@ -483,8 +483,10 @@ func main() {
 					if err = bufTmp.Flush(); err != nil {
 						log.Fatalln("Error during flushing:", err)
 					}
-					if err = tmp.Sync(); err != nil {
-						log.Fatalln("Error during syncing:", err)
+					if !nncp.NoSync {
+						if err = tmp.Sync(); err != nil {
+							log.Fatalln("Error during syncing:", err)
+						}
 					}
 					if err = tmp.Close(); err != nil {
 						log.Fatalln("Error during closing:", err)

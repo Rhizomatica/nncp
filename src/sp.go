@@ -1461,13 +1461,15 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					humanize.IBytes(uint64(fullsize)),
 				)
 			}
-			err = fd.Sync()
-			if err != nil {
-				state.Ctx.LogE("sp-file-sync", lesp, err, func(les LEs) string {
-					return logMsg(les) + ": syncing"
-				})
-				state.closeFd(filePathPart)
-				continue
+			if !NoSync {
+				err = fd.Sync()
+				if err != nil {
+					state.Ctx.LogE("sp-file-sync", lesp, err, func(les LEs) string {
+						return logMsg(les) + ": syncing"
+					})
+					state.closeFd(filePathPart)
+					continue
+				}
 			}
 			if hasherAndOffset != nil {
 				delete(state.fileHashers, filePath)
