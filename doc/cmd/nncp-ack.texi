@@ -1,0 +1,60 @@
+@node nncp-ack
+@cindex packet acknowledgement
+@pindex nncp-ack
+@section nncp-ack
+
+@example
+$ nncp-ack [options] NODE [PKT|rx]
+@end example
+
+Sent acknowledgement of successful @option{PKT} (Base32-encoded hash)
+packet receipt. If @option{rx} is specified instead, then all
+@option{NODE}'s existing @code{rx} packets will be acknowledged.
+
+General workflow with acknowledgement is following, assuming that
+Alice has some outbound packets for Bob:
+
+@itemize
+
+@item Transfer an encrypted packets, without deleting them locally:
+
+@example
+alice$ nncp-xfer -keep -tx -node bob /mnt/shared
+@end example
+
+@item On Bob's side retrieve those packets:
+
+@example
+bob$ nncp-xfer -rx /mnt/shared
+@end example
+
+That will also check if copied packets checksum is not mismatched.
+
+@item Create ACK packets of received ones:
+
+@example
+bob$ nncp-ack alice rx
+@end example
+
+@item Send those newly created packets back to Alice:
+
+@example
+bob$ nncp-xfer -tx /mnt/shared
+@end example
+
+@item Get those acknowledgement packets and @ref{nncp-toss, toss} them:
+
+@example
+alice$ nncp-xfer -rx /mnt/shared
+alice$ nncp-toss
+@end example
+
+Each ACK packet will remove kept corresponding outbound packets, because
+Bob explicitly confirmed their receipt.
+
+@end itemize
+
+Similarly you can use it with @command{@ref{nncp-bundle}}, but do not
+forget that by default it does not do checksumming of the packets, so
+you should either use its @option{-check} option, or run
+@command{@ref{nncp-check}} after.

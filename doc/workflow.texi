@@ -41,6 +41,9 @@ time), run @command{@ref{nncp-toss}} for tossing (decrypting and
 processing) all inbound queues to receive exec messages, files, file
 requests and relay transition packets to other nodes.
 
+@item Optionally do not forget about explicit receipt acknowledgement
+ability with @command{@ref{nncp-ack}}.
+
 @end enumerate
 
 @itemize

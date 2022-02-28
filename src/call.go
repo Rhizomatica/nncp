@@ -50,6 +50,7 @@ type Call struct {
 	AutoTossNoExec bool
 	AutoTossNoTrns bool
 	AutoTossNoArea bool
+	AutoTossNoACK  bool
 }
 
 func (ctx *Ctx) CallNode(

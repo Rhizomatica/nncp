@@ -49,6 +49,7 @@ func main() {
 		noExec    = flag.Bool("noexec", false, "Do not process \"exec\" packets")
 		noTrns    = flag.Bool("notrns", false, "Do not process \"transitional\" packets")
 		noArea    = flag.Bool("noarea", false, "Do not process \"area\" packets")
+		noACK     = flag.Bool("noack", false, "Do not process \"ack\" packets")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -110,14 +111,14 @@ func main() {
 				node.Id,
 				nncp.TRx,
 				nice,
-				*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea,
+				*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea, *noACK,
 			) || isBad
 			if nodeId == *ctx.SelfId {
 				isBad = ctx.Toss(
 					node.Id,
 					nncp.TTx,
 					nice,
-					*dryRun, false, true, true, true, true, *noArea,
+					*dryRun, false, true, true, true, true, *noArea, *noACK,
 				) || isBad
 			}
 		}
@@ -150,14 +151,14 @@ func main() {
 			nodeId,
 			nncp.TRx,
 			nice,
-			*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea,
+			*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea, *noACK,
 		)
 		if *nodeId == *ctx.SelfId {
 			ctx.Toss(
 				nodeId,
 				nncp.TTx,
 				nice,
-				*dryRun, false, true, true, true, true, *noArea,
+				*dryRun, false, true, true, true, true, *noArea, *noACK,
 			)
 		}
 	}
