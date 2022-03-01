@@ -46,6 +46,9 @@ Nearly all commands have the following common options:
     Print warranty information (no warranty).
 @end table
 
+@vindex TMPDIR
+All commands respect @env{$TMPDIR} environment variable.
+
 @menu
 Configuration file commands
 
