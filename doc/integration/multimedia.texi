@@ -7,7 +7,7 @@ Many video and audio streams could be downloaded using
 many of them are supported, including @emph{Dailymotion}, @emph{Vimeo}
 and @emph{YouTube}.
 
-When you multimedia becomes an ordinary file, you can transfer it easily.
+When your multimedia becomes an ordinary file, you can transfer it easily.
 
 @example
 $ youtube-dl \
