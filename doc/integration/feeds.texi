@@ -18,7 +18,7 @@ $ r2e new rss-robot@@address.com
 and add feeds you want to retrieve:
 
 @example
-$ r2e add http://www.git.cypherpunks.ru/?p=nncp.git;a=atom
+$ r2e add http://www.nncpgo.org/download/releases.atom
 @end example
 
 and run the process:
