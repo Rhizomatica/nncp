@@ -128,7 +128,7 @@ NNCP_NICE=64 \
 @item addrs
     Dictionary containing known network addresses of the node. Each key
     is human-readable name of the address. For direct TCP connections
-    use @verb{|host:port|} format, pointing to @ref{nncp-daemon}'s
+    use @verb{|host:port|} format, pointing to @command{@ref{nncp-daemon}}'s
     listening instance.
 
     Also you can pipe connection through the external command using
@@ -140,7 +140,7 @@ NNCP_NICE=64 \
     @ref{CfgYggdrasilAliases, possible aliases} usage.
 
     May be omitted if either no direct connection exists, or
-    @ref{nncp-call} is used with forced address specifying.
+    @command{@ref{nncp-call}} is used with forced address specifying.
 
 @vindex rxrate
 @vindex txrate
@@ -171,6 +171,6 @@ NNCP_NICE=64 \
 @anchor{CfgCalls}
 @item calls
     List of @ref{Call, call configuration}s.
-    Can be omitted if @ref{nncp-caller} won't be used to call that node.
+    Can be omitted if @command{@ref{nncp-caller}} won't be used to call that node.
 
 @end table

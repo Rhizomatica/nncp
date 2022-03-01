@@ -21,12 +21,12 @@ remove them.
 @option{-rx} option tells only to move inbound packets addressed to us.
 @option{-tx} option tells exactly the opposite: move only outbound packets.
 
-@ref{nncp-cfgmin} could be useful for creating stripped minimalistic
-configuration file version without any private keys.
+@command{@ref{nncp-cfgmin}} could be useful for creating stripped
+minimalistic configuration file version without any private keys.
 
 @file{DIR} directory has the following structure:
 @file{RECIPIENT/SENDER/PACKET}, where @file{RECIPIENT} is Base32 encoded
 destination node, @file{SENDER} is Base32 encoded sender node.
 
-Also look for @ref{nncp-bundle}, especially if you deal with CD-ROM and
-tape drives.
+Also look for @command{@ref{nncp-bundle}}, especially if you deal with
+CD-ROM and tape drives.

@@ -7,8 +7,8 @@
 @unnumbered Comparison with existing solutions
 
 Here is comparison with @url{https://en.wikipedia.org/wiki/UUCP, UUCP}
-(Unix to Unix copy), FTN (@url{https://en.wikipedia.org/wiki/FidoNet,
-FidoNet} Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
+(Unix to Unix copy), FTN (@url{https://en.wikipedia.org/wiki/FidoNet, FidoNet}
+Technology Networks) and @url{https://en.wikipedia.org/wiki/SMTP, SMTP}
 (because it is also store-and-forward solution).
 
 @multitable @columnfractions 0.40 0.15 0.15 0.15 0.15
@@ -133,27 +133,27 @@ comparable commands of UUCP and NNCP, just for the interest:
 @pindex uuxqt
 @item Connect to remote system
     @tab @command{uucico -s}, @command{uupoll}
-    @tab @command{nncp-call}, @command{nncp-caller}
+    @tab @command{@ref{nncp-call}}, @command{nncp-caller}
 @item Receive connection (pipe, daemon, etc)
     @tab @command{uucico} (@option{-l} or similar)
-    @tab @command{nncp-daemon}
+    @tab @command{@ref{nncp-daemon}}
 @item Request remote execution, @code{stdin} piped in
     @tab @command{uux}
-    @tab @command{nncp-exec}
+    @tab @command{@ref{nncp-exec}}
 @item Copy file to remote machine
     @tab @command{uucp}
-    @tab @command{nncp-file}
+    @tab @command{@ref{nncp-file}}
 @item Copy file from remote machine
     @tab @command{uucp}
-    @tab @command{nncp-freq}
+    @tab @command{@ref{nncp-freq}}
 @item Process received requests
     @tab @command{uuxqt}
-    @tab @command{nncp-toss}
+    @tab @command{@ref{nncp-toss}}
 @item Move outbound requests to dir (for USB stick, airgap, etc)
     @tab N/A
-    @tab @command{nncp-xfer}
+    @tab @command{@ref{nncp-xfer}}
 @item Create streaming package of outbound requests
     @tab N/A
-    @tab @command{nncp-bundle}
+    @tab @command{@ref{nncp-bundle}}
 
 @end multitable

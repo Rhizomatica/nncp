@@ -3,7 +3,7 @@
 @vindex calls
 @unnumbered Call configuration
 
-Call is a rule when and how node can be called by @ref{nncp-caller}.
+Call is a rule when and how node can be called by @command{@ref{nncp-caller}}.
 
 Example list of call structures:
 
@@ -105,12 +105,13 @@ but @emph{when-tx-exists} does not influence @emph{cron}. When
 @anchor{CfgNoCK}
 @item nock
 NoCK (no-checksumming) tells not to do checksumming of received files,
-assuming that it will be done for example with @ref{nncp-check} command
-later. That can help minimizing time spent online, because HDD won't do
-simultaneous reading of the data for checksumming and writing of the
-received one, but just sequential writing of the file. Pay attention
-that you have to make a call to remote node after checksumming is done,
-to send notification about successful packet reception.
+assuming that it will be done for example with
+@command{@ref{nncp-check}} command later. That can help minimizing time
+spent online, because HDD won't do simultaneous reading of the data for
+checksumming and writing of the received one, but just sequential
+writing of the file. Pay attention that you have to make a call to
+remote node after checksumming is done, to send notification about
+successful packet reception.
 
 @vindex mcd-ignore
 @anchor{CfgMCDIgnore}

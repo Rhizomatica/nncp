@@ -4,12 +4,12 @@
 @cindex serial connection
 @section Serial connection
 
-It is not trivial to run online @command{nncp-daemon},
-@command{nncp-call} and @command{nncp-caller} commands over the serial
-link, because it is link without built-in error detection. For efficient
-usage you have to use some kind of window-sliding error correction
-protocol, like Kermit, ZMODEM, UUCP's g-protocol and similar well known
-ones.
+It is not trivial to run online @command{@ref{nncp-daemon}},
+@command{@ref{nncp-call}} and @command{@ref{nncp-caller}} commands over
+the serial link, because it is link without built-in error detection.
+For efficient usage you have to use some kind of window-sliding error
+correction protocol, like Kermit, ZMODEM, UUCP's g-protocol and similar
+well known ones.
 
 However TCP is already satisfying and existing protocol for the same
 purposes. So it would be more easier to bring up the IP interconnection

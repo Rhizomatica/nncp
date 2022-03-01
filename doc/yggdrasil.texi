@@ -16,31 +16,34 @@ system's network stack, that would require use of some kind
 full-featured TUN network interface, there is pure Go built-in stack,
 responsible for IPv6 and TCP protocols support. You do not need to think
 about network interfaces, addressing and firewall setup at all:
-@ref{nncp-daemon} acts as Yggdrasil IPv6 reachable host, listening on
-single TCP port. You can reach it using ordinary non-Yggdrasil capable
-version of @ref{nncp-call}, calling corresponding 200::/7 IPv6 address
-through native Yggdrasil daemon created TUN interface.
-@ref{nncp-daemon}, @ref{nncp-call}* can freely peer with Yggdrasil
-nodes, reusing existing infrastructure.
+@command{@ref{nncp-daemon}} acts as Yggdrasil IPv6 reachable host,
+listening on single TCP port. You can reach it using ordinary
+non-Yggdrasil capable version of @command{@ref{nncp-call}}, calling
+corresponding 200::/7 IPv6 address through native Yggdrasil daemon
+created TUN interface. @command{@ref{nncp-daemon}},
+@command{@ref{nncp-call}}* can freely peer with Yggdrasil nodes, reusing
+existing infrastructure.
 
 Only minor modifications were done to current NNCP's tools:
 
 @itemize
 
 @cindex yggdrasils schema
-making it also as a Yggdrasil listener network node. It can
+@item @command{@ref{nncp-daemon}} has @option{-yggdrasil yggdrasils://}
+option, making it also as a Yggdrasil listener network node. It can
 automatically connect to other peers and participate in routing. It does
 not have to answer NNCP's online protocol requests at all and just can
 be some intermediate routing point in the whole mesh network.
 
 @cindex yggdrasilc schema
+@item @command{@ref{nncp-call}}/@command{@ref{nncp-caller}} commands understand
 @code{yggdrasilc://} addresses, pointing to the desired Yggdrasil's
 public key (that also acts as the destination host's address). Yggdrasil
 background goroutine is automatically started, connecting to the
 specified Yggdrasil entrypoints, calling remote NNCP node and initiating
 NNCP's native @ref{Sync, online protocol} handshake on top of that.
 
-@item @ref{nncp-cfgnew} is able to generate ed25519 keypair.
+@item @command{@ref{nncp-cfgnew}} is able to generate ed25519 keypair.
 
 @item @ref{CfgYggdrasilAliases, Configuration file} optionally contains
 @code{yggdrasil-aliases} map.
@@ -64,7 +67,7 @@ Private: 571fb05c81e62a572096566fd48e87ad47e706b1f600dd625ebbf86d310332624fd6413
 You should share that public key with other NNCP peers.
 
 @item
-Start @ref{nncp-daemon} listening on Yggdrasil's incoming connections.
+Start @command{@ref{nncp-daemon}} listening on Yggdrasil's incoming connections.
 You have to specify:
 
 @itemize

@@ -17,7 +17,7 @@ overcomplicated and bloated for the simple task. Not an option.
 @url{https://en.wikipedia.org/wiki/KISS_principle, KISS}!
 
 Just tell both of your Postfix/Exim (on the server and notebook) to drop
-email as a mail via NNCP (@ref{nncp-exec}) to specified node.
+email as a mail via NNCP (@command{@ref{nncp-exec}}) to specified node.
 
 More information for Postfix is @ref{Postfix, here} and for Exim is
 @ref{Exim, here}. All mail will be stored in NNCP @ref{Spool, spool},

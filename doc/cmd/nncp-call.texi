@@ -47,7 +47,7 @@ instead of addresses taken from configuration file. You can specify
 @verb{|yggdrasil:PUB;PRV;PEER[,...]|} formats.
 
 If you specify @option{-ucspi} option, then it is assumed that you run
-@command{nncp-call} command under some UCSPI-TCP compatible utility,
+@command{@ref{nncp-call}} command under some UCSPI-TCP compatible utility,
 that provides read/write channels through 6/7 file descriptors.
 
 @option{-mcd-wait} options tells to wait up to specified number of
@@ -56,7 +56,7 @@ the packet is received, initiate a call.
 
 @option{-autotoss} option runs tosser on node's spool every second
 during the call. All @option{-autotoss-*} options is the same as in
-@ref{nncp-toss} command.
+@command{@ref{nncp-toss}} command.
 
 Partly downloaded packets are stored in @file{.part} files. By default
 all downloaded files are sequentially checksummed in the background,
@@ -65,8 +65,8 @@ option is set, then no checksumming is done, renaming fully downloaded
 files to @file{.nock} extension. Pay attention that checksumming can be
 time consuming and connection could be lost during that check, so remote
 node won't be notified that the file is finished. If you run
-@ref{nncp-check, @command{nncp-check -nock}}, that will checksum files
-and strip the @file{.nock} extension, then repeated call to remote node
-will notify about packet's completion. Also it will be notified if
-@ref{nncp-toss, tossing} created @file{seen/} file.
-Read @ref{CfgNoCK, more} about @option{-nock} option.
+@command{@ref{nncp-check} -nock}, that will checksum files and strip the
+@file{.nock} extension, then repeated call to remote node will notify about
+packet's completion. Also it will be notified if @ref{nncp-toss, tossing}
+created @file{seen/} file. Read @ref{CfgNoCK, more} about @option{-nock}
+option.

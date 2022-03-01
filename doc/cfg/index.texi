@@ -5,7 +5,7 @@
 @cindex Hjson
 NNCP uses single file configuration file in @url{https://hjson.org/,
 Hjson} format (see also section about @ref{Configuration directory,
-directory layout}) . Initially it is created with @ref{nncp-cfgnew}
+directory layout}) . Initially it is created with @command{@ref{nncp-cfgnew}}
 command and at minimum it can look like this:
 
 @verbatim

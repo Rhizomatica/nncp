@@ -8,7 +8,7 @@ choice. Just send files as shown in previous section, but use removable
 media for transferring packets to other nodes.
 
 Assume that you send two files to @emph{bob} node. Insert USB storage
-device (SD is preferable!), mount it and run @ref{nncp-xfer}:
+device (SD is preferable!), mount it and run @command{@ref{nncp-xfer}}:
 
 @example
 $ nncp-xfer -node bob /media/usbstick
@@ -34,5 +34,5 @@ $ nncp-xfer /media/usbstick
 @end example
 
 to find all packets related to their node and copy them locally for
-further processing. @command{nncp-xfer} is the only command used with
+further processing. @command{@ref{nncp-xfer}} is the only command used with
 removable devices.

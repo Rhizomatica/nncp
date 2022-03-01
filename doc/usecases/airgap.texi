@@ -36,7 +36,7 @@ reached via online connection using @emph{lan} address.
 @emph{bob-airgap} can be reached by sending intermediate relay packet
 through the @emph{bob}.
 
-Any command like @command{nncp-file myfile bob-airgap:} will
+Any command like @command{@ref{nncp-file} myfile bob-airgap:} will
 automatically create an encapsulated packet: one for the destination
 endpoint, and other carrying it for intermediate relaying node.
 

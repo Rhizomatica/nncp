@@ -61,8 +61,8 @@ nncp:
 .endif
 @end example
 
-This is pretty straightforward. We pipe to @command{nncp-exec}, run it
-as the nncp user. @command{nncp-exec} sends it to a target node and runs
+This is pretty straightforward. We pipe to @command{@ref{nncp-exec}}, run it
+as the nncp user. @command{@ref{nncp-exec}} sends it to a target node and runs
 whatever that node has called @command{rsmtp} (the command to receive
 bsmtp data). When the target node processes the request, it will run the
 configured command and pipe the data in to it.

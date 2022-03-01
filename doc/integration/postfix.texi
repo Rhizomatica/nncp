@@ -14,9 +14,9 @@ mail to a LAN that is connected via NNCP.
 
 @itemize
 
-@item You need an @ref{nncp-exec} program that extracts the sender
-address from mail that arrives via NNCP, and that feeds the mail into
-the Postfix @command{sendmail} command.
+@item You need an @command{@ref{nncp-exec}} program that extracts the
+sender address from mail that arrives via NNCP, and that feeds the mail
+into the Postfix @command{sendmail} command.
 
 @item Define a @command{pipe(8)} based mail delivery transport for
 delivery via NNCP:
@@ -26,10 +26,10 @@ nncp      unix  -       n       n       -       -       pipe
   flags=Rqhu user=nncp argv=nncp-exec -quiet $nexthop sendmail $recipient
 @end example
 
-This runs the @command{nncp-exec} command to place outgoing mail into
+This runs the @command{@ref{nncp-exec}} command to place outgoing mail into
 the NNCP queue after replacing @var{$nexthop} by the receiving NNCP
 node and after replacing @var{$recipient} by the recipients. The
-@command{pipe(8)} delivery agent executes the @command{nncp-exec}
+@command{pipe(8)} delivery agent executes the @command{@ref{nncp-exec}}
 command without assistance from the shell, so there are no problems with
 shell meta characters in command-line parameters.
 
@@ -100,9 +100,9 @@ Here is how to relay mail from a LAN via NNCP to the Internet.
 
 @itemize
 
-@item You need an @ref{nncp-exec} program that extracts the sender
-address from mail that arrives via NNCP, and that feeds the mail into
-the Postfix @command{sendmail} command.
+@item You need an @command{@ref{nncp-exec}} program that extracts the
+sender address from mail that arrives via NNCP, and that feeds the mail
+into the Postfix @command{sendmail} command.
 
 @item Specify that all remote mail must be sent via the @command{nncp}
 mail transport to your NNCP gateway host, say, @emph{nncp-gateway}:
@@ -129,10 +129,10 @@ nncp      unix  -       n       n       -       -       pipe
   flags=Fqhu user=nncp argv=nncp-exec -quiet $nexthop sendmail $recipient
 @end example
 
-This runs the @command{nncp-exec} command to place outgoing mail into
+This runs the @command{@ref{nncp-exec}} command to place outgoing mail into
 the NNCP queue. It substitutes the hostname (@emph{nncp-gateway}, or
 whatever you specified) and the recipients before execution of the
-command. The @command{nncp-exec} command is executed without assistance
+command. The @command{@ref{nncp-exec}} command is executed without assistance
 from the shell, so there are no problems with shell meta characters.
 
 @item Execute the command @command{postfix reload} to make the changes
