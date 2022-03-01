@@ -23,12 +23,12 @@ NNCP uses following files/directories you should be aware of:
 
     It can contain @file{.nock} files: fully downloaded, but still not
     checksummed. Can be checksummed (with @file{.nock} extension removing)
-    with @command{nncp-check -nock}.
+    with @command{@ref{nncp-check} -nock}.
 
     Also it can contain @file{seen/} and @file{hdr/} subdirectories,
     that should be cleaned too from time to time.
 
-    All of that cleaning tasks can be done with @ref{nncp-rm} utility.
+    All of that cleaning tasks can be done with @command{@ref{nncp-rm}} utility.
 
     @cindex shared spool
     @cindex setgid
@@ -59,8 +59,8 @@ $ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
 
 @item
     Optional @ref{CfgIncoming, incoming} directories where uploaded
-    files are stored. Probably you want to run @ref{nncp-reass} from
-    time to time to reassemble all chunked uploads. Example crontab
+    files are stored. Probably you want to run @command{@ref{nncp-reass}}
+    from time to time to reassemble all chunked uploads. Example crontab
     entry:
 
 @example
@@ -71,8 +71,9 @@ $ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
 @pindex supervise
 @pindex multilog
 @item
-    Possibly long running @ref{nncp-daemon}, @ref{nncp-caller},
-    @ref{nncp-toss}, @ref{nncp-check} daemons. As all software, they can
+    Possibly long running @command{@ref{nncp-daemon}},
+    @command{@ref{nncp-caller}}, @command{@ref{nncp-toss}},
+    @command{@ref{nncp-check}} daemons. As all software, they can
     fail and you should place them under some supervisor control.
 
     For example you can use @url{http://cr.yp.to/daemontools.html,
@@ -100,7 +101,7 @@ EOF
 
 @pindex inetd
 @item
-    @ref{nncp-daemon} can also be run as
+    @command{@ref{nncp-daemon}} can also be run as
     @url{https://en.wikipedia.org/wiki/Inetd, inetd} service on UUCP's port:
 
 @example

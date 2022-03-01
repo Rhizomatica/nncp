@@ -7,9 +7,8 @@ files at that time, but keep high priority email infrequently passing
 through in anytime. Also you wish to pass any kind of traffic when the
 node is available through the LAN.
 
-You can easily set your preferences in @ref{Call, call
-configurations} for @ref{nncp-caller} command used in online
-communications.
+You can easily set your preferences in @ref{Call, call configurations}
+for @command{@ref{nncp-caller}} command used in online communications.
 
 @verbatim
 neigh: {

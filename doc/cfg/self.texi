@@ -14,4 +14,5 @@ encrypted} packet creation.
 @vindex NoisePrv
 @vindex NoisePub
 @strong{noise*} are used during @ref{Sync, synchronization protocol}
-working in @ref{nncp-call}, @ref{nncp-caller}, @ref{nncp-daemon}.
+working in @command{@ref{nncp-call}}, @command{@ref{nncp-caller}},
+@command{@ref{nncp-daemon}}.

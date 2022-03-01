@@ -68,13 +68,14 @@ And optional @ref{MCD, MultiCast Discovery} options:
 @anchor{CfgMCDListen}
 @item mcd-listen
 Specifies list of network interfaces regular expression
-@ref{nncp-caller} will listen for incoming @ref{MCD} announcements.
+@command{@ref{nncp-caller}} will listen for incoming @ref{MCD} announcements.
 
 @vindex mcd-send
 @anchor{CfgMCDSend}
 @item mcd-send
 Specifies list of network interfaces regular expressions, and intervals
-in seconds, where @ref{nncp-daemon} will send @ref{MCD} announcements.
+in seconds, where @command{@ref{nncp-daemon}} will send @ref{MCD} announcements.
+
 @end table
 
 @cindex yggdrasil aliases
@@ -82,7 +83,7 @@ in seconds, where @ref{nncp-daemon} will send @ref{MCD} announcements.
 Optional @ref{Yggdrasil}-related aliases are used for convenience and
 keeping private keys away being used directly in command line. Each
 @code{PUB}, @code{PRV}, @code{PEER}, @code{BIND} value in
-@ref{nncp-daemon}'s @option{-yggdrasil} and in @code{yggdrasil:}
+@command{@ref{nncp-daemon}}'s @option{-yggdrasil} and in @code{yggdrasil:}
 addresses is replaced with alias value. Moreover each entry in list of
 @code{PUB}s, @code{PEER}s and @code{BIND} can be an alias too. Pay
 attention, that all aliases ending with @code{prv} will be saved with
