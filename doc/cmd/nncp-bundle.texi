@@ -3,9 +3,9 @@
 @section nncp-bundle
 
 @example
-$ nncp-bundle [options] -tx [-delete] NODE [NODE @dots{}] > ...
-$ nncp-bundle [options] -rx -delete [-dryrun] [NODE @dots{}] < ...
-$ nncp-bundle [options] -rx [-check] [-dryrun] [NODE @dots{}] < ...
+$ nncp-bundle [options] -tx [-delete] NODE [NODE @dots{}] > @dots{}
+$ nncp-bundle [options] -rx -delete [-dryrun] [NODE @dots{}] < @dots{}
+$ nncp-bundle [options] -rx [-check] [-dryrun] [NODE @dots{}] < @dots{}
 @end example
 
 With @option{-tx} option, this command creates @ref{Bundles, bundle} of

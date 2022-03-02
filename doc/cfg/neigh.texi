@@ -136,7 +136,7 @@ NNCP_NICE=64 \
     start and its @code{stdin}/@code{stdout} used as a connection.
 
     To use @ref{Yggdrasil} network for connectivity, use
-    @verb{|yggdrasil:PUB;PRV;PEER[,...]|} format, read about
+    @code{yggdrasil:PUB;PRV;PEER[,@dots{}]} format, read about
     @ref{CfgYggdrasilAliases, possible aliases} usage.
 
     May be omitted if either no direct connection exists, or
