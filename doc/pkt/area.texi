@@ -1,4 +1,5 @@
 @node Encrypted area
+@cindex encrypted area packet
 @section Encrypted area packet
 
 @ref{Multicast} area messages contains the encrypted packet, that is

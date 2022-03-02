@@ -1,4 +1,5 @@
 @node nncp-toss
+@pindex nncp-toss
 @section nncp-toss
 
 @example
@@ -23,10 +24,11 @@ tells what it will do.
 running this command as a daemon.
 
 @option{-seen} option creates empty @file{seen/XXX} file after
-successful tossing of @file{XXX} packet. @ref{nncp-xfer},
-@ref{nncp-bundle}, @ref{nncp-daemon} and @ref{nncp-call} commands skip
-inbound packets that has been already seen, processed and tossed. This
-is helpful to prevent duplicates.
+successful tossing of @file{XXX} packet. @command{@ref{nncp-xfer}},
+@command{@ref{nncp-bundle}}, @command{@ref{nncp-daemon}} and
+@command{@ref{nncp-call}} commands skip inbound packets that has been
+already seen, processed and tossed. This is helpful to prevent
+duplicates.
 
 @option{-nofile}, @option{-nofreq}, @option{-noexec}, @option{-notrns},
 @option{-noarea} options allow disabling any kind of packet types processing.

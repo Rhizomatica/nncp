@@ -1,4 +1,5 @@
 @node UsecaseSatelliteLinks
+@cindex satellite link
 @section Satellite links
 
 Satellite links have @strong{very} high delays together with high

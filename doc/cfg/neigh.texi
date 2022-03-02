@@ -1,6 +1,8 @@
 @node CfgNeigh
+@cindex neighbour configuration options
 @section Configuration neighbour options
 
+@vindex neigh
 @strong{neigh} section contains all known neighbours information. It
 always has @strong{self} neighbour that is copy of our node's public
 data (public keys). It is useful for copy-paste sharing with your
@@ -65,8 +67,10 @@ node has the following fields:
     If present, then node can be online called using @ref{Sync,
     synchronization protocol}. Contains authentication public key.
 
+@vindex exec
+@pindex sendmail
 @anchor{CfgExec}
-    @item exec
+@item exec
     Dictionary consisting of handles and corresponding command line
     arguments. In example above there are @command{sendmail} handles,
     @command{warcer}, @command{wgeter} and @command{flag} one. Remote
@@ -87,11 +91,13 @@ NNCP_NICE=64 \
     feeding @verb{|hello world\n|} to that started @command{sendmail}
     process.
 
+@vindex incoming
 @anchor{CfgIncoming}
 @item incoming
     Full path to directory where all file uploads will be saved. May be
     omitted to forbid file uploading on that node.
 
+@vindex freq
 @anchor{CfgFreq}
 @item freq
     @table @code
@@ -108,6 +114,7 @@ NNCP_NICE=64 \
         transmission.
     @end table
 
+@vindex via
 @anchor{CfgVia}
 @item via
     An array of node identifiers that will be used as a relay to that
@@ -116,11 +123,12 @@ NNCP_NICE=64 \
     nodes. May be omitted if direct connection exists and no relaying is
     required.
 
+@vindex addrs
 @anchor{CfgAddrs}
 @item addrs
     Dictionary containing known network addresses of the node. Each key
     is human-readable name of the address. For direct TCP connections
-    use @verb{|host:port|} format, pointing to @ref{nncp-daemon}'s
+    use @verb{|host:port|} format, pointing to @command{@ref{nncp-daemon}}'s
     listening instance.
 
     Also you can pipe connection through the external command using
@@ -128,12 +136,14 @@ NNCP_NICE=64 \
     start and its @code{stdin}/@code{stdout} used as a connection.
 
     To use @ref{Yggdrasil} network for connectivity, use
-    @verb{|yggdrasil:PUB;PRV;PEER[,...]|} format, read about
+    @code{yggdrasil:PUB;PRV;PEER[,@dots{}]} format, read about
     @ref{CfgYggdrasilAliases, possible aliases} usage.
 
     May be omitted if either no direct connection exists, or
-    @ref{nncp-call} is used with forced address specifying.
+    @command{@ref{nncp-call}} is used with forced address specifying.
 
+@vindex rxrate
+@vindex txrate
 @anchor{CfgXxRate}
 @item rxrate/txrate
     If greater than zero, then at most *rate packets per second will be
@@ -141,6 +151,7 @@ NNCP_NICE=64 \
     bandwidth traffic shaper: each packet has at most 64 KiB payload
     size. If omitted -- no rate limits.
 
+@vindex onlinedeadline
 @anchor{CfgOnlineDeadline}
 @item onlinedeadline
     Online connection deadline of nodes inactivity in seconds. It is the
@@ -151,6 +162,7 @@ NNCP_NICE=64 \
     delays), wait for appearing packets ready to send and notifying
     remote side about their appearance.
 
+@vindex maxonlinetime
 @anchor{CfgMaxOnlineTime}
 @item maxonlinetime
     If greater than zero, then it is maximal time of single connection.
@@ -159,6 +171,6 @@ NNCP_NICE=64 \
 @anchor{CfgCalls}
 @item calls
     List of @ref{Call, call configuration}s.
-    Can be omitted if @ref{nncp-caller} won't be used to call that node.
+    Can be omitted if @command{@ref{nncp-caller}} won't be used to call that node.
 
 @end table

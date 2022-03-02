@@ -1,4 +1,5 @@
 @node Use cases
+@cindex use cases
 @unnumbered Use cases
 
 See also this page @ref{Сценарии, on russian}.

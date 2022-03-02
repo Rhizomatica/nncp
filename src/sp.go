@@ -1114,7 +1114,7 @@ func (state *SPState) StartWorkers(
 	return nil
 }
 
-func (state *SPState) Wait() {
+func (state *SPState) Wait() bool {
 	state.wg.Wait()
 	close(state.payloads)
 	close(state.pings)
@@ -1130,12 +1130,15 @@ func (state *SPState) Wait() {
 	if txDuration > 0 {
 		state.TxSpeed = state.TxBytes / txDuration
 	}
+	nothingLeft := len(state.queueTheir) == 0
 	for _, s := range state.fds {
+		nothingLeft = false
 		s.fd.Close()
 	}
 	for pktName := range state.progressBars {
 		ProgressKill(pktName)
 	}
+	return nothingLeft
 }
 
 func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
@@ -1461,13 +1464,15 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 					humanize.IBytes(uint64(fullsize)),
 				)
 			}
-			err = fd.Sync()
-			if err != nil {
-				state.Ctx.LogE("sp-file-sync", lesp, err, func(les LEs) string {
-					return logMsg(les) + ": syncing"
-				})
-				state.closeFd(filePathPart)
-				continue
+			if !NoSync {
+				err = fd.Sync()
+				if err != nil {
+					state.Ctx.LogE("sp-file-sync", lesp, err, func(les LEs) string {
+						return logMsg(les) + ": syncing"
+					})
+					state.closeFd(filePathPart)
+					continue
+				}
 			}
 			if hasherAndOffset != nil {
 				delete(state.fileHashers, filePath)

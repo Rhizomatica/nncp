@@ -1,4 +1,6 @@
 @node WARCs
+@cindex WARC
+@pindex wget
 @section Integration with Web pages
 
 Simple HTML web page can be downloaded very easily for sending and
@@ -62,6 +64,7 @@ $ wget [--page-requisites] [--recursive] \
     [@dots{}] http://www.example.com/
 @end example
 
+@pindex tofuproxy
 That command will create @file{www.example.com-XXX.warc} web archive.
 It could produce specialized segmented
 @url{https://en.wikipedia.org/wiki/Gzip, gzip} and

@@ -44,6 +44,7 @@ const (
 	PktTypeTrns    PktType = iota
 	PktTypeExecFat PktType = iota
 	PktTypeArea    PktType = iota
+	PktTypeACK     PktType = iota
 
 	MaxPathSize = 1<<8 - 1
 

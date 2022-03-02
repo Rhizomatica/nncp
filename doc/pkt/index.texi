@@ -1,4 +1,6 @@
 @node Packet
+@cindex packet format
+@cindex XDR
 @unnumbered Packet format
 
 All packets are

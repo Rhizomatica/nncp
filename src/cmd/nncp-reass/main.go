@@ -237,8 +237,10 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		log.Fatalln("Can not flush:", err)
 	}
 	if tmp != nil {
-		if err = tmp.Sync(); err != nil {
-			log.Fatalln("Can not sync:", err)
+		if !nncp.NoSync {
+			if err = tmp.Sync(); err != nil {
+				log.Fatalln("Can not sync:", err)
+			}
 		}
 		if err = tmp.Close(); err != nil {
 			log.Fatalln("Can not close:", err)

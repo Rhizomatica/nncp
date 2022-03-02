@@ -1,10 +1,14 @@
 @node Log
+@cindex log format
+@cindex logging
+@cindex recfile
+@pindex recutils
 @unnumbered Log format
 
 Log is a plaintext file consisting of
 @url{https://www.gnu.org/software/recutils/, recfile} records. It can be
-read by human, but it is better to use either @ref{nncp-log}, or
-@command{recutils} utilities for selecting and formatting the required
+read by human, but it is better to use either @command{@ref{nncp-log}},
+or @command{recutils} utilities for selecting and formatting the required
 fields.
 
 Two example records from it:

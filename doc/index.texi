@@ -17,15 +17,21 @@ A copy of the license is included in the section entitled "Copying conditions".
 @end copying
 
 @node Top
+@c dummy cindex, to pass through the current info's bug, which can skip
+@c the first index entry during searching
+@cindex 0
 @top NNCP
 
+@cindex Pedro
 @verbatiminclude pedro.txt
 
 @include about.texi
 
+@cindex articles
 There are also articles about its usage outside this website:
 
 @itemize
+@item @url{https://www.complete.org/nncp/, Various related articles} by John Goerzen
 @item @url{https://habr.com/en/post/330712/, NNCP: лечение online- и цензуро- зависимости store-and-forward методом} (on russian)
 @item @url{https://changelog.complete.org/archives/tag/nncp, Series of descriptive articles} by John Goerzen
 @item @url{https://www.youtube.com/watch?v=0i3r63pnyHM, Presentation of NNCP on Internet Freedom Conference 2019} (on russian)
@@ -60,6 +66,7 @@ There are also articles about its usage outside this website:
 * EBlob format: EBlob
 * Mirrors::
 * Thanks::
+* Indices::
 * Contacts and feedback: Contacts
 * Copying conditions: Copying
 @end menu
@@ -89,6 +96,7 @@ There are also articles about its usage outside this website:
 @include eblob.texi
 @include mirrors.texi
 @include thanks.texi
+@include indices.texi
 @include contacts.texi
 
 @node Copying

@@ -1,4 +1,5 @@
 @node nncp-stat
+@pindex nncp-stat
 @section nncp-stat
 
 @example

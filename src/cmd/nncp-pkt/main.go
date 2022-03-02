@@ -74,6 +74,8 @@ func doPlain(ctx *nncp.Ctx, pkt nncp.Pkt, dump, decompress bool) {
 		payloadType = "exec uncompressed"
 	case nncp.PktTypeArea:
 		payloadType = "area"
+	case nncp.PktTypeACK:
+		payloadType = "acknowledgement"
 	}
 	var path string
 	switch pkt.Type {
@@ -92,6 +94,8 @@ func doPlain(ctx *nncp.Ctx, pkt nncp.Pkt, dump, decompress bool) {
 		if areaId, err := nncp.AreaIdFromString(path); err == nil {
 			path = fmt.Sprintf("%s (%s)", path, ctx.AreaName(areaId))
 		}
+	case nncp.PktTypeACK:
+		path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
 	default:
 		path = string(pkt.Path[:pkt.PathLen])
 	}

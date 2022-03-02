@@ -1,4 +1,6 @@
 @node UsecaseNoLink
+@cindex extreme environments
+@cindex lack of link
 @section Extreme terrestrial environments, no link
 
 This is some kind of too slow link. Offline delivery methods is the only
@@ -6,7 +8,7 @@ choice. Just send files as shown in previous section, but use removable
 media for transferring packets to other nodes.
 
 Assume that you send two files to @emph{bob} node. Insert USB storage
-device (SD is preferable!), mount it and run @ref{nncp-xfer}:
+device (SD is preferable!), mount it and run @command{@ref{nncp-xfer}}:
 
 @example
 $ nncp-xfer -node bob /media/usbstick
@@ -32,5 +34,8 @@ $ nncp-xfer /media/usbstick
 @end example
 
 to find all packets related to their node and copy them locally for
-further processing. @command{nncp-xfer} is the only command used with
+further processing. @command{@ref{nncp-xfer}} is the only command used with
 removable devices.
+
+You can also optionally wait for explicit packets receipt
+acknowledgement as described in @command{@ref{nncp-ack}}.

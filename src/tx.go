@@ -453,7 +453,7 @@ func (ctx *Ctx) TxFile(
 		}
 		logMsg := func(les LEs) string {
 			return fmt.Sprintf(
-				"File %s (%s) sent to %s:%s",
+				"File %s (%s) is sent to %s:%s",
 				srcPath,
 				humanize.IBytes(uint64(finalSize)),
 				ctx.NodeName(node.Id),
@@ -497,7 +497,7 @@ func (ctx *Ctx) TxFile(
 		}
 		logMsg := func(les LEs) string {
 			return fmt.Sprintf(
-				"File %s (%s) sent to %s:%s",
+				"File %s (%s) is sent to %s:%s",
 				srcPath,
 				humanize.IBytes(uint64(size)),
 				ctx.NodeName(node.Id),
@@ -558,7 +558,7 @@ func (ctx *Ctx) TxFile(
 	}
 	logMsg := func(les LEs) string {
 		return fmt.Sprintf(
-			"File %s (%s) sent to %s:%s",
+			"File %s (%s) is sent to %s:%s",
 			srcPath,
 			humanize.IBytes(uint64(metaPktSize)),
 			ctx.NodeName(node.Id),
@@ -604,7 +604,7 @@ func (ctx *Ctx) TxFreq(
 	}
 	logMsg := func(les LEs) string {
 		return fmt.Sprintf(
-			"File request from %s:%s to %s sent",
+			"File request from %s:%s to %s is sent",
 			ctx.NodeName(node.Id), srcPath,
 			dstPath,
 		)
@@ -675,7 +675,7 @@ func (ctx *Ctx) TxExec(
 	}
 	logMsg := func(les LEs) string {
 		return fmt.Sprintf(
-			"Exec sent to %s@%s (%s)",
+			"Exec is sent to %s@%s (%s)",
 			ctx.NodeName(node.Id), dst, humanize.IBytes(uint64(size)),
 		)
 	}
@@ -727,5 +727,41 @@ func (ctx *Ctx) TxTrns(node *Node, nice uint8, size int64, src io.Reader) error 
 		ctx.LogI("tx", append(les, LE{"Err", err}), logMsg)
 	}
 	os.Symlink(nodePath, filepath.Join(ctx.Spool, node.Name))
+	return err
+}
+
+func (ctx *Ctx) TxACK(
+	node *Node,
+	nice uint8,
+	hsh string,
+	minSize int64,
+) error {
+	hshRaw, err := Base32Codec.DecodeString(hsh)
+	if err != nil {
+		return err
+	}
+	if len(hshRaw) != MTHSize {
+		return errors.New("Invalid packet id size")
+	}
+	pkt, err := NewPkt(PktTypeACK, nice, []byte(hshRaw))
+	if err != nil {
+		return err
+	}
+	src := bytes.NewReader([]byte{})
+	_, _, err = ctx.Tx(node, pkt, nice, 0, minSize, MaxFileSize, src, hsh, nil)
+	les := LEs{
+		{"Type", "ack"},
+		{"Node", node.Id},
+		{"Nice", int(nice)},
+		{"Pkt", hsh},
+	}
+	logMsg := func(les LEs) string {
+		return fmt.Sprintf("ACK to %s of %s is sent", ctx.NodeName(node.Id), hsh)
+	}
+	if err == nil {
+		ctx.LogI("tx", les, logMsg)
+	} else {
+		ctx.LogE("tx", les, err, logMsg)
+	}
 	return err
 }

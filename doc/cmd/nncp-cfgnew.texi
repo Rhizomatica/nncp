@@ -1,4 +1,5 @@
 @node nncp-cfgnew
+@pindex nncp-cfgnew
 @section nncp-cfgnew
 
 @example
