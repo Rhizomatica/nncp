@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"go.cypherpunks.ru/nncp/v8"
 )
@@ -31,7 +32,10 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintf(os.Stderr, "nncp-ack -- send packet receipt acknowledgement\n\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE [PKT|rx]\nOptions:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] -all\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s           -node NODE[,...]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s           -node NODE -pkt PKT\n", os.Args[0])
+	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }
 
@@ -40,9 +44,12 @@ func main() {
 		cfgPath     = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw     = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFreq), "Outbound packet niceness")
 		minSizeRaw  = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
-		viaOverride = flag.String("via", "", "Override Via path to destination node")
+		viaOverride = flag.String("via", "", "Override Via path to destination node (ignored with -all)")
 		spoolPath   = flag.String("spool", "", "Override path to spool")
 		logPath     = flag.String("log", "", "Override path to logfile")
+		doAll       = flag.Bool("all", false, "ACK all rx packet for all nodes")
+		nodesRaw    = flag.String("node", "", "ACK rx packets for that node")
+		pktRaw      = flag.String("pkt", "", "ACK only that packet")
 		quiet       = flag.Bool("quiet", false, "Print only errors")
 		showPrgrs   = flag.Bool("progress", false, "Force progress showing")
 		omitPrgrs   = flag.Bool("noprogress", false, "Omit progress showing")
@@ -60,10 +67,6 @@ func main() {
 	if *version {
 		fmt.Println(nncp.VersionGet())
 		return
-	}
-	if flag.NArg() != 2 {
-		usage()
-		os.Exit(1)
 	}
 	nice, err := nncp.NicenessParse(*niceRaw)
 	if err != nil {
@@ -86,25 +89,50 @@ func main() {
 		log.Fatalln("Config lacks private keys")
 	}
 
-	node, err := ctx.FindNode(flag.Arg(0))
-	if err != nil {
-		log.Fatalln("Invalid NODE specified:", err)
-	}
-
-	nncp.ViaOverride(*viaOverride, ctx, node)
 	ctx.Umask()
 	minSize := int64(*minSizeRaw) * 1024
 
-	if flag.Arg(1) == string(nncp.TRx) {
+	var nodes []*nncp.Node
+	if *nodesRaw != "" {
+		for _, nodeRaw := range strings.Split(*nodesRaw, ",") {
+			node, err := ctx.FindNode(nodeRaw)
+			if err != nil {
+				log.Fatalln("Invalid -node specified:", err)
+			}
+			nodes = append(nodes, node)
+		}
+	}
+	if *doAll {
+		if len(nodes) != 0 {
+			usage()
+			os.Exit(1)
+		}
+		for _, node := range ctx.Neigh {
+			nodes = append(nodes, node)
+		}
+	} else if len(nodes) == 0 {
+		usage()
+		os.Exit(1)
+	}
+
+	if *pktRaw != "" {
+		if len(nodes) != 1 {
+			usage()
+			os.Exit(1)
+		}
+		nncp.ViaOverride(*viaOverride, ctx, nodes[0])
+		if err = ctx.TxACK(nodes[0], nice, *pktRaw, minSize); err != nil {
+			log.Fatalln(err)
+		}
+		return
+	}
+
+	for _, node := range nodes {
 		for job := range ctx.Jobs(node.Id, nncp.TRx) {
 			pktName := filepath.Base(job.Path)
 			if err = ctx.TxACK(node, nice, pktName, minSize); err != nil {
 				log.Fatalln(err)
 			}
-		}
-	} else {
-		if err = ctx.TxACK(node, nice, flag.Arg(1), minSize); err != nil {
-			log.Fatalln(err)
 		}
 	}
 }

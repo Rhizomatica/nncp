@@ -4,19 +4,22 @@
 @section nncp-ack
 
 @example
-$ nncp-ack [options] NODE [PKT|rx]
+$ nncp-ack [options] -all
+$ nncp-ack [options] -node NODE[,@dots{}]
+$ nncp-ack [options] -node NODE -pkt PKT
 @end example
 
-Sent acknowledgement of successful @option{PKT} (Base32-encoded hash)
-packet receipt. If @option{rx} is specified instead, then all
-@option{NODE}'s existing @code{rx} packets will be acknowledged.
+Send acknowledgement of successful @option{PKT} (Base32-encoded hash)
+packet receipt from @option{NODE} node. If no @option{-pkt} is
+specified, then acknowledge all packet in node's @code{rx} outbound
+spool. If @option{-all} is specified, then do that for all nodes.
 
 General workflow with acknowledgement is following, assuming that
 Alice has some outbound packets for Bob:
 
 @itemize
 
-@item Transfer an encrypted packets, without deleting them locally:
+@item Transfer encrypted packets, without deleting them locally:
 
 @example
 alice$ nncp-xfer -keep -tx -node bob /mnt/shared
@@ -33,7 +36,7 @@ That will also check if copied packets checksum is not mismatched.
 @item Create ACK packets of received ones:
 
 @example
-bob$ nncp-ack alice rx
+bob$ nncp-ack -node alice
 @end example
 
 @item Send those newly created packets back to Alice:
