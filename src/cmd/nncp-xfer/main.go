@@ -284,7 +284,7 @@ func main() {
 					w.CloseWithError(err)
 				}
 			}()
-			if _, err = nncp.CopyProgressed(
+			_, err = nncp.CopyProgressed(
 				tmp.W, r, "Rx",
 				append(
 					les,
@@ -292,13 +292,24 @@ func main() {
 					nncp.LE{K: "FullSize", V: fiInt.Size()},
 				),
 				ctx.ShowPrgrs,
-			); err != nil {
-				ctx.LogE("xfer-rx", les, err, logMsg)
-				isBad = true
-			}
+			)
 			fd.Close()
-			if isBad {
+			if err != nil {
+				ctx.LogE("xfer-rx", les, err, logMsg)
 				tmp.Cancel()
+				isBad = true
+				continue
+			}
+			if err = tmp.W.Flush(); err != nil {
+				ctx.LogE("xfer-rx", les, err, logMsg)
+				tmp.Cancel()
+				isBad = true
+				continue
+			}
+			if tmp.Checksum() != fiInt.Name() {
+				ctx.LogE("xfer-rx", les, errors.New("checksum mismatch"), logMsg)
+				tmp.Cancel()
+				isBad = true
 				continue
 			}
 			if err = tmp.Commit(filepath.Join(
