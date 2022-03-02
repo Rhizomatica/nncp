@@ -9,6 +9,10 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+@command{nncp-xfer} checks if locally copied packet's checksum differs
+from the source's one.
+
+@item
 Ability to turn @code{fsync} operation off using @env{$NNCPNOSYNC=1}
 environment variable.
 
