@@ -90,7 +90,7 @@ have either broken or unsupported ones. You can still build NNCP with
 usage at all:
 
 @example
-$ GO_CFLAGS="-tags nofsnotify" redo ...
+$ GO_CFLAGS="-tags nofsnotify" redo @dots{}
 @end example
 
 @vindex noyggdrasil

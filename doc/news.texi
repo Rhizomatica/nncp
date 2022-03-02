@@ -88,7 +88,7 @@ transport protocol, making it able to work as an ordinary TCP server
 inside overlay network.
 
 @item
-Yggdrasil's @code{prv;bind1,bind2;pub...}-like configuration strings are
+Yggdrasil's @code{prv;bind1,bind2;pub@dots{}}-like configuration strings are
 replaced with URL-like ones (@code{yggdrasils://PRV?bind=BIND1&bind=BIND2&pub=PUB}).
 
 @item
@@ -927,8 +927,8 @@ option in configuration file and using @command{nncp-exec} command:
     you must use @verb{|nncp-exec NODE sendmail RECIPIENT|}.
     @item
     @option{sendmail} configuration file option is replaced with
-    @option{exec}. @verb{|sendmail: [...]|} must be replaced with
-    @verb{|exec: sendmail: [...]|}.
+    @option{exec}. @code{sendmail: [@dots{}]} must be replaced with
+    @code{exec: sendmail: [@dots{}]}.
     @end itemize
 
 @item

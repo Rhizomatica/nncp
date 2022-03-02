@@ -44,7 +44,7 @@ not specify the exact one, then all will be tried until the first
 success. Optionally you can force @option{FORCEADDR} address usage,
 instead of addresses taken from configuration file. You can specify
 @verb{|host:port|}, @verb{#|some command#} and
-@verb{|yggdrasil:PUB;PRV;PEER[,...]|} formats.
+@code{yggdrasil:PUB;PRV;PEER[,@dots{}]} formats.
 
 If you specify @option{-ucspi} option, then it is assumed that you run
 @command{@ref{nncp-call}} command under some UCSPI-TCP compatible utility,

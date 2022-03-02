@@ -88,7 +88,7 @@ Yggdrasil использует IPv6+TCP сетевой стэк написанн
 качестве обычного TCP сервера внутри overlay сети.
 
 @item
-Конфигурационные строки Yggdrasil вида @code{prv;bind1,bind2;pub...}
+Конфигурационные строки Yggdrasil вида @code{prv;bind1,bind2;pub@dots{}}
 заменены на URL-подобные (@code{yggdrasils://PRV?bind=BIND1&bind=BIND2&pub=PUB}).
 
 @item
@@ -954,8 +954,8 @@ pipe вызов сторонней команды.
     нужно использовать @verb{|nncp-exec NODE sendmail RECIPIENT|}.
     @item
     @option{sendmail} опция конфигурационного файла заменена на более гибкую
-    @option{exec}. @verb{|sendmail: [...]|} нужно заменить на @verb{|exec:
-    sendmail: [...]|}.
+    @option{exec}. @code{sendmail: [@dots{}]} нужно заменить на
+    @code{exec: sendmail: [@dots{}]}.
     @end itemize
 
 @item
