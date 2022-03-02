@@ -13,6 +13,9 @@ See also this page @ref{Новости, on russian}.
 from the source's one.
 
 @item
+@command{nncp-call} has bad return code if its queues contain unfinished jobs.
+
+@item
 @command{nncp-ack} command appeared, that sends explicit packet receipt
 acknowledgement (ACK packet). That acknowledgement deletes referenced
 packet from the outbound spool.

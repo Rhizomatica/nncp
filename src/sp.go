@@ -1114,7 +1114,7 @@ func (state *SPState) StartWorkers(
 	return nil
 }
 
-func (state *SPState) Wait() {
+func (state *SPState) Wait() bool {
 	state.wg.Wait()
 	close(state.payloads)
 	close(state.pings)
@@ -1130,12 +1130,15 @@ func (state *SPState) Wait() {
 	if txDuration > 0 {
 		state.TxSpeed = state.TxBytes / txDuration
 	}
+	nothingLeft := len(state.queueTheir) == 0
 	for _, s := range state.fds {
+		nothingLeft = false
 		s.fd.Close()
 	}
 	for pktName := range state.progressBars {
 		ProgressKill(pktName)
 	}
+	return nothingLeft
 }
 
 func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
