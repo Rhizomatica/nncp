@@ -10,17 +10,18 @@ require (
 	github.com/google/btree v1.0.1 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/hjson/hjson-go v3.1.0+incompatible
-	github.com/klauspost/compress v1.13.6
+	github.com/klauspost/compress v1.14.4
+	github.com/klauspost/cpuid/v2 v2.0.11 // indirect
 	github.com/yggdrasil-network/yggdrasil-go v0.4.2
 	go.cypherpunks.ru/balloon v1.1.1
 	go.cypherpunks.ru/recfile v0.4.3
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e
+	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
+	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	inet.af/netstack v0.0.0-20211120045802-8aa80cf23d3c
-	lukechampine.com/blake3 v1.1.6
+	lukechampine.com/blake3 v1.1.7
 )
 
 go 1.13
