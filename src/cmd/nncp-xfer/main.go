@@ -266,7 +266,7 @@ func main() {
 				fd.Close()
 				continue
 			}
-			if _, err = fd.Seek(0, 0); err != nil {
+			if _, err = fd.Seek(0, io.SeekStart); err != nil {
 				log.Fatalln(err)
 			}
 			tmp, err := ctx.NewTmpFileWHash()
