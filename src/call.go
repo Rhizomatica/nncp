@@ -117,7 +117,7 @@ func (ctx *Ctx) CallNode(
 			ctx.LogI("call-started", les, func(les LEs) string {
 				return fmt.Sprintf("Connection to %s (%s)", node.Name, addr)
 			})
-			state.Wait()
+			isGood = state.Wait()
 			ctx.LogI("call-finished", append(
 				les,
 				LE{"Duration", int64(state.Duration.Seconds())},
@@ -138,7 +138,6 @@ func (ctx *Ctx) CallNode(
 					humanize.IBytes(uint64(state.TxSpeed)),
 				)
 			})
-			isGood = true
 			conn.Close()
 			break
 		} else {
