@@ -24,7 +24,7 @@ $ redo all
 After that you should get various @command{bin/nncp-*} binaries and
 @command{bin/hjson-cli} command (only for your convenience, not
 necessary installation). For example, documentation for
-@command{@ref{nncp-bundle}} command can be get with
+@command{nncp-bundle} command can be get with
 @command{info doc/nncp.info -n nncp-bundle}.
 
 @pindex redo

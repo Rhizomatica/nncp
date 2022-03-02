@@ -69,7 +69,7 @@ cat > $texi <<EOF
 @settitle NEWS
 @node News
 @unnumbered News
-`sed -n '5,$p' < doc/news.texi`
+`sed -n '6,$p' < doc/news.texi`
 @bye
 EOF
 mkinfo --output NEWS $texi
