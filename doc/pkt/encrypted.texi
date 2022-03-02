@@ -1,4 +1,7 @@
 @node Encrypted
+@cindex encrypted packet
+@cindex AEAD
+@cindex ChaCha20-Poly1305
 @section Encrypted packet
 
 Encrypted packets are the only files found in spools, in exchangeable

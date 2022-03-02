@@ -1,4 +1,5 @@
 @node nncp-pkt
+@pindex nncp-pkt
 @section nncp-pkt
 
 @example
@@ -20,7 +21,7 @@ Sender: 2WHBV3TPZHDOZGUJEH563ZEK7M33J4UESRFO4PDKWD5KZNPROABQ (self)
 @option{-dump} option outputs plain packet's payload (if it is file
 transmission, then it will be the file itself as an example). If it is
 an encrypted packet, then it will be decrypted first, outputing the
-included plain packet, that can be fed to @command{nncp-pkt} again:
+included plain packet, that can be fed to @command{@ref{nncp-pkt}} again:
 
 @example
 Packet type: plain

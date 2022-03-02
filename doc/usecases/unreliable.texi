@@ -1,4 +1,5 @@
 @node UsecaseUnreliable
+@cindex unreliable link
 @section Unreliable/expensive communication link
 
 Assume that you have got slow modem/radio/cellular link that frequently

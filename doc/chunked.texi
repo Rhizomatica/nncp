@@ -1,4 +1,5 @@
 @node Chunked
+@cindex chunked
 @unnumbered Chunked files
 
 There is ability to transfer huge files with dividing them into smaller
@@ -10,9 +11,11 @@ than huge file's size. You can transfer those chunks on different
 storage devices, and/or at different time, reassembling the whole packet
 on the destination node.
 
-Splitting is done with @ref{nncp-file, nncp-file -chunked} command and
-reassembling with @ref{nncp-reass} command.
+Splitting is done with @command{@ref{nncp-file} -chunked} command and
+reassembling with @command{@ref{nncp-reass}} command.
 
+@vindex .nncp.meta
+@vindex .nncp.chunk
 Chunked @file{FILE} produces @file{FILE.nncp.meta},
 @file{FILE.nncp.chunk0}, @file{FILE.nncp.chunk1}, @dots{} files. All
 @file{.nncp.chunkXXX} can be concatenated together to produce original
@@ -44,6 +47,7 @@ size and their hash checksums. This is
     @ref{MTH} checksum of each chunk
 @end multitable
 
+@cindex ZFS recordsize
 @anchor{ChunkedZFS}
 It is strongly advisable to reassemble incoming chunked files on
 @url{https://en.wikipedia.org/wiki/ZFS, ZFS} dataset with deduplication

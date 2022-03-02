@@ -1,4 +1,5 @@
 @node nncp-trns
+@pindex nncp-trns
 @section nncp-trns
 
 @example

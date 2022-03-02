@@ -1,4 +1,5 @@
 @node FreqIndex
+@cindex index files
 @section Index files for freqing
 
 In many cases you do not know exact files list on remote machine you

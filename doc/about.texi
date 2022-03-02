@@ -1,8 +1,18 @@
+@cindex about
 @strong{NNCP} (Node to Node copy) is a collection of utilities
 simplifying secure store-and-forward files, mail and command exchanging.
 
 See also this page @ref{Об утилитах, on russian}.
 
+@cindex F2F
+@cindex friend-to-friend
+@cindex E2E
+@cindex end-to-end
+@cindex darknet
+@cindex DTN
+@cindex delay tolerant
+@cindex dead drop
+@cindex onion encryption
 This utilities are intended to help build up small size (dozens of
 nodes) ad-hoc @url{https://en.wikipedia.org/wiki/Friend-to-friend,
 friend-to-friend} (F2F) statically routed
@@ -28,6 +38,9 @@ transmission exists.
 
 Look for possible @ref{Use cases, use cases}!
 
+@cindex GPL
+@cindex free software
+@cindex licence
 NNCP is @url{https://www.gnu.org/philosophy/pragmatic.html, copylefted}
 @url{https://www.gnu.org/philosophy/free-sw.html, free software}
 licenced under @url{https://www.gnu.org/licenses/gpl-3.0.html, GNU GPLv3}.

@@ -1,7 +1,33 @@
 @node News
+@cindex news
 @unnumbered News
 
 See also this page @ref{Новости, on russian}.
+
+@node Release 8_6_0
+@section Release 8.6.0
+@itemize
+
+@item
+@command{nncp-xfer} checks if locally copied packet's checksum differs
+from the source's one.
+
+@item
+@command{nncp-call} has bad return code if its queues contain unfinished jobs.
+
+@item
+@command{nncp-ack} command appeared, that sends explicit packet receipt
+acknowledgement (ACK packet). That acknowledgement deletes referenced
+packet from the outbound spool.
+
+@item
+Ability to turn @code{fsync} operation off using @env{$NNCPNOSYNC=1}
+environment variable.
+
+@item
+Added various indices in documentation, that should help searching in it.
+
+@end itemize
 
 @node Release 8_5_0
 @section Release 8.5.0
@@ -62,7 +88,7 @@ transport protocol, making it able to work as an ordinary TCP server
 inside overlay network.
 
 @item
-Yggdrasil's @code{prv;bind1,bind2;pub...}-like configuration strings are
+Yggdrasil's @code{prv;bind1,bind2;pub@dots{}}-like configuration strings are
 replaced with URL-like ones (@code{yggdrasils://PRV?bind=BIND1&bind=BIND2&pub=PUB}).
 
 @item
@@ -297,7 +323,7 @@ command.
 @itemize
 
 @item
-Fixed failing directories fsync after @file{.seen} file creation.
+Fixed failing directories @code{fsync} after @file{.seen} file creation.
 
 @end itemize
 
@@ -699,7 +725,7 @@ Bugfix: private and public Noise keys were swapped in newly created
 configuration files, that lead to inability to authenticate online peers.
 
 @item
-Explicit directories fsync-ing for guaranteed files renaming.
+Explicit directories @code{fsync}-ing for guaranteed files renaming.
 
 @end itemize
 
@@ -901,8 +927,8 @@ option in configuration file and using @command{nncp-exec} command:
     you must use @verb{|nncp-exec NODE sendmail RECIPIENT|}.
     @item
     @option{sendmail} configuration file option is replaced with
-    @option{exec}. @verb{|sendmail: [...]|} must be replaced with
-    @verb{|exec: sendmail: [...]|}.
+    @option{exec}. @code{sendmail: [@dots{}]} must be replaced with
+    @code{exec: sendmail: [@dots{}]}.
     @end itemize
 
 @item

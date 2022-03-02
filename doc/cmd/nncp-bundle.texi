@@ -1,10 +1,11 @@
 @node nncp-bundle
+@pindex nncp-bundle
 @section nncp-bundle
 
 @example
-$ nncp-bundle [options] -tx [-delete] NODE [NODE @dots{}] > ...
-$ nncp-bundle [options] -rx -delete [-dryrun] [NODE @dots{}] < ...
-$ nncp-bundle [options] -rx [-check] [-dryrun] [NODE @dots{}] < ...
+$ nncp-bundle [options] -tx [-delete] NODE [NODE @dots{}] > @dots{}
+$ nncp-bundle [options] -rx -delete [-dryrun] [NODE @dots{}] < @dots{}
+$ nncp-bundle [options] -rx [-check] [-dryrun] [NODE @dots{}] < @dots{}
 @end example
 
 With @option{-tx} option, this command creates @ref{Bundles, bundle} of
@@ -17,8 +18,8 @@ attention that @strong{no} integrity checking is done by default. Modern
 tape drives could easily provide too much throughput your CPU won't be
 able to verify on the fly. So if you won't @ref{nncp-toss, toss}
 received packets at the place, it is advisable either to run
-@ref{nncp-check} utility for packets integrity verification, or to use
-@option{-check} option to enable on the fly integrity check.
+@command{@ref{nncp-check}} utility for packets integrity verification,
+or to use @option{-check} option to enable on the fly integrity check.
 
 You can specify multiple @option{NODE} arguments, telling for what nodes
 you want to create the stream, or take it from. If no nodes are

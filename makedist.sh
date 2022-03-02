@@ -69,7 +69,7 @@ cat > $texi <<EOF
 @settitle NEWS
 @node News
 @unnumbered News
-`sed -n '5,$p' < doc/news.texi`
+`sed -n '6,$p' < doc/news.texi`
 @bye
 EOF
 mkinfo --output NEWS $texi
@@ -128,6 +128,7 @@ gpg --enarmor < "$tarball".sig |
     sed "/^Comment:/d ; s/ARMORED FILE/SIGNATURE/" > "$tarball".asc
 meta4-create -file "$tarball" -mtime "$tarball" -sig "$tarball".asc \
     http://www.nncpgo.org/download/"$tarball" \
+    http://y.www.nncpgo.org/download/"$tarball" \
     https://nncp.mirrors.quux.org/download/"$tarball" > "$tarball".meta4
 
 size=$(( $(stat -f %z $tarball) / 1024 ))

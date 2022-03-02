@@ -1,4 +1,8 @@
 @node MTH
+@cindex MTH
+@cindex hashing
+@cindex merkle tree
+@cindex BLAKE3
 @unnumbered Merkle Tree Hashing
 
 NNCP uses @url{https://github.com/BLAKE3-team/BLAKE3, BLAKE3} hash

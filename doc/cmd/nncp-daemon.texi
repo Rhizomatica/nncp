@@ -1,4 +1,5 @@
 @node nncp-daemon
+@pindex nncp-daemon
 @section nncp-daemon
 
 @example
@@ -10,8 +11,8 @@ $ nncp-daemon [options]
 
 Start listening TCP daemon, wait for incoming connections and run
 @ref{Sync, synchronization protocol} with each of them. You can run
-@ref{nncp-toss} utility in background to process inbound packets from
-time to time.
+@command{@ref{nncp-toss}} utility in background to process inbound
+packets from time to time.
 
 @option{-maxconn} option specifies how many simultaneous clients daemon
 can handle. @option{-bind} option specifies @option{addr:port} it must
@@ -36,7 +37,7 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -
 
 @option{-autotoss} option runs tosser on node's spool every second
 during the call. All @option{-autotoss-*} options is the same as in
-@ref{nncp-toss} command.
+@command{@ref{nncp-toss}} command.
 
 Read @ref{CfgNoCK, more} about @option{-nock} option.
 

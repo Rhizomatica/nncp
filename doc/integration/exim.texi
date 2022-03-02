@@ -1,4 +1,5 @@
 @node Exim
+@cindex Exim integration
 @section Integration with Exim
 
 This section is unaltered copy-paste of
@@ -17,6 +18,8 @@ eventual delivery (over the Internet, LAN, whatever).
 
 This is fairly simple in Exim.
 
+@pindex bsmtp
+@pindex rmail
 We actually have two choices for how to do this: @command{bsmtp} or
 @command{rmail} mode. bsmtp (batch SMTP) is the more modern way, and is
 essentially a derivative of SMTP that explicitly can be queued
@@ -58,8 +61,8 @@ nncp:
 .endif
 @end example
 
-This is pretty straightforward. We pipe to @command{nncp-exec}, run it
-as the nncp user. @command{nncp-exec} sends it to a target node and runs
+This is pretty straightforward. We pipe to @command{@ref{nncp-exec}}, run it
+as the nncp user. @command{@ref{nncp-exec}} sends it to a target node and runs
 whatever that node has called @command{rsmtp} (the command to receive
 bsmtp data). When the target node processes the request, it will run the
 configured command and pipe the data in to it.
@@ -96,6 +99,7 @@ exec: @{
 
 The @option{-bS} option is what tells Exim to receive BSMTP on @code{stdin}.
 
+@vindex MAIN_TRUSTED_USERS
 Now, you need to tell Exim that nncp is a trusted user (able to set From
 headers arbitrarily). Assuming you are running NNCP as the @code{nncp} user,
 then add @code{MAIN_TRUSTED_USERS = nncp} to a file such as

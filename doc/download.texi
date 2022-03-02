@@ -1,4 +1,8 @@
 @node Tarballs
+@cindex tarball
+@cindex dependency
+@cindex licencing
+@cindex download
 @section Prepared tarballs
 
 You can obtain releases source code prepared tarballs from the links below.
@@ -44,6 +48,13 @@ And additional ones for Yggdrasil support:
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {meta4 link sig} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
+
+@item @ref{Release 8_5_0, 8.5.0} @tab 2022-01-26 @tab 1685 KiB
+@tab
+    @url{download/nncp-8.5.0.tar.xz.meta4, meta4}
+    @url{download/nncp-8.5.0.tar.xz, link}
+    @url{download/nncp-8.5.0.tar.xz.sig, sig}
+@tab @code{E8850D27 70C4FA74 5CF9B9A9 0CEEE5D6 05E50FA5 031A0813 49844C15 3E7BBFF4}
 
 @item @ref{Release 8_4_0, 8.4.0} @tab 2022-01-25 @tab 1683 KiB
 @tab

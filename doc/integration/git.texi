@@ -1,4 +1,6 @@
 @node Git
+@cindex git integration
+@pindex git-bundle
 @section Integration with Git
 
 @url{https://git-scm.com/, Git} version control system already has all

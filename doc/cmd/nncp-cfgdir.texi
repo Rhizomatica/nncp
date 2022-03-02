@@ -1,4 +1,5 @@
 @node nncp-cfgdir
+@pindex nncp-cfgdir
 @section nncp-cfgdir
 
 @example

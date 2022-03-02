@@ -1,4 +1,5 @@
 @node Thanks
+@cindex thanks
 @unnumbered Thanks
 
 There are people deserving to be thanked for helping this project:

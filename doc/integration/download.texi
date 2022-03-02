@@ -1,4 +1,7 @@
 @node DownloadService
+@cindex download service
+@pindex warcer.sh
+@pindex wgeter.sh
 @section Downloading service
 
 Previous sections tell about manual downloading and sending results to

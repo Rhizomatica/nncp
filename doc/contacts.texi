@@ -1,4 +1,8 @@
 @node Contacts
+@cindex contacts
+@cindex maillist
+@cindex IRC
+@cindex Matrix
 @unnumbered Contacts
 
 Please send questions regarding the use of NNCP, bug reports and patches to
