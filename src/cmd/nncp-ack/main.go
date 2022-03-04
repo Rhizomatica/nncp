@@ -37,8 +37,8 @@ func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintf(os.Stderr, "nncp-ack -- send packet receipt acknowledgement\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] -all\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "Usage: %s           -node NODE[,...]\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "Usage: %s           -node NODE -pkt PKT\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] -node NODE[,...]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] -node NODE -pkt PKT\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }

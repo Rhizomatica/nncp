@@ -15,6 +15,10 @@ endless loop of ACKs.
 @item
 @command{nncp-ack} previously did not remove corresponding @file{hdr/} files.
 
+@item
+@command{nncp-rm} now takes list of packet from @code{stdin} when
+@option{-pkt} option is used.
+
 @end itemize
 
 @node Release 8_6_0
