@@ -9,6 +9,10 @@ See also this page @ref{Новости, on russian}.
 @itemize
 
 @item
+@command{nncp-ack} does not acknowledge ACK-packets, preventing an
+endless loop of ACKs.
+
+@item
 @command{nncp-ack} previously did not remove corresponding @file{hdr/} files.
 
 @end itemize

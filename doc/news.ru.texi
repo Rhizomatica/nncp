@@ -6,6 +6,10 @@
 @itemize
 
 @item
+@command{nncp-ack} не подтверждает ACK-пакеты, предотвращая бесконечную
+петлю из ACK-ов.
+
+@item
 В прошлом, @command{nncp-ack} не удаляла соответствующие @file{hdr/} файлы.
 
 @end itemize
