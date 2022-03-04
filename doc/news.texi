@@ -4,6 +4,28 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_7_0
+@section Release 8.7.0
+@itemize
+
+@item
+@command{nncp-ack} does not acknowledge ACK-packets, preventing an
+endless loop of ACKs.
+
+@item
+@command{nncp-ack} previously did not remove corresponding @file{hdr/} files.
+
+@item
+@command{nncp-rm} now takes list of packet from @code{stdin} when
+@option{-pkt} option is used.
+
+@item
+@command{nncp-ack} now generates list of ACK packets it created, that
+could be used as an input to @command{nncp-rm} to remove outbound ACK
+packets.
+
+@end itemize
+
 @node Release 8_6_0
 @section Release 8.6.0
 @itemize
@@ -338,7 +360,7 @@ plain packet type with @command{nncp-toss}, @command{nncp-file} and
 
 @item
 Fixed workability of @command{nncp-file} and @command{nncp-exec}
-commands, that use temporary file (stdin and @option{-use-tmp}).
+commands, that use temporary file (@code{stdin} and @option{-use-tmp}).
 
 @item
 Fixed disappearing bad return code in @command{nncp-exec} command.

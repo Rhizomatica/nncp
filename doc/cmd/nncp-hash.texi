@@ -6,7 +6,7 @@
 $ nncp-hash [-file @dots{}] [-seek X] [-debug] [-progress]
 @end example
 
-Calculate @ref{MTH} hash of either stdin, or @option{-file} if
+Calculate @ref{MTH} hash of either @code{stdin}, or @option{-file} if
 specified.
 
 You can optionally force seeking the file first, reading only part of

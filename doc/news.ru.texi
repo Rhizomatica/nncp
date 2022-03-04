@@ -1,6 +1,28 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.7.0
+@subsection Релиз 8.7.0
+@itemize
+
+@item
+@command{nncp-ack} не подтверждает ACK-пакеты, предотвращая бесконечную
+петлю из ACK-ов.
+
+@item
+В прошлом, @command{nncp-ack} не удаляла соответствующие @file{hdr/} файлы.
+
+@item
+@command{nncp-rm} теперь берёт список пакетов из @code{stdin}, при
+использовании @option{-pkt} опции.
+
+@item
+@command{nncp-ack} теперь генерирует список ACK пакетов, которые были
+созданы, что может использоваться в качестве ввода для @command{nncp-rm}
+команды, чтобы удалить исходящие ACK пакеты.
+
+@end itemize
+
 @node Релиз 8.6.0
 @subsection Релиз 8.6.0
 @itemize
@@ -345,7 +367,7 @@ NNCP собирается на NetBSD.
 
 @item
 Исправлена работоспособность @command{nncp-file} и @command{nncp-exec}
-команд использующих временный файл (stdin и @option{-use-tmp}).
+команд использующих временный файл (@code{stdin} и @option{-use-tmp}).
 
 @item
 Исправлен пропадающий плохой код возврата в @command{nncp-exec} команде.
