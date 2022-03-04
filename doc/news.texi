@@ -4,6 +4,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_7_0
+@section Release 8.7.0
+@itemize
+
+@item
+@command{nncp-ack} previously did not remove corresponding @file{hdr/} files.
+
+@end itemize
+
 @node Release 8_6_0
 @section Release 8.6.0
 @itemize

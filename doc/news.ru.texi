@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.7.0
+@subsection Релиз 8.7.0
+@itemize
+
+@item
+В прошлом, @command{nncp-ack} не удаляла соответствующие @file{hdr/} файлы.
+
+@end itemize
+
 @node Релиз 8.6.0
 @subsection Релиз 8.6.0
 @itemize
