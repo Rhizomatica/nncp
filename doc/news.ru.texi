@@ -345,7 +345,7 @@ NNCP собирается на NetBSD.
 
 @item
 Исправлена работоспособность @command{nncp-file} и @command{nncp-exec}
-команд использующих временный файл (stdin и @option{-use-tmp}).
+команд использующих временный файл (@code{stdin} и @option{-use-tmp}).
 
 @item
 Исправлен пропадающий плохой код возврата в @command{nncp-exec} команде.

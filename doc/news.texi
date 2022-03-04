@@ -338,7 +338,7 @@ plain packet type with @command{nncp-toss}, @command{nncp-file} and
 
 @item
 Fixed workability of @command{nncp-file} and @command{nncp-exec}
-commands, that use temporary file (stdin and @option{-use-tmp}).
+commands, that use temporary file (@code{stdin} and @option{-use-tmp}).
 
 @item
 Fixed disappearing bad return code in @command{nncp-exec} command.
