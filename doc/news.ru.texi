@@ -12,6 +12,10 @@
 @item
 В прошлом, @command{nncp-ack} не удаляла соответствующие @file{hdr/} файлы.
 
+@item
+@command{nncp-rm} теперь берёт список пакетов из @code{stdin}, при
+использовании @option{-pkt} опции.
+
 @end itemize
 
 @node Релиз 8.6.0
