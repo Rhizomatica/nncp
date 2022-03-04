@@ -621,7 +621,7 @@ func jobProcess(
 				if err != nil {
 					panic(err)
 				}
-				if _, _, err = ctx.Tx(
+				if _, _, _, err = ctx.Tx(
 					node,
 					pktTrns,
 					nice,
@@ -752,7 +752,7 @@ func jobProcess(
 				}
 				if nodeId != sender.Id && nodeId != pktEnc.Sender {
 					ctx.LogI("rx-area-echo", lesEcho, logMsgNode)
-					if _, _, err = ctx.Tx(
+					if _, _, _, err = ctx.Tx(
 						node,
 						&pkt,
 						nice,
