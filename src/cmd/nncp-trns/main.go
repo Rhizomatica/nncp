@@ -137,7 +137,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if _, _, err = ctx.Tx(
+	if _, _, _, err = ctx.Tx(
 		node,
 		pktTrns,
 		nice,

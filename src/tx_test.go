@@ -87,7 +87,7 @@ func TestTx(t *testing.T) {
 		}
 		pkt, err := NewPkt(PktTypeExec, replyNice, []byte(pathSrc))
 		src := bytes.NewReader(data)
-		dstNode, _, err := ctx.Tx(
+		dstNode, _, _, err := ctx.Tx(
 			nodeTgt,
 			pkt,
 			123,

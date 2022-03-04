@@ -119,15 +119,22 @@ func main() {
 		os.Exit(1)
 	}
 
+	acksCreated := os.NewFile(uintptr(4), "ACKsCreated")
+	if acksCreated == nil {
+		log.Fatalln("can not open FD:4")
+	}
+
 	if *pktRaw != "" {
 		if len(nodes) != 1 {
 			usage()
 			os.Exit(1)
 		}
 		nncp.ViaOverride(*viaOverride, ctx, nodes[0])
-		if err = ctx.TxACK(nodes[0], nice, *pktRaw, minSize); err != nil {
+		pktName, err := ctx.TxACK(nodes[0], nice, *pktRaw, minSize)
+		if err != nil {
 			log.Fatalln(err)
 		}
+		acksCreated.WriteString(nodes[0].Id.String() + "/" + pktName + "\n")
 		return
 	}
 
@@ -217,9 +224,11 @@ func main() {
 				})
 				continue
 			}
-			if err = ctx.TxACK(node, nice, pktName, minSize); err != nil {
+			newPktName, err := ctx.TxACK(node, nice, pktName, minSize)
+			if err != nil {
 				log.Fatalln(err)
 			}
+			acksCreated.WriteString(node.Id.String() + "/" + newPktName + "\n")
 		}
 	}
 	if isBad {

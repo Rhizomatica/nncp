@@ -19,6 +19,11 @@ endless loop of ACKs.
 @command{nncp-rm} now takes list of packet from @code{stdin} when
 @option{-pkt} option is used.
 
+@item
+@command{nncp-ack} now generates list of ACK packets it created, that
+could be used as an input to @command{nncp-rm} to remove outbound ACK
+packets.
+
 @end itemize
 
 @node Release 8_6_0
