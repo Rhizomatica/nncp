@@ -19,13 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"bufio"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
+	xdr "github.com/davecgh/go-xdr/xdr2"
 	"go.cypherpunks.ru/nncp/v8"
 )
 
@@ -33,8 +37,8 @@ func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintf(os.Stderr, "nncp-ack -- send packet receipt acknowledgement\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] -all\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "Usage: %s           -node NODE[,...]\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "Usage: %s           -node NODE -pkt PKT\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] -node NODE[,...]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] -node NODE -pkt PKT\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
 }
@@ -115,24 +119,119 @@ func main() {
 		os.Exit(1)
 	}
 
+	acksCreated := os.NewFile(uintptr(4), "ACKsCreated")
+	if acksCreated == nil {
+		log.Fatalln("can not open FD:4")
+	}
+
 	if *pktRaw != "" {
 		if len(nodes) != 1 {
 			usage()
 			os.Exit(1)
 		}
 		nncp.ViaOverride(*viaOverride, ctx, nodes[0])
-		if err = ctx.TxACK(nodes[0], nice, *pktRaw, minSize); err != nil {
+		pktName, err := ctx.TxACK(nodes[0], nice, *pktRaw, minSize)
+		if err != nil {
 			log.Fatalln(err)
 		}
+		acksCreated.WriteString(nodes[0].Id.String() + "/" + pktName + "\n")
 		return
 	}
 
+	isBad := false
 	for _, node := range nodes {
 		for job := range ctx.Jobs(node.Id, nncp.TRx) {
 			pktName := filepath.Base(job.Path)
-			if err = ctx.TxACK(node, nice, pktName, minSize); err != nil {
+			sender := ctx.Neigh[*job.PktEnc.Sender]
+			les := nncp.LEs{
+				{K: "Node", V: job.PktEnc.Sender},
+				{K: "Pkt", V: pktName},
+			}
+			logMsg := func(les nncp.LEs) string {
+				return fmt.Sprintf(
+					"ACKing %s/%s",
+					ctx.NodeName(job.PktEnc.Sender), pktName,
+				)
+			}
+			if sender == nil {
+				err := errors.New("unknown node")
+				ctx.LogE("ack-read", les, err, logMsg)
+				isBad = true
+				continue
+			}
+			fd, err := os.Open(job.Path)
+			if err != nil {
+				ctx.LogE("ack-read-open", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": opening" + job.Path
+				})
+				isBad = true
+				continue
+			}
+			pktEnc, _, err := ctx.HdrRead(fd)
+			if err != nil {
+				fd.Close()
+				ctx.LogE("ack-read-read", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": reading" + job.Path
+				})
+				isBad = true
+				continue
+			}
+			switch pktEnc.Magic {
+			case nncp.MagicNNCPEv1.B:
+				err = nncp.MagicNNCPEv1.TooOld()
+			case nncp.MagicNNCPEv2.B:
+				err = nncp.MagicNNCPEv2.TooOld()
+			case nncp.MagicNNCPEv3.B:
+				err = nncp.MagicNNCPEv3.TooOld()
+			case nncp.MagicNNCPEv4.B:
+				err = nncp.MagicNNCPEv4.TooOld()
+			case nncp.MagicNNCPEv5.B:
+				err = nncp.MagicNNCPEv5.TooOld()
+			case nncp.MagicNNCPEv6.B:
+			default:
+				err = errors.New("is not an encrypted packet")
+			}
+			if err != nil {
+				fd.Close()
+				ctx.LogE("ack-read-magic", les, err, logMsg)
+				isBad = true
+				continue
+			}
+			if _, err = fd.Seek(0, io.SeekStart); err != nil {
+				fd.Close()
+				ctx.LogE("ack-read-seek", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": seeking"
+				})
+				isBad = true
+				continue
+			}
+			pipeR, pipeW := io.Pipe()
+			go nncp.PktEncRead(ctx.Self, ctx.Neigh, bufio.NewReader(fd), pipeW, true, nil)
+			var pkt nncp.Pkt
+			_, err = xdr.Unmarshal(pipeR, &pkt)
+			fd.Close()
+			pipeW.Close()
+			if err != nil {
+				ctx.LogE("ack-read-unmarshal", les, err, func(les nncp.LEs) string {
+					return logMsg(les) + ": unmarshal"
+				})
+				isBad = true
+				continue
+			}
+			if pkt.Type == nncp.PktTypeACK {
+				ctx.LogI("ack-read-if-ack", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": it is ACK, skipping"
+				})
+				continue
+			}
+			newPktName, err := ctx.TxACK(node, nice, pktName, minSize)
+			if err != nil {
 				log.Fatalln(err)
 			}
+			acksCreated.WriteString(node.Id.String() + "/" + newPktName + "\n")
 		}
+	}
+	if isBad {
+		os.Exit(1)
 	}
 }

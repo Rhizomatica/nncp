@@ -11,7 +11,12 @@ $ nncp-rm [options] @{-all|-node NODE@} -nock
 $ nncp-rm [options] @{-all|-node NODE@} -hdr
 $ nncp-rm [options] @{-all|-node NODE@} -area
 $ nncp-rm [options] @{-all|-node NODE@} [-rx] [-tx]
-$ nncp-rm [options] @{-all|-node NODE@} -pkt PKT
+$ nncp-rm [options] @{-all|-node NODE@} -pkt <<EOF
+PKT1
+PKT2
+NODEx/PKT3
+@dots{}
+EOF
 @end example
 
 This command is aimed to delete various files from your spool directory:
@@ -25,9 +30,10 @@ commands like @command{@ref{nncp-file}} fail for some reason.
 @item If @option{-lock} option is specified, then all @file{.lock} files
 will be deleted in your spool directory.
 
-@item If @option{-pkt} option is specified, then @file{PKT} packet (its
-Base32 name) will be deleted. This is useful when you see some packet
-failing to be processed.
+@item If @option{-pkt} option is specified, then list of packets (Base32
+names) toe be deleted is read from @code{stdin}. This could be useful
+when you see some packet failing to be processed. Packet identifiers
+could have "directories" prepended, that are ignored.
 
 @item When either @option{-rx} or @option{-tx} options are specified
 (maybe both of them), then delete all packets from that given queues.

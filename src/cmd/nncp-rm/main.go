@@ -21,6 +21,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -43,7 +44,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -hdr\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -area\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} {-rx|-tx}\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -pkt PKT\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -pkt < ...\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "-older option's time units are: (s)econds, (m)inutes, (h)ours, (d)ays")
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
@@ -65,7 +66,7 @@ func main() {
 		doArea    = flag.Bool("area", false, "Remove only area/* seen files")
 		older     = flag.String("older", "", "XXX{smhd}: only older than XXX number of time units")
 		dryRun    = flag.Bool("dryrun", false, "Do not actually remove files")
-		pktRaw    = flag.String("pkt", "", "Packet to remove")
+		doPkt     = flag.Bool("pkt", false, "Packet to remove TODO")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
 		debug     = flag.Bool("debug", false, "Print debug messages")
@@ -113,6 +114,21 @@ func main() {
 		}
 	}
 	oldBoundary := time.Second * time.Duration(oldBoundaryRaw)
+
+	pkts := make(map[string]struct{})
+	if *doPkt {
+		raw, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			log.Fatalln("can not read -pkt from stdin:", err)
+		}
+		for _, line := range strings.Split(string(raw), "\n") {
+			if len(line) == 0 {
+				continue
+			}
+			cols := strings.Split(line, "/")
+			pkts[cols[len(cols)-1]] = struct{}{}
+		}
+	}
 
 	now := time.Now()
 	if *doTmp {
@@ -215,12 +231,14 @@ func main() {
 						}
 						return os.Remove(path)
 					}
-					if *pktRaw != "" && filepath.Base(info.Name()) == *pktRaw {
-						ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, logMsg)
-						if *dryRun {
-							return nil
+					if len(pkts) > 0 {
+						if _, exists := pkts[filepath.Base(info.Name())]; exists {
+							ctx.LogI("rm", nncp.LEs{{K: "File", V: path}}, logMsg)
+							if *dryRun {
+								return nil
+							}
+							return os.Remove(path)
 						}
-						return os.Remove(path)
 					}
 					if !*doSeen && !*doNoCK && !*doHdr && !*doPart &&
 						(*doRx || *doTx) &&
@@ -234,12 +252,12 @@ func main() {
 					return nil
 				})
 		}
-		if *pktRaw != "" || *doRx || *doNoCK || *doPart {
+		if len(pkts) > 0 || *doRx || *doNoCK || *doPart {
 			if err = remove(nncp.TRx); err != nil {
 				log.Fatalln("Can not remove:", err)
 			}
 		}
-		if *pktRaw != "" || *doTx || *doHdr {
+		if len(pkts) > 0 || *doTx || *doHdr {
 			if err = remove(nncp.TTx); err != nil {
 				log.Fatalln("Can not remove:", err)
 			}
@@ -315,9 +333,12 @@ func main() {
 						return nil
 					}
 					if now.Sub(info.ModTime()) < oldBoundary {
-						ctx.LogD("rm-skip", nncp.LEs{{K: "File", V: path}}, func(les nncp.LEs) string {
-							return fmt.Sprintf("File %s: too fresh, skipping", path)
-						})
+						ctx.LogD(
+							"rm-skip", nncp.LEs{{K: "File", V: path}},
+							func(les nncp.LEs) string {
+								return fmt.Sprintf("File %s: too fresh, skipping", path)
+							},
+						)
 						return nil
 					}
 					ctx.LogI(
