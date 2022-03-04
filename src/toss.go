@@ -926,6 +926,8 @@ func jobProcess(
 						return logMsg(les) + ": removing packet"
 					})
 					return err
+				} else if ctx.HdrUsage {
+					os.Remove(JobPath2Hdr(pktPath))
 				}
 			}
 		} else {
