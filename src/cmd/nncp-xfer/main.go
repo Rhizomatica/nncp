@@ -209,6 +209,24 @@ func main() {
 					ctx.NodeName(nodeId), filename,
 				)
 			}
+			if _, err = os.Stat(filepath.Join(
+				ctx.Spool,
+				nodeId.String(),
+				string(nncp.TRx),
+				nncp.SeenDir,
+				fiInt.Name(),
+			)); err == nil || !os.IsNotExist(err) {
+				ctx.LogI("xfer-rx-seen", les, func(les nncp.LEs) string {
+					return logMsg(les) + ": packet already seen"
+				})
+				if !*keep {
+					if err = os.Remove(filename); err != nil {
+						ctx.LogE("xfer-rx-remove", les, err, logMsg)
+						isBad = true
+					}
+				}
+				continue
+			}
 			fd, err := os.Open(filename)
 			if err != nil {
 				ctx.LogE("xfer-rx-open", les, err, func(les nncp.LEs) string {
@@ -433,14 +451,6 @@ Tx:
 			if _, err = os.Stat(filepath.Join(dstPath, pktName)); err == nil || !os.IsNotExist(err) {
 				ctx.LogD("xfer-tx-exists", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": already exists"
-				})
-				continue
-			}
-			if _, err = os.Stat(filepath.Join(
-				dstPath, nncp.SeenDir, pktName,
-			)); err == nil || !os.IsNotExist(err) {
-				ctx.LogD("xfer-tx-seen", les, func(les nncp.LEs) string {
-					return logMsg(les) + ": already seen"
 				})
 				continue
 			}
