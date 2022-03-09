@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.7.1
+@subsection Релиз 8.7.1
+@itemize
+
+@item
+@command{nncp-xfer} теперь корректно проверяет наличие @file{seen/}
+файлов для входящих пакетов.
+
+@end itemize
+
 @node Релиз 8.7.0
 @subsection Релиз 8.7.0
 @itemize
