@@ -1,6 +1,19 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.7.2
+@subsection Релиз 8.7.2
+@itemize
+
+@item
+Более интуитивное, понятное и немного более гибкое поведение @command{nncp-rm}.
+
+@item
+@command{nncp-rm} также удаляет соответствующий @file{hdr/} файл для
+каждого удалённого пакета.
+
+@end itemize
+
 @node Релиз 8.7.1
 @subsection Релиз 8.7.1
 @itemize

@@ -4,6 +4,19 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_7_2
+@section Release 8.7.2
+@itemize
+
+@item
+More intuitive, clear and slightly more flexible behaviour of @command{nncp-rm}.
+
+@item
+@command{nncp-rm} also removes corresponding @file{hdr/} file for each
+removed packet.
+
+@end itemize
+
 @node Release 8_7_1
 @section Release 8.7.1
 @itemize
