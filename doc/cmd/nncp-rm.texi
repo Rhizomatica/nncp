@@ -3,15 +3,14 @@
 @section nncp-rm
 
 @example
-$ nncp-rm [options] -tmp
+$ nncp-rm [options] [-older X] -tmp
 $ nncp-rm [options] -lock
-$ nncp-rm [options] @{-all|-node NODE@} -part
-$ nncp-rm [options] @{-all|-node NODE@} -seen
-$ nncp-rm [options] @{-all|-node NODE@} -nock
-$ nncp-rm [options] @{-all|-node NODE@} -hdr
-$ nncp-rm [options] @{-all|-node NODE@} -area
-$ nncp-rm [options] @{-all|-node NODE@} [-rx] [-tx]
-$ nncp-rm [options] @{-all|-node NODE@} -pkt <<EOF
+$ nncp-rm [options] [-older X] @{-all|-node NODE@} -part
+$ nncp-rm [options] [-older X] @{-all|-node NODE@} -seen
+$ nncp-rm [options] [-older X] @{-all|-node NODE@} -nock
+$ nncp-rm [options] [-older X] @{-all|-node NODE@} -area
+$ nncp-rm [options] [-older X] @{-all|-node NODE@} @{-rx|-tx@} [-hdr]
+$ nncp-rm [options] [-older X] @{-all|-node NODE@} -pkt <<EOF
 PKT1
 PKT2
 NODEx/PKT3
@@ -19,32 +18,34 @@ NODEx/PKT3
 EOF
 @end example
 
-This command is aimed to delete various files from your spool directory:
+This command is aimed to delete various files from your spool directory.
+@option{-older} option may limit the subset of files to be deleted for
+most commands.
 
 @itemize
 
-@item If @option{-tmp} option is specified, then it will delete all
+@item If @option{-tmp} option is specified, then it will delete
 temporary files in @file{spool/tmp} directory. Files may stay in it when
 commands like @command{@ref{nncp-file}} fail for some reason.
 
 @item If @option{-lock} option is specified, then all @file{.lock} files
 will be deleted in your spool directory.
 
-@item If @option{-pkt} option is specified, then list of packets (Base32
-names) toe be deleted is read from @code{stdin}. This could be useful
-when you see some packet failing to be processed. Packet identifiers
-could have "directories" prepended, that are ignored.
+@item If @option{-pkt} option is specified, then only the specified list
+of packets (Base32 names) will be deleted. It is read from @code{stdin}.
+This could be useful when you see some packet failing to be processed.
+Packet identifiers may have "directories" prepended, that are ignored.
 
-@item When either @option{-rx} or @option{-tx} options are specified
-(maybe both of them), then delete all packets from that given queues.
+@item @option{-rx} and @option{-tx} options will delete packets in
+corresponding queue directories. Corresponding @file{hdr/} files are
+also automatically deleted.
 
-@item @option{-part} option deletes @file{.part}ly downloaded files.
+@item @option{-part} option limits that to @file{.part}ly downloaded packets.
 
-@item @option{-seen} option deletes @file{seen/} files. But it does not
-apply to @ref{Multicast, multicast areas} ones!
+@item @option{-nock} option limits that to non-checksummed
+(non-verified) @file{.nock} files.
 
-@item @option{-nock} option deletes non-checksummed (non-verified)
-@file{.nock} files.
+@item @option{-seen} option deletes @file{seen/} files.
 
 @item @option{-hdr} option deletes cached @file{hdr/} files.
 
@@ -54,6 +55,11 @@ apply to @ref{Multicast, multicast areas} ones!
 
 @option{-dryrun} option just prints what will be deleted.
 
-You can also select files that only have modification date older than specified
-@option{-older} time units (@code{10s} (10 seconds), @code{5m} (5 minutes),
-@code{12h} (12 hours), @code{2d} (2 days)).
+@option{-older} accepts an integer with appended time unit:
+
+@itemize
+@item @code{10s} -- 10 seconds
+@item @code{5m} -- 5 minutes
+@item @code{12h} -- 12 hours
+@item @code{2d} -- 2 days
+@end itemize
