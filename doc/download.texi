@@ -14,12 +14,12 @@ Tarballs include all necessary required libraries:
 @multitable @columnfractions .50 .50
 @headitem Library @tab Licence
 @item @code{github.com/davecgh/go-xdr} @tab ISC
-@item @code{github.com/dustin/go-humanize} @tab MIT
+@item @code{github.com/dustin/go-humanize} @tab Expat
 @item @code{github.com/flynn/noise} @tab BSD 3-Clause
 @item @code{github.com/fsnotify/fsnotify} @tab BSD 3-Clause
 @item @code{github.com/gorhill/cronexpr} @tab GNU GPLv3
-@item @code{github.com/gosuri/uilive} @tab MIT
-@item @code{github.com/hjson/hjson-go} @tab MIT
+@item @code{github.com/gosuri/uilive} @tab Expat
+@item @code{github.com/hjson/hjson-go} @tab Expat
 @item @code{github.com/klauspost/compress} @tab BSD 3-Clause
 @item @code{github.com/klauspost/cpuid} @tab BSD 3-Clause
 @item @code{go.cypherpunks.ru/balloon} @tab GNU LGPLv3
@@ -29,7 +29,7 @@ Tarballs include all necessary required libraries:
 @item @code{golang.org/x/sys} @tab BSD 3-Clause
 @item @code{golang.org/x/term} @tab BSD 3-Clause
 @item @code{golang.org/x/time} @tab BSD 3-Clause
-@item @code{lukechampine.com/blake3} @tab MIT
+@item @code{lukechampine.com/blake3} @tab Expat
 @end multitable
 
 And additional ones for Yggdrasil support:
@@ -40,7 +40,7 @@ And additional ones for Yggdrasil support:
 @item @code{github.com/Arceliar/phony} @tab MPLv2
 @item @code{github.com/gologme/log} @tab BSD 3-Clause
 @item @code{github.com/google/btree} @tab Apache 2.0
-@item @code{github.com/huandu/xstrings} @tab MIT
+@item @code{github.com/huandu/xstrings} @tab Expat
 @item @code{github.com/yggdrasil-network/yggdrasil-go} @tab GNU LGPLv3
 @item @code{golang.org/x/term} @tab BSD 3-Clause
 @item @code{inet.af/netstack} @tab Apache 2.0
