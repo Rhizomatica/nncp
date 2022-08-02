@@ -3,10 +3,9 @@
 @unnumbered Mirrors
 
 Main NNCP website is hosted on two geographically distant servers
-located in Moscow region, Russian Federation. One of server's IPv6
-connectivity is provided by Hurricane Electric tunnel broker. Only one
-of those servers supports TLS and another just proxies the traffic to
-it. So TLS-capable version has less availability.
+located in Moscow region, Russian Federation. Only one of those servers
+supports TLS and another just proxies the traffic to it. So TLS-capable
+version has less availability.
 
 @cindex DANE
 @cindex DNSCurve
