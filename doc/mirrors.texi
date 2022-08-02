@@ -17,7 +17,7 @@ in turn can be authenticated with
 @url{https://dnscurve.org/, DNSCurve}-secured
 @url{http://www.stargrave.org/Trust-anchor.html, trust anchors}.
 Both @code{ca.cypherpunks.ru} and DNSCurve trust anchors are
-signed with @code{CF60 E89A 5923 1E76 E263 6422 AE1A 8109 E498 57EF}
+signed with @code{12AD 3268 9C66 0D42 6967  FD75 CB82 0563 2107 AD8A}
 @url{https://en.wikipedia.org/wiki/OpenPGP, OpenPGP}
 @url{http://www.stargrave.org/Contacts.html, public key}.
 
