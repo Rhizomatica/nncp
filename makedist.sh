@@ -19,7 +19,7 @@ rm -r \
     github.com/hjson/hjson-go/build_release.sh \
     github.com/klauspost/compress/gen.sh \
     github.com/klauspost/compress/gzhttp \
-    github.com/klauspost/compress/internal \
+    github.com/klauspost/compress/internal/snapref \
     github.com/klauspost/compress/s2* \
     github.com/klauspost/compress/snappy \
     github.com/klauspost/compress/zstd/snappy.go \
@@ -36,7 +36,7 @@ find . \( \
     -name .gitattributes \) -delete
 
 mkdir contrib
-cp ~/work/redo/minimal/do contrib/do
+cp ~/work/redo/apenwarr/minimal/do contrib/do
 
 cat > doc/download.texi <<EOF
 @node Tarballs

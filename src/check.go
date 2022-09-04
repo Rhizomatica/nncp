@@ -37,7 +37,11 @@ func Check(
 	showPrgrs bool,
 ) (bool, error) {
 	hsh := MTHNew(size, 0)
-	if _, err := CopyProgressed(hsh, bufio.NewReaderSize(src, MTHSize), "check", les, showPrgrs); err != nil {
+	if _, err := CopyProgressed(
+		hsh,
+		bufio.NewReaderSize(src, MTHBlockSize),
+		"check", les, showPrgrs,
+	); err != nil {
 		return false, err
 	}
 	return bytes.Compare(hsh.Sum(nil), checksum) == 0, nil
@@ -104,7 +108,7 @@ func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[MTHSize]byte, mth MTH) (int
 		gut, err = Check(fd, size, hshValue[:], les, ctx.ShowPrgrs)
 	} else {
 		if _, err = mth.PreaddFrom(
-			bufio.NewReaderSize(fd, MTHSize),
+			bufio.NewReaderSize(fd, MTHBlockSize),
 			pktName, ctx.ShowPrgrs,
 		); err != nil {
 			return 0, err
