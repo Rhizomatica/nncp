@@ -109,8 +109,8 @@ $ nncp-daemon -yggdrasil "yggdrasils://571f...07ea:6789"\
 "&pub=c6b7...9469"\
 "&pub=eb2d...ca07"\
 "&peer=tcp://example.com:2345"\
-"&peer=tcp://another.peer:3456%3Fkey=f879...2e9b"
-"&mcast=.*:5400"
+"&peer=tcp://another.peer:3456%3Fkey=f879...2e9b"\
+"&mcast=.*:5400"\
 "&mcast=lo0"
 @end example
 
