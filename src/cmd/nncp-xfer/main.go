@@ -293,7 +293,9 @@ func main() {
 			}
 			r, w := io.Pipe()
 			go func() {
-				_, err := io.CopyN(w, bufio.NewReader(fd), fiInt.Size())
+				_, err := io.CopyN(
+					w, bufio.NewReaderSize(fd, nncp.MTHBlockSize), fiInt.Size(),
+				)
 				if err == nil {
 					err = w.Close()
 				}
@@ -477,7 +479,7 @@ Tx:
 			}
 			bufW := bufio.NewWriter(tmp)
 			copied, err := nncp.CopyProgressed(
-				bufW, bufio.NewReader(fd), "Tx",
+				bufW, bufio.NewReaderSize(fd, nncp.MTHBlockSize), "Tx",
 				append(les, nncp.LE{K: "FullSize", V: job.Size}),
 				ctx.ShowPrgrs,
 			)

@@ -388,7 +388,9 @@ func prepareTxFile(srcPath string) (
 				fd.Close()
 				return w.CloseWithError(err)
 			}
-			if _, err = io.Copy(tarWr, bufio.NewReader(fd)); err != nil {
+			if _, err = io.Copy(
+				tarWr, bufio.NewReaderSize(fd, MTHBlockSize),
+			); err != nil {
 				fd.Close()
 				return w.CloseWithError(err)
 			}
@@ -441,7 +443,7 @@ func (ctx *Ctx) TxFile(
 		_, finalSize, pktName, err := ctx.Tx(
 			node, pkt, nice,
 			srcSize, minSize, maxSize,
-			bufio.NewReader(reader), dstPath, areaId,
+			bufio.NewReaderSize(reader, MTHBlockSize), dstPath, areaId,
 		)
 		les := LEs{
 			{"Type", "file"},
@@ -469,7 +471,7 @@ func (ctx *Ctx) TxFile(
 		return err
 	}
 
-	br := bufio.NewReader(reader)
+	br := bufio.NewReaderSize(reader, MTHBlockSize)
 	var sizeFull int64
 	var chunkNum int
 	checksums := [][MTHSize]byte{}
