@@ -31,13 +31,13 @@ import (
 	iwt "github.com/Arceliar/ironwood/types"
 	yaddr "github.com/yggdrasil-network/yggdrasil-go/src/address"
 	"golang.org/x/crypto/ed25519"
-	"inet.af/netstack/tcpip"
-	"inet.af/netstack/tcpip/adapters/gonet"
-	"inet.af/netstack/tcpip/buffer"
-	"inet.af/netstack/tcpip/header"
-	"inet.af/netstack/tcpip/network/ipv6"
-	"inet.af/netstack/tcpip/stack"
-	"inet.af/netstack/tcpip/transport/tcp"
+	"gvisor.dev/gvisor/pkg/bufferv2"
+	"gvisor.dev/gvisor/pkg/tcpip"
+	"gvisor.dev/gvisor/pkg/tcpip/adapters/gonet"
+	"gvisor.dev/gvisor/pkg/tcpip/header"
+	"gvisor.dev/gvisor/pkg/tcpip/network/ipv6"
+	"gvisor.dev/gvisor/pkg/tcpip/stack"
+	"gvisor.dev/gvisor/pkg/tcpip/transport/tcp"
 )
 
 const IPv6HdrSize = 40
@@ -68,13 +68,9 @@ func (*TCPIPEndpoint) LinkAddress() tcpip.LinkAddress { return "" }
 
 func (*TCPIPEndpoint) Wait() {}
 
-func (e *TCPIPEndpoint) WritePacket(
-	_ stack.RouteInfo,
-	_ tcpip.NetworkProtocolNumber,
-	pkt *stack.PacketBuffer,
-) tcpip.Error {
-	vv := buffer.NewVectorisedView(pkt.Size(), pkt.Views())
-	n, err := vv.Read(e.writeBuf)
+func (e *TCPIPEndpoint) WritePacket(pkt *stack.PacketBuffer) tcpip.Error {
+	v := pkt.ToView()
+	n, err := v.Read(e.writeBuf)
 	if err != nil {
 		log.Println(err)
 		return &tcpip.ErrAborted{}
@@ -93,12 +89,14 @@ func (e *TCPIPEndpoint) WritePacket(
 	return nil
 }
 
-func (e *TCPIPEndpoint) WritePackets(
-	stack.RouteInfo,
-	stack.PacketBufferList,
-	tcpip.NetworkProtocolNumber,
-) (int, tcpip.Error) {
-	panic("not implemented")
+func (e *TCPIPEndpoint) WritePackets(pbs stack.PacketBufferList) (int, tcpip.Error) {
+	for i, pb := range pbs.AsSlice() {
+		err := e.WritePacket(pb)
+		if err != nil {
+			return i + 1, err
+		}
+	}
+	return len(pbs.AsSlice()), nil
 }
 
 func (e *TCPIPEndpoint) WriteRawPacket(*stack.PacketBuffer) tcpip.Error {
@@ -107,13 +105,7 @@ func (e *TCPIPEndpoint) WriteRawPacket(*stack.PacketBuffer) tcpip.Error {
 
 func (*TCPIPEndpoint) ARPHardwareType() header.ARPHardwareType { return header.ARPHardwareNone }
 
-func (e *TCPIPEndpoint) AddHeader(
-	tcpip.LinkAddress,
-	tcpip.LinkAddress,
-	tcpip.NetworkProtocolNumber,
-	*stack.PacketBuffer,
-) {
-}
+func (e *TCPIPEndpoint) AddHeader(*stack.PacketBuffer) {}
 
 func convertToFullAddr(ip net.IP, port int) (tcpip.FullAddress, tcpip.NetworkProtocolNumber) {
 	return tcpip.FullAddress{
@@ -193,11 +185,9 @@ func NewTCPIPEndpoint(
 				e.ipToAddr[ip] = from
 			}
 			pkb := stack.NewPacketBuffer(stack.PacketBufferOptions{
-				Data: buffer.NewVectorisedView(n, []buffer.View{
-					buffer.NewViewFromBytes(e.readBuf[:n]),
-				}),
+				Payload: bufferv2.MakeWithData(e.readBuf[:n]),
 			})
-			e.d.DeliverNetworkPacket("", "", ipv6.ProtocolNumber, pkb)
+			e.d.DeliverNetworkPacket(ipv6.ProtocolNumber, pkb)
 		}
 	}()
 	return &e, nil

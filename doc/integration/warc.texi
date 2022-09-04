@@ -64,6 +64,10 @@ $ wget [--page-requisites] [--recursive] \
     [@dots{}] http://www.example.com/
 @end example
 
+@pindex crawl
+Or even more simpler @url{https://git.jordan.im/crawl/tree/README.md, crawl}
+utility written on Go too.
+
 @pindex tofuproxy
 That command will create @file{www.example.com-XXX.warc} web archive.
 It could produce specialized segmented

@@ -1063,7 +1063,7 @@ func (ctx *Ctx) Toss(
 		sharedKey, _, _, err = PktEncRead(
 			ctx.Self,
 			ctx.Neigh,
-			bufio.NewReader(fd),
+			bufio.NewReaderSize(fd, MTHBlockSize),
 			pipeWB,
 			sharedKey == nil,
 			sharedKey,

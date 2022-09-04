@@ -27,7 +27,7 @@ uid   NNCP releases <releases at nncpgo dot org>
 @item
 @example
 $ gpg --auto-key-locate dane --locate-keys releases at nncpgo dot org
-$ gpg --auto-key-locate wkd --locate-keys releases at nncpgo dot org
+$ gpg --auto-key-locate  wkd --locate-keys releases at nncpgo dot org
 @end example
 
 @item

@@ -206,7 +206,12 @@ func main() {
 				continue
 			}
 			pipeR, pipeW := io.Pipe()
-			go nncp.PktEncRead(ctx.Self, ctx.Neigh, bufio.NewReader(fd), pipeW, true, nil)
+			go nncp.PktEncRead(
+				ctx.Self,
+				ctx.Neigh,
+				bufio.NewReaderSize(fd, nncp.MTHBlockSize),
+				pipeW, true, nil,
+			)
 			var pkt nncp.Pkt
 			_, err = xdr.Unmarshal(pipeR, &pkt)
 			fd.Close()
