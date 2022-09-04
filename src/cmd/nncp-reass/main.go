@@ -157,7 +157,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		}
 		hsh = nncp.MTHNew(fi.Size(), 0)
 		if _, err = nncp.CopyProgressed(
-			hsh, bufio.NewReader(fd), "check",
+			hsh, bufio.NewReaderSize(fd, nncp.MTHBlockSize), "check",
 			nncp.LEs{{K: "Pkt", V: chunkPath}, {K: "FullSize", V: fi.Size()}},
 			ctx.ShowPrgrs,
 		); err != nil {
@@ -213,7 +213,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			log.Fatalln("Can not stat file:", err)
 		}
 		if _, err = nncp.CopyProgressed(
-			dstW, bufio.NewReader(fd), "reass",
+			dstW, bufio.NewReaderSize(fd, nncp.MTHBlockSize), "reass",
 			nncp.LEs{{K: "Pkt", V: chunkPath}, {K: "FullSize", V: fi.Size()}},
 			ctx.ShowPrgrs,
 		); err != nil {

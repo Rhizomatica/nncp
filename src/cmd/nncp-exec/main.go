@@ -125,7 +125,7 @@ func main() {
 		replyNice,
 		flag.Args()[1],
 		flag.Args()[2:],
-		bufio.NewReader(os.Stdin),
+		bufio.NewReaderSize(os.Stdin, nncp.MTHBlockSize),
 		int64(*minSize)*1024,
 		maxSize,
 		*noCompress,

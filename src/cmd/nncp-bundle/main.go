@@ -37,10 +37,6 @@ import (
 	"go.cypherpunks.ru/nncp/v8"
 )
 
-const (
-	CopyBufSize = 1 << 17
-)
-
 func usage() {
 	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintf(os.Stderr, "nncp-bundle -- Create/digest stream of NNCP encrypted packets\n\n")
@@ -165,7 +161,7 @@ func main() {
 					log.Fatalln("Error writing tar header:", err)
 				}
 				if _, err = nncp.CopyProgressed(
-					tarWr, bufio.NewReader(fd), "Tx",
+					tarWr, bufio.NewReaderSize(fd, nncp.MTHBlockSize), "Tx",
 					append(les, nncp.LEs{
 						{K: "Pkt", V: nncp.Base32Codec.EncodeToString(job.HshValue[:])},
 						{K: "FullSize", V: job.Size},
@@ -208,11 +204,11 @@ func main() {
 			log.Fatalln("Error during tar closing:", err)
 		}
 	} else {
-		bufStdin := bufio.NewReaderSize(os.Stdin, CopyBufSize*2)
+		bufStdin := bufio.NewReaderSize(os.Stdin, nncp.MTHBlockSize*2)
 		pktEncBuf := make([]byte, nncp.PktEncOverhead)
 		var pktEnc *nncp.PktEnc
 		for {
-			peeked, err := bufStdin.Peek(CopyBufSize)
+			peeked, err := bufStdin.Peek(nncp.MTHBlockSize)
 			if err != nil && err != io.EOF {
 				log.Fatalln("Error during reading:", err)
 			}
@@ -473,7 +469,7 @@ func main() {
 					if err != nil {
 						log.Fatalln("Error during temporary file creation:", err)
 					}
-					bufTmp := bufio.NewWriterSize(tmp, CopyBufSize)
+					bufTmp := bufio.NewWriterSize(tmp, nncp.MTHBlockSize)
 					if _, err = bufTmp.Write(pktEncBuf); err != nil {
 						log.Fatalln("Error during writing:", err)
 					}
