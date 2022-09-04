@@ -4,6 +4,18 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_8_0
+@section Release 8.8.0
+@itemize
+
+@item
+Fixed buildability under Go 1.19.
+
+@item
+Minimal required Go version is 1.17.
+
+@end itemize
+
 @node Release 8_7_2
 @section Release 8.7.2
 @itemize
@@ -412,7 +424,7 @@ the check in infinite cycle.
 @itemize
 
 @item
-Minimal required Go version 1.13.
+Minimal required Go version is 1.13.
 
 @item
 Merkle Tree-based Hashing with BLAKE3 (MTH) is used instead of BLAKE2b.

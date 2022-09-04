@@ -1,6 +1,18 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.8.0
+@subsection Релиз 8.8.0
+@itemize
+
+@item
+Исправлена невозможность сборки под Go 1.19.
+
+@item
+Минимальная требуемая версия Go 1.17.
+
+@end itemize
+
 @node Релиз 8.7.2
 @subsection Релиз 8.7.2
 @itemize
