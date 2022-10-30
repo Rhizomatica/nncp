@@ -12,6 +12,9 @@ See also this page @ref{Новости, on russian}.
 Fixed @command{nncp-daemon} failing with unauthenticated connection and
 enabled @option{-autotoss}.
 
+@item
+Updated dependencies.
+
 @end itemize
 
 @node Release 8_8_0
