@@ -1,6 +1,19 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.8.1
+@subsection Релиз 8.8.1
+@itemize
+
+@item
+Исправлено падение @command{nncp-daemon} при неопознанном подключении и
+включённом @option{-autotoss}.
+
+@item
+Обновлены зависимые библиотеки.
+
+@end itemize
+
 @node Релиз 8.8.0
 @subsection Релиз 8.8.0
 @itemize

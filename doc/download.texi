@@ -49,6 +49,13 @@ And additional ones for Yggdrasil support:
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {meta4 link sig} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 @headitem Version @tab Date @tab Size @tab Tarball @tab SHA256 checksum
 
+@item @ref{Release 8_8_0, 8.8.0} @tab 2022-09-04 @tab 1739 KiB
+@tab
+    @url{download/nncp-8.8.0.tar.xz.meta4, meta4}
+    @url{download/nncp-8.8.0.tar.xz, link}
+    @url{download/nncp-8.8.0.tar.xz.sig, sig}
+@tab @code{829E2FB2 F1EED8AF 7ACE4554 405E56F0 341BE2A0 1C234A34 D0112238 2AA0794C}
+
 @item @ref{Release 8_7_2, 8.7.2} @tab 2022-03-13 @tab 1673 KiB
 @tab
     @url{download/nncp-8.7.2.tar.xz.meta4, meta4}

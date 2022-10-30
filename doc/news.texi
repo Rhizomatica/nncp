@@ -4,6 +4,19 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_8_1
+@section Release 8.8.1
+@itemize
+
+@item
+Fixed @command{nncp-daemon} failing with unauthenticated connection and
+enabled @option{-autotoss}.
+
+@item
+Updated dependencies.
+
+@end itemize
+
 @node Release 8_8_0
 @section Release 8.8.0
 @itemize
