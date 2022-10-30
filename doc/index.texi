@@ -36,6 +36,7 @@ There are also articles about its usage outside this website:
 @item @url{https://changelog.complete.org/archives/tag/nncp, Series of descriptive articles} by John Goerzen
 @item @url{https://www.youtube.com/watch?v=0i3r63pnyHM, Presentation of NNCP on Internet Freedom Conference 2019} (on russian)
     (@url{http://www.stargrave.org/20191207-Internet_Freedom_Conference-NNCP.webm.torrent, torrent})
+@item @url{https://habr.com/ru/post/692254/, Неужто так сложно передать зашифрованный файл? Эволюция формата пакетов NNCP} (on russian)
 @end itemize
 
 @center Interested? @ref{Tarballs, @strong{Download it}}!
