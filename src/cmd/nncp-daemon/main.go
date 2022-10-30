@@ -222,7 +222,7 @@ func main() {
 			)
 		}
 		<-nodeIdC // call completion
-		if *autoToss {
+		if *autoToss && nodeId != nil {
 			close(autoTossFinish)
 			<-autoTossBadCode
 		}
@@ -309,7 +309,7 @@ func main() {
 				)
 			}
 			<-nodeIdC // call completion
-			if *autoToss {
+			if *autoToss && nodeId != nil {
 				close(autoTossFinish)
 				<-autoTossBadCode
 			}
