@@ -58,8 +58,7 @@ texi=$(TMPDIR=doc mktemp)
 
 mkinfo() {
     ${MAKEINFO:-makeinfo} --plaintext \
-        --set-customization-variable CLOSE_QUOTE_SYMBOL=\" \
-        --set-customization-variable OPEN_QUOTE_SYMBOL=\" \
+        --set-customization-variable ASCII_PUNCTUATION=1 \
         -D "VERSION `cat VERSION`" $@
 }
 
