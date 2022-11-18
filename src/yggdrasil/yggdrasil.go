@@ -26,6 +26,7 @@ import (
 	"log"
 	"net"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -85,17 +86,51 @@ func ycoreStart(cfg *ycfg.NodeConfig, port int, mcasts []string) (*ycore.Core, e
 			},
 		)
 	}
-	core := &ycore.Core{}
-	if err := core.Start(cfg, glog); err != nil {
+
+	sk, err := hex.DecodeString(cfg.PrivateKey)
+	if err != nil {
+		panic(err)
+	}
+	options := []ycore.SetupOption{
+		ycore.NodeInfo(cfg.NodeInfo),
+		ycore.NodeInfoPrivacy(cfg.NodeInfoPrivacy),
+	}
+	for _, addr := range cfg.Listen {
+		options = append(options, ycore.ListenAddress(addr))
+	}
+	for _, peer := range cfg.Peers {
+		options = append(options, ycore.Peer{URI: peer})
+	}
+	for intf, peers := range cfg.InterfacePeers {
+		for _, peer := range peers {
+			options = append(options, ycore.Peer{URI: peer, SourceInterface: intf})
+		}
+	}
+	for _, allowed := range cfg.AllowedPublicKeys {
+		k, err := hex.DecodeString(allowed)
+		if err != nil {
+			panic(err)
+		}
+		options = append(options, ycore.AllowedPublicKey(k[:]))
+	}
+
+	core, err := ycore.New(sk[:], glog, options...)
+	if err != nil {
 		return nil, err
 	}
 	if len(mcasts) > 0 {
-		mc := &ymcast.Multicast{}
-		if err := mc.Init(core, cfg, glog, nil); err != nil {
-			core.Stop()
-			return nil, err
+
+		options := []ymcast.SetupOption{}
+		for _, intf := range cfg.MulticastInterfaces {
+			options = append(options, ymcast.MulticastInterface{
+				Regex:    regexp.MustCompile(intf.Regex),
+				Beacon:   intf.Beacon,
+				Listen:   intf.Listen,
+				Port:     intf.Port,
+				Priority: uint8(intf.Priority),
+			})
 		}
-		if err := mc.Start(); err != nil {
+		if _, err = ymcast.New(core, glog, options...); err != nil {
 			core.Stop()
 			return nil, err
 		}
