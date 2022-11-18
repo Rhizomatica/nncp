@@ -4,6 +4,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_8_2
+@section Release 8.8.2
+@itemize
+
+@item
+Updated Yggdrasil library, with several other ones.
+
+@end itemize
+
 @node Release 8_8_1
 @section Release 8.8.1
 @itemize
