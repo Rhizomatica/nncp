@@ -1,6 +1,15 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.8.2
+@subsection Релиз 8.8.2
+@itemize
+
+@item
+Обновлена библиотека для работы с Yggdrasil, а также несколько других.
+
+@end itemize
+
 @node Релиз 8.8.1
 @subsection Релиз 8.8.1
 @itemize
