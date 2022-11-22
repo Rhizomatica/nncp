@@ -17,7 +17,7 @@ require (
 	golang.org/x/net v0.2.0
 	golang.org/x/sys v0.2.0
 	golang.org/x/term v0.2.0
-	gvisor.dev/gvisor v0.0.0-20220901235040-6ca97ef2ce1c
+	gvisor.dev/gvisor v0.0.0-20221117225851-0a8c1909f4b6
 	lukechampine.com/blake3 v1.1.7
 )
 
