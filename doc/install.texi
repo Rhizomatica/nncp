@@ -25,7 +25,7 @@ Possibly NNCP package already exists for your distribution:
 @item @url{https://www.freshports.org/net/nncp/, FreeBSD ports}
 
 @cindex Guix
-@item GNU @url{https://git.savannah.gnu.org/cgit/guix.git/tree/gnu/packages/uucp.scm, Guix}
+@item GNU @url{https://packages.guix.gnu.org/packages/nncp/, Guix}
 
 @cindex NetBSD
 @item @url{https://pkgsrc.se/wip/nncp, NetBSD package}
