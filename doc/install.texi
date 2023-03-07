@@ -27,14 +27,21 @@ Possibly NNCP package already exists for your distribution:
 @cindex Guix
 @item GNU @url{https://packages.guix.gnu.org/packages/nncp/, Guix}
 
+@cindex Mint
+@item Linux @url{https://community.linuxmint.com/software/view/nncp, Mint}
+
 @cindex NetBSD
 @item @url{https://pkgsrc.se/wip/nncp, NetBSD package}
 
 @cindex NixOS
 @item @url{https://github.com/NixOS/nixpkgs/tree/master/pkgs/tools/misc/nncp, NixOS packages}
 
+@cindex Ubuntu
+@item @url{https://packages.ubuntu.com/search?keywords=nncp, Ubuntu}
+
 @cindex Void Linux
 @item @url{https://github.com/void-linux/void-packages/blob/master/srcpkgs/nncp/template, Void Linux}
+
 @end itemize
 
 @cindex POSIX
