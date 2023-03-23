@@ -30,8 +30,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-cfgdir -- Convert configuration file to the directory layout.\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-cfgdir -- Convert configuration file to the directory layout.\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [-cfg ...] -dump /path/to/dir\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -load /path/to/dir > cfg.hjson\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()

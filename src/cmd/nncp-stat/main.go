@@ -30,8 +30,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-stat -- show queued Rx/Tx stats\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-stat -- show queued Rx/Tx stats\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [-pkt] [-node NODE]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }

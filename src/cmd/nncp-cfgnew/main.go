@@ -36,7 +36,7 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprintln(os.Stderr, "nncp-cfgnew -- generate new configuration and keys\nOptions:")
 	flag.PrintDefaults()
 }

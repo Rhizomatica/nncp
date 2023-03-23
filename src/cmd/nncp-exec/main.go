@@ -30,8 +30,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-exec -- send execution command\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-exec -- send execution command\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE HANDLE [ARG0 ARG1 ...]\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] %s:AREA HANDLE [ARG0 ARG1 ...]\nOptions:\n",
 		os.Args[0], nncp.AreaDir)
