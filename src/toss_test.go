@@ -315,10 +315,7 @@ func TestTossFileSameName(t *testing.T) {
 			}
 			delete(expected, filename)
 		}
-		if len(expected) != 0 {
-			return false
-		}
-		return true
+		return len(expected) == 0
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)
@@ -518,10 +515,7 @@ func TestTossTrns(t *testing.T) {
 				}
 			}
 		}
-		if len(datum) > 0 {
-			return false
-		}
-		return true
+		return len(datum) == 0
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)
