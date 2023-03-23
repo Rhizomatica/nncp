@@ -103,7 +103,7 @@ func (w *Writer) Flush() (err error) {
 // Start starts the listener in a non-blocking manner
 func (w *Writer) Start() {
 	w.ticker = time.NewTicker(w.RefreshInterval)
-	w.tdone = make(chan struct{}, 0)
+	w.tdone = make(chan struct{})
 	w.Out.Write([]byte("\n"))
 	go w.Listen()
 }
