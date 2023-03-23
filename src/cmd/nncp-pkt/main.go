@@ -103,7 +103,6 @@ func doPlain(ctx *nncp.Ctx, pkt nncp.Pkt, dump, decompress bool) {
 		"Packet type: plain\nPayload type: %s\nNiceness: %s (%d)\nPath: %s\n",
 		payloadType, nncp.NicenessFmt(pkt.Nice), pkt.Nice, path,
 	)
-	return
 }
 
 func doEncrypted(
