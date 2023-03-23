@@ -1119,7 +1119,7 @@ func (state *SPState) Wait() bool {
 	state.wg.Wait()
 	close(state.payloads)
 	close(state.pings)
-	state.Duration = time.Now().Sub(state.started)
+	state.Duration = time.Since(state.started)
 	state.dirUnlock()
 	state.RxSpeed = state.RxBytes
 	state.TxSpeed = state.TxBytes
