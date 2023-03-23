@@ -36,8 +36,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-daemon -- TCP daemon\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-daemon -- TCP daemon\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }

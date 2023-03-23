@@ -31,8 +31,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-trns -- transit existing encrypted packet\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-trns -- transit existing encrypted packet\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] -via NODEx[,...] NODE:PKT\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       (to transit SPOOL/NODE/tx/PKT)\n")
 	fmt.Fprintf(os.Stderr, "       %s [options] -via NODEx[,...] /path/to/PKT\nOptions:\n",

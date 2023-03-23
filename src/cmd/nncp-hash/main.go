@@ -32,8 +32,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-hash -- calculate MTH hash of the file\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-hash -- calculate MTH hash of the file\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [-file ...] [-seek X] [-debug] [-progress] [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
