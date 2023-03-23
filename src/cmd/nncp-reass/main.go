@@ -51,10 +51,10 @@ but at least one of them must be specified.
 
 func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bool {
 	fd, err := os.Open(path)
-	defer fd.Close()
 	if err != nil {
 		log.Fatalln("Can not open file:", err)
 	}
+	defer fd.Close()
 	var metaPkt nncp.ChunkedMeta
 	les := nncp.LEs{{K: "Path", V: path}}
 	logMsg := func(les nncp.LEs) string {
@@ -291,7 +291,6 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 
 func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 	dir, err := os.Open(dirPath)
-	defer dir.Close()
 	logMsg := func(les nncp.LEs) string {
 		return "Finding .meta in " + dirPath
 	}
@@ -299,6 +298,7 @@ func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 		ctx.LogE("reass", nncp.LEs{{K: "Path", V: dirPath}}, err, logMsg)
 		return nil
 	}
+	defer dir.Close()
 	fis, err := dir.Readdir(0)
 	dir.Close()
 	if err != nil {
