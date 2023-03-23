@@ -148,14 +148,14 @@ func TestTx(t *testing.T) {
 				if !bytes.HasPrefix(pkt.Path[:], []byte(pathSrc)) {
 					return false
 				}
-				if bytes.Compare(bufR.Bytes(), []byte(data)) != 0 {
+				if !bytes.Equal(bufR.Bytes(), []byte(data)) {
 					return false
 				}
 			} else {
 				if pkt.Type != PktTypeTrns {
 					return false
 				}
-				if bytes.Compare(pkt.Path[:MTHSize], vias[i+1][:]) != 0 {
+				if !bytes.Equal(pkt.Path[:MTHSize], vias[i+1][:]) {
 					return false
 				}
 			}

@@ -514,7 +514,7 @@ FullRead:
 		if err != nil {
 			panic(err)
 		}
-		if bytes.Compare(ct[:n], pt[:n]) != 0 {
+		if !bytes.Equal(ct[:n], pt[:n]) {
 			err = errors.New("wrong pad value")
 			return
 		}

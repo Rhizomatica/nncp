@@ -115,7 +115,7 @@ func main() {
 		log.Fatalln(err)
 	}
 	os.Stderr.WriteString("\n")
-	if bytes.Compare(password1, password2) != 0 {
+	if !bytes.Equal(password1, password2) {
 		log.Fatalln(errors.New("Passphrases do not match"))
 	}
 	eblob, err := nncp.NewEBlob(*sOpt, *tOpt, *pOpt, password1, data)

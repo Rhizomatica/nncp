@@ -468,7 +468,7 @@ func NewArea(ctx *Ctx, name string, cfg *AreaJSON) (*Area, error) {
 
 func CfgParse(data []byte) (*CfgJSON, error) {
 	var err error
-	if bytes.Compare(data[:8], MagicNNCPBv3.B[:]) == 0 {
+	if bytes.Equal(data[:8], MagicNNCPBv3.B[:]) {
 		os.Stderr.WriteString("Passphrase:")
 		password, err := term.ReadPassword(0)
 		if err != nil {
@@ -479,9 +479,9 @@ func CfgParse(data []byte) (*CfgJSON, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else if bytes.Compare(data[:8], MagicNNCPBv2.B[:]) == 0 {
+	} else if bytes.Equal(data[:8], MagicNNCPBv2.B[:]) {
 		log.Fatalln(MagicNNCPBv2.TooOld())
-	} else if bytes.Compare(data[:8], MagicNNCPBv1.B[:]) == 0 {
+	} else if bytes.Equal(data[:8], MagicNNCPBv1.B[:]) {
 		log.Fatalln(MagicNNCPBv1.TooOld())
 	}
 	var cfgGeneral map[string]interface{}

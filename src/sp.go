@@ -1477,7 +1477,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			if hasherAndOffset != nil {
 				delete(state.fileHashers, filePath)
 				if hasherAndOffset.mth.PreaddSize() == 0 {
-					if bytes.Compare(hasherAndOffset.mth.Sum(nil), file.Hash[:]) != 0 {
+					if !bytes.Equal(hasherAndOffset.mth.Sum(nil), file.Hash[:]) {
 						state.Ctx.LogE(
 							"sp-file-bad-checksum", lesp,
 							errors.New("checksum mismatch"),
