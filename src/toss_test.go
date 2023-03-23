@@ -150,7 +150,7 @@ func TestTossExec(t *testing.T) {
 			)
 			expected = append(expected, []byte("BODY\n")...)
 		}
-		return bytes.Compare(mbox, expected) == 0
+		return bytes.Equal(mbox, expected)
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)
@@ -240,7 +240,7 @@ func TestTossFile(t *testing.T) {
 			if err != nil {
 				panic(err)
 			}
-			if bytes.Compare(data, fileData) != 0 {
+			if !bytes.Equal(data, fileData) {
 				return false
 			}
 		}
@@ -423,8 +423,7 @@ func TestTossFreq(t *testing.T) {
 			if pkt.Nice != replyNice {
 				return false
 			}
-			dst := string(pkt.Path[:int(pkt.PathLen)])
-			if bytes.Compare(buf.Bytes(), files[dst]) != 0 {
+			if !bytes.Equal(buf.Bytes(), files[string(pkt.Path[:int(pkt.PathLen)])]) {
 				return false
 			}
 		}
@@ -514,7 +513,7 @@ func TestTossTrns(t *testing.T) {
 				panic(err)
 			}
 			for k, data := range datum {
-				if bytes.Compare(dataRead, data) == 0 {
+				if bytes.Equal(dataRead, data) {
 					delete(datum, k)
 				}
 			}

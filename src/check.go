@@ -44,7 +44,7 @@ func Check(
 	); err != nil {
 		return false, err
 	}
-	return bytes.Compare(hsh.Sum(nil), checksum) == 0, nil
+	return bytes.Equal(hsh.Sum(nil), checksum), nil
 }
 
 func (ctx *Ctx) checkXxIsBad(nodeId *NodeId, xx TRxTx) bool {
@@ -113,7 +113,7 @@ func (ctx *Ctx) CheckNoCK(nodeId *NodeId, hshValue *[MTHSize]byte, mth MTH) (int
 		); err != nil {
 			return 0, err
 		}
-		if bytes.Compare(mth.Sum(nil), hshValue[:]) == 0 {
+		if bytes.Equal(mth.Sum(nil), hshValue[:]) {
 			gut = true
 		}
 	}

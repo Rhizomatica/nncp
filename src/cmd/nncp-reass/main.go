@@ -164,7 +164,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			log.Fatalln(err)
 		}
 		fd.Close()
-		if bytes.Compare(hsh.Sum(nil), metaPkt.Checksums[chunkNum][:]) != 0 {
+		if !bytes.Equal(hsh.Sum(nil), metaPkt.Checksums[chunkNum][:]) {
 			ctx.LogE(
 				"reass-chunk",
 				nncp.LEs{{K: "Path", V: path}, {K: "Chunk", V: chunkNum}},

@@ -146,7 +146,7 @@ func TestPktEncRead(t *testing.T) {
 		}
 		var pktBuf bytes.Buffer
 		xdr.Marshal(&pktBuf, &pkt)
-		return bytes.Compare(pt.Bytes(), append(pktBuf.Bytes(), data...)) == 0
+		return bytes.Equal(pt.Bytes(), append(pktBuf.Bytes(), data...))
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)
