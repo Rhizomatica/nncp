@@ -86,6 +86,9 @@ func TestTx(t *testing.T) {
 			nodeTgt.Via = append(nodeTgt.Via, node.Id)
 		}
 		pkt, err := NewPkt(PktTypeExec, replyNice, []byte(pathSrc))
+		if err != nil {
+			panic(err)
+		}
 		src := bytes.NewReader(data)
 		dstNode, _, _, err := ctx.Tx(
 			nodeTgt,
