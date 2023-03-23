@@ -287,21 +287,22 @@ func (state *SPState) dirUnlock() {
 
 func (state *SPState) WriteSP(dst io.Writer, payload []byte, ping bool) error {
 	state.writeSPBuf.Reset()
-	n, err := xdr.Marshal(&state.writeSPBuf, SPRaw{
+	if _, err := xdr.Marshal(&state.writeSPBuf, SPRaw{
 		Magic:   MagicNNCPSv1.B,
 		Payload: payload,
-	})
+	}); err != nil {
+		return err
+	}
+	n, err := dst.Write(state.writeSPBuf.Bytes())
 	if err != nil {
 		return err
 	}
-	if n, err = dst.Write(state.writeSPBuf.Bytes()); err == nil {
-		state.TxLastSeen = time.Now()
-		state.TxBytes += int64(n)
-		if !ping {
-			state.TxLastNonPing = state.TxLastSeen
-		}
+	state.TxLastSeen = time.Now()
+	state.TxBytes += int64(n)
+	if !ping {
+		state.TxLastNonPing = state.TxLastSeen
 	}
-	return err
+	return nil
 }
 
 func (state *SPState) ReadSP(src io.Reader) ([]byte, error) {
