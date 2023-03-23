@@ -82,9 +82,7 @@ type MTHSeq struct {
 	size        int64
 	prependSize int64
 	toSkip      int64
-	skipped     bool
 	finished    bool
-	pktName     string
 }
 
 func MTHSeqNew(size, offset int64) *MTHSeq {

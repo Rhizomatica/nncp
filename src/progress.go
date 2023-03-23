@@ -37,7 +37,6 @@ var progressBarsLock sync.RWMutex
 
 type ProgressBar struct {
 	w       *uilive.Writer
-	hash    string
 	started time.Time
 	initial int64
 	full    int64
