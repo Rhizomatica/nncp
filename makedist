@@ -125,13 +125,12 @@ tarball=nncp-"$release".tar.xz
 gpg --detach-sign --sign --local-user releases@nncpgo.org "$tarball"
 gpg --enarmor < "$tarball".sig |
     sed "/^Comment:/d ; s/ARMORED FILE/SIGNATURE/" > "$tarball".asc
-meta4-create -file "$tarball" -mtime "$tarball" -sig "$tarball".asc \
+meta4-create -fn "$tarball" -mtime "$tarball" -sig "$tarball".asc \
     http://www.nncpgo.org/download/"$tarball" \
     http://y.www.nncpgo.org/download/"$tarball" \
-    https://nncp.mirrors.quux.org/download/"$tarball" > "$tarball".meta4
+    https://nncp.mirrors.quux.org/download/"$tarball" < "$tarball" > "$tarball".meta4
 
 size=$(( $(stat -f %z $tarball) / 1024 ))
-hash=$(gpg --print-md SHA256 < $tarball)
 release_date=$(date "+%Y-%m-%d")
 
 mv -v $tmp/"$tarball" $tmp/"$tarball".sig $tmp/"$tarball".meta4 $cur/doc/download
@@ -139,12 +138,10 @@ mv -v $tmp/"$tarball" $tmp/"$tarball".sig $tmp/"$tarball".meta4 $cur/doc/downloa
 release_underscored=`echo $release | tr . _`
 cat <<EOF
 An entry for documentation:
-@item @ref{Release $release_underscored, $release} @tab $release_date @tab $size KiB
-@tab
-    @url{download/nncp-${release}.tar.xz.meta4, meta4}
-    @url{download/nncp-${release}.tar.xz, link}
-    @url{download/nncp-${release}.tar.xz.sig, sig}
-@tab @code{$hash}
+@item @ref{Release $release_underscored, $release} @tab $release_date @tab $size KiB @tab
+@url{download/nncp-${release}.tar.xz.meta4, meta4}
+@url{download/nncp-${release}.tar.xz, link}
+@url{download/nncp-${release}.tar.xz.sig, sig}
 EOF
 
 cd $cur
@@ -185,7 +182,6 @@ Source code and its signature for that version can be found here:
     http://www.nncpgo.org/download/nncp-${release}.tar.xz ($size KiB)
     http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
 
-SHA256 hash: $hash
 GPG key ID: 0x2B25868E75A1A953 NNCP releases <releases@nncpgo.org>
 Fingerprint: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
 
@@ -240,7 +236,6 @@ $(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
     http://www.nncpgo.org/download/nncp-${release}.tar.xz ($size KiB)
     http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
 
-SHA256 хэш: $hash
 Идентификатор GPG ключа: 0x2B25868E75A1A953 NNCP releases <releases@nncpgo.org>
 Отпечаток: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
 
