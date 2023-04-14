@@ -1,5 +1,4 @@
 \input texinfo
-@documentencoding UTF-8
 @settitle NNCP
 
 @copying
