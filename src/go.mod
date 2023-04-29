@@ -9,15 +9,15 @@ require (
 	github.com/gologme/log v1.3.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/hjson/hjson-go v3.3.0+incompatible
-	github.com/klauspost/compress v1.16.3
+	github.com/klauspost/compress v1.16.5
 	github.com/yggdrasil-network/yggdrasil-go v0.4.7
 	go.cypherpunks.ru/balloon v1.1.1
 	go.cypherpunks.ru/recfile v0.7.0
-	golang.org/x/crypto v0.7.0
-	golang.org/x/net v0.8.0
-	golang.org/x/sys v0.6.0
-	golang.org/x/term v0.6.0
-	gvisor.dev/gvisor v0.0.0-20230323071316-b525648f2eca
+	golang.org/x/crypto v0.8.0
+	golang.org/x/net v0.9.0
+	golang.org/x/sys v0.7.0
+	golang.org/x/term v0.7.0
+	gvisor.dev/gvisor v0.0.0-20230428223346-f33f75cda699
 	lukechampine.com/blake3 v1.1.7
 )
 
