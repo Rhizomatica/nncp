@@ -125,7 +125,8 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		}
 		var badSize bool
 		if chunkNum+1 == len(chunksPaths) {
-			badSize = uint64(fi.Size()) != metaPkt.FileSize%metaPkt.ChunkSize
+			left := metaPkt.FileSize % metaPkt.ChunkSize
+			badSize = left != 0 && uint64(fi.Size()) != left
 		} else {
 			badSize = uint64(fi.Size()) != metaPkt.ChunkSize
 		}

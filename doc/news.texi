@@ -4,6 +4,19 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_8_3
+@section Release 8.8.3
+@itemize
+
+@item
+Fixed @command{nncp-reass} command, that incorrectly reported about
+wrong last chunk's size if it is multiple of the chunk-size.
+
+@item
+Updated dependencies. Go 1.20+ is required now.
+
+@end itemize
+
 @node Release 8_8_2
 @section Release 8.8.2
 @itemize
