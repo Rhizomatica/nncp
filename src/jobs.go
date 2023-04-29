@@ -19,8 +19,10 @@ package nncp
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -148,7 +150,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock, part bool) chan Job {
 				fd, err = os.Open(pth)
 			} else {
 				fd, err = os.Open(JobPath2Hdr(pth))
-				if err != nil && os.IsNotExist(err) {
+				if err != nil && errors.Is(err, fs.ErrNotExist) {
 					hdrExists = false
 					fd, err = os.Open(pth)
 				}

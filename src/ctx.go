@@ -20,6 +20,7 @@ package nncp
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -79,7 +80,7 @@ func ensureDir(dirs ...string) error {
 		}
 		return fmt.Errorf("%s: is not a directory", p)
 	}
-	if !os.IsNotExist(err) {
+	if !errors.Is(err, fs.ErrNotExist) {
 		return err
 	}
 	return os.MkdirAll(p, os.FileMode(0777))

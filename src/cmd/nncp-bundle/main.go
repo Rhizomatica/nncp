@@ -26,6 +26,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -407,7 +408,7 @@ func main() {
 			}
 			dstDirPath := filepath.Join(ctx.Spool, sender, string(nncp.TRx))
 			dstPath := filepath.Join(dstDirPath, pktName)
-			if _, err = os.Stat(dstPath); err == nil || !os.IsNotExist(err) {
+			if _, err = os.Stat(dstPath); err == nil || !errors.Is(err, fs.ErrNotExist) {
 				ctx.LogD("bundle-rx-exists", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": packet already exists"
 				})
@@ -415,7 +416,7 @@ func main() {
 			}
 			if _, err = os.Stat(filepath.Join(
 				dstDirPath, nncp.SeenDir, pktName,
-			)); err == nil || !os.IsNotExist(err) {
+			)); err == nil || !errors.Is(err, fs.ErrNotExist) {
 				ctx.LogD("bundle-rx-seen", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": packet already seen"
 				})

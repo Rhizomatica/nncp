@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"mime"
 	"os"
@@ -356,7 +357,7 @@ func jobProcess(
 			dstPathCtr := 0
 			for {
 				if _, err = os.Stat(dstPath); err != nil {
-					if os.IsNotExist(err) {
+					if errors.Is(err, fs.ErrNotExist) {
 						break
 					}
 					ctx.LogE("rx-stat", les, err, func(les LEs) string {
