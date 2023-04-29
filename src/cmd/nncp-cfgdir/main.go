@@ -21,7 +21,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -63,7 +62,7 @@ func main() {
 	}
 
 	if *doDump {
-		cfgRaw, err := ioutil.ReadFile(*cfgPath)
+		cfgRaw, err := os.ReadFile(*cfgPath)
 		if err != nil {
 			log.Fatalln(err)
 		}

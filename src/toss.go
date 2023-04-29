@@ -24,7 +24,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime"
 	"os"
@@ -475,7 +474,7 @@ func jobProcess(
 			)
 			return err
 		}
-		dstRaw, err := ioutil.ReadAll(pipeR)
+		dstRaw, err := io.ReadAll(pipeR)
 		if err != nil {
 			ctx.LogE("rx-read", les, err, func(les LEs) string {
 				return fmt.Sprintf(

@@ -20,7 +20,6 @@ package nncp
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -119,7 +118,7 @@ func CtxFromCmdline(
 			return nil, err
 		}
 	} else {
-		cfgRaw, err := ioutil.ReadFile(cfgPath)
+		cfgRaw, err := os.ReadFile(cfgPath)
 		if err != nil {
 			return nil, err
 		}
