@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -115,7 +116,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	for chunkNum, chunkPath := range chunksPaths {
 		fi, err := os.Stat(chunkPath)
 		lesChunk := append(les, nncp.LE{K: "Chunk", V: chunkNum})
-		if err != nil && os.IsNotExist(err) {
+		if err != nil && errors.Is(err, fs.ErrNotExist) {
 			ctx.LogI("reass-chunk-miss", lesChunk, func(les nncp.LEs) string {
 				return fmt.Sprintf("%s: chunk %d missing", logMsg(les), chunkNum)
 			})
@@ -269,7 +270,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	dstPathCtr := 0
 	for {
 		if _, err = os.Stat(dstPath); err != nil {
-			if os.IsNotExist(err) {
+			if errors.Is(err, fs.ErrNotExist) {
 				break
 			}
 			log.Fatalln(err)

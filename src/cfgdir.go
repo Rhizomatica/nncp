@@ -18,7 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package nncp
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -434,7 +436,7 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 func cfgDirLoad(src ...string) (v string, exists bool, err error) {
 	b, err := os.ReadFile(filepath.Join(src...))
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			return "", false, nil
 		}
 		return "", false, err
@@ -531,7 +533,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 	}
 
 	fis, err := os.ReadDir(filepath.Join(src, "mcd-send"))
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
 	if len(fis) > 0 {
@@ -565,7 +567,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 		}
 	}
 	fis, err = os.ReadDir(filepath.Join(src, "notify", "exec"))
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
 	for _, fi := range fis {
@@ -605,13 +607,13 @@ func DirToCfg(src string) (*CfgJSON, error) {
 			return nil, err
 		}
 		cfg.Self = &self
-	} else if !os.IsNotExist(err) {
+	} else if !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
 
 	cfg.Neigh = make(map[string]NodeJSON)
 	fis, err = os.ReadDir(filepath.Join(src, "neigh"))
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
 	for _, fi := range fis {
@@ -638,7 +640,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 
 		node.Exec = make(map[string][]string)
 		fis2, err := os.ReadDir(filepath.Join(src, "neigh", n, "exec"))
-		if err != nil && !os.IsNotExist(err) {
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return nil, err
 		}
 		for _, fi2 := range fis2 {
@@ -697,7 +699,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 
 		node.Addrs = make(map[string]string)
 		fis2, err = os.ReadDir(filepath.Join(src, "neigh", n, "addrs"))
-		if err != nil && !os.IsNotExist(err) {
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return nil, err
 		}
 		for _, fi2 := range fis2 {
@@ -747,7 +749,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 		}
 
 		fis2, err = os.ReadDir(filepath.Join(src, "neigh", n, "calls"))
-		if err != nil && !os.IsNotExist(err) {
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return nil, err
 		}
 		callsIdx := make([]int, 0, len(fis2))
@@ -861,7 +863,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 
 	cfg.Areas = make(map[string]AreaJSON)
 	fis, err = os.ReadDir(filepath.Join(src, "areas"))
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
 	for _, fi := range fis {
@@ -890,7 +892,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 
 		area.Exec = make(map[string][]string)
 		fis2, err := os.ReadDir(filepath.Join(src, "areas", n, "exec"))
-		if err != nil && !os.IsNotExist(err) {
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return nil, err
 		}
 		for _, fi2 := range fis2 {
@@ -916,7 +918,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 	}
 
 	fis, err = os.ReadDir(filepath.Join(src, "yggdrasil-aliases"))
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
 	if len(fis) > 0 {
