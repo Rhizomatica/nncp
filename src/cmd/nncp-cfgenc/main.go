@@ -23,7 +23,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -70,7 +69,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	data, err := ioutil.ReadFile(flag.Arg(0))
+	data, err := os.ReadFile(flag.Arg(0))
 	if err != nil {
 		log.Fatalln("Can not read data:", err)
 	}

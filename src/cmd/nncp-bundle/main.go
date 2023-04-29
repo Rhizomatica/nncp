@@ -26,7 +26,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -461,7 +460,7 @@ func main() {
 				}
 			} else {
 				if *dryRun {
-					if _, err = nncp.CopyProgressed(ioutil.Discard, tarR, "Rx", les, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(io.Discard, tarR, "Rx", les, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 				} else {

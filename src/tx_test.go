@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"crypto/rand"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -48,7 +47,7 @@ func TestTx(t *testing.T) {
 			pathSrc = pathSrc[:MaxPathSize]
 		}
 		hops = hops % 4
-		spool, err := ioutil.TempDir("", "testtx")
+		spool, err := os.MkdirTemp("", "testtx")
 		if err != nil {
 			panic(err)
 		}
