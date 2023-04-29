@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,9 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -34,8 +36,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-rm -- remove packet\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-rm -- remove packet\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [-older X] -tmp\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -lock\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} -part\n", os.Args[0])
@@ -205,12 +207,12 @@ func main() {
 		}
 		remove := func(xx nncp.TRxTx) error {
 			p := filepath.Join(ctx.Spool, node.Id.String(), string(xx))
-			if _, err := os.Stat(p); err != nil && os.IsNotExist(err) {
+			if _, err := os.Stat(p); err != nil && errors.Is(err, fs.ErrNotExist) {
 				return nil
 			}
 			dir, err := os.Open(p)
 			if err != nil {
-				if os.IsNotExist(err) {
+				if errors.Is(err, fs.ErrNotExist) {
 					return nil
 				}
 				return err
@@ -293,7 +295,7 @@ func main() {
 		removeSub := func(p string) error {
 			return filepath.Walk(p, func(path string, info os.FileInfo, err error) error {
 				if err != nil {
-					if os.IsNotExist(err) {
+					if errors.Is(err, fs.ErrNotExist) {
 						return nil
 					}
 					return err
@@ -356,7 +358,7 @@ func main() {
 				filepath.Join(ctx.Spool, node.Id.String(), nncp.AreaDir),
 				func(path string, info os.FileInfo, err error) error {
 					if err != nil {
-						if os.IsNotExist(err) {
+						if errors.Is(err, fs.ErrNotExist) {
 							return nil
 						}
 						return err

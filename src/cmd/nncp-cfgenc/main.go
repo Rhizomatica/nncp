@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -34,8 +33,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-cfgenc -- encrypt/decrypt configuration file\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-cfgenc -- encrypt/decrypt configuration file\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] cfg.hjson > cfg.hjson.eblob\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -d cfg.hjson.eblob > cfg.hjson\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -dump cfg.hjson.eblob\n", os.Args[0])
@@ -70,7 +69,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	data, err := ioutil.ReadFile(flag.Arg(0))
+	data, err := os.ReadFile(flag.Arg(0))
 	if err != nil {
 		log.Fatalln("Can not read data:", err)
 	}
@@ -115,7 +114,7 @@ func main() {
 		log.Fatalln(err)
 	}
 	os.Stderr.WriteString("\n")
-	if bytes.Compare(password1, password2) != 0 {
+	if !bytes.Equal(password1, password2) {
 		log.Fatalln(errors.New("Passphrases do not match"))
 	}
 	eblob, err := nncp.NewEBlob(*sOpt, *tOpt, *pOpt, password1, data)

@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"io/fs"
 	"log"
 	"mime"
 	"os"
@@ -357,7 +357,7 @@ func jobProcess(
 			dstPathCtr := 0
 			for {
 				if _, err = os.Stat(dstPath); err != nil {
-					if os.IsNotExist(err) {
+					if errors.Is(err, fs.ErrNotExist) {
 						break
 					}
 					ctx.LogE("rx-stat", les, err, func(les LEs) string {
@@ -475,7 +475,7 @@ func jobProcess(
 			)
 			return err
 		}
-		dstRaw, err := ioutil.ReadAll(pipeR)
+		dstRaw, err := io.ReadAll(pipeR)
 		if err != nil {
 			ctx.LogE("rx-read", les, err, func(les LEs) string {
 				return fmt.Sprintf(

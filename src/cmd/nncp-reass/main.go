@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -39,8 +40,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-reass -- reassemble chunked files\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-reass -- reassemble chunked files\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [FILE.nncp.meta]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 	fmt.Fprint(os.Stderr, `
@@ -51,10 +52,10 @@ but at least one of them must be specified.
 
 func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bool {
 	fd, err := os.Open(path)
-	defer fd.Close()
 	if err != nil {
 		log.Fatalln("Can not open file:", err)
 	}
+	defer fd.Close()
 	var metaPkt nncp.ChunkedMeta
 	les := nncp.LEs{{K: "Path", V: path}}
 	logMsg := func(les nncp.LEs) string {
@@ -115,7 +116,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	for chunkNum, chunkPath := range chunksPaths {
 		fi, err := os.Stat(chunkPath)
 		lesChunk := append(les, nncp.LE{K: "Chunk", V: chunkNum})
-		if err != nil && os.IsNotExist(err) {
+		if err != nil && errors.Is(err, fs.ErrNotExist) {
 			ctx.LogI("reass-chunk-miss", lesChunk, func(les nncp.LEs) string {
 				return fmt.Sprintf("%s: chunk %d missing", logMsg(les), chunkNum)
 			})
@@ -124,7 +125,8 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 		}
 		var badSize bool
 		if chunkNum+1 == len(chunksPaths) {
-			badSize = uint64(fi.Size()) != metaPkt.FileSize%metaPkt.ChunkSize
+			left := metaPkt.FileSize % metaPkt.ChunkSize
+			badSize = left != 0 && uint64(fi.Size()) != left
 		} else {
 			badSize = uint64(fi.Size()) != metaPkt.ChunkSize
 		}
@@ -164,7 +166,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 			log.Fatalln(err)
 		}
 		fd.Close()
-		if bytes.Compare(hsh.Sum(nil), metaPkt.Checksums[chunkNum][:]) != 0 {
+		if !bytes.Equal(hsh.Sum(nil), metaPkt.Checksums[chunkNum][:]) {
 			ctx.LogE(
 				"reass-chunk",
 				nncp.LEs{{K: "Path", V: path}, {K: "Chunk", V: chunkNum}},
@@ -269,7 +271,7 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 	dstPathCtr := 0
 	for {
 		if _, err = os.Stat(dstPath); err != nil {
-			if os.IsNotExist(err) {
+			if errors.Is(err, fs.ErrNotExist) {
 				break
 			}
 			log.Fatalln(err)
@@ -291,7 +293,6 @@ func process(ctx *nncp.Ctx, path string, keep, dryRun, stdout, dumpMeta bool) bo
 
 func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 	dir, err := os.Open(dirPath)
-	defer dir.Close()
 	logMsg := func(les nncp.LEs) string {
 		return "Finding .meta in " + dirPath
 	}
@@ -299,6 +300,7 @@ func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 		ctx.LogE("reass", nncp.LEs{{K: "Path", V: dirPath}}, err, logMsg)
 		return nil
 	}
+	defer dir.Close()
 	fis, err := dir.Readdir(0)
 	dir.Close()
 	if err != nil {

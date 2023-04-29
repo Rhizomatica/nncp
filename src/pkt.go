@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -514,7 +514,7 @@ FullRead:
 		if err != nil {
 			panic(err)
 		}
-		if bytes.Compare(ct[:n], pt[:n]) != 0 {
+		if !bytes.Equal(ct[:n], pt[:n]) {
 			err = errors.New("wrong pad value")
 			return
 		}

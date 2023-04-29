@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,13 +49,13 @@ func TestMTHSeqSymmetric(t *testing.T) {
 		if _, err := mth.PreaddFrom(bytes.NewReader(data), "", false); err != nil {
 			panic(err)
 		}
-		if bytes.Compare(hsh0, mth.Sum(nil)) != 0 {
+		if !bytes.Equal(hsh0, mth.Sum(nil)) {
 			return false
 		}
 
 		mth = MTHSeqNew(0, 0)
 		mth.Write(data)
-		if bytes.Compare(hsh0, mth.Sum(nil)) != 0 {
+		if !bytes.Equal(hsh0, mth.Sum(nil)) {
 			return false
 		}
 
@@ -65,7 +65,7 @@ func TestMTHSeqSymmetric(t *testing.T) {
 			panic(err)
 		}
 		hsh00 := mth.Sum(nil)
-		if bytes.Compare(hsh0, hsh00) == 0 {
+		if bytes.Equal(hsh0, hsh00) {
 			return false
 		}
 
@@ -76,17 +76,13 @@ func TestMTHSeqSymmetric(t *testing.T) {
 		if _, err := mth.PreaddFrom(bytes.NewReader(data), "", false); err != nil {
 			panic(err)
 		}
-		if bytes.Compare(hsh00, mth.Sum(nil)) != 0 {
+		if !bytes.Equal(hsh00, mth.Sum(nil)) {
 			return false
 		}
 
 		mth = MTHSeqNew(0, 0)
 		mth.Write(data)
-		if bytes.Compare(hsh00, mth.Sum(nil)) != 0 {
-			return false
-		}
-
-		return true
+		return bytes.Equal(hsh00, mth.Sum(nil))
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)
@@ -110,7 +106,7 @@ func TestMTHSeqAndFatEqual(t *testing.T) {
 		if _, err := io.Copy(seq, bytes.NewReader(data)); err != nil {
 			panic(err)
 		}
-		return bytes.Compare(hshFat, seq.Sum(nil)) == 0
+		return bytes.Equal(hshFat, seq.Sum(nil))
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)
@@ -128,7 +124,7 @@ func TestMTHNull(t *testing.T) {
 	if _, err := seq.Write(nil); err != nil {
 		t.Error(err)
 	}
-	if bytes.Compare(hshFat, seq.Sum(nil)) != 0 {
+	if !bytes.Equal(hshFat, seq.Sum(nil)) {
 		t.FailNow()
 	}
 }
