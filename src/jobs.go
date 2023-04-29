@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,8 +19,10 @@ package nncp
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -148,7 +150,7 @@ func (ctx *Ctx) jobsFind(nodeId *NodeId, xx TRxTx, nock, part bool) chan Job {
 				fd, err = os.Open(pth)
 			} else {
 				fd, err = os.Open(JobPath2Hdr(pth))
-				if err != nil && os.IsNotExist(err) {
+				if err != nil && errors.Is(err, fs.ErrNotExist) {
 					hdrExists = false
 					fd, err = os.Open(pth)
 				}

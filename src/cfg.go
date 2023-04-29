@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -468,7 +468,7 @@ func NewArea(ctx *Ctx, name string, cfg *AreaJSON) (*Area, error) {
 
 func CfgParse(data []byte) (*CfgJSON, error) {
 	var err error
-	if bytes.Compare(data[:8], MagicNNCPBv3.B[:]) == 0 {
+	if bytes.Equal(data[:8], MagicNNCPBv3.B[:]) {
 		os.Stderr.WriteString("Passphrase:")
 		password, err := term.ReadPassword(0)
 		if err != nil {
@@ -479,9 +479,9 @@ func CfgParse(data []byte) (*CfgJSON, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else if bytes.Compare(data[:8], MagicNNCPBv2.B[:]) == 0 {
+	} else if bytes.Equal(data[:8], MagicNNCPBv2.B[:]) {
 		log.Fatalln(MagicNNCPBv2.TooOld())
-	} else if bytes.Compare(data[:8], MagicNNCPBv1.B[:]) == 0 {
+	} else if bytes.Equal(data[:8], MagicNNCPBv1.B[:]) {
 		log.Fatalln(MagicNNCPBv1.TooOld())
 	}
 	var cfgGeneral map[string]interface{}

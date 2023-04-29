@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"crypto/rand"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -48,7 +47,7 @@ func TestTx(t *testing.T) {
 			pathSrc = pathSrc[:MaxPathSize]
 		}
 		hops = hops % 4
-		spool, err := ioutil.TempDir("", "testtx")
+		spool, err := os.MkdirTemp("", "testtx")
 		if err != nil {
 			panic(err)
 		}
@@ -86,6 +85,9 @@ func TestTx(t *testing.T) {
 			nodeTgt.Via = append(nodeTgt.Via, node.Id)
 		}
 		pkt, err := NewPkt(PktTypeExec, replyNice, []byte(pathSrc))
+		if err != nil {
+			panic(err)
+		}
 		src := bytes.NewReader(data)
 		dstNode, _, _, err := ctx.Tx(
 			nodeTgt,
@@ -148,14 +150,14 @@ func TestTx(t *testing.T) {
 				if !bytes.HasPrefix(pkt.Path[:], []byte(pathSrc)) {
 					return false
 				}
-				if bytes.Compare(bufR.Bytes(), []byte(data)) != 0 {
+				if !bytes.Equal(bufR.Bytes(), []byte(data)) {
 					return false
 				}
 			} else {
 				if pkt.Type != PktTypeTrns {
 					return false
 				}
-				if bytes.Compare(pkt.Path[:MTHSize], vias[i+1][:]) != 0 {
+				if !bytes.Equal(pkt.Path[:MTHSize], vias[i+1][:]) {
 					return false
 				}
 			}

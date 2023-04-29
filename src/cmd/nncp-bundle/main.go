@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -38,8 +38,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-bundle -- Create/digest stream of NNCP encrypted packets\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-bundle -- Create/digest stream of NNCP encrypted packets\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] -tx [-delete] NODE [NODE ...] > ...\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -rx -delete [-dryrun] [NODE ...] < ...\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -rx [-check] [-dryrun] [NODE ...] < ...\n", os.Args[0])
@@ -408,7 +408,7 @@ func main() {
 			}
 			dstDirPath := filepath.Join(ctx.Spool, sender, string(nncp.TRx))
 			dstPath := filepath.Join(dstDirPath, pktName)
-			if _, err = os.Stat(dstPath); err == nil || !os.IsNotExist(err) {
+			if _, err = os.Stat(dstPath); err == nil || !errors.Is(err, fs.ErrNotExist) {
 				ctx.LogD("bundle-rx-exists", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": packet already exists"
 				})
@@ -416,7 +416,7 @@ func main() {
 			}
 			if _, err = os.Stat(filepath.Join(
 				dstDirPath, nncp.SeenDir, pktName,
-			)); err == nil || !os.IsNotExist(err) {
+			)); err == nil || !errors.Is(err, fs.ErrNotExist) {
 				ctx.LogD("bundle-rx-seen", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": packet already seen"
 				})
@@ -461,7 +461,7 @@ func main() {
 				}
 			} else {
 				if *dryRun {
-					if _, err = nncp.CopyProgressed(ioutil.Discard, tarR, "Rx", les, ctx.ShowPrgrs); err != nil {
+					if _, err = nncp.CopyProgressed(io.Discard, tarR, "Rx", les, ctx.ShowPrgrs); err != nil {
 						log.Fatalln("Error during copying:", err)
 					}
 				} else {

@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -287,21 +287,22 @@ func (state *SPState) dirUnlock() {
 
 func (state *SPState) WriteSP(dst io.Writer, payload []byte, ping bool) error {
 	state.writeSPBuf.Reset()
-	n, err := xdr.Marshal(&state.writeSPBuf, SPRaw{
+	if _, err := xdr.Marshal(&state.writeSPBuf, SPRaw{
 		Magic:   MagicNNCPSv1.B,
 		Payload: payload,
-	})
+	}); err != nil {
+		return err
+	}
+	n, err := dst.Write(state.writeSPBuf.Bytes())
 	if err != nil {
 		return err
 	}
-	if n, err = dst.Write(state.writeSPBuf.Bytes()); err == nil {
-		state.TxLastSeen = time.Now()
-		state.TxBytes += int64(n)
-		if !ping {
-			state.TxLastNonPing = state.TxLastSeen
-		}
+	state.TxLastSeen = time.Now()
+	state.TxBytes += int64(n)
+	if !ping {
+		state.TxLastNonPing = state.TxLastSeen
 	}
-	return err
+	return nil
 }
 
 func (state *SPState) ReadSP(src io.Reader) ([]byte, error) {
@@ -1118,7 +1119,7 @@ func (state *SPState) Wait() bool {
 	state.wg.Wait()
 	close(state.payloads)
 	close(state.pings)
-	state.Duration = time.Now().Sub(state.started)
+	state.Duration = time.Since(state.started)
 	state.dirUnlock()
 	state.RxSpeed = state.RxBytes
 	state.TxSpeed = state.TxBytes
@@ -1477,7 +1478,7 @@ func (state *SPState) ProcessSP(payload []byte) ([][]byte, error) {
 			if hasherAndOffset != nil {
 				delete(state.fileHashers, filePath)
 				if hasherAndOffset.mth.PreaddSize() == 0 {
-					if bytes.Compare(hasherAndOffset.mth.Sum(nil), file.Hash[:]) != 0 {
+					if !bytes.Equal(hasherAndOffset.mth.Sum(nil), file.Hash[:]) {
 						state.Ctx.LogE(
 							"sp-file-bad-checksum", lesp,
 							errors.New("checksum mismatch"),

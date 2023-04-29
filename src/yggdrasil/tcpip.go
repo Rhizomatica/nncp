@@ -3,7 +3,7 @@
 
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ func (*TCPIPEndpoint) LinkAddress() tcpip.LinkAddress { return "" }
 
 func (*TCPIPEndpoint) Wait() {}
 
-func (e *TCPIPEndpoint) WritePacket(pkt *stack.PacketBuffer) tcpip.Error {
+func (e *TCPIPEndpoint) WritePacket(pkt stack.PacketBufferPtr) tcpip.Error {
 	v := pkt.ToView()
 	n, err := v.Read(e.writeBuf)
 	if err != nil {
@@ -99,13 +99,9 @@ func (e *TCPIPEndpoint) WritePackets(pbs stack.PacketBufferList) (int, tcpip.Err
 	return len(pbs.AsSlice()), nil
 }
 
-func (e *TCPIPEndpoint) WriteRawPacket(*stack.PacketBuffer) tcpip.Error {
-	panic("not implemented")
-}
-
 func (*TCPIPEndpoint) ARPHardwareType() header.ARPHardwareType { return header.ARPHardwareNone }
 
-func (e *TCPIPEndpoint) AddHeader(*stack.PacketBuffer) {}
+func (e *TCPIPEndpoint) AddHeader(stack.PacketBufferPtr) {}
 
 func convertToFullAddr(ip net.IP, port int) (tcpip.FullAddress, tcpip.NetworkProtocolNumber) {
 	return tcpip.FullAddress{

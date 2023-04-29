@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -56,7 +55,7 @@ func TestTossExec(t *testing.T) {
 		for i, recipient := range recipients {
 			recipients[i] = recipient % 8
 		}
-		spool, err := ioutil.TempDir("", "testtoss")
+		spool, err := os.MkdirTemp("", "testtoss")
 		if err != nil {
 			panic(err)
 		}
@@ -138,7 +137,7 @@ func TestTossExec(t *testing.T) {
 				return false
 			}
 		}
-		mbox, err := ioutil.ReadFile(filepath.Join(spool, "mbox"))
+		mbox, err := os.ReadFile(filepath.Join(spool, "mbox"))
 		if err != nil {
 			return false
 		}
@@ -150,7 +149,7 @@ func TestTossExec(t *testing.T) {
 			)
 			expected = append(expected, []byte("BODY\n")...)
 		}
-		return bytes.Compare(mbox, expected) == 0
+		return bytes.Equal(mbox, expected)
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)
@@ -174,7 +173,7 @@ func TestTossFile(t *testing.T) {
 			}
 			files[strconv.Itoa(i)] = data
 		}
-		spool, err := ioutil.TempDir("", "testtoss")
+		spool, err := os.MkdirTemp("", "testtoss")
 		if err != nil {
 			panic(err)
 		}
@@ -200,7 +199,7 @@ func TestTossFile(t *testing.T) {
 			hasher.Write(fileData)
 			fileName := Base32Codec.EncodeToString(hasher.Sum(nil))
 			src := filepath.Join(spool, fileName)
-			if err := ioutil.WriteFile(src, fileData, os.FileMode(0600)); err != nil {
+			if err := os.WriteFile(src, fileData, os.FileMode(0600)); err != nil {
 				panic(err)
 			}
 			if err := ctx.TxFile(
@@ -236,11 +235,11 @@ func TestTossFile(t *testing.T) {
 			hasher := MTHNew(0, 0)
 			hasher.Write(fileData)
 			fileName := Base32Codec.EncodeToString(hasher.Sum(nil))
-			data, err := ioutil.ReadFile(filepath.Join(incomingPath, fileName))
+			data, err := os.ReadFile(filepath.Join(incomingPath, fileName))
 			if err != nil {
 				panic(err)
 			}
-			if bytes.Compare(data, fileData) != 0 {
+			if !bytes.Equal(data, fileData) {
 				return false
 			}
 		}
@@ -254,7 +253,7 @@ func TestTossFile(t *testing.T) {
 func TestTossFileSameName(t *testing.T) {
 	f := func(filesRaw uint8) bool {
 		files := int(filesRaw)%8 + 1
-		spool, err := ioutil.TempDir("", "testtoss")
+		spool, err := os.MkdirTemp("", "testtoss")
 		if err != nil {
 			panic(err)
 		}
@@ -275,7 +274,7 @@ func TestTossFileSameName(t *testing.T) {
 		}
 		ctx.Neigh[*nodeOur.Id] = nodeOur.Their()
 		srcPath := filepath.Join(spool, "junk")
-		if err = ioutil.WriteFile(
+		if err = os.WriteFile(
 			srcPath,
 			[]byte("doesnotmatter"),
 			os.FileMode(0600),
@@ -315,10 +314,7 @@ func TestTossFileSameName(t *testing.T) {
 			}
 			delete(expected, filename)
 		}
-		if len(expected) != 0 {
-			return false
-		}
-		return true
+		return len(expected) == 0
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)
@@ -330,7 +326,7 @@ func TestTossFreq(t *testing.T) {
 		if len(fileSizes) == 0 {
 			return true
 		}
-		spool, err := ioutil.TempDir("", "testtoss")
+		spool, err := os.MkdirTemp("", "testtoss")
 		if err != nil {
 			panic(err)
 		}
@@ -390,7 +386,7 @@ func TestTossFreq(t *testing.T) {
 			return false
 		}
 		for fileName, fileData := range files {
-			if err := ioutil.WriteFile(
+			if err := os.WriteFile(
 				filepath.Join(spool, fileName),
 				fileData,
 				os.FileMode(0600),
@@ -423,8 +419,7 @@ func TestTossFreq(t *testing.T) {
 			if pkt.Nice != replyNice {
 				return false
 			}
-			dst := string(pkt.Path[:int(pkt.PathLen)])
-			if bytes.Compare(buf.Bytes(), files[dst]) != 0 {
+			if !bytes.Equal(buf.Bytes(), files[string(pkt.Path[:int(pkt.PathLen)])]) {
 				return false
 			}
 		}
@@ -449,7 +444,7 @@ func TestTossTrns(t *testing.T) {
 			}
 			datum[i] = data
 		}
-		spool, err := ioutil.TempDir("", "testtoss")
+		spool, err := os.MkdirTemp("", "testtoss")
 		if err != nil {
 			panic(err)
 		}
@@ -495,7 +490,7 @@ func TestTossTrns(t *testing.T) {
 			}
 			hasher := MTHNew(0, 0)
 			hasher.Write(dst.Bytes())
-			if err := ioutil.WriteFile(
+			if err := os.WriteFile(
 				filepath.Join(rxPath, Base32Codec.EncodeToString(hasher.Sum(nil))),
 				dst.Bytes(),
 				os.FileMode(0600),
@@ -509,20 +504,17 @@ func TestTossTrns(t *testing.T) {
 			return false
 		}
 		for _, filename := range dirFiles(txPath) {
-			dataRead, err := ioutil.ReadFile(filepath.Join(txPath, filename))
+			dataRead, err := os.ReadFile(filepath.Join(txPath, filename))
 			if err != nil {
 				panic(err)
 			}
 			for k, data := range datum {
-				if bytes.Compare(dataRead, data) == 0 {
+				if bytes.Equal(dataRead, data) {
 					delete(datum, k)
 				}
 			}
 		}
-		if len(datum) > 0 {
-			return false
-		}
-		return true
+		return len(datum) == 0
 	}
 	if err := quick.Check(f, nil); err != nil {
 		t.Error(err)

@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -33,8 +34,8 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, nncp.UsageHeader())
-	fmt.Fprintf(os.Stderr, "nncp-xfer -- copy inbound and outbounds packets\n\n")
+	fmt.Fprint(os.Stderr, nncp.UsageHeader())
+	fmt.Fprint(os.Stderr, "nncp-xfer -- copy inbound and outbounds packets\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] DIR\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
 }
@@ -120,7 +121,7 @@ func main() {
 	}
 	ctx.LogD("xfer-self", les, logMsg)
 	if _, err = os.Stat(selfPath); err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			ctx.LogD("xfer-self-no-dir", les, func(les nncp.LEs) string {
 				return logMsg(les) + ": no directory"
 			})
@@ -215,7 +216,7 @@ func main() {
 				string(nncp.TRx),
 				nncp.SeenDir,
 				fiInt.Name(),
-			)); err == nil || !os.IsNotExist(err) {
+			)); err == nil || !errors.Is(err, fs.ErrNotExist) {
 				ctx.LogI("xfer-rx-seen", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": packet already seen"
 				})
@@ -389,7 +390,7 @@ Tx:
 		}
 		_, err = os.Stat(nodePath)
 		if err != nil {
-			if os.IsNotExist(err) {
+			if errors.Is(err, fs.ErrNotExist) {
 				ctx.LogD("xfer-tx-not-exist", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": does not exist"
 				})
@@ -420,7 +421,7 @@ Tx:
 		}
 		_, err = os.Stat(dstPath)
 		if err != nil {
-			if os.IsNotExist(err) {
+			if errors.Is(err, fs.ErrNotExist) {
 				if err = os.Mkdir(dstPath, os.FileMode(0777)); err != nil {
 					ctx.UnlockDir(dirLock)
 					ctx.LogE("xfer-tx-mkdir", les, err, logMsg)
@@ -450,7 +451,7 @@ Tx:
 				})
 				continue
 			}
-			if _, err = os.Stat(filepath.Join(dstPath, pktName)); err == nil || !os.IsNotExist(err) {
+			if _, err = os.Stat(filepath.Join(dstPath, pktName)); err == nil || !errors.Is(err, fs.ErrNotExist) {
 				ctx.LogD("xfer-tx-exists", les, func(les nncp.LEs) string {
 					return logMsg(les) + ": already exists"
 				})

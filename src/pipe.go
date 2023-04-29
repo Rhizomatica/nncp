@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ func (c PipeConn) SetWriteDeadline(t time.Time) error {
 }
 
 func (c PipeConn) Close() (err error) {
-	err = c.r.Close()
+	c.r.Close()
 	err = c.w.Close()
 	go c.cmd.Wait()
 	time.AfterFunc(time.Duration(10*time.Second), func() {

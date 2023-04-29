@@ -1,6 +1,6 @@
 /*
 NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2022 Sergey Matveev <stargrave@stargrave.org>
+Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package nncp
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -80,7 +80,7 @@ func ensureDir(dirs ...string) error {
 		}
 		return fmt.Errorf("%s: is not a directory", p)
 	}
-	if !os.IsNotExist(err) {
+	if !errors.Is(err, fs.ErrNotExist) {
 		return err
 	}
 	return os.MkdirAll(p, os.FileMode(0777))
@@ -119,7 +119,7 @@ func CtxFromCmdline(
 			return nil, err
 		}
 	} else {
-		cfgRaw, err := ioutil.ReadFile(cfgPath)
+		cfgRaw, err := os.ReadFile(cfgPath)
 		if err != nil {
 			return nil, err
 		}
