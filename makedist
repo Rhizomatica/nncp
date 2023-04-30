@@ -110,7 +110,7 @@ rm -r doc/.well-known
 perl -i -npe "s/GO build/GO build -mod=vendor/" bin/default.do bin/hjson-cli.do
 perl -i -npe "s/GO list/GO list -mod=vendor/" bin/default.do
 perl -i -npe "s/GO test/GO test -mod=vendor/" test.do
-rm makedist.sh VERSION.do
+rm makedist VERSION.do
 rm -r .git
 redo-cleanup full
 find . -type d -exec chmod 755 {} +
@@ -140,7 +140,7 @@ cat <<EOF
 An entry for documentation:
 @item @ref{Release $release_underscored, $release} @tab $release_date @tab $size KiB @tab
 @url{download/nncp-${release}.tar.xz.meta4, meta4}
-@url{download/nncp-${release}.tar.xz, link}
+@url{download/nncp-${release}.tar.xz, tar}
 @url{download/nncp-${release}.tar.xz.sig, sig}
 EOF
 
