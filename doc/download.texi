@@ -5,7 +5,7 @@
 @cindex download
 @section Prepared tarballs
 
-You can obtain releases source code prepared tarballs from the tars below.
+You can obtain releases source code prepared tarballs from the links below.
 Do not forget to check tarball @ref{Integrity, integrity}! Also there
 are @ref{Mirrors, mirrors} of this website.
 
