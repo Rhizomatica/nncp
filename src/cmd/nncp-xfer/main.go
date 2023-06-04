@@ -106,7 +106,7 @@ func main() {
 	selfPath := filepath.Join(flag.Arg(0), ctx.SelfId.String())
 	isBad := false
 	var dir *os.File
-	var fis []os.FileInfo
+	var entries []os.DirEntry
 	var les nncp.LEs
 	var logMsg func(les nncp.LEs) string
 	if *txOnly {
@@ -141,7 +141,7 @@ func main() {
 		isBad = true
 		goto Tx
 	}
-	fis, err = dir.Readdir(0)
+	entries, err = dir.ReadDir(0)
 	dir.Close()
 	if err != nil {
 		ctx.LogE("xfer-self-read", les, err, func(les nncp.LEs) string {
@@ -150,12 +150,12 @@ func main() {
 		isBad = true
 		goto Tx
 	}
-	for _, fi := range fis {
-		if !fi.IsDir() {
+	for _, entry := range entries {
+		if !entry.IsDir() {
 			continue
 		}
-		nodeId, err := nncp.NodeIdFromString(fi.Name())
-		les := append(les, nncp.LE{K: "Node", V: fi.Name()})
+		nodeId, err := nncp.NodeIdFromString(entry.Name())
+		les := append(les, nncp.LE{K: "Node", V: entry.Name()})
 		logMsg := func(les nncp.LEs) string {
 			return "Packet transfer, received from " + ctx.NodeName(nodeId)
 		}
@@ -177,7 +177,7 @@ func main() {
 			})
 			continue
 		}
-		dir, err = os.Open(filepath.Join(selfPath, fi.Name()))
+		dir, err = os.Open(filepath.Join(selfPath, entry.Name()))
 		if err != nil {
 			ctx.LogE("xfer-rx-open", les, err, func(les nncp.LEs) string {
 				return logMsg(les) + ": opening"
