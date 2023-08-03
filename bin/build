@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+cd "$(realpath -- $(dirname "$0"))"/../src
+GO=${GO:-go}
+mod=`$GO list -mod=vendor -m`
+GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultCfgPath=$CFGPATH"
+GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultSendmailPath=$SENDMAIL"
+GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultSpoolPath=$SPOOLPATH"
+GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultLogPath=$LOGPATH"
+for cmd in `cat ../bin/cmd.list` ; do
+    $GO build -mod=vendor -o ../bin/$cmd $GO_CFLAGS -ldflags "$GO_LDFLAGS" ./cmd/$cmd
+done
+$GO build -mod=vendor -o ../bin/$cmd $GO_CFLAGS github.com/hjson/hjson-go/hjson-cli
