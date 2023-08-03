@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.8.4
+@subsection Релиз 8.8.4
+@itemize
+
+@item
+Избавиться от @command{redo} системы сборки при установке, так как по сути
+нет зависимостей, только компиляция Go кода.
+
+@end itemize
+
 @node Релиз 8.8.3
 @subsection Релиз 8.8.3
 @itemize

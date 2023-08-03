@@ -1,6 +1,5 @@
 redo-ifchange \
     ../config \
-    ../VERSION \
     *.texi \
     cfg/*.texi \
     cmd/*.texi \
@@ -12,7 +11,7 @@ redo-ifchange \
     usecases/*.texi
 . ../config
 ${MAKEINFO:-makeinfo} \
-    -D "VERSION `cat ../VERSION`" \
+    -D "VERSION `../version`" \
     $MAKEINFO_OPTS \
     --set-customization-variable SECTION_NAME_IN_TITLE=1 \
     --set-customization-variable TREE_TRANSFORMATIONS=complete_tree_nodes_menus \

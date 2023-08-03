@@ -1,5 +1,6 @@
 #!/bin/sh -ex
 
+PATH=$HOME/work/meta4ra/contrib:$PATH
 cur=$(pwd)
 tmp=$(mktemp -d)
 release=$1
@@ -8,7 +9,7 @@ release=$1
 git clone . $tmp/nncp-$release
 cd $tmp/nncp-$release
 git checkout v$release
-redo VERSION
+./version > VERSION
 cd src
 go mod vendor
 modvendor -v -copy="**/*_test.go **/words.go **/README.md **/main.go"
@@ -34,9 +35,6 @@ find . \( \
     -name .travis.yml -o \
     -name .goreleaser.yml -o \
     -name .gitattributes \) -delete
-
-mkdir contrib
-cp ~/work/redo/apenwarr/minimal/do contrib/do
 
 cat > doc/download.texi <<EOF
 @node Tarballs
@@ -105,16 +103,15 @@ rm -r doc/.well-known
 
 ########################################################################
 
-perl -i -npe "s/GO build/GO build -mod=vendor/" bin/default.do bin/hjson-cli.do
-perl -i -npe "s/GO list/GO list -mod=vendor/" bin/default.do
-perl -i -npe "s/GO test/GO test -mod=vendor/" test.do
-rm makedist VERSION.do
+perl -i -npe "s/GO build/GO build -mod=vendor/" bin/build
+perl -i -npe "s/GO list/GO list -mod=vendor/" bin/build
+rm makedist version
 rm -r .git
 redo-cleanup full
 find . -type d -exec chmod 755 {} +
 find . -type f -exec chmod 644 {} +
 find . -type f -name "*.sh" -exec chmod +x {} +
-chmod +x contrib/do
+chmod +x bin/build install install-strip uninstall
 
 cd ..
 tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"

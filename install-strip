@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+root="$(realpath -- $(dirname "$0"))"
+cd "$root"
+./install
+. ./config
+for cmd in `cat bin/cmd.list` ; do
+    strip "$BINDIR"/$cmd
+done
