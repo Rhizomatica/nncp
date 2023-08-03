@@ -52,361 +52,361 @@ And additional ones for Yggdrasil support:
 @item @ref{Release 8_8_3, 8.8.3} @tab 2023-04-29 @tab 1779 KiB @tab
 @url{download/nncp-8.8.3.tar.xz.meta4, meta4}
 @url{download/nncp-8.8.3.tar.xz, tar}
-@url{download/nncp-8.8.3.tar.xz.sig, sig}
+@url{download/nncp-8.8.3.tar.xz.asc, sig}
 
 @item @ref{Release 8_8_2, 8.8.2} @tab 2022-11-18 @tab 1752 KiB @tab
 @url{download/nncp-8.8.2.tar.xz.meta4, meta4}
 @url{download/nncp-8.8.2.tar.xz, tar}
-@url{download/nncp-8.8.2.tar.xz.sig, sig}
+@url{download/nncp-8.8.2.tar.xz.asc, sig}
 
 @item @ref{Release 8_8_1, 8.8.1} @tab 2022-10-30 @tab 1748 KiB @tab
 @url{download/nncp-8.8.1.tar.xz.meta4, meta4}
 @url{download/nncp-8.8.1.tar.xz, tar}
-@url{download/nncp-8.8.1.tar.xz.sig, sig}
+@url{download/nncp-8.8.1.tar.xz.asc, sig}
 
 @item @ref{Release 8_8_0, 8.8.0} @tab 2022-09-04 @tab 1739 KiB @tab
 @url{download/nncp-8.8.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.8.0.tar.xz, tar}
-@url{download/nncp-8.8.0.tar.xz.sig, sig}
+@url{download/nncp-8.8.0.tar.xz.asc, sig}
 
 @item @ref{Release 8_7_2, 8.7.2} @tab 2022-03-13 @tab 1673 KiB @tab
 @url{download/nncp-8.7.2.tar.xz.meta4, meta4}
 @url{download/nncp-8.7.2.tar.xz, tar}
-@url{download/nncp-8.7.2.tar.xz.sig, sig}
+@url{download/nncp-8.7.2.tar.xz.asc, sig}
 
 @item @ref{Release 8_7_1, 8.7.1} @tab 2022-03-09 @tab 1669 KiB @tab
 @url{download/nncp-8.7.1.tar.xz.meta4, meta4}
 @url{download/nncp-8.7.1.tar.xz, tar}
-@url{download/nncp-8.7.1.tar.xz.sig, sig}
+@url{download/nncp-8.7.1.tar.xz.asc, sig}
 
 @item @ref{Release 8_7_0, 8.7.0} @tab 2022-03-04 @tab 1670 KiB @tab
 @url{download/nncp-8.7.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.7.0.tar.xz, tar}
-@url{download/nncp-8.7.0.tar.xz.sig, sig}
+@url{download/nncp-8.7.0.tar.xz.asc, sig}
 
 @item @ref{Release 8_6_0, 8.6.0} @tab 2022-03-02 @tab 1670 KiB @tab
 @url{download/nncp-8.6.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.6.0.tar.xz, tar}
-@url{download/nncp-8.6.0.tar.xz.sig, sig}
+@url{download/nncp-8.6.0.tar.xz.asc, sig}
 
 @item @ref{Release 8_5_0, 8.5.0} @tab 2022-01-26 @tab 1685 KiB @tab
 @url{download/nncp-8.5.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.5.0.tar.xz, tar}
-@url{download/nncp-8.5.0.tar.xz.sig, sig}
+@url{download/nncp-8.5.0.tar.xz.asc, sig}
 
 @item @ref{Release 8_4_0, 8.4.0} @tab 2022-01-25 @tab 1683 KiB @tab
 @url{download/nncp-8.4.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.4.0.tar.xz, tar}
-@url{download/nncp-8.4.0.tar.xz.sig, sig}
+@url{download/nncp-8.4.0.tar.xz.asc, sig}
 
 @item @ref{Release 8_3_0, 8.3.0} @tab 2022-01-23 @tab 1682 KiB @tab
 @url{download/nncp-8.3.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.3.0.tar.xz, tar}
-@url{download/nncp-8.3.0.tar.xz.sig, sig}
+@url{download/nncp-8.3.0.tar.xz.asc, sig}
 
 @item @ref{Release 8_2_0, 8.2.0} @tab 2022-01-20 @tab 1669 KiB @tab
 @url{download/nncp-8.2.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.2.0.tar.xz, tar}
-@url{download/nncp-8.2.0.tar.xz.sig, sig}
+@url{download/nncp-8.2.0.tar.xz.asc, sig}
 
 @item @ref{Release 8_1_0, 8.1.0} @tab 2022-01-16 @tab 1339 KiB @tab
 @url{download/nncp-8.1.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.1.0.tar.xz, tar}
-@url{download/nncp-8.1.0.tar.xz.sig, sig}
+@url{download/nncp-8.1.0.tar.xz.asc, sig}
 
 @item @ref{Release 8_0_2, 8.0.2} @tab 2021-11-10 @tab 1204 KiB @tab
 @url{download/nncp-8.0.2.tar.xz.meta4, meta4}
 @url{download/nncp-8.0.2.tar.xz, tar}
-@url{download/nncp-8.0.2.tar.xz.sig, sig}
+@url{download/nncp-8.0.2.tar.xz.asc, sig}
 
 @item @ref{Release 8_0_1, 8.0.1} @tab 2021-11-09 @tab 1206 KiB @tab
 @url{download/nncp-8.0.1.tar.xz.meta4, meta4}
 @url{download/nncp-8.0.1.tar.xz, tar}
-@url{download/nncp-8.0.1.tar.xz.sig, sig}
+@url{download/nncp-8.0.1.tar.xz.asc, sig}
 
 @item @ref{Release 8_0_0, 8.0.0} @tab 2021-11-08 @tab 1203 KiB @tab
 @url{download/nncp-8.0.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.0.0.tar.xz, tar}
-@url{download/nncp-8.0.0.tar.xz.sig, sig}
+@url{download/nncp-8.0.0.tar.xz.asc, sig}
 
 @item @ref{Release 7_7_0, 7.7.0} @tab 2021-09-11 @tab 1180 KiB @tab
 @url{download/nncp-7.7.0.tar.xz.meta4, meta4}
 @url{download/nncp-7.7.0.tar.xz, tar}
-@url{download/nncp-7.7.0.tar.xz.sig, sig}
+@url{download/nncp-7.7.0.tar.xz.asc, sig}
 
 @item @ref{Release 7_6_0, 7.6.0} @tab 2021-08-08 @tab 1153 KiB @tab
 @url{download/nncp-7.6.0.tar.xz.meta4, meta4}
 @url{download/nncp-7.6.0.tar.xz, tar}
-@url{download/nncp-7.6.0.tar.xz.sig, sig}
+@url{download/nncp-7.6.0.tar.xz.asc, sig}
 
 @item @ref{Release 7_5_1, 7.5.1} @tab 2021-08-05 @tab 1147 KiB @tab
 @url{download/nncp-7.5.1.tar.xz.meta4, meta4}
 @url{download/nncp-7.5.1.tar.xz, tar}
-@url{download/nncp-7.5.1.tar.xz.sig, sig}
+@url{download/nncp-7.5.1.tar.xz.asc, sig}
 
 @item @ref{Release 7_5_0, 7.5.0} @tab 2021-07-28 @tab 1151 KiB @tab
 @url{download/nncp-7.5.0.tar.xz.meta4, meta4}
 @url{download/nncp-7.5.0.tar.xz, tar}
-@url{download/nncp-7.5.0.tar.xz.sig, sig}
+@url{download/nncp-7.5.0.tar.xz.asc, sig}
 
 @item @ref{Release 7_4_0, 7.4.0} @tab 2021-07-19 @tab 1153 KiB @tab
 @url{download/nncp-7.4.0.tar.xz.meta4, meta4}
 @url{download/nncp-7.4.0.tar.xz, tar}
-@url{download/nncp-7.4.0.tar.xz.sig, sig}
+@url{download/nncp-7.4.0.tar.xz.asc, sig}
 
 @item @ref{Release 7_3_2, 7.3.2} @tab 2021-07-12 @tab 1141 KiB @tab
 @url{download/nncp-7.3.2.tar.xz.meta4, meta4}
 @url{download/nncp-7.3.2.tar.xz, tar}
-@url{download/nncp-7.3.2.tar.xz.sig, sig}
+@url{download/nncp-7.3.2.tar.xz.asc, sig}
 
 @item @ref{Release 7_3_1, 7.3.1} @tab 2021-07-11 @tab 1142 KiB @tab
 @url{download/nncp-7.3.1.tar.xz.meta4, meta4}
 @url{download/nncp-7.3.1.tar.xz, tar}
-@url{download/nncp-7.3.1.tar.xz.sig, sig}
+@url{download/nncp-7.3.1.tar.xz.asc, sig}
 
 @item @ref{Release 7_3_0, 7.3.0} @tab 2021-07-10 @tab 1141 KiB @tab
 @url{download/nncp-7.3.0.tar.xz.meta4, meta4}
 @url{download/nncp-7.3.0.tar.xz, tar}
-@url{download/nncp-7.3.0.tar.xz.sig, sig}
+@url{download/nncp-7.3.0.tar.xz.asc, sig}
 
 @item @ref{Release 7_2_1, 7.2.1} @tab 2021-07-09 @tab 1139 KiB @tab
 @url{download/nncp-7.2.1.tar.xz.meta4, meta4}
 @url{download/nncp-7.2.1.tar.xz, tar}
-@url{download/nncp-7.2.1.tar.xz.sig, sig}
+@url{download/nncp-7.2.1.tar.xz.asc, sig}
 
 @item @ref{Release 7_2_0, 7.2.0} @tab 2021-07-08 @tab 1136 KiB @tab
 @url{download/nncp-7.2.0.tar.xz.meta4, meta4}
 @url{download/nncp-7.2.0.tar.xz, tar}
-@url{download/nncp-7.2.0.tar.xz.sig, sig}
+@url{download/nncp-7.2.0.tar.xz.asc, sig}
 
 @item @ref{Release 7_1_1, 7.1.1} @tab 2021-07-06 @tab 1132 KiB @tab
 @url{download/nncp-7.1.1.tar.xz.meta4, meta4}
 @url{download/nncp-7.1.1.tar.xz, tar}
-@url{download/nncp-7.1.1.tar.xz.sig, sig}
+@url{download/nncp-7.1.1.tar.xz.asc, sig}
 
 @item @ref{Release 7_1_0, 7.1.0} @tab 2021-07-04 @tab 1142 KiB @tab
 @url{download/nncp-7.1.0.tar.xz.meta4, meta4}
 @url{download/nncp-7.1.0.tar.xz, tar}
-@url{download/nncp-7.1.0.tar.xz.sig, sig}
+@url{download/nncp-7.1.0.tar.xz.asc, sig}
 
 @item @ref{Release 7_0_0, 7.0.0} @tab 2021-06-30 @tab 1123 KiB @tab
 @url{download/nncp-7.0.0.tar.xz.meta4, meta4}
 @url{download/nncp-7.0.0.tar.xz, tar}
-@url{download/nncp-7.0.0.tar.xz.sig, sig}
+@url{download/nncp-7.0.0.tar.xz.asc, sig}
 
 @item @ref{Release 6_6_0, 6.6.0} @tab 2021-06-26 @tab 1041 KiB @tab
 @url{download/nncp-6.6.0.tar.xz.meta4, meta4}
 @url{download/nncp-6.6.0.tar.xz, tar}
-@url{download/nncp-6.6.0.tar.xz.sig, sig}
+@url{download/nncp-6.6.0.tar.xz.asc, sig}
 
 @item @ref{Release 6_5_0, 6.5.0} @tab 2021-05-30 @tab 1041 KiB @tab
 @url{download/nncp-6.5.0.tar.xz.meta4, meta4}
 @url{download/nncp-6.5.0.tar.xz, tar}
-@url{download/nncp-6.5.0.tar.xz.sig, sig}
+@url{download/nncp-6.5.0.tar.xz.asc, sig}
 
 @item @ref{Release 6_4_0, 6.4.0} @tab 2021-04-22 @tab 1042 KiB @tab
 @url{download/nncp-6.4.0.tar.xz.meta4, meta4}
 @url{download/nncp-6.4.0.tar.xz, tar}
-@url{download/nncp-6.4.0.tar.xz.sig, sig}
+@url{download/nncp-6.4.0.tar.xz.asc, sig}
 
 @item @ref{Release 6_3_0, 6.3.0} @tab 2021-04-14 @tab 1042 KiB @tab
 @url{download/nncp-6.3.0.tar.xz.meta4, meta4}
 @url{download/nncp-6.3.0.tar.xz, tar}
-@url{download/nncp-6.3.0.tar.xz.sig, sig}
+@url{download/nncp-6.3.0.tar.xz.asc, sig}
 
 @item @ref{Release 6_2_1, 6.2.1} @tab 2021-03-26 @tab 1038 KiB @tab
 @url{download/nncp-6.2.1.tar.xz.meta4, meta4}
 @url{download/nncp-6.2.1.tar.xz, tar}
-@url{download/nncp-6.2.1.tar.xz.sig, sig}
+@url{download/nncp-6.2.1.tar.xz.asc, sig}
 
 @item @ref{Release 6_2_0, 6.2.0} @tab 2021-03-07 @tab 1038 KiB @tab
 @url{download/nncp-6.2.0.tar.xz.meta4, meta4}
 @url{download/nncp-6.2.0.tar.xz, tar}
-@url{download/nncp-6.2.0.tar.xz.sig, sig}
+@url{download/nncp-6.2.0.tar.xz.asc, sig}
 
 @item @ref{Release 6_1_0, 6.1.0} @tab 2021-02-24 @tab 1040 KiB @tab
 @url{download/nncp-6.1.0.tar.xz.meta4, meta4}
 @url{download/nncp-6.1.0.tar.xz, tar}
-@url{download/nncp-6.1.0.tar.xz.sig, sig}
+@url{download/nncp-6.1.0.tar.xz.asc, sig}
 
 @item @ref{Release 6_0_0, 6.0.0} @tab 2021-01-23 @tab 1028 KiB @tab
 @url{download/nncp-6.0.0.tar.xz.meta4, meta4}
 @url{download/nncp-6.0.0.tar.xz, tar}
-@url{download/nncp-6.0.0.tar.xz.sig, sig}
+@url{download/nncp-6.0.0.tar.xz.asc, sig}
 
 @item @ref{Release 5_6_0, 5.6.0} @tab 2021-01-17 @tab 1024 KiB @tab
 @url{download/nncp-5.6.0.tar.xz.meta4, meta4}
 @url{download/nncp-5.6.0.tar.xz, tar}
-@url{download/nncp-5.6.0.tar.xz.sig, sig}
+@url{download/nncp-5.6.0.tar.xz.asc, sig}
 
 @item @ref{Release 5_5_1, 5.5.1} @tab 2021-01-11 @tab 1165 KiB @tab
 @url{download/nncp-5.5.1.tar.xz.meta4, meta4}
 @url{download/nncp-5.5.1.tar.xz, tar}
-@url{download/nncp-5.5.1.tar.xz.sig, sig}
+@url{download/nncp-5.5.1.tar.xz.asc, sig}
 
 @item @ref{Release 5_5_0, 5.5.0} @tab 2021-01-07 @tab 1161 KiB @tab
 @url{download/nncp-5.5.0.tar.xz.meta4, meta4}
 @url{download/nncp-5.5.0.tar.xz, tar}
-@url{download/nncp-5.5.0.tar.xz.sig, sig}
+@url{download/nncp-5.5.0.tar.xz.asc, sig}
 
 @item @ref{Release 5_4_1, 5.4.1} @tab 2020-09-28 @tab 1143 KiB @tab
 @url{download/nncp-5.4.1.tar.xz.meta4, meta4}
 @url{download/nncp-5.4.1.tar.xz, tar}
-@url{download/nncp-5.4.1.tar.xz.sig, sig}
+@url{download/nncp-5.4.1.tar.xz.asc, sig}
 
 @item @ref{Release 5_3_3, 5.3.3} @tab 2020-01-23 @tab 1116 KiB @tab
 @url{download/nncp-5.3.3.tar.xz.meta4, meta4}
 @url{download/nncp-5.3.3.tar.xz, tar}
-@url{download/nncp-5.3.3.tar.xz.sig, sig}
+@url{download/nncp-5.3.3.tar.xz.asc, sig}
 
 @item @ref{Release 5_3_2, 5.3.2} @tab 2019-12-28 @tab 1118 KiB @tab
 @url{download/nncp-5.3.2.tar.xz.meta4, meta4}
 @url{download/nncp-5.3.2.tar.xz, tar}
-@url{download/nncp-5.3.2.tar.xz.sig, sig}
+@url{download/nncp-5.3.2.tar.xz.asc, sig}
 
 @item @ref{Release 5_3_1, 5.3.1} @tab 2019-12-25 @tab 1117 KiB @tab
 @url{download/nncp-5.3.1.tar.xz.meta4, meta4}
 @url{download/nncp-5.3.1.tar.xz, tar}
-@url{download/nncp-5.3.1.tar.xz.sig, sig}
+@url{download/nncp-5.3.1.tar.xz.asc, sig}
 
 @item @ref{Release 5_3_0, 5.3.0} @tab 2019-12-22 @tab 1112 KiB @tab
 @url{download/nncp-5.3.0.tar.xz.meta4, meta4}
 @url{download/nncp-5.3.0.tar.xz, tar}
-@url{download/nncp-5.3.0.tar.xz.sig, sig}
+@url{download/nncp-5.3.0.tar.xz.asc, sig}
 
 @item @ref{Release 5_2_1, 5.2.1} @tab 2019-12-15 @tab 1109 KiB @tab
 @url{download/nncp-5.2.1.tar.xz.meta4, meta4}
 @url{download/nncp-5.2.1.tar.xz, tar}
-@url{download/nncp-5.2.1.tar.xz.sig, sig}
+@url{download/nncp-5.2.1.tar.xz.asc, sig}
 
 @item @ref{Release 5_2_0, 5.2.0} @tab 2019-12-14 @tab 1109 KiB @tab
 @url{download/nncp-5.2.0.tar.xz.meta4, meta4}
 @url{download/nncp-5.2.0.tar.xz, tar}
-@url{download/nncp-5.2.0.tar.xz.sig, sig}
+@url{download/nncp-5.2.0.tar.xz.asc, sig}
 
 @item @ref{Release 5_1_2, 5.1.2} @tab 2019-12-13 @tab 1106 KiB @tab
 @url{download/nncp-5.1.2.tar.xz.meta4, meta4}
 @url{download/nncp-5.1.2.tar.xz, tar}
-@url{download/nncp-5.1.2.tar.xz.sig, sig}
+@url{download/nncp-5.1.2.tar.xz.asc, sig}
 
 @item @ref{Release 5_1_1, 5.1.1} @tab 2019-12-01 @tab 1103 KiB @tab
 @url{download/nncp-5.1.1.tar.xz.meta4, meta4}
 @url{download/nncp-5.1.1.tar.xz, tar}
-@url{download/nncp-5.1.1.tar.xz.sig, sig}
+@url{download/nncp-5.1.1.tar.xz.asc, sig}
 
 @item @ref{Release 5_1_0, 5.1.0} @tab 2019-11-24 @tab 1103 KiB @tab
 @url{download/nncp-5.1.0.tar.xz.meta4, meta4}
 @url{download/nncp-5.1.0.tar.xz, tar}
-@url{download/nncp-5.1.0.tar.xz.sig, sig}
+@url{download/nncp-5.1.0.tar.xz.asc, sig}
 
 @item @ref{Release 5_0_0, 5.0.0} @tab 2019-11-15 @tab 1099 KiB @tab
 @url{download/nncp-5.0.0.tar.xz.meta4, meta4}
 @url{download/nncp-5.0.0.tar.xz, tar}
-@url{download/nncp-5.0.0.tar.xz.sig, sig}
+@url{download/nncp-5.0.0.tar.xz.asc, sig}
 
 @item @ref{Release 4_1, 4.1} @tab 2019-05-01 @tab 1227 KiB @tab
 @url{download/nncp-4.1.tar.xz.meta4, meta4}
 @url{download/nncp-4.1.tar.xz, tar}
-@url{download/nncp-4.1.tar.xz.sig, sig}
+@url{download/nncp-4.1.tar.xz.asc, sig}
 
 @item @ref{Release 4_0, 4.0} @tab 2019-04-28 @tab 1227 KiB @tab
 @url{download/nncp-4.0.tar.xz.meta4, meta4}
 @url{download/nncp-4.0.tar.xz, tar}
-@url{download/nncp-4.0.tar.xz.sig, sig}
+@url{download/nncp-4.0.tar.xz.asc, sig}
 
 @item @ref{Release 3_4, 3.4} @tab 2018-06-10 @tab 1154 KiB @tab
 @url{download/nncp-3.4.tar.xz.meta4, meta4}
 @url{download/nncp-3.4.tar.xz, tar}
-@url{download/nncp-3.4.tar.xz.sig, sig}
+@url{download/nncp-3.4.tar.xz.asc, sig}
 
 @item @ref{Release 3_3, 3.3} @tab 2018-06-02 @tab 1152 KiB @tab
 @url{download/nncp-3.3.tar.xz.meta4, meta4}
 @url{download/nncp-3.3.tar.xz, tar}
-@url{download/nncp-3.3.tar.xz.sig, sig}
+@url{download/nncp-3.3.tar.xz.asc, sig}
 
 @item @ref{Release 3_2, 3.2} @tab 2018-05-27 @tab 1147 KiB @tab
 @url{download/nncp-3.2.tar.xz.meta4, meta4}
 @url{download/nncp-3.2.tar.xz, tar}
-@url{download/nncp-3.2.tar.xz.sig, sig}
+@url{download/nncp-3.2.tar.xz.asc, sig}
 
 @item @ref{Release 3_1, 3.1} @tab 2018-02-18 @tab 1145 KiB @tab
 @url{download/nncp-3.1.tar.xz.meta4, meta4}
 @url{download/nncp-3.1.tar.xz, tar}
-@url{download/nncp-3.1.tar.xz.sig, sig}
+@url{download/nncp-3.1.tar.xz.asc, sig}
 
 @item @ref{Release 3_0, 3.0} @tab 2017-12-30 @tab 993 KiB @tab
 @url{download/nncp-3.0.tar.xz.meta4, meta4}
 @url{download/nncp-3.0.tar.xz, tar}
-@url{download/nncp-3.0.tar.xz.sig, sig}
+@url{download/nncp-3.0.tar.xz.asc, sig}
 
 @item @ref{Release 2_0, 2.0} @tab 2017-12-02 @tab 986 KiB @tab
 @url{download/nncp-2.0.tar.xz.meta4, meta4}
 @url{download/nncp-2.0.tar.xz, tar}
-@url{download/nncp-2.0.tar.xz.sig, sig}
+@url{download/nncp-2.0.tar.xz.asc, sig}
 
 @item @ref{Release 1_0, 1.0} @tab 2017-12-02 @tab 987 KiB @tab
 @url{download/nncp-1.0.tar.xz.meta4, meta4}
 @url{download/nncp-1.0.tar.xz, tar}
-@url{download/nncp-1.0.tar.xz.sig, sig}
+@url{download/nncp-1.0.tar.xz.asc, sig}
 
 @item @ref{Release 0_12, 0.12} @tab 2017-10-08 @tab 978 KiB @tab
 @url{download/nncp-0.12.tar.xz.meta4, meta4}
 @url{download/nncp-0.12.tar.xz, tar}
-@url{download/nncp-0.12.tar.xz.sig, sig}
+@url{download/nncp-0.12.tar.xz.asc, sig}
 
 @item @ref{Release 0_11, 0.11} @tab 2017-08-21 @tab 1031 KiB @tab
 @url{download/nncp-0.11.tar.xz.meta4, meta4}
 @url{download/nncp-0.11.tar.xz, tar}
-@url{download/nncp-0.11.tar.xz.sig, sig}
+@url{download/nncp-0.11.tar.xz.asc, sig}
 
 @item @ref{Release 0_10, 0.10} @tab 2017-07-04 @tab 949 KiB @tab
 @url{download/nncp-0.10.tar.xz.meta4, meta4}
 @url{download/nncp-0.10.tar.xz, tar}
-@url{download/nncp-0.10.tar.xz.sig, sig}
+@url{download/nncp-0.10.tar.xz.asc, sig}
 
 @item @ref{Release 0_9, 0.9} @tab 2017-05-17 @tab 942 KiB @tab
 @url{download/nncp-0.9.tar.xz.meta4, meta4}
 @url{download/nncp-0.9.tar.xz, tar}
-@url{download/nncp-0.9.tar.xz.sig, sig}
+@url{download/nncp-0.9.tar.xz.asc, sig}
 
 @item @ref{Release 0_8, 0.8} @tab 2017-04-30 @tab 932 KiB @tab
 @url{download/nncp-0.8.tar.xz.meta4, meta4}
 @url{download/nncp-0.8.tar.xz, tar}
-@url{download/nncp-0.8.tar.xz.sig, sig}
+@url{download/nncp-0.8.tar.xz.asc, sig}
 
 @item @ref{Release 0_7, 0.7} @tab 2017-04-02 @tab 783 KiB @tab
 @url{download/nncp-0.7.tar.xz.meta4, meta4}
 @url{download/nncp-0.7.tar.xz, tar}
-@url{download/nncp-0.7.tar.xz.sig, sig}
+@url{download/nncp-0.7.tar.xz.asc, sig}
 
 @item @ref{Release 0_6, 0.6} @tab 2017-02-05 @tab 746 KiB @tab
 @url{download/nncp-0.6.tar.xz.meta4, meta4}
 @url{download/nncp-0.6.tar.xz, tar}
-@url{download/nncp-0.6.tar.xz.sig, sig}
+@url{download/nncp-0.6.tar.xz.asc, sig}
 
 @item @ref{Release 0_5, 0.5} @tab 2017-01-19 @tab 743 KiB @tab
 @url{download/nncp-0.5.tar.xz.meta4, meta4}
 @url{download/nncp-0.5.tar.xz, tar}
-@url{download/nncp-0.5.tar.xz.sig, sig}
+@url{download/nncp-0.5.tar.xz.asc, sig}
 
 @item @ref{Release 0_4, 0.4} @tab 2017-01-17 @tab 741 KiB @tab
 @url{download/nncp-0.4.tar.xz.meta4, meta4}
 @url{download/nncp-0.4.tar.xz, tar}
-@url{download/nncp-0.4.tar.xz.sig, sig}
+@url{download/nncp-0.4.tar.xz.asc, sig}
 
 @item @ref{Release 0_3, 0.3} @tab 2017-01-17 @tab 741 KiB @tab
 @url{download/nncp-0.3.tar.xz.meta4, meta4}
 @url{download/nncp-0.3.tar.xz, tar}
-@url{download/nncp-0.3.tar.xz.sig, sig}
+@url{download/nncp-0.3.tar.xz.asc, sig}
 
 @item @ref{Release 0_2, 0.2} @tab 2017-01-17 @tab 740 KiB @tab
 @url{download/nncp-0.2.tar.xz.meta4, meta4}
 @url{download/nncp-0.2.tar.xz, tar}
-@url{download/nncp-0.2.tar.xz.sig, sig}
+@url{download/nncp-0.2.tar.xz.asc, sig}
 
 @item 0.1 @tab 2017-01-10 @tab 720 KiB @tab
 @url{download/nncp-0.1.tar.xz.meta4, meta4}
 @url{download/nncp-0.1.tar.xz, tar}
-@url{download/nncp-0.1.tar.xz.sig, sig}
+@url{download/nncp-0.1.tar.xz.asc, sig}
 
 @end multitable
