@@ -38,6 +38,6 @@ $ echo http://www.nncpgo.org/Postfix.html |
     nncp-exec remote.node wgeter postfix-html-page
 $ echo \
     http://www.nncpgo.org/download/nncp-0.11.tar.xz
-    http://www.nncpgo.org/download/nncp-0.11.tar.xz.sig |
+    http://www.nncpgo.org/download/nncp-0.11.tar.xz.asc |
     nncp-exec remote.node aria2c
 @end example

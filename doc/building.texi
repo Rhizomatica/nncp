@@ -13,8 +13,8 @@ Make sure that Go is installed. For example to install it from packages:
 
 @example
 $ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz
-$ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz.sig
-$ gpg --verify nncp-@value{VERSION}.tar.xz.sig nncp-@value{VERSION}.tar.xz
+$ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz.asc
+$ gpg --verify nncp-@value{VERSION}.tar.xz.asc nncp-@value{VERSION}.tar.xz
 $ xz --decompress --stdout nncp-@value{VERSION}.tar.xz | tar xf -
 $ cd nncp-@value{VERSION}
 $ redo all
