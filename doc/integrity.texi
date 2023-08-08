@@ -5,16 +5,20 @@
 @cindex gpg
 @cindex GnuPG
 @cindex WKD
+@cindex OpenSSH
 @section Tarballs integrity check
 
-You @strong{have to} check downloaded archives integrity and verify
-their signature to be sure that you have got trusted, untampered
-software. For integrity and authentication of downloaded binaries
-@url{https://www.gnupg.org/, GNU Privacy Guard} is used. You must
-download signature (@file{.asc}) provided with the tarball.
+You @strong{have to} verify downloaded tarballs authenticity to be sure
+that you retrieved trusted and untampered software. There are two options:
 
-For the very first time you need to import signing public key. It is
-provided below, but it is better to check alternative resources with it.
+@table @asis
+
+@item @url{https://www.openpgp.org/, OpenPGP} @file{.asc} signature
+    Use @url{https://www.gnupg.org/, GNU Privacy Guard} free software
+    implementation.
+    For the very first time it is necessary to get signing public key and
+    import it. It is provided @url{.well-known/openpgpkey/nncpgo.org/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc, here}, but you should
+    check alternate resources.
 
 @verbatim
 pub   rsa2048/0x2B25868E75A1A953 2017-01-10
@@ -22,21 +26,19 @@ pub   rsa2048/0x2B25868E75A1A953 2017-01-10
 uid   NNCP releases <releases at nncpgo dot org>
 @end verbatim
 
-@itemize
-
-@item
 @example
 $ gpg --auto-key-locate dane --locate-keys releases at nncpgo dot org
 $ gpg --auto-key-locate  wkd --locate-keys releases at nncpgo dot org
 @end example
 
-@item
-@verbatiminclude .well-known/openpgpkey/nncpgo.org/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc
-
-@end itemize
-
-Then you could verify tarballs signature:
+@item @url{https://www.openssh.com/, OpenSSH} @file{.sig} signature
+    @url{PUBKEY-SSH.pub, Public key} and its OpenPGP
+    @url{PUBKEY-SSH.pub.asc, signature} made with the key above.
+    Its fingerprint: @code{SHA256:FRiWawVNBkyS3jFn8uZ/JlT+PWKSFbhWe5XSixp1+SY}.
 
 @example
-$ gpg --verify nncp-@value{VERSION}.tar.xz.asc nncp-@value{VERSION}.tar.xz
+$ ssh-keygen -Y verify -f PUBKEY-SSH.pub -I releases@@nncpgo.org -n file \
+    -s nncp-@value{VERSION}.tar.zst.sig < nncp-@value{VERSION}.tar.zst
 @end example
+
+@end table
