@@ -13,8 +13,8 @@ $ nncp-ack [@dots{}] 4>&1 >&2 | nncp-rm [@dots{}] -pkt
 
 Send acknowledgement of successful @option{PKT} (Base32-encoded hash)
 packet receipt from @option{NODE} node. If no @option{-pkt} is
-specified, then acknowledge all packet in node's @code{rx} outbound
-spool. If @option{-all} is specified, then do that for all nodes.
+specified, then acknowledge all packet in node's @code{rx} spool.
+If @option{-all} is specified, then do that for all nodes.
 
 That commands outputs list of created encrypted ACK packets
 (@code{NODE/PKT}) to @strong{4}th file descriptor. That output can be
