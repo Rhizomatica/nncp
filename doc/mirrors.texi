@@ -3,9 +3,7 @@
 @unnumbered Mirrors
 
 Main NNCP website is hosted on two geographically distant servers
-located in Moscow region, Russian Federation. Only one of those servers
-supports TLS and another just proxies the traffic to it. So TLS-capable
-version has less availability.
+located in Moscow and Saint-Petersburg regions, Russian Federation.
 
 @cindex DANE
 @cindex DNSCurve
