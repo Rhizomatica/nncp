@@ -29,7 +29,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-file -- send file\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] SRC NODE:[DST]\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] SRC %s:AREA:[DST]\nOptions:\n",
