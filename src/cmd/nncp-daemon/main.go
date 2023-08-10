@@ -211,14 +211,16 @@ func main() {
 		if *autoToss && nodeId != nil {
 			autoTossFinish, autoTossBadCode = ctx.AutoToss(
 				nodeId,
-				nice,
-				*autoTossDoSeen,
-				*autoTossNoFile,
-				*autoTossNoFreq,
-				*autoTossNoExec,
-				*autoTossNoTrns,
-				*autoTossNoArea,
-				*autoTossNoACK,
+				&nncp.TossOpts{
+					Nice:   nice,
+					DoSeen: *autoTossDoSeen,
+					NoFile: *autoTossNoFile,
+					NoFreq: *autoTossNoFreq,
+					NoExec: *autoTossNoExec,
+					NoTrns: *autoTossNoTrns,
+					NoArea: *autoTossNoArea,
+					NoACK:  *autoTossNoACK,
+				},
 			)
 		}
 		<-nodeIdC // call completion
@@ -298,14 +300,16 @@ func main() {
 			if *autoToss && nodeId != nil {
 				autoTossFinish, autoTossBadCode = ctx.AutoToss(
 					nodeId,
-					nice,
-					*autoTossDoSeen,
-					*autoTossNoFile,
-					*autoTossNoFreq,
-					*autoTossNoExec,
-					*autoTossNoTrns,
-					*autoTossNoArea,
-					*autoTossNoACK,
+					&nncp.TossOpts{
+						Nice:   nice,
+						DoSeen: *autoTossDoSeen,
+						NoFile: *autoTossNoFile,
+						NoFreq: *autoTossNoFreq,
+						NoExec: *autoTossNoExec,
+						NoTrns: *autoTossNoTrns,
+						NoArea: *autoTossNoArea,
+						NoACK:  *autoTossNoACK,
+					},
 				)
 			}
 			<-nodeIdC // call completion
