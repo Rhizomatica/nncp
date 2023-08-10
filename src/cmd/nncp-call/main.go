@@ -32,7 +32,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-call -- call TCP daemon\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE[:ADDR] [FORCEADDR]\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")

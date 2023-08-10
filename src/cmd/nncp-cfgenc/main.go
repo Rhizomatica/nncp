@@ -33,7 +33,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-cfgenc -- encrypt/decrypt configuration file\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] cfg.hjson > cfg.hjson.eblob\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -d cfg.hjson.eblob > cfg.hjson\n", os.Args[0])

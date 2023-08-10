@@ -33,7 +33,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-caller -- croned NNCP TCP daemon caller\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [NODE ...]\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")
