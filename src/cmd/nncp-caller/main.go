@@ -213,14 +213,16 @@ func main() {
 						if call.AutoToss || *autoToss {
 							autoTossFinish, autoTossBadCode = ctx.AutoToss(
 								node.Id,
-								call.Nice,
-								call.AutoTossDoSeen || *autoTossDoSeen,
-								call.AutoTossNoFile || *autoTossNoFile,
-								call.AutoTossNoFreq || *autoTossNoFreq,
-								call.AutoTossNoExec || *autoTossNoExec,
-								call.AutoTossNoTrns || *autoTossNoTrns,
-								call.AutoTossNoArea || *autoTossNoArea,
-								call.AutoTossNoACK || *autoTossNoACK,
+								&nncp.TossOpts{
+									Nice:   call.Nice,
+									DoSeen: call.AutoTossDoSeen || *autoTossDoSeen,
+									NoFile: call.AutoTossNoFile || *autoTossNoFile,
+									NoFreq: call.AutoTossNoFreq || *autoTossNoFreq,
+									NoExec: call.AutoTossNoExec || *autoTossNoExec,
+									NoTrns: call.AutoTossNoTrns || *autoTossNoTrns,
+									NoArea: call.AutoTossNoArea || *autoTossNoArea,
+									NoACK:  call.AutoTossNoACK || *autoTossNoACK,
+								},
 							)
 						}
 

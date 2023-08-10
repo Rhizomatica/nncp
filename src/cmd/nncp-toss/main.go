@@ -110,15 +110,30 @@ func main() {
 			isBad = ctx.Toss(
 				node.Id,
 				nncp.TRx,
-				nice,
-				*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea, *noACK,
+				&nncp.TossOpts{
+					Nice:   nice,
+					DoSeen: *doSeen,
+					NoFile: *noFile,
+					NoFreq: *noFreq,
+					NoExec: *noExec,
+					NoTrns: *noTrns,
+					NoArea: *noArea,
+					NoACK:  *noACK,
+				},
 			) || isBad
 			if nodeId == *ctx.SelfId {
 				isBad = ctx.Toss(
 					node.Id,
 					nncp.TTx,
-					nice,
-					*dryRun, false, true, true, true, true, *noArea, *noACK,
+					&nncp.TossOpts{
+						Nice:   nice,
+						NoFile: true,
+						NoFreq: true,
+						NoExec: true,
+						NoTrns: true,
+						NoArea: *noArea,
+						NoACK:  *noACK,
+					},
 				) || isBad
 			}
 		}
@@ -150,15 +165,31 @@ func main() {
 		ctx.Toss(
 			nodeId,
 			nncp.TRx,
-			nice,
-			*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea, *noACK,
+			&nncp.TossOpts{
+				Nice:   nice,
+				DryRun: *dryRun,
+				DoSeen: *doSeen,
+				NoFile: *noFile,
+				NoFreq: *noFreq,
+				NoExec: *noExec,
+				NoTrns: *noTrns,
+				NoArea: *noArea,
+				NoACK:  *noACK,
+			},
 		)
 		if *nodeId == *ctx.SelfId {
 			ctx.Toss(
 				nodeId,
 				nncp.TTx,
-				nice,
-				*dryRun, false, true, true, true, true, *noArea, *noACK,
+				&nncp.TossOpts{
+					Nice:   nice,
+					NoFile: true,
+					NoFreq: true,
+					NoExec: true,
+					NoTrns: true,
+					NoArea: *noArea,
+					NoACK:  *noACK,
+				},
 			)
 		}
 	}
