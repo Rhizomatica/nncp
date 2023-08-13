@@ -250,9 +250,11 @@ func main() {
 						return err
 					}
 					if now.Sub(info.ModTime()) < oldBoundary {
-						ctx.LogD("rm-skip", nncp.LEs{{K: "File", V: pth}}, func(les nncp.LEs) string {
-							return fmt.Sprintf("File %s: too fresh, skipping", pth)
-						})
+						ctx.LogD("rm-skip", nncp.LEs{{K: "File", V: pth}},
+							func(les nncp.LEs) string {
+								return fmt.Sprintf("File %s: too fresh, skipping", pth)
+							},
+						)
 						continue
 					}
 					if (*doNoCK && strings.HasSuffix(entry.Name(), nncp.NoCKSuffix)) ||
@@ -292,7 +294,9 @@ func main() {
 			}
 		}
 		removeSub := func(p string) error {
-			return filepath.Walk(p, func(path string, info os.FileInfo, err error) error {
+			return filepath.Walk(p, func(
+				path string, info os.FileInfo, err error,
+			) error {
 				if err != nil {
 					if errors.Is(err, fs.ErrNotExist) {
 						return nil

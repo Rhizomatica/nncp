@@ -44,8 +44,9 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath     = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw     = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFreq), "Outbound packet niceness")
+		cfgPath = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFreq),
+			"Outbound packet niceness")
 		minSizeRaw  = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
 		viaOverride = flag.String("via", "", "Override Via path to destination node (ignored with -all)")
 		spoolPath   = flag.String("spool", "", "Override path to spool")
