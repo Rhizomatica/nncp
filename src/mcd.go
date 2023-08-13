@@ -28,9 +28,7 @@ import (
 	xdr "github.com/davecgh/go-xdr/xdr2"
 )
 
-const (
-	MCDPort = 5400
-)
+const MCDPort = 5400
 
 type MCD struct {
 	Magic  [8]byte
