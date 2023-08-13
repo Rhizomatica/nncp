@@ -194,7 +194,7 @@ func main() {
 			continue
 		}
 		for _, fiInt := range fisInt {
-			if !fiInt.IsDir() {
+			if fiInt.IsDir() {
 				continue
 			}
 			// Check that it is valid Base32 encoding
