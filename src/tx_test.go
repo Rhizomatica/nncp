@@ -22,7 +22,7 @@ import (
 	"crypto/rand"
 	"io"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 	"testing/quick"
 
@@ -63,7 +63,7 @@ func TestTx(t *testing.T) {
 		nodeTgt := nodeTgtOur.Their()
 		ctx := Ctx{
 			Spool:   spool,
-			LogPath: path.Join(spool, "log.log"),
+			LogPath: filepath.Join(spool, "log.log"),
 			Debug:   true,
 			Self:    nodeOur,
 			SelfId:  nodeOur.Id,
