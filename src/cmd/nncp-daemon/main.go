@@ -137,7 +137,8 @@ func main() {
 		bind      = flag.String("bind", "[::]:5400", "Address to bind to")
 		ucspi     = flag.Bool("ucspi", false, "Is it started as UCSPI-TCP server")
 		inetd     = flag.Bool("inetd", false, "Obsolete, use -ucspi")
-		yggdrasil = flag.String("yggdrasil", "", "Start Yggdrasil listener: yggdrasils://PRV[:PORT]?[bind=BIND][&pub=PUB][&peer=PEER][&mcast=REGEX[:PORT]]")
+		yggdrasil = flag.String("yggdrasil", "",
+			"Start Yggdrasil listener: yggdrasils://PRV[:PORT]?[bind=BIND][&pub=PUB][&peer=PEER][&mcast=REGEX[:PORT]]")
 		maxConn   = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		noCK      = flag.Bool("nock", false, "Do no checksum checking")
 		mcdOnce   = flag.Bool("mcd-once", false, "Send MCDs once and quit")
@@ -150,14 +151,22 @@ func main() {
 		version   = flag.Bool("version", false, "Print version information")
 		warranty  = flag.Bool("warranty", false, "Print warranty information")
 
-		autoToss       = flag.Bool("autotoss", false, "Toss after call is finished")
-		autoTossDoSeen = flag.Bool("autotoss-seen", false, "Create seen/ files during tossing")
-		autoTossNoFile = flag.Bool("autotoss-nofile", false, "Do not process \"file\" packets during tossing")
-		autoTossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
-		autoTossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
-		autoTossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
-		autoTossNoArea = flag.Bool("autotoss-noarea", false, "Do not process \"area\" packets during tossing")
-		autoTossNoACK  = flag.Bool("autotoss-noack", false, "Do not process \"ack\" packets during tossing")
+		autoToss = flag.Bool("autotoss", false,
+			"Toss after call is finished")
+		autoTossDoSeen = flag.Bool("autotoss-seen", false,
+			"Create seen/ files during tossing")
+		autoTossNoFile = flag.Bool("autotoss-nofile", false,
+			"Do not process \"file\" packets during tossing")
+		autoTossNoFreq = flag.Bool("autotoss-nofreq", false,
+			"Do not process \"freq\" packets during tossing")
+		autoTossNoExec = flag.Bool("autotoss-noexec", false,
+			"Do not process \"exec\" packets during tossing")
+		autoTossNoTrns = flag.Bool("autotoss-notrns", false,
+			"Do not process \"trns\" packets during tossing")
+		autoTossNoArea = flag.Bool("autotoss-noarea", false,
+			"Do not process \"area\" packets during tossing")
+		autoTossNoACK = flag.Bool("autotoss-noack", false,
+			"Do not process \"ack\" packets during tossing")
 	)
 	log.SetFlags(log.Lshortfile)
 	flag.Usage = usage

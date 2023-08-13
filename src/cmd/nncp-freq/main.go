@@ -37,19 +37,21 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw      = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFreq), "Outbound packet niceness")
-		replyNiceRaw = flag.String("replynice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Reply file packet niceness")
-		minSize      = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
-		viaOverride  = flag.String("via", "", "Override Via path to destination node")
-		spoolPath    = flag.String("spool", "", "Override path to spool")
-		logPath      = flag.String("log", "", "Override path to logfile")
-		quiet        = flag.Bool("quiet", false, "Print only errors")
-		showPrgrs    = flag.Bool("progress", false, "Force progress showing")
-		omitPrgrs    = flag.Bool("noprogress", false, "Omit progress showing")
-		debug        = flag.Bool("debug", false, "Print debug messages")
-		version      = flag.Bool("version", false, "Print version information")
-		warranty     = flag.Bool("warranty", false, "Print warranty information")
+		cfgPath = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFreq),
+			"Outbound packet niceness")
+		replyNiceRaw = flag.String("replynice", nncp.NicenessFmt(nncp.DefaultNiceFile),
+			"Reply file packet niceness")
+		minSize     = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
+		viaOverride = flag.String("via", "", "Override Via path to destination node")
+		spoolPath   = flag.String("spool", "", "Override path to spool")
+		logPath     = flag.String("log", "", "Override path to logfile")
+		quiet       = flag.Bool("quiet", false, "Print only errors")
+		showPrgrs   = flag.Bool("progress", false, "Force progress showing")
+		omitPrgrs   = flag.Bool("noprogress", false, "Omit progress showing")
+		debug       = flag.Bool("debug", false, "Print debug messages")
+		version     = flag.Bool("version", false, "Print version information")
+		warranty    = flag.Bool("warranty", false, "Print warranty information")
 	)
 	log.SetFlags(log.Lshortfile)
 	flag.Usage = usage

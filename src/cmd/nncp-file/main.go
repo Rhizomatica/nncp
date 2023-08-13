@@ -45,8 +45,9 @@ options by default. You can forcefully turn them off by specifying 0 value.
 
 func main() {
 	var (
-		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw      = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Outbound packet niceness")
+		cfgPath = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFile),
+			"Outbound packet niceness")
 		argMinSize   = flag.Int64("minsize", -1, "Minimal required resulting packet size, in KiB")
 		argMaxSize   = flag.Uint64("maxsize", 0, "Maximal allowable resulting packets size, in KiB")
 		argChunkSize = flag.Int64("chunked", -1, "Split file on specified size chunks, in KiB")

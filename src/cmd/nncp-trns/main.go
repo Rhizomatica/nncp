@@ -41,8 +41,9 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath     = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw     = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Outbound packet niceness")
+		cfgPath = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFile),
+			"Outbound packet niceness")
 		viaOverride = flag.String("via", "", "Override Via path to destination node")
 		spoolPath   = flag.String("spool", "", "Override path to spool")
 		logPath     = flag.String("log", "", "Override path to logfile")
