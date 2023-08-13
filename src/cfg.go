@@ -56,6 +56,7 @@ type NodeJSON struct {
 	Incoming *string             `json:"incoming,omitempty"`
 	Exec     map[string][]string `json:"exec,omitempty"`
 	Freq     *NodeFreqJSON       `json:"freq,omitempty"`
+	ACK      *NodeACKJSON        `json:"ack,omitempty"`
 	Via      []string            `json:"via,omitempty"`
 	Calls    []CallJSON          `json:"calls,omitempty"`
 
@@ -72,6 +73,11 @@ type NodeFreqJSON struct {
 	Chunked *uint64 `json:"chunked,omitempty"`
 	MinSize *uint64 `json:"minsize,omitempty"`
 	MaxSize *uint64 `json:"maxsize,omitempty"`
+}
+
+type NodeACKJSON struct {
+	MinSize *uint64 `json:"minsize,omitempty"`
+	Nice    *string `json:"nice,omitempty"`
 }
 
 type CallJSON struct {
@@ -94,6 +100,8 @@ type CallJSON struct {
 	AutoTossNoExec bool `json:"autotoss-noexec,omitempty"`
 	AutoTossNoTrns bool `json:"autotoss-notrns,omitempty"`
 	AutoTossNoArea bool `json:"autotoss-noarea,omitempty"`
+	AutoTossNoACK  bool `json:"autotoss-noack,omitempty"`
+	AutoTossGenACK bool `json:"autotoss-gen-ack,omitempty"`
 }
 
 type NodeOurJSON struct {
@@ -220,6 +228,20 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		}
 	}
 
+	ackNice := uint8(255)
+	var ackMinSize int64
+	if cfg.ACK != nil {
+		if cfg.ACK.Nice != nil {
+			ackNice, err = NicenessParse(*cfg.ACK.Nice)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if cfg.ACK.MinSize != nil {
+			ackMinSize = int64(*cfg.ACK.MinSize) * 1024
+		}
+	}
+
 	defRxRate := 0
 	if cfg.RxRate != nil && *cfg.RxRate > 0 {
 		defRxRate = *cfg.RxRate
@@ -317,6 +339,8 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		call.AutoTossNoExec = callCfg.AutoTossNoExec
 		call.AutoTossNoTrns = callCfg.AutoTossNoTrns
 		call.AutoTossNoArea = callCfg.AutoTossNoArea
+		call.AutoTossNoACK = callCfg.AutoTossNoACK
+		call.AutoTossGenACK = callCfg.AutoTossGenACK
 
 		calls = append(calls, &call)
 	}
@@ -332,6 +356,8 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		FreqChunked:    freqChunked,
 		FreqMinSize:    freqMinSize,
 		FreqMaxSize:    freqMaxSize,
+		ACKNice:        ackNice,
+		ACKMinSize:     ackMinSize,
 		Calls:          calls,
 		Addrs:          cfg.Addrs,
 		RxRate:         defRxRate,

@@ -47,7 +47,7 @@ func main() {
 		cfgPath = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
 		niceRaw = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFreq),
 			"Outbound packet niceness")
-		minSizeRaw  = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
+		minSizeRaw  = flag.Int64("minsize", -1, "Minimal required resulting packet size, in KiB")
 		viaOverride = flag.String("via", "", "Override Via path to destination node (ignored with -all)")
 		spoolPath   = flag.String("spool", "", "Override path to spool")
 		logPath     = flag.String("log", "", "Override path to logfile")
@@ -94,7 +94,6 @@ func main() {
 	}
 
 	ctx.Umask()
-	minSize := int64(*minSizeRaw) * 1024
 
 	var nodes []*nncp.Node
 	if *nodesRaw != "" {
@@ -130,6 +129,14 @@ func main() {
 			os.Exit(1)
 		}
 		nncp.ViaOverride(*viaOverride, ctx, nodes[0])
+
+		var minSize int64
+		if *minSizeRaw < 0 {
+			minSize = nodes[0].ACKMinSize
+		} else if *minSizeRaw > 0 {
+			minSize = *minSizeRaw * 1024
+		}
+
 		pktName, err := ctx.TxACK(nodes[0], nice, *pktRaw, minSize)
 		if err != nil {
 			log.Fatalln(err)
@@ -140,6 +147,12 @@ func main() {
 
 	isBad := false
 	for _, node := range nodes {
+		var minSize int64
+		if *minSizeRaw < 0 {
+			minSize = node.ACKMinSize
+		} else if *minSizeRaw > 0 {
+			minSize = *minSizeRaw * 1024
+		}
 		for job := range ctx.Jobs(node.Id, nncp.TRx) {
 			pktName := filepath.Base(job.Path)
 			sender := ctx.Neigh[*job.PktEnc.Sender]

@@ -10,7 +10,8 @@ $ nncp-rm [options] [-older X] @{-all|-node NODE@} -seen
 $ nncp-rm [options] [-older X] @{-all|-node NODE@} -nock
 $ nncp-rm [options] [-older X] @{-all|-node NODE@} -area
 $ nncp-rm [options] [-older X] @{-all|-node NODE@} @{-rx|-tx@} [-hdr]
-$ nncp-rm [options] [-older X] @{-all|-node NODE@} -pkt <<EOF
+$ nncp-rm [options] @{-all|-node NODE@} -pkt <<EOF
+$ nncp-rm [options] @{-all|-node NODE@} -ack
 PKT1
 PKT2
 NODEx/PKT3

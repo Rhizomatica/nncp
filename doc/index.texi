@@ -83,6 +83,7 @@ There are also articles about its usage outside this website:
 @include niceness.texi
 @include chunked.texi
 @include bundles.texi
+@include ack.texi
 @include spool.texi
 @include log.texi
 @include pkt/index.texi

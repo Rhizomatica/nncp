@@ -49,6 +49,7 @@ func main() {
 		noTrns    = flag.Bool("notrns", false, "Do not process \"transitional\" packets")
 		noArea    = flag.Bool("noarea", false, "Do not process \"area\" packets")
 		noACK     = flag.Bool("noack", false, "Do not process \"ack\" packets")
+		genACK    = flag.Bool("gen-ack", false, "Generate ACK packets")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -118,6 +119,7 @@ func main() {
 					NoTrns: *noTrns,
 					NoArea: *noArea,
 					NoACK:  *noACK,
+					GenACK: *genACK,
 				},
 			) || isBad
 			if nodeId == *ctx.SelfId {
@@ -174,6 +176,7 @@ func main() {
 				NoTrns: *noTrns,
 				NoArea: *noArea,
 				NoACK:  *noACK,
+				GenACK: *genACK,
 			},
 		)
 		if *nodeId == *ctx.SelfId {
