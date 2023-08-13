@@ -44,6 +44,7 @@ import (
 
 const (
 	SeenDir = "seen"
+	ACKDir  = "ack"
 )
 
 type TossOpts struct {
@@ -56,6 +57,7 @@ type TossOpts struct {
 	NoTrns bool
 	NoArea bool
 	NoACK  bool
+	GenACK bool
 }
 
 func jobPath2Seen(jobPath string) string {
@@ -123,6 +125,33 @@ func jobProcess(
 			humanize.IBytes(pktSize),
 		)
 	})
+	if opts.GenACK && pkt.Type != PktTypeACK {
+		newPktName, err := ctx.TxACK(
+			sender, sender.ACKNice, pktName, sender.ACKMinSize,
+		)
+		if err != nil {
+			ctx.LogE("rx-unmarshal", les, err, func(les LEs) string {
+				return fmt.Sprintf("Tossing %s/%s: generating ACK", sender.Name, pktName)
+			})
+			return err
+		}
+		ackDir := filepath.Join(ctx.Spool, sender.Id.String(), string(TTx), ACKDir)
+		os.MkdirAll(ackDir, os.FileMode(0777))
+		if fd, err := os.Create(filepath.Join(ackDir, newPktName)); err == nil {
+			fd.Close()
+			if err = DirSync(ackDir); err != nil {
+				ctx.LogE("rx-genack", les, err, func(les LEs) string {
+					return fmt.Sprintf("Tossing %s/%s: genACK", sender.Name, pktName)
+				})
+				return err
+			}
+		} else {
+			ctx.LogE("rx-genack", les, err, func(les LEs) string {
+				return fmt.Sprintf("Tossing %s/%s: genACK", sender.Name, pktName)
+			})
+			return err
+		}
+	}
 	switch pkt.Type {
 	case PktTypeExec, PktTypeExecFat:
 		if opts.NoExec {

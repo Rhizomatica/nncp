@@ -1,13 +1,31 @@
 @node Новости
 @section Новости
 
-@node Релиз 8.8.4
-@subsection Релиз 8.8.4
+@node Релиз 8.9.0
+@subsection Релиз 8.9.0
 @itemize
 
 @item
-Избавиться от @command{redo} системы сборки при установке, так как по сути
-нет зависимостей, только компиляция Go кода.
+@command{nncp-toss} команда имеет @option{-gen-ack} опцию.
+@command{nncp-daemon}, @command{nncp-caller}, @command{nncp-call}
+команды имеют @option{-autotoss-gen-ack} опцию. Они автоматически
+генерируют ACK пакеты и сохраняют соответствующие @file{spoo/tx/ack/}
+ссылки на них, чтобы их можно было удалить после передачи.
+
+@item
+@code{autotoss-gen-ack} появился в конфигурации call.
+@code{ack} секция появилась в конфигурации ноды.
+
+@item
+@command{nncp-rm} команда имеет @option{-ack} опцию для удаления пакетов
+на которые ссылаются @file{spool/tx/ack/} файлы созданные во время toss.
+
+@item
+@command{redo} система сборки более не требуется при установке, так как
+по сути нет зависимостей, только компиляция Go кода.
+
+@item
+Обновлены некоторые зависимости.
 
 @end itemize
 

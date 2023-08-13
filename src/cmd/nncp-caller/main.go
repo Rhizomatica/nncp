@@ -67,6 +67,8 @@ func main() {
 			"Do not process \"area\" packets during tossing")
 		autoTossNoACK = flag.Bool("autotoss-noack", false,
 			"Do not process \"ack\" packets during tossing")
+		autoTossGenACK = flag.Bool("autotoss-gen-ack", false,
+			"Generate ACK packets")
 	)
 	log.SetFlags(log.Lshortfile)
 	flag.Usage = usage
@@ -229,6 +231,7 @@ func main() {
 									NoTrns: call.AutoTossNoTrns || *autoTossNoTrns,
 									NoArea: call.AutoTossNoArea || *autoTossNoArea,
 									NoACK:  call.AutoTossNoACK || *autoTossNoACK,
+									GenACK: call.AutoTossGenACK || *autoTossGenACK,
 								},
 							)
 						}
