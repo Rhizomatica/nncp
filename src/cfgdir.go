@@ -260,6 +260,24 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 			}
 		}
 
+		if n.ACK != nil {
+			if err = cfgDirMkdir(dst, "neigh", name, "ack"); err != nil {
+				return
+			}
+			if err = cfgDirSave(
+				n.ACK.MinSize,
+				dst, "neigh", name, "ack", "minsize",
+			); err != nil {
+				return
+			}
+			if err = cfgDirSave(
+				n.ACK.Nice,
+				dst, "neigh", name, "ack", "nice",
+			); err != nil {
+				return
+			}
+		}
+
 		if len(n.Via) > 0 {
 			if err = cfgDirSave(
 				strings.Join(n.Via, "\n"),
@@ -369,6 +387,16 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 			}
 			if call.AutoTossNoArea {
 				if err = cfgDirTouch(dst, "neigh", name, "calls", is, "autotoss-noarea"); err != nil {
+					return
+				}
+			}
+			if call.AutoTossNoACK {
+				if err = cfgDirTouch(dst, "neigh", name, "calls", is, "autotoss-noack"); err != nil {
+					return
+				}
+			}
+			if call.AutoTossGenACK {
+				if err = cfgDirTouch(dst, "neigh", name, "calls", is, "autotoss-gen-ack"); err != nil {
 					return
 				}
 			}
@@ -689,6 +717,23 @@ func DirToCfg(src string) (*CfgJSON, error) {
 			}
 		}
 
+		if cfgDirExists(src, "neigh", n, "ack") {
+			node.ACK = &NodeACKJSON{}
+			i64, err := cfgDirLoadIntOpt(src, "neigh", n, "ack", "minsize")
+			if err != nil {
+				return nil, err
+			}
+			if i64 != nil {
+				i := uint64(*i64)
+				node.ACK.MinSize = &i
+			}
+			if node.ACK.Nice, err = cfgDirLoadOpt(
+				src, "neigh", n, "ack", "nice",
+			); err != nil {
+				return nil, err
+			}
+		}
+
 		via, err := cfgDirLoadOpt(src, "neigh", n, "via")
 		if err != nil {
 			return nil, err
@@ -855,6 +900,12 @@ func DirToCfg(src string) (*CfgJSON, error) {
 			}
 			if cfgDirExists(src, "neigh", n, "calls", is, "autotoss-noarea") {
 				call.AutoTossNoArea = true
+			}
+			if cfgDirExists(src, "neigh", n, "calls", is, "autotoss-noack") {
+				call.AutoTossNoACK = true
+			}
+			if cfgDirExists(src, "neigh", n, "calls", is, "autotoss-gen-ack") {
+				call.AutoTossGenACK = true
 			}
 			node.Calls = append(node.Calls, call)
 		}

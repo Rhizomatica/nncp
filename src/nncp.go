@@ -24,7 +24,9 @@ import (
 )
 
 const (
-	Warranty = `This program is free software: you can redistribute it and/or modify
+	Warranty = `Copyright (C) 2016-2023 Sergey Matveev
+
+This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, version 3 of the License.
 
@@ -35,26 +37,15 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.`
+	Base32Encoded32Len = 52
 )
 
-const Base32Encoded32Len = 52
-
 var (
-	Version string = "8.8.3"
+	Version string = "8.9.0"
 
 	Base32Codec *base32.Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)
 )
 
 func VersionGet() string {
 	return "NNCP version " + Version + " built with " + runtime.Version()
-}
-
-func UsageHeader() string {
-	return VersionGet() + `
-Copyright (C) 2016-2023 Sergey Matveev
-License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
-`
 }

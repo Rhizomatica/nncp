@@ -3,9 +3,7 @@
 @unnumbered Mirrors
 
 Main NNCP website is hosted on two geographically distant servers
-located in Moscow region, Russian Federation. Only one of those servers
-supports TLS and another just proxies the traffic to it. So TLS-capable
-version has less availability.
+located in Moscow and Saint-Petersburg regions, Russian Federation.
 
 @cindex DANE
 @cindex DNSCurve
@@ -18,8 +16,7 @@ in turn can be authenticated with
 @url{http://www.stargrave.org/Trust-anchor.html, trust anchors}.
 Both @code{ca.cypherpunks.ru} and DNSCurve trust anchors are
 signed with @code{12AD 3268 9C66 0D42 6967  FD75 CB82 0563 2107 AD8A}
-@url{https://en.wikipedia.org/wiki/OpenPGP, OpenPGP}
-@url{http://www.stargrave.org/Contacts.html, public key}.
+@url{https://en.wikipedia.org/wiki/OpenPGP, OpenPGP} public key.
 
 Also there is @url{https://yggdrasil-network.github.io/, Yggdrasil}
 accessible address: @url{http://y.www.nncpgo.org/}.

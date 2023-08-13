@@ -31,7 +31,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-trns -- transit existing encrypted packet\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] -via NODEx[,...] NODE:PKT\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       (to transit SPOOL/NODE/tx/PKT)\n")
@@ -42,8 +41,9 @@ func usage() {
 
 func main() {
 	var (
-		cfgPath     = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw     = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Outbound packet niceness")
+		cfgPath = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceFile),
+			"Outbound packet niceness")
 		viaOverride = flag.String("via", "", "Override Via path to destination node")
 		spoolPath   = flag.String("spool", "", "Override path to spool")
 		logPath     = flag.String("log", "", "Override path to logfile")

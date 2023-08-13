@@ -33,7 +33,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-caller -- croned NNCP TCP daemon caller\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [NODE ...]\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "Options:")
@@ -52,14 +51,24 @@ func main() {
 		version   = flag.Bool("version", false, "Print version information")
 		warranty  = flag.Bool("warranty", false, "Print warranty information")
 
-		autoToss       = flag.Bool("autotoss", false, "Toss after call is finished")
-		autoTossDoSeen = flag.Bool("autotoss-seen", false, "Create seen/ files during tossing")
-		autoTossNoFile = flag.Bool("autotoss-nofile", false, "Do not process \"file\" packets during tossing")
-		autoTossNoFreq = flag.Bool("autotoss-nofreq", false, "Do not process \"freq\" packets during tossing")
-		autoTossNoExec = flag.Bool("autotoss-noexec", false, "Do not process \"exec\" packets during tossing")
-		autoTossNoTrns = flag.Bool("autotoss-notrns", false, "Do not process \"trns\" packets during tossing")
-		autoTossNoArea = flag.Bool("autotoss-noarea", false, "Do not process \"area\" packets during tossing")
-		autoTossNoACK  = flag.Bool("autotoss-noack", false, "Do not process \"ack\" packets during tossing")
+		autoToss = flag.Bool("autotoss", false,
+			"Toss after call is finished")
+		autoTossDoSeen = flag.Bool("autotoss-seen", false,
+			"Create seen/ files during tossing")
+		autoTossNoFile = flag.Bool("autotoss-nofile", false,
+			"Do not process \"file\" packets during tossing")
+		autoTossNoFreq = flag.Bool("autotoss-nofreq", false,
+			"Do not process \"freq\" packets during tossing")
+		autoTossNoExec = flag.Bool("autotoss-noexec", false,
+			"Do not process \"exec\" packets during tossing")
+		autoTossNoTrns = flag.Bool("autotoss-notrns", false,
+			"Do not process \"trns\" packets during tossing")
+		autoTossNoArea = flag.Bool("autotoss-noarea", false,
+			"Do not process \"area\" packets during tossing")
+		autoTossNoACK = flag.Bool("autotoss-noack", false,
+			"Do not process \"ack\" packets during tossing")
+		autoTossGenACK = flag.Bool("autotoss-gen-ack", false,
+			"Generate ACK packets")
 	)
 	log.SetFlags(log.Lshortfile)
 	flag.Usage = usage
@@ -213,14 +222,17 @@ func main() {
 						if call.AutoToss || *autoToss {
 							autoTossFinish, autoTossBadCode = ctx.AutoToss(
 								node.Id,
-								call.Nice,
-								call.AutoTossDoSeen || *autoTossDoSeen,
-								call.AutoTossNoFile || *autoTossNoFile,
-								call.AutoTossNoFreq || *autoTossNoFreq,
-								call.AutoTossNoExec || *autoTossNoExec,
-								call.AutoTossNoTrns || *autoTossNoTrns,
-								call.AutoTossNoArea || *autoTossNoArea,
-								call.AutoTossNoACK || *autoTossNoACK,
+								&nncp.TossOpts{
+									Nice:   call.Nice,
+									DoSeen: call.AutoTossDoSeen || *autoTossDoSeen,
+									NoFile: call.AutoTossNoFile || *autoTossNoFile,
+									NoFreq: call.AutoTossNoFreq || *autoTossNoFreq,
+									NoExec: call.AutoTossNoExec || *autoTossNoExec,
+									NoTrns: call.AutoTossNoTrns || *autoTossNoTrns,
+									NoArea: call.AutoTossNoArea || *autoTossNoArea,
+									NoACK:  call.AutoTossNoACK || *autoTossNoACK,
+									GenACK: call.AutoTossGenACK || *autoTossGenACK,
+								},
 							)
 						}
 

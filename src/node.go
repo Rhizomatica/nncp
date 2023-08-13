@@ -50,6 +50,8 @@ type Node struct {
 	FreqChunked    int64
 	FreqMinSize    int64
 	FreqMaxSize    int64
+	ACKNice        uint8
+	ACKMinSize     int64
 	Via            []*NodeId
 	Addrs          map[string]string
 	RxRate         int

@@ -111,15 +111,13 @@ func TestTossExec(t *testing.T) {
 			if len(dirFiles(rxPath)) == 0 {
 				continue
 			}
-			ctx.Toss(ctx.Self.Id, TRx, DefaultNiceExec-1,
-				false, false, false, false, false, false, false, false)
+			ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceExec - 1})
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
 			ctx.Neigh[*nodeOur.Id].Exec = make(map[string][]string)
 			ctx.Neigh[*nodeOur.Id].Exec[handle] = []string{"/bin/sh", "-c", "false"}
-			ctx.Toss(ctx.Self.Id, TRx, DefaultNiceExec,
-				false, false, false, false, false, false, false, false)
+			ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceExec})
 			if len(dirFiles(rxPath)) == 0 {
 				return false
 			}
@@ -131,8 +129,7 @@ func TestTossExec(t *testing.T) {
 					filepath.Join(spool, "mbox"),
 				),
 			}
-			ctx.Toss(ctx.Self.Id, TRx, DefaultNiceExec,
-				false, false, false, false, false, false, false, false)
+			ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceExec})
 			if len(dirFiles(rxPath)) != 0 {
 				return false
 			}
@@ -218,14 +215,12 @@ func TestTossFile(t *testing.T) {
 		}
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
 		os.Rename(filepath.Join(spool, ctx.Self.Id.String(), string(TTx)), rxPath)
-		ctx.Toss(ctx.Self.Id, TRx, DefaultNiceFile,
-			false, false, false, false, false, false, false, false)
+		ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceFile})
 		if len(dirFiles(rxPath)) == 0 {
 			return false
 		}
 		ctx.Neigh[*nodeOur.Id].Incoming = &incomingPath
-		if ctx.Toss(ctx.Self.Id, TRx, DefaultNiceFile,
-			false, false, false, false, false, false, false, false) {
+		if ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceFile}) {
 			return false
 		}
 		if len(dirFiles(rxPath)) != 0 {
@@ -301,8 +296,7 @@ func TestTossFileSameName(t *testing.T) {
 		rxPath := filepath.Join(spool, ctx.Self.Id.String(), string(TRx))
 		os.Rename(filepath.Join(spool, ctx.Self.Id.String(), string(TTx)), rxPath)
 		ctx.Neigh[*nodeOur.Id].Incoming = &incomingPath
-		ctx.Toss(ctx.Self.Id, TRx, DefaultNiceFile,
-			false, false, false, false, false, false, false, false)
+		ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceFile})
 		expected := make(map[string]struct{})
 		expected["samefile"] = struct{}{}
 		for i := 0; i < files-1; i++ {
@@ -374,14 +368,12 @@ func TestTossFreq(t *testing.T) {
 		txPath := filepath.Join(spool, ctx.Self.Id.String(), string(TTx))
 		os.Rename(txPath, rxPath)
 		os.MkdirAll(txPath, os.FileMode(0700))
-		ctx.Toss(ctx.Self.Id, TRx, DefaultNiceFreq,
-			false, false, false, false, false, false, false, false)
+		ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceFreq})
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
 		}
 		ctx.Neigh[*nodeOur.Id].FreqPath = &spool
-		ctx.Toss(ctx.Self.Id, TRx, DefaultNiceFreq,
-			false, false, false, false, false, false, false, false)
+		ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceFreq})
 		if len(dirFiles(txPath)) != 0 || len(dirFiles(rxPath)) == 0 {
 			return false
 		}
@@ -394,8 +386,7 @@ func TestTossFreq(t *testing.T) {
 				panic(err)
 			}
 		}
-		ctx.Toss(ctx.Self.Id, TRx, DefaultNiceFreq,
-			false, false, false, false, false, false, false, false)
+		ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: DefaultNiceFreq})
 		if len(dirFiles(txPath)) == 0 || len(dirFiles(rxPath)) != 0 {
 			return false
 		}
@@ -498,8 +489,7 @@ func TestTossTrns(t *testing.T) {
 				panic(err)
 			}
 		}
-		ctx.Toss(ctx.Self.Id, TRx, 123,
-			false, false, false, false, false, false, false, false)
+		ctx.Toss(ctx.Self.Id, TRx, &TossOpts{Nice: 123})
 		if len(dirFiles(rxPath)) != 0 {
 			return false
 		}

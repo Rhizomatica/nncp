@@ -16,6 +16,7 @@ calls: [
 
         autotoss: true
         autotoss-doseen: true
+        autotoss-gen-ack: true
     }
     {
         cron: "30 * * * SAT,SUN"
@@ -88,10 +89,11 @@ Optional. Override @ref{CfgMaxOnlineTime, @emph{maxonlinetime}}
 configuration option when calling.
 
 @vindex autotoss
-@item autotoss, -doseen, -nofile, -nofreq, -noexec, -notrns
+@item autotoss, -doseen, -nofile, -nofreq, -noexec, -notrns, -noack, -gen-ack
 Optionally enable auto tossing: run tosser on node's spool every second
 during the call. You can control either are @file{seen/} files must be
-created, or skip any kind of packet processing.
+created, or skip any kind of packet processing, or enable @ref{ACK}
+packets generation.
 
 @vindex when-tx-exists
 @item when-tx-exists

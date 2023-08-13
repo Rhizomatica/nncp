@@ -7,8 +7,8 @@ $ nncp-toss [options]
     [-node NODE]
     [-dryrun]
     [-cycle INT]
-    [-seen]
-    [-nofile] [-nofreq] [-noexec] [-notrns] [-noarea]
+    [-seen] [-gen-ack]
+    [-nofile] [-nofreq] [-noexec] [-notrns] [-noarea] [-noack]
 @end example
 
 Perform "tossing" operation on all inbound packets. This is the tool
@@ -31,4 +31,9 @@ already seen, processed and tossed. This is helpful to prevent
 duplicates.
 
 @option{-nofile}, @option{-nofreq}, @option{-noexec}, @option{-notrns},
-@option{-noarea} options allow disabling any kind of packet types processing.
+@option{-noarea}, @option{-noack} options allow disabling any kind of
+packet types processing.
+
+@option{-gen-ack} option tells to automatically generate @ref{ACK}
+outbound packets when tossing each packet, saving corresponding list of
+generated packets inside the special directory in the @ref{ACKFile, spool}.

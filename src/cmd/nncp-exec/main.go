@@ -30,7 +30,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-exec -- send execution command\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] NODE HANDLE [ARG0 ARG1 ...]\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] %s:AREA HANDLE [ARG0 ARG1 ...]\nOptions:\n",
@@ -40,21 +39,23 @@ func usage() {
 
 func main() {
 	var (
-		noCompress   = flag.Bool("nocompress", false, "Do not compress input data")
-		cfgPath      = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
-		niceRaw      = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceExec), "Outbound packet niceness")
-		replyNiceRaw = flag.String("replynice", nncp.NicenessFmt(nncp.DefaultNiceFile), "Possible reply packet niceness")
-		minSize      = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
-		argMaxSize   = flag.Uint64("maxsize", 0, "Maximal allowable resulting packet size, in KiB")
-		viaOverride  = flag.String("via", "", "Override Via path to destination node")
-		spoolPath    = flag.String("spool", "", "Override path to spool")
-		logPath      = flag.String("log", "", "Override path to logfile")
-		quiet        = flag.Bool("quiet", false, "Print only errors")
-		showPrgrs    = flag.Bool("progress", false, "Force progress showing")
-		omitPrgrs    = flag.Bool("noprogress", false, "Omit progress showing")
-		debug        = flag.Bool("debug", false, "Print debug messages")
-		version      = flag.Bool("version", false, "Print version information")
-		warranty     = flag.Bool("warranty", false, "Print warranty information")
+		noCompress = flag.Bool("nocompress", false, "Do not compress input data")
+		cfgPath    = flag.String("cfg", nncp.DefaultCfgPath, "Path to configuration file")
+		niceRaw    = flag.String("nice", nncp.NicenessFmt(nncp.DefaultNiceExec),
+			"Outbound packet niceness")
+		replyNiceRaw = flag.String("replynice", nncp.NicenessFmt(nncp.DefaultNiceFile),
+			"Possible reply packet niceness")
+		minSize     = flag.Uint64("minsize", 0, "Minimal required resulting packet size, in KiB")
+		argMaxSize  = flag.Uint64("maxsize", 0, "Maximal allowable resulting packet size, in KiB")
+		viaOverride = flag.String("via", "", "Override Via path to destination node")
+		spoolPath   = flag.String("spool", "", "Override path to spool")
+		logPath     = flag.String("log", "", "Override path to logfile")
+		quiet       = flag.Bool("quiet", false, "Print only errors")
+		showPrgrs   = flag.Bool("progress", false, "Force progress showing")
+		omitPrgrs   = flag.Bool("noprogress", false, "Omit progress showing")
+		debug       = flag.Bool("debug", false, "Print debug messages")
+		version     = flag.Bool("version", false, "Print version information")
+		warranty    = flag.Bool("warranty", false, "Print warranty information")
 	)
 	log.SetFlags(log.Lshortfile)
 	flag.Usage = usage

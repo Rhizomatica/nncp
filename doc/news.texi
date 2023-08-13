@@ -4,6 +4,34 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_9_0
+@section Release 8.9.0
+@itemize
+
+@item
+@command{nncp-toss} command has @option{-gen-ack} option.
+@command{nncp-daemon}, @command{nncp-caller}, @command{nncp-call}
+commands have @option{-autotoss-gen-ack} option. They automatically
+generate ACK packets and store corresponding @file{spool/tx/ack/}
+references to them, to be able to remove them after the transfer.
+
+@item
+@code{autotoss-gen-ack} appeared in call configuration.
+@code{ack} section appeared in neighbour configuration.
+
+@item
+@command{nncp-rm} command has @option{-ack} option to remove packets
+referenced by stored @file{spool/tx/ack/} files generated during tossing.
+
+@item
+Get rid of @command{redo} build system during installation, as there are
+virtually none dependencies, just only compilation of the Go code.
+
+@item
+Updated some dependencies.
+
+@end itemize
+
 @node Release 8_8_3
 @section Release 8.8.3
 @itemize

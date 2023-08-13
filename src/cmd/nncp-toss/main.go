@@ -30,7 +30,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-toss -- process inbound packets\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
@@ -50,6 +49,7 @@ func main() {
 		noTrns    = flag.Bool("notrns", false, "Do not process \"transitional\" packets")
 		noArea    = flag.Bool("noarea", false, "Do not process \"area\" packets")
 		noACK     = flag.Bool("noack", false, "Do not process \"ack\" packets")
+		genACK    = flag.Bool("gen-ack", false, "Generate ACK packets")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		logPath   = flag.String("log", "", "Override path to logfile")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
@@ -110,15 +110,31 @@ func main() {
 			isBad = ctx.Toss(
 				node.Id,
 				nncp.TRx,
-				nice,
-				*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea, *noACK,
+				&nncp.TossOpts{
+					Nice:   nice,
+					DoSeen: *doSeen,
+					NoFile: *noFile,
+					NoFreq: *noFreq,
+					NoExec: *noExec,
+					NoTrns: *noTrns,
+					NoArea: *noArea,
+					NoACK:  *noACK,
+					GenACK: *genACK,
+				},
 			) || isBad
 			if nodeId == *ctx.SelfId {
 				isBad = ctx.Toss(
 					node.Id,
 					nncp.TTx,
-					nice,
-					*dryRun, false, true, true, true, true, *noArea, *noACK,
+					&nncp.TossOpts{
+						Nice:   nice,
+						NoFile: true,
+						NoFreq: true,
+						NoExec: true,
+						NoTrns: true,
+						NoArea: *noArea,
+						NoACK:  *noACK,
+					},
 				) || isBad
 			}
 		}
@@ -150,15 +166,32 @@ func main() {
 		ctx.Toss(
 			nodeId,
 			nncp.TRx,
-			nice,
-			*dryRun, *doSeen, *noFile, *noFreq, *noExec, *noTrns, *noArea, *noACK,
+			&nncp.TossOpts{
+				Nice:   nice,
+				DryRun: *dryRun,
+				DoSeen: *doSeen,
+				NoFile: *noFile,
+				NoFreq: *noFreq,
+				NoExec: *noExec,
+				NoTrns: *noTrns,
+				NoArea: *noArea,
+				NoACK:  *noACK,
+				GenACK: *genACK,
+			},
 		)
 		if *nodeId == *ctx.SelfId {
 			ctx.Toss(
 				nodeId,
 				nncp.TTx,
-				nice,
-				*dryRun, false, true, true, true, true, *noArea, *noACK,
+				&nncp.TossOpts{
+					Nice:   nice,
+					NoFile: true,
+					NoFreq: true,
+					NoExec: true,
+					NoTrns: true,
+					NoArea: *noArea,
+					NoACK:  *noACK,
+				},
 			)
 		}
 	}
