@@ -51,6 +51,10 @@ neigh: {
       chunked: 1024
       minsize: 2048
     }
+    ack: {
+      nice: FLASH
+      minsize: 2048
+    }
     via: ["alice"]
     rxrate: 10
     txrate: 20
@@ -108,6 +112,21 @@ NNCP_NICE=64 \
     @item chunked
         If set, then enable @ref{Chunked, chunked} file transmission
         during freqing. This is the desired chunk size in KiBs.
+
+    @item minsize
+        If set, then apply @ref{OptMinSize, -minsize} option during file
+        transmission.
+    @end table
+
+@vindex ack
+@anchor{CfgACK}
+@item ack
+    Options applied to automatically generated @ref{ACK} packets during tossing.
+
+    @table @code
+    @item nice
+        Use that @ref{Niceness, niceness} for generated packets (255 is used
+        otherwise).
 
     @item minsize
         If set, then apply @ref{OptMinSize, -minsize} option during file

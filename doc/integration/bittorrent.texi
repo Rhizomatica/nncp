@@ -31,12 +31,12 @@ with the jobs you want to download:
 $ cat jobs
 http://www.nncpgo.org/download/nncp-0.11.tar.xz
     out=nncp.txz
-http://www.nncpgo.org/download/nncp-0.11.tar.xz.sig
-    out=nncp.txz.sig
+http://www.nncpgo.org/download/nncp-0.11.tar.xz.asc
+    out=nncp.txz.asc
 $ aria2c \
     --on-download-complete aria2-downloaded.sh \
     --input-file jobs
 @end example
 
-and all that downloaded (@file{nncp.txz}, @file{nncp.txz.sig}) files
+and all that downloaded (@file{nncp.txz}, @file{nncp.txz.asc}) files
 will be sent to @file{remote.node} when finished.

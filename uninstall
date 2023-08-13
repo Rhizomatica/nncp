@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+root="$(realpath -- $(dirname "$0"))"
+. "$root"/config
+cd "$BINDIR"
+rm -f `cat "$root"/bin/cmd.list`
+rm -f "$INFODIR"/nncp.info
+rm -fr "$DOCDIR"

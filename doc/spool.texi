@@ -86,4 +86,14 @@ that will recreate them. In many cases many @file{hdr/} files will be
 allocated more or less linearly on the disk, decreasing listing time
 even more.
 
+@cindex ack files
+@anchor{ACKFile}
+@item tx/ack/LYT64MWSNDK34CVYOO7TA6ZCJ3NWI2OUDBBMX2A4QWF34FIRY4DQ
+If tossing was performed with @option{-gen-ack} option, then for each
+generated @ref{ACK} packet there will be corresponding empty @file{ack/}
+file. ACK outbound packets needs to be deleted after the transmission,
+but since they are stored encrypted in the spool, there needs to be some
+kind of knowledge what packets are ACK ones. Both ACK and corresponding
+@file{ack/} files are removed by @command{@ref{nncp-rm} -ack} command.
+
 @end table

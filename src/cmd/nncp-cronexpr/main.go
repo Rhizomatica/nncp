@@ -31,7 +31,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-cronexpr -- cron expression checker\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [-num XXX] CRON-EXPRESSION\n", os.Args[0])
 	flag.PrintDefaults()

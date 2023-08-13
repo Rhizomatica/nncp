@@ -36,7 +36,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-rm -- remove packet\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [-older X] -tmp\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] -lock\n", os.Args[0])
@@ -45,7 +44,8 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} -nock\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} -area\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} {-rx|-tx} [-hdr]\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} -pkt < ...\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -pkt < ...\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -ack\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "-older option's time units are: (s)econds, (m)inutes, (h)ours, (d)ays")
 	fmt.Fprintln(os.Stderr, "Options:")
 	flag.PrintDefaults()
@@ -68,6 +68,7 @@ func main() {
 		older     = flag.String("older", "", "XXX{smhd}: only older than XXX number of time units")
 		dryRun    = flag.Bool("dryrun", false, "Do not actually remove files")
 		doPkt     = flag.Bool("pkt", false, "Remove only that packets")
+		doACK     = flag.Bool("ack", false, "Remove ACK packets from outbound")
 		spoolPath = flag.String("spool", "", "Override path to spool")
 		quiet     = flag.Bool("quiet", false, "Print only errors")
 		debug     = flag.Bool("debug", false, "Print debug messages")
@@ -251,9 +252,11 @@ func main() {
 						return err
 					}
 					if now.Sub(info.ModTime()) < oldBoundary {
-						ctx.LogD("rm-skip", nncp.LEs{{K: "File", V: pth}}, func(les nncp.LEs) string {
-							return fmt.Sprintf("File %s: too fresh, skipping", pth)
-						})
+						ctx.LogD("rm-skip", nncp.LEs{{K: "File", V: pth}},
+							func(les nncp.LEs) string {
+								return fmt.Sprintf("File %s: too fresh, skipping", pth)
+							},
+						)
 						continue
 					}
 					if (*doNoCK && strings.HasSuffix(entry.Name(), nncp.NoCKSuffix)) ||
@@ -293,7 +296,9 @@ func main() {
 			}
 		}
 		removeSub := func(p string) error {
-			return filepath.Walk(p, func(path string, info os.FileInfo, err error) error {
+			return filepath.Walk(p, func(
+				path string, info os.FileInfo, err error,
+			) error {
 				if err != nil {
 					if errors.Is(err, fs.ErrNotExist) {
 						return nil
@@ -389,6 +394,47 @@ func main() {
 				}); err != nil {
 				log.Fatalln("Can not remove:", err)
 			}
+		}
+		if *doACK {
+			dirPath := filepath.Join(
+				ctx.Spool, node.Id.String(), string(nncp.TTx), nncp.ACKDir)
+			dir, err := os.Open(dirPath)
+			if err != nil {
+				continue
+			}
+			for {
+				fis, err := dir.ReadDir(1 << 10)
+				if err != nil {
+					if err == io.EOF {
+						break
+					}
+					log.Fatalln("Can not read directory:", err)
+				}
+				for _, fi := range fis {
+					for _, pth := range []string{
+						filepath.Join(
+							ctx.Spool,
+							node.Id.String(),
+							string(nncp.TTx),
+							fi.Name(),
+						),
+						filepath.Join(dirPath, fi.Name()),
+					} {
+						if err = os.Remove(pth); err == nil {
+							ctx.LogI(
+								"rm",
+								nncp.LEs{{K: "File", V: pth}},
+								func(les nncp.LEs) string {
+									return fmt.Sprintf("File %s: removed", pth)
+								},
+							)
+						} else if !errors.Is(err, fs.ErrNotExist) {
+							log.Fatalln("Can not remove:", pth, ":", err)
+						}
+					}
+				}
+			}
+			dir.Close()
 		}
 	}
 }

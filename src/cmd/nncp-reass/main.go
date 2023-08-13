@@ -40,7 +40,6 @@ import (
 )
 
 func usage() {
-	fmt.Fprint(os.Stderr, nncp.UsageHeader())
 	fmt.Fprint(os.Stderr, "nncp-reass -- reassemble chunked files\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [FILE.nncp.meta]\nOptions:\n", os.Args[0])
 	flag.PrintDefaults()
@@ -301,16 +300,16 @@ func findMetas(ctx *nncp.Ctx, dirPath string) []string {
 		return nil
 	}
 	defer dir.Close()
-	fis, err := dir.Readdir(0)
+	entries, err := dir.ReadDir(0)
 	dir.Close()
 	if err != nil {
 		ctx.LogE("reass", nncp.LEs{{K: "Path", V: dirPath}}, err, logMsg)
 		return nil
 	}
 	metaPaths := make([]string, 0)
-	for _, fi := range fis {
-		if strings.HasSuffix(fi.Name(), nncp.ChunkedSuffixMeta) {
-			metaPaths = append(metaPaths, filepath.Join(dirPath, fi.Name()))
+	for _, entry := range entries {
+		if strings.HasSuffix(entry.Name(), nncp.ChunkedSuffixMeta) {
+			metaPaths = append(metaPaths, filepath.Join(dirPath, entry.Name()))
 		}
 	}
 	return metaPaths
