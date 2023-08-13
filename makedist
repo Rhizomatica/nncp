@@ -177,6 +177,7 @@ Source code and its signature for that version can be found here:
 
     http://www.nncpgo.org/download/nncp-${release}.tar.xz ($size KiB)
     http://www.nncpgo.org/download/nncp-${release}.tar.xz.asc
+    http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
 
 OpenPGP key: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
              NNCP releases <releases@nncpgo.org>
@@ -232,6 +233,7 @@ $(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 
     http://www.nncpgo.org/download/nncp-${release}.tar.xz ($size KiB)
     http://www.nncpgo.org/download/nncp-${release}.tar.xz.asc
+    http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
 
 OpenPGP ключ: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
               NNCP releases <releases@nncpgo.org>
