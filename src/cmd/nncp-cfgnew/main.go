@@ -28,7 +28,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/hjson/hjson-go"
+	"github.com/hjson/hjson-go/v4"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/nacl/box"
 

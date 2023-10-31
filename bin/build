@@ -12,4 +12,4 @@ GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultLogPath=$LOGPATH"
 for cmd in `cat ../bin/cmd.list` ; do
     $GO build $vendor -o ../bin/$cmd $GO_CFLAGS -ldflags "$GO_LDFLAGS" ./cmd/$cmd
 done
-$GO build $vendor -o ../bin/hjson-cli $GO_CFLAGS github.com/hjson/hjson-go/hjson-cli
+$GO build $vendor -o ../bin/hjson-cli $GO_CFLAGS github.com/hjson/hjson-go/v4/hjson-cli
