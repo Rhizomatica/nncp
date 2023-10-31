@@ -4,6 +4,15 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_10_0
+@section Release 8.10.0
+@itemize
+
+@item
+Updated dependant libraries, including Yggdrasil one (its network moved to v0.5).
+
+@end itemize
+
 @node Release 8_9_0
 @section Release 8.9.0
 @itemize

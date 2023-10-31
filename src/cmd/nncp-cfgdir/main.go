@@ -24,7 +24,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/hjson/hjson-go"
+	"github.com/hjson/hjson-go/v4"
 	"go.cypherpunks.ru/nncp/v8"
 )
 
@@ -86,7 +86,6 @@ func main() {
 			BracesSameLine: true,
 			QuoteAlways:    false,
 			IndentBy:       "  ",
-			AllowMinusZero: false,
 		})
 		if err != nil {
 			log.Fatalln(err)
