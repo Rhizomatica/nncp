@@ -17,7 +17,7 @@ cd vendor
 rm -r \
     github.com/flynn/noise/vector* \
     github.com/gorhill/cronexpr/APLv2 \
-    github.com/hjson/hjson-go/build_release.sh \
+    github.com/hjson/hjson-go/v4/build_release.sh \
     github.com/klauspost/compress/gen.sh \
     github.com/klauspost/compress/gzhttp \
     github.com/klauspost/compress/internal/snapref \

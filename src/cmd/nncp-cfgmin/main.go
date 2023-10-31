@@ -24,7 +24,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/hjson/hjson-go"
+	"github.com/hjson/hjson-go/v4"
 	"go.cypherpunks.ru/nncp/v8"
 )
 
