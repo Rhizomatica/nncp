@@ -250,12 +250,14 @@ func PktEncWrite(
 		return
 	}
 
-	sharedKey := new([32]byte)
-	curve25519.ScalarMult(sharedKey, prv, their.ExchPub)
+	sharedKey, err := curve25519.X25519(prv[:], their.ExchPub[:])
+	if err != nil {
+		return
+	}
 	keyFull := make([]byte, chacha20poly1305.KeySize)
 	keySize := make([]byte, chacha20poly1305.KeySize)
-	blake3.DeriveKey(keyFull, DeriveKeyFullCtx, sharedKey[:])
-	blake3.DeriveKey(keySize, DeriveKeySizeCtx, sharedKey[:])
+	blake3.DeriveKey(keyFull, DeriveKeyFullCtx, sharedKey)
+	blake3.DeriveKey(keySize, DeriveKeySizeCtx, sharedKey)
 	aeadFull, err := chacha20poly1305.New(keyFull)
 	if err != nil {
 		return
@@ -403,8 +405,11 @@ func PktEncRead(
 	}
 	ad := blake3.Sum256(tbsRaw)
 	if sharedKeyCached == nil {
-		key := new([32]byte)
-		curve25519.ScalarMult(key, our.ExchPrv, &pktEnc.ExchPub)
+		var key []byte
+		key, err = curve25519.X25519(our.ExchPrv[:], pktEnc.ExchPub[:])
+		if err != nil {
+			return
+		}
 		sharedKey = key[:]
 	} else {
 		sharedKey = sharedKeyCached

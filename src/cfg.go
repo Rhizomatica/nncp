@@ -29,7 +29,7 @@ import (
 	"time"
 
 	"github.com/gorhill/cronexpr"
-	"github.com/hjson/hjson-go"
+	"github.com/hjson/hjson-go/v4"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/term"
 )

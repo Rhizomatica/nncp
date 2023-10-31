@@ -42,14 +42,6 @@ import (
 
 const DefaultPort = 5400
 
-// Copy-pasted from yggdrasil-go/src/ipv6rwc/ipv6rwc.go,
-// because they are non-exportable.
-const (
-	typeKeyDummy = iota
-	typeKeyLookup
-	typeKeyResponse
-)
-
 var (
 	glog *gologme.Logger
 
@@ -87,10 +79,6 @@ func ycoreStart(cfg *ycfg.NodeConfig, port int, mcasts []string) (*ycore.Core, e
 		)
 	}
 
-	sk, err := hex.DecodeString(cfg.PrivateKey)
-	if err != nil {
-		panic(err)
-	}
 	options := []ycore.SetupOption{
 		ycore.NodeInfo(cfg.NodeInfo),
 		ycore.NodeInfoPrivacy(cfg.NodeInfoPrivacy),
@@ -114,7 +102,11 @@ func ycoreStart(cfg *ycfg.NodeConfig, port int, mcasts []string) (*ycore.Core, e
 		options = append(options, ycore.AllowedPublicKey(k[:]))
 	}
 
-	core, err := ycore.New(sk[:], glog, options...)
+	err = cfg.GenerateSelfSignedCertificate()
+	if err != nil {
+		return nil, err
+	}
+	core, err := ycore.New(cfg.Certificate, glog, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +207,7 @@ func NewConn(aliases map[string]string, in string) (net.Conn, error) {
 		return e.DialTCP(&net.TCPAddr{IP: ipTheir, Port: port})
 	}
 	cfg := ycfg.NodeConfig{
-		PrivateKey:      prvHex,
+		PrivateKey:      prvRaw,
 		Peers:           peers,
 		NodeInfo:        map[string]interface{}{"name": "NNCP"},
 		NodeInfoPrivacy: true,
@@ -231,27 +223,6 @@ func NewConn(aliases map[string]string, in string) (net.Conn, error) {
 	e.ipToAddr[ip] = iwt.Addr(pubRaw)
 	stacks[prvHex] = e
 	return e.DialTCP(&net.TCPAddr{IP: ipTheir, Port: port})
-}
-
-type OOBState struct {
-	c      *ycore.Core
-	subnet yaddr.Subnet
-}
-
-func (state *OOBState) Handler(fromKey, toKey ed25519.PublicKey, data []byte) {
-	if len(data) != 1+ed25519.SignatureSize {
-		return
-	}
-	if data[0] == typeKeyLookup {
-		snet := *yaddr.SubnetForKey(toKey)
-		sig := data[1:]
-		if snet == state.subnet && ed25519.Verify(fromKey, toKey[:], sig) {
-			state.c.SendOutOfBand(fromKey, append(
-				[]byte{typeKeyResponse},
-				ed25519.Sign(state.c.PrivateKey(), fromKey[:])...,
-			))
-		}
-	}
 }
 
 func NewListener(aliases map[string]string, in string) (net.Listener, error) {
@@ -326,7 +297,7 @@ func NewListener(aliases map[string]string, in string) (net.Listener, error) {
 		return e.ListenTCP(&net.TCPAddr{IP: ipOur, Port: port})
 	}
 	cfg := ycfg.NodeConfig{
-		PrivateKey:        prvHex,
+		PrivateKey:        ycfg.KeyBytes(prvRaw),
 		Listen:            binds,
 		AllowedPublicKeys: pubs,
 		Peers:             peers,
@@ -335,11 +306,6 @@ func NewListener(aliases map[string]string, in string) (net.Listener, error) {
 	}
 	core, err := ycoreStart(&cfg, port, mcasts)
 	if err != nil {
-		return nil, err
-	}
-	oobState := OOBState{core, *yaddr.SubnetForKey(core.PublicKey())}
-	if err := core.SetOutOfBandHandler(oobState.Handler); err != nil {
-		core.Stop()
 		return nil, err
 	}
 	e, err = NewTCPIPEndpoint(core, ipOur, uint32(core.MTU()))
