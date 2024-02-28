@@ -34,7 +34,7 @@ Possibly NNCP package already exists for your distribution:
 @item @url{https://pkgsrc.se/wip/nncp, NetBSD package}
 
 @cindex NixOS
-@item @url{https://github.com/NixOS/nixpkgs/tree/master/pkgs/tools/misc/nncp, NixOS packages}
+@item @url{https://github.com/NixOS/nixpkgs/tree/master/pkgs/by-name/nn/nncp, NixOS packages}
 
 @cindex Ubuntu
 @item @url{https://packages.ubuntu.com/search?keywords=nncp, Ubuntu}
