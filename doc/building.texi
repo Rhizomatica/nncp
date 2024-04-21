@@ -2,7 +2,12 @@
 @cindex building
 @section Build instructions
 
-Make sure that Go is installed. For example to install it from packages:
+Make sure that Go 1.20+ is installed. Beware, that @strong{currently}
+building with Go 1.22 is impossible unless @ref{noyggdrasil,
+@code{noyggdrasil}} tag is set.
+
+Go can be installed from packages or
+@url{https://go.dev/doc/install/source, build manually}:
 
 @table @asis
 @item FreeBSD
@@ -79,4 +84,5 @@ $ GO_CFLAGS="-tags nofsnotify" bin/build
 @end example
 
 @vindex noyggdrasil
+@anchor{noyggdrasil}
 You can also disable Yggdrasil support with @code{-tags noyggdrasil}.
