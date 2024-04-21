@@ -25,7 +25,7 @@ import (
 
 var NoYggdrasil = errors.New("no Yggdrasil support is compiled in")
 
-func NewConn(aliases map[string]string, in string) (ConnDeadlined, error) {
+func NewConn(aliases map[string]string, in string) (net.Conn, error) {
 	return nil, NoYggdrasil
 
 }
