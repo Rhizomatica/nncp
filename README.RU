@@ -27,10 +27,10 @@ NNCP это свободное программное обеспечением: 
 
 Пожалуйста все вопросы касающиеся использования NNCP, отчёты об ошибках
 и патчи отправляйте в nncp-devel почтовую рассылку:
-http://lists.cypherpunks.ru/nncp_002ddevel.html
+http://lists.cypherpunks.su/nncp_002ddevel.html
 
 Исходный код для разработчика находится в Git репозитории:
-http://www.git.cypherpunks.ru/?p=nncp.git;a=summary
+http://www.git.cypherpunks.su/?p=nncp.git;a=summary
 
 Для дополнительной информации пожалуйста читайте или doc/nncp.info
 или doc/nncp.texi.
