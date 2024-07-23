@@ -3,8 +3,8 @@
 @section nncp-cfgenc
 
 @example
-$ nncp-cfgenc [options] [-s INT] [-t INT] [-p INT] cfg.hjson > cfg.hjson.eblob
-$ nncp-cfgenc [options] -d cfg.hjson.eblob > cfg.hjson
+$ nncp-cfgenc [options] [-s INT] [-t INT] [-p INT] cfg.hjson >cfg.hjson.eblob
+$ nncp-cfgenc [options] -d cfg.hjson.eblob >cfg.hjson
 @end example
 
 This command allows you to encrypt provided @file{cfg.hjson} file with

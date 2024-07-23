@@ -1,25 +1,23 @@
 //go:build !noyggdrasil
 // +build !noyggdrasil
 
-/*
-NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
+// NNCP -- Node to Node copy, utilities for store-and-forward data exchange
+// Copyright (C) 2016-2024 Sergey Matveev <stargrave@stargrave.org>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, version 3 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Code below is heavily based on Wireguard's MIT licenced
-golang.zx2c4.com/wireguard/tun/netstack.
-*/
+// Code below is heavily based on Wireguard's MIT licenced
+// golang.zx2c4.com/wireguard/tun/netstack.
 
 package yggdrasil
 
@@ -31,7 +29,7 @@ import (
 	iwt "github.com/Arceliar/ironwood/types"
 	yaddr "github.com/yggdrasil-network/yggdrasil-go/src/address"
 	"golang.org/x/crypto/ed25519"
-	"gvisor.dev/gvisor/pkg/bufferv2"
+	"gvisor.dev/gvisor/pkg/buffer"
 	"gvisor.dev/gvisor/pkg/tcpip"
 	"gvisor.dev/gvisor/pkg/tcpip/adapters/gonet"
 	"gvisor.dev/gvisor/pkg/tcpip/header"
@@ -60,6 +58,8 @@ func (e *TCPIPEndpoint) IsAttached() bool { return e.d != nil }
 
 func (e *TCPIPEndpoint) MTU() uint32 { return e.mtu }
 
+func (e *TCPIPEndpoint) SetMTU(mtu uint32) { e.mtu = mtu }
+
 func (*TCPIPEndpoint) Capabilities() stack.LinkEndpointCapabilities { return stack.CapabilityNone }
 
 func (*TCPIPEndpoint) MaxHeaderLength() uint16 { return 0 }
@@ -68,7 +68,13 @@ func (*TCPIPEndpoint) LinkAddress() tcpip.LinkAddress { return "" }
 
 func (*TCPIPEndpoint) Wait() {}
 
-func (e *TCPIPEndpoint) WritePacket(pkt stack.PacketBufferPtr) tcpip.Error {
+func (*TCPIPEndpoint) ParseHeader(*stack.PacketBuffer) bool { return false }
+
+func (*TCPIPEndpoint) SetLinkAddress(addr tcpip.LinkAddress) {}
+
+func (*TCPIPEndpoint) SetOnCloseAction(func()) {}
+
+func (e *TCPIPEndpoint) WritePacket(pkt *stack.PacketBuffer) tcpip.Error {
 	v := pkt.ToView()
 	n, err := v.Read(e.writeBuf)
 	if err != nil {
@@ -101,12 +107,12 @@ func (e *TCPIPEndpoint) WritePackets(pbs stack.PacketBufferList) (int, tcpip.Err
 
 func (*TCPIPEndpoint) ARPHardwareType() header.ARPHardwareType { return header.ARPHardwareNone }
 
-func (e *TCPIPEndpoint) AddHeader(stack.PacketBufferPtr) {}
+func (e *TCPIPEndpoint) AddHeader(*stack.PacketBuffer) {}
 
 func convertToFullAddr(ip net.IP, port int) (tcpip.FullAddress, tcpip.NetworkProtocolNumber) {
 	return tcpip.FullAddress{
 		NIC:  1,
-		Addr: tcpip.Address(ip),
+		Addr: tcpip.AddrFrom16Slice(ip.To16()[:]),
 		Port: uint16(port),
 	}, ipv6.ProtocolNumber
 }
@@ -127,9 +133,8 @@ func (e *TCPIPEndpoint) ListenTCP(addr *net.TCPAddr) (*gonet.TCPListener, error)
 	return gonet.ListenTCP(e.s, fa, pn)
 }
 
-func (e *TCPIPEndpoint) Close() error {
+func (e *TCPIPEndpoint) Close() {
 	e.s.RemoveNIC(1)
-	return nil
 }
 
 func NewTCPIPEndpoint(
@@ -156,7 +161,7 @@ func NewTCPIPEndpoint(
 	}
 	protoAddr := tcpip.ProtocolAddress{
 		Protocol:          ipv6.ProtocolNumber,
-		AddressWithPrefix: tcpip.Address(ipOur).WithPrefix(),
+		AddressWithPrefix: tcpip.AddrFrom16Slice(ipOur.To16()[:]).WithPrefix(),
 	}
 	if err := s.AddProtocolAddress(1, protoAddr, stack.AddressProperties{}); err != nil {
 		return nil, fmt.Errorf("%+v", err)
@@ -181,7 +186,7 @@ func NewTCPIPEndpoint(
 				e.ipToAddr[ip] = from
 			}
 			pkb := stack.NewPacketBuffer(stack.PacketBufferOptions{
-				Payload: bufferv2.MakeWithData(e.readBuf[:n]),
+				Payload: buffer.MakeWithData(e.readBuf[:n]),
 			})
 			e.d.DeliverNetworkPacket(ipv6.ProtocolNumber, pkb)
 		}

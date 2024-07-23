@@ -10,7 +10,7 @@ for files in it:
 @example
 0  4  *  *  *  cd /storage ; tmp=`mktemp` ; \
     tree -f -h -N --du --timefmt \%Y-\%m-\%d |
-    zstdmt -19 > $tmp && chmod 644 $tmp && mv $tmp TREE.txt.zst ; \
+    zstdmt -19 >$tmp && chmod 644 $tmp && mv $tmp TREE.txt.zst ; \
     tree -J -f --timefmt \%Y-\%m-\%d |
-    zstdmt -19 > $tmp && chmod 644 $tmp && mv $tmp TREE.json.zst
+    zstdmt -19 >$tmp && chmod 644 $tmp && mv $tmp TREE.json.zst
 @end example

@@ -46,13 +46,13 @@ assert_is_deleted() {
 }
 
 now=`date +%s`
-nncp-cfgnew > cfg
+nncp-cfgnew >cfg
 nncp-cfgdir -cfg cfg -dump cfgdir
-echo "$PWD/spool" > cfgdir/spool
-echo "$PWD/log" > cfgdir/log
+echo "$PWD/spool" >cfgdir/spool
+echo "$PWD/log" >cfgdir/log
 neigh=`rand32`
 mkdir -p cfgdir/neigh/neigh
-for w in id exchpub signpub ; do echo $neigh > cfgdir/neigh/neigh/$w ; done
+for w in id exchpub signpub ; do echo $neigh >cfgdir/neigh/neigh/$w ; done
 mkdir -p spool/tmp spool/$neigh/rx/hdr spool/$neigh/rx/seen spool/$neigh/tx/hdr
 date_old=$(date -j -f %s +%FT%T $(( $now - (3600 * 24 * 7) )))
 

@@ -9,7 +9,7 @@ release=$1
 git clone . $tmp/nncp-$release
 cd $tmp/nncp-$release
 git checkout v$release
-./version > VERSION
+./version >VERSION
 cd src
 go mod vendor
 modvendor -v -copy="**/*_test.go **/words.go **/README.md **/main.go"
@@ -36,7 +36,7 @@ find . \( \
     -name .goreleaser.yml -o \
     -name .gitattributes \) -delete
 
-cat > doc/download.texi <<EOF
+cat >doc/download.texi <<EOF
 @node Tarballs
 @section Prepared tarballs
 You can obtain releases source code prepared tarballs from
@@ -58,29 +58,29 @@ mkinfo() {
         -D "VERSION `cat VERSION`" $@
 }
 
-cat > $texi <<EOF
+cat >$texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle NEWS
 @node News
 @unnumbered News
-`sed -n '6,$p' < doc/news.texi`
+`sed -n '6,$p' <doc/news.texi`
 @bye
 EOF
 mkinfo --output NEWS $texi
 
-cat > $texi <<EOF
+cat >$texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle NEWS.RU
 @node Новости
 @unnumbered Новости
-`sed -n '3,$p' < doc/news.ru.texi | sed 's/^@subsection/@section/'`
+`sed -n '3,$p' <doc/news.ru.texi | sed 's/^@subsection/@section/'`
 @bye
 EOF
 mkinfo --output NEWS.RU $texi
 
-cat > $texi <<EOF
+cat >$texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle INSTALL
@@ -89,7 +89,7 @@ cat > $texi <<EOF
 EOF
 mkinfo --output INSTALL $texi
 
-cat > $texi <<EOF
+cat >$texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle THANKS
@@ -103,8 +103,6 @@ rm -r doc/.well-known
 
 ########################################################################
 
-perl -i -npe "s/GO build/GO build -mod=vendor/" bin/build
-perl -i -npe "s/GO list/GO list -mod=vendor/" bin/build
 rm makedist version
 rm -r .git t
 redo-cleanup full
@@ -114,16 +112,15 @@ find . -type f -name "*.sh" -exec chmod +x {} +
 chmod +x bin/build install install-strip uninstall
 
 cd ..
-tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
-xz -9v nncp-"$release".tar
+detpax nncp-"$release" | xz -9v >nncp-"$release".tar.xz
 tarball=nncp-"$release".tar.xz
 ssh-keygen -Y sign -f ~/.ssh/sign/releases@nncpgo.org -n file $tarball
 gpg --armor --detach-sign --sign --local-user releases@nncpgo.org "$tarball"
-meta4-create -fn "$tarball" -mtime "$tarball" \
+meta4ra-create -fn "$tarball" -mtime "$tarball" \
     -sig-pgp "$tarball".asc -sig-ssh "$tarball".sig \
     http://www.nncpgo.org/download/"$tarball" \
     http://y.www.nncpgo.org/download/"$tarball" \
-    https://nncp.mirrors.quux.org/download/"$tarball" < "$tarball" > "$tarball".meta4
+    https://nncp.mirrors.quux.org/download/"$tarball" <"$tarball" >"$tarball".meta4
 
 size=$(( $(stat -f %z $tarball) / 1024 ))
 release_date=$(date "+%Y-%m-%d")
@@ -187,10 +184,10 @@ There are mirrors where you can also get the source code tarballs:
 http://www.nncpgo.org/Mirrors.html
 
 Please send questions regarding the use of NNCP, bug reports and patches
-to mailing list: http://lists.cypherpunks.ru/nncp_002ddevel.html
+to mailing list: http://lists.cypherpunks.su/nncp_002ddevel.html
 EOF
 echo mutt -s \"[EN] NNCP $release release announcement\" \
-    nncp-devel@lists.cypherpunks.ru \
+    nncp-devel@lists.cypherpunks.su \
     -a $cur/doc/download/"$tarball".meta4
 
 cat <<EOF
@@ -244,8 +241,8 @@ http://www.nncpgo.org/Mirrors.html
 
 Пожалуйста, все вопросы касающиеся использования NNCP, отчёты об ошибках
 и патчи отправляйте в nncp-devel почтовую рассылку:
-http://lists.cypherpunks.ru/nncp_002ddevel.html
+http://lists.cypherpunks.su/nncp_002ddevel.html
 EOF
 echo mutt -s \"[RU] Состоялся релиз NNCP $release\" \
-    nncp-devel@lists.cypherpunks.ru \
+    nncp-devel@lists.cypherpunks.su \
     -a $cur/doc/download/"$tarball".meta4

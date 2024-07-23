@@ -4,6 +4,22 @@
 
 See also this page @ref{Новости, on russian}.
 
+@node Release 8_11_0
+@section Release 8.11.0
+@itemize
+
+@item
+Fixed buildability under Go 1.22. Now it is the minimal version.
+
+@item
+Updated dependant libraries.
+
+@item
+@code{go.cypherpunks.ru} Go module name is changed to @code{go.cypherpunks.su},
+as domain will expire soon.
+
+@end itemize
+
 @node Release 8_10_0
 @section Release 8.10.0
 @itemize
@@ -935,7 +951,7 @@ allowing control with @command{umask}.
 Updated dependencies.
 
 @item
-Full usage of go modules for dependencies management
+Full usage of Go modules for dependencies management
 (@code{go.cypherpunks.ru/nncp/v5} namespace is used).
 
 @item

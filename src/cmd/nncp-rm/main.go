@@ -1,19 +1,17 @@
-/*
-NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-Copyright (C) 2016-2023 Sergey Matveev <stargrave@stargrave.org>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+// NNCP -- Node to Node copy, utilities for store-and-forward data exchange
+// Copyright (C) 2016-2024 Sergey Matveev <stargrave@stargrave.org>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, version 3 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Remove packet from the queue.
 package main
@@ -32,7 +30,7 @@ import (
 	"strings"
 	"time"
 
-	"go.cypherpunks.ru/nncp/v8"
+	"go.cypherpunks.su/nncp/v8"
 )
 
 func usage() {
@@ -44,7 +42,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} -nock\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} -area\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} {-rx|-tx} [-hdr]\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -pkt < ...\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -pkt <...\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -ack\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "-older option's time units are: (s)econds, (m)inutes, (h)ours, (d)ays")
 	fmt.Fprintln(os.Stderr, "Options:")

@@ -24,7 +24,7 @@ Tarballs include all necessary required libraries:
 @item @code{github.com/klauspost/cpuid} @tab BSD 3-Clause
 @item @code{github.com/quic-go/quic-go} @tab Expat
 @item @code{go.cypherpunks.ru/balloon} @tab GNU LGPLv3
-@item @code{go.cypherpunks.ru/recfile} @tab GNU GPLv3
+@item @code{go.cypherpunks.su/recfile/v2} @tab GNU GPLv3
 @item @code{golang.org/x/crypto} @tab BSD 3-Clause
 @item @code{golang.org/x/net} @tab BSD 3-Clause
 @item @code{golang.org/x/sys} @tab BSD 3-Clause
@@ -49,6 +49,12 @@ And additional ones for Yggdrasil support:
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {meta4 tar pgp ssh}
 @headitem Version @tab Date @tab Size @tab Tarball
+
+@item @ref{Release 8_10_0, 8.10.0} @tab 2023-10-31 @tab 2672 KiB @tab
+@url{download/nncp-8.10.0.tar.xz.meta4, meta4}
+@url{download/nncp-8.10.0.tar.xz, tar}
+@url{download/nncp-8.10.0.tar.xz.asc, pgp}
+@url{download/nncp-8.10.0.tar.xz.sig, ssh}
 
 @item @ref{Release 8_9_0, 8.9.0} @tab 2023-08-13 @tab 1780 KiB @tab
 @url{download/nncp-8.9.0.tar.xz.meta4, meta4}
