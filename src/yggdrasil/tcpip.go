@@ -29,7 +29,7 @@ import (
 	iwt "github.com/Arceliar/ironwood/types"
 	yaddr "github.com/yggdrasil-network/yggdrasil-go/src/address"
 	"golang.org/x/crypto/ed25519"
-	"gvisor.dev/gvisor/pkg/bufferv2"
+	"gvisor.dev/gvisor/pkg/buffer"
 	"gvisor.dev/gvisor/pkg/tcpip"
 	"gvisor.dev/gvisor/pkg/tcpip/adapters/gonet"
 	"gvisor.dev/gvisor/pkg/tcpip/header"
@@ -58,6 +58,8 @@ func (e *TCPIPEndpoint) IsAttached() bool { return e.d != nil }
 
 func (e *TCPIPEndpoint) MTU() uint32 { return e.mtu }
 
+func (e *TCPIPEndpoint) SetMTU(mtu uint32) { e.mtu = mtu }
+
 func (*TCPIPEndpoint) Capabilities() stack.LinkEndpointCapabilities { return stack.CapabilityNone }
 
 func (*TCPIPEndpoint) MaxHeaderLength() uint16 { return 0 }
@@ -66,7 +68,13 @@ func (*TCPIPEndpoint) LinkAddress() tcpip.LinkAddress { return "" }
 
 func (*TCPIPEndpoint) Wait() {}
 
-func (e *TCPIPEndpoint) WritePacket(pkt stack.PacketBufferPtr) tcpip.Error {
+func (*TCPIPEndpoint) ParseHeader(*stack.PacketBuffer) bool { return false }
+
+func (*TCPIPEndpoint) SetLinkAddress(addr tcpip.LinkAddress) {}
+
+func (*TCPIPEndpoint) SetOnCloseAction(func()) {}
+
+func (e *TCPIPEndpoint) WritePacket(pkt *stack.PacketBuffer) tcpip.Error {
 	v := pkt.ToView()
 	n, err := v.Read(e.writeBuf)
 	if err != nil {
@@ -99,12 +107,12 @@ func (e *TCPIPEndpoint) WritePackets(pbs stack.PacketBufferList) (int, tcpip.Err
 
 func (*TCPIPEndpoint) ARPHardwareType() header.ARPHardwareType { return header.ARPHardwareNone }
 
-func (e *TCPIPEndpoint) AddHeader(stack.PacketBufferPtr) {}
+func (e *TCPIPEndpoint) AddHeader(*stack.PacketBuffer) {}
 
 func convertToFullAddr(ip net.IP, port int) (tcpip.FullAddress, tcpip.NetworkProtocolNumber) {
 	return tcpip.FullAddress{
 		NIC:  1,
-		Addr: tcpip.Address(ip),
+		Addr: tcpip.AddrFrom16Slice(ip.To16()[:]),
 		Port: uint16(port),
 	}, ipv6.ProtocolNumber
 }
@@ -125,9 +133,8 @@ func (e *TCPIPEndpoint) ListenTCP(addr *net.TCPAddr) (*gonet.TCPListener, error)
 	return gonet.ListenTCP(e.s, fa, pn)
 }
 
-func (e *TCPIPEndpoint) Close() error {
+func (e *TCPIPEndpoint) Close() {
 	e.s.RemoveNIC(1)
-	return nil
 }
 
 func NewTCPIPEndpoint(
@@ -154,7 +161,7 @@ func NewTCPIPEndpoint(
 	}
 	protoAddr := tcpip.ProtocolAddress{
 		Protocol:          ipv6.ProtocolNumber,
-		AddressWithPrefix: tcpip.Address(ipOur).WithPrefix(),
+		AddressWithPrefix: tcpip.AddrFrom16Slice(ipOur.To16()[:]).WithPrefix(),
 	}
 	if err := s.AddProtocolAddress(1, protoAddr, stack.AddressProperties{}); err != nil {
 		return nil, fmt.Errorf("%+v", err)
@@ -179,7 +186,7 @@ func NewTCPIPEndpoint(
 				e.ipToAddr[ip] = from
 			}
 			pkb := stack.NewPacketBuffer(stack.PacketBufferOptions{
-				Payload: bufferv2.MakeWithData(e.readBuf[:n]),
+				Payload: buffer.MakeWithData(e.readBuf[:n]),
 			})
 			e.d.DeliverNetworkPacket(ipv6.ProtocolNumber, pkb)
 		}
