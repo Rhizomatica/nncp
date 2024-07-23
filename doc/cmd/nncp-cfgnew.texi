@@ -3,7 +3,7 @@
 @section nncp-cfgnew
 
 @example
-$ nncp-cfgnew [options] [-area NAME] [-yggdrasil] [-nocomments] > new.hjson
+$ nncp-cfgnew [options] [-area NAME] [-yggdrasil] [-nocomments] >new.hjson
 @end example
 
 Generate new node configuration: private keys, example configuration

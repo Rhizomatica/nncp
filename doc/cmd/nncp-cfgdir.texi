@@ -4,7 +4,7 @@
 
 @example
 $ nncp-cfgdir [options] [-cfg @dots{}] -dump /path/to/dir
-$ nncp-cfgdir [options] -load /path/to/dir > cfg.hjson
+$ nncp-cfgdir [options] -load /path/to/dir >cfg.hjson
 @end example
 
 @option{-dump} option dumps current configuration file to the

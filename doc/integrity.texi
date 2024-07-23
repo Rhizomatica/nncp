@@ -38,7 +38,7 @@ $ gpg --auto-key-locate  wkd --locate-keys releases at nncpgo dot org
 
 @example
 $ ssh-keygen -Y verify -f PUBKEY-SSH.pub -I releases@@nncpgo.org -n file \
-    -s nncp-@value{VERSION}.tar.zst.sig < nncp-@value{VERSION}.tar.zst
+    -s nncp-@value{VERSION}.tar.zst.sig <nncp-@value{VERSION}.tar.zst
 @end example
 
 @end table

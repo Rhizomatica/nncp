@@ -3,8 +3,8 @@
 @section nncp-pkt
 
 @example
-$ nncp-pkt [options] < pkt
-$ nncp-pkt [options] [-decompress] -dump < pkt > payload
+$ nncp-pkt [options] <pkt
+$ nncp-pkt [options] [-decompress] -dump <pkt >payload
 $ nncp-pkt -overheads
 @end example
 

@@ -44,7 +44,7 @@ NNCP uses following files/directories you should be aware of:
 $ chgrp nncp /usr/local/etc/nncp.hjson /var/spool/nncp
 $ chmod g+r /usr/local/etc/nncp.hjson
 $ chmod g+rwxs /var/spool/nncp
-$ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
+$ echo 'umask: "007"' >>/usr/local/etc/nncp.hjson
 @end example
 
 @item
@@ -84,13 +84,13 @@ $ echo 'umask: "007"' >> /usr/local/etc/nncp.hjson
 # mkdir -p /var/service/.nncp-toss/log
 # cd /var/service/.nncp-toss
 
-# cat > run <<EOF
+# cat >run <<EOF
 #!/bin/sh -e
 exec 2>&1
 exec setuidgid uucp /usr/local/bin/nncp-toss -cycle 10
 EOF
 
-# cat > log/run <<EOF
+# cat >log/run <<EOF
 #!/bin/sh -e
 exec setuidgid uucp multilog t ./main
 EOF
@@ -119,13 +119,13 @@ uucp	stream	tcp6	nowait	nncpuser	/usr/local/bin/nncp-daemon	nncp-daemon -quiet -
 # mkdir -p /var/service/.nncp-daemon/log
 # cd /var/service/.nncp-daemon
 
-# cat > run <<EOF
+# cat >run <<EOF
 #!/bin/sh -e
 NNCPLOG=FD:4 exec envuidgid nncpuser tcpserver -DHRU -l 0 ::0 uucp \
 	/usr/local/bin/nncp-daemon -quiet -ucspi 4>&1
 EOF
 
-# cat > log/run <<EOF
+# cat >log/run <<EOF
 #!/bin/sh -e
 exec setuidgid uucp multilog ./main
 EOF

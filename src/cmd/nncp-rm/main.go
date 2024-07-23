@@ -42,7 +42,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} -nock\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} -area\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] [-older X] {-all|-node NODE} {-rx|-tx} [-hdr]\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -pkt < ...\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -pkt <...\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "       %s [options] {-all|-node NODE} -ack\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "-older option's time units are: (s)econds, (m)inutes, (h)ours, (d)ays")
 	fmt.Fprintln(os.Stderr, "Options:")

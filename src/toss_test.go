@@ -122,7 +122,7 @@ func TestTossExec(t *testing.T) {
 			ctx.Neigh[*nodeOur.Id].Exec[handle] = []string{
 				"/bin/sh", "-c",
 				fmt.Sprintf(
-					"echo $NNCP_NICE $0 $1 >> %s ; cat >> %s",
+					"echo $NNCP_NICE $0 $1 >>%s ; cat >>%s",
 					filepath.Join(spool, "mbox"),
 					filepath.Join(spool, "mbox"),
 				),
