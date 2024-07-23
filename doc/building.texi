@@ -2,7 +2,9 @@
 @cindex building
 @section Build instructions
 
-Make sure that Go is installed. For example to install it from packages:
+Make sure that Go 1.22+ is installed.
+Go can be installed from packages or
+@url{https://go.dev/doc/install/source, build manually}:
 
 @table @asis
 @item FreeBSD
@@ -15,7 +17,7 @@ Make sure that Go is installed. For example to install it from packages:
 $ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz
 $ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz.@{asc,sig@}
 [verify signature]
-$ xz -d < nncp-@value{VERSION}.tar.xz | tar xf -
+$ xz -d <nncp-@value{VERSION}.tar.xz | tar xf -
 $ cd nncp-@value{VERSION}
 [optionally edit config]
 $ bin/build
@@ -79,4 +81,5 @@ $ GO_CFLAGS="-tags nofsnotify" bin/build
 @end example
 
 @vindex noyggdrasil
+@anchor{noyggdrasil}
 You can also disable Yggdrasil support with @code{-tags noyggdrasil}.

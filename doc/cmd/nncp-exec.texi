@@ -19,7 +19,7 @@ node:
 @verbatim
 exec: {
   sendmail: [/usr/sbin/sendmail, "-t"]
-  appender: ["/bin/sh", "-c", "cat >> /append"]
+  appender: ["/bin/sh", "-c", "cat >>/append"]
 }
 @end verbatim
 
