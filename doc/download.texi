@@ -50,6 +50,12 @@ And additional ones for Yggdrasil support:
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {meta4 tar pgp ssh}
 @headitem Version @tab Date @tab Size @tab Tarball
 
+@item @ref{Release 8_11_0, 8.11.0} @tab 2024-07-23 @tab 2600 KiB @tab
+@url{download/nncp-8.11.0.tar.xz.meta4, meta4}
+@url{download/nncp-8.11.0.tar.xz, tar}
+@url{download/nncp-8.11.0.tar.xz.asc, pgp}
+@url{download/nncp-8.11.0.tar.xz.sig, ssh}
+
 @item @ref{Release 8_10_0, 8.10.0} @tab 2023-10-31 @tab 2672 KiB @tab
 @url{download/nncp-8.10.0.tar.xz.meta4, meta4}
 @url{download/nncp-8.10.0.tar.xz, tar}
