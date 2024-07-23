@@ -2,10 +2,7 @@
 @cindex building
 @section Build instructions
 
-Make sure that Go 1.20+ is installed. Beware, that @strong{currently}
-building with Go 1.22 is impossible unless @ref{noyggdrasil,
-@code{noyggdrasil}} tag is set.
-
+Make sure that Go 1.22+ is installed.
 Go can be installed from packages or
 @url{https://go.dev/doc/install/source, build manually}:
 

@@ -103,8 +103,6 @@ rm -r doc/.well-known
 
 ########################################################################
 
-perl -i -npe "s/GO build/GO build -mod=vendor/" bin/build
-perl -i -npe "s/GO list/GO list -mod=vendor/" bin/build
 rm makedist version
 rm -r .git t
 redo-cleanup full
@@ -114,12 +112,11 @@ find . -type f -name "*.sh" -exec chmod +x {} +
 chmod +x bin/build install install-strip uninstall
 
 cd ..
-tar cvf nncp-"$release".tar --uid=0 --gid=0 --numeric-owner nncp-"$release"
-xz -9v nncp-"$release".tar
+detpax nncp-"$release" | xz -9v >nncp-"$release".tar.xz
 tarball=nncp-"$release".tar.xz
 ssh-keygen -Y sign -f ~/.ssh/sign/releases@nncpgo.org -n file $tarball
 gpg --armor --detach-sign --sign --local-user releases@nncpgo.org "$tarball"
-meta4-create -fn "$tarball" -mtime "$tarball" \
+meta4ra-create -fn "$tarball" -mtime "$tarball" \
     -sig-pgp "$tarball".asc -sig-ssh "$tarball".sig \
     http://www.nncpgo.org/download/"$tarball" \
     http://y.www.nncpgo.org/download/"$tarball" \
