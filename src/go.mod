@@ -1,4 +1,4 @@
-module go.cypherpunks.ru/nncp/v8
+module go.cypherpunks.su/nncp/v8
 
 require (
 	github.com/Arceliar/ironwood v0.0.0-20240529054413-b8e59574e2b2

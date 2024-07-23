@@ -23,7 +23,7 @@ import (
 	"os"
 
 	"github.com/hjson/hjson-go/v4"
-	"go.cypherpunks.ru/nncp/v8"
+	"go.cypherpunks.su/nncp/v8"
 )
 
 func usage() {

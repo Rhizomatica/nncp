@@ -28,7 +28,7 @@ import (
 	"strings"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"go.cypherpunks.ru/nncp/v8"
+	"go.cypherpunks.su/nncp/v8"
 )
 
 func usage() {
