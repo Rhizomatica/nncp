@@ -25,7 +25,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/gorhill/cronexpr"
-	nncpYggdrasil "go.cypherpunks.ru/nncp/v8/yggdrasil"
+	nncpYggdrasil "go.cypherpunks.su/nncp/v8/yggdrasil"
 )
 
 type Call struct {

@@ -28,8 +28,8 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.ru/nncp/v8"
-	nncpYggdrasil "go.cypherpunks.ru/nncp/v8/yggdrasil"
+	"go.cypherpunks.su/nncp/v8"
+	nncpYggdrasil "go.cypherpunks.su/nncp/v8/yggdrasil"
 	"golang.org/x/net/netutil"
 )
 
