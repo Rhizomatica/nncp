@@ -24,7 +24,7 @@ Tarballs include all necessary required libraries:
 @item @code{github.com/klauspost/cpuid} @tab BSD 3-Clause
 @item @code{github.com/quic-go/quic-go} @tab Expat
 @item @code{go.cypherpunks.ru/balloon} @tab GNU LGPLv3
-@item @code{go.cypherpunks.ru/recfile} @tab GNU GPLv3
+@item @code{go.cypherpunks.su/recfile/v2} @tab GNU GPLv3
 @item @code{golang.org/x/crypto} @tab BSD 3-Clause
 @item @code{golang.org/x/net} @tab BSD 3-Clause
 @item @code{golang.org/x/sys} @tab BSD 3-Clause
