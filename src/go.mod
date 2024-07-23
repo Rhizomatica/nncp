@@ -17,7 +17,7 @@ require (
 	golang.org/x/net v0.27.0
 	golang.org/x/sys v0.22.0
 	golang.org/x/term v0.22.0
-	gvisor.dev/gvisor v0.0.0-20230428223346-f33f75cda699
+	gvisor.dev/gvisor v0.0.0-20240723001103-634ce95eed8d
 	lukechampine.com/blake3 v1.3.0
 )
 
@@ -26,7 +26,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.13.0 // indirect
 	github.com/bits-and-blooms/bloom/v3 v3.7.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/google/btree v1.0.1 // indirect
+	github.com/google/btree v1.1.2 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/onsi/ginkgo/v2 v2.9.5 // indirect
@@ -39,6 +39,6 @@ require (
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 )
 
-go 1.21
+go 1.22.0
 
 toolchain go1.22.5
