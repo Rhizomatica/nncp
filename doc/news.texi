@@ -935,7 +935,7 @@ allowing control with @command{umask}.
 Updated dependencies.
 
 @item
-Full usage of go modules for dependencies management
+Full usage of Go modules for dependencies management
 (@code{go.cypherpunks.ru/nncp/v5} namespace is used).
 
 @item
