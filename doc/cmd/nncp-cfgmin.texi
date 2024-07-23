@@ -5,7 +5,7 @@
 @section nncp-cfgmin
 
 @example
-$ nncp-cfgmin [options] > stripped.hjson
+$ nncp-cfgmin [options] >stripped.hjson
 @end example
 
 Print out stripped configuration version: only path to @ref{Spool,

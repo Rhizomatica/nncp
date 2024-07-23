@@ -9,7 +9,7 @@ release=$1
 git clone . $tmp/nncp-$release
 cd $tmp/nncp-$release
 git checkout v$release
-./version > VERSION
+./version >VERSION
 cd src
 go mod vendor
 modvendor -v -copy="**/*_test.go **/words.go **/README.md **/main.go"
@@ -36,7 +36,7 @@ find . \( \
     -name .goreleaser.yml -o \
     -name .gitattributes \) -delete
 
-cat > doc/download.texi <<EOF
+cat >doc/download.texi <<EOF
 @node Tarballs
 @section Prepared tarballs
 You can obtain releases source code prepared tarballs from
@@ -58,29 +58,29 @@ mkinfo() {
         -D "VERSION `cat VERSION`" $@
 }
 
-cat > $texi <<EOF
+cat >$texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle NEWS
 @node News
 @unnumbered News
-`sed -n '6,$p' < doc/news.texi`
+`sed -n '6,$p' <doc/news.texi`
 @bye
 EOF
 mkinfo --output NEWS $texi
 
-cat > $texi <<EOF
+cat >$texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle NEWS.RU
 @node Новости
 @unnumbered Новости
-`sed -n '3,$p' < doc/news.ru.texi | sed 's/^@subsection/@section/'`
+`sed -n '3,$p' <doc/news.ru.texi | sed 's/^@subsection/@section/'`
 @bye
 EOF
 mkinfo --output NEWS.RU $texi
 
-cat > $texi <<EOF
+cat >$texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle INSTALL
@@ -89,7 +89,7 @@ cat > $texi <<EOF
 EOF
 mkinfo --output INSTALL $texi
 
-cat > $texi <<EOF
+cat >$texi <<EOF
 \input texinfo
 @documentencoding UTF-8
 @settitle THANKS
@@ -123,7 +123,7 @@ meta4-create -fn "$tarball" -mtime "$tarball" \
     -sig-pgp "$tarball".asc -sig-ssh "$tarball".sig \
     http://www.nncpgo.org/download/"$tarball" \
     http://y.www.nncpgo.org/download/"$tarball" \
-    https://nncp.mirrors.quux.org/download/"$tarball" < "$tarball" > "$tarball".meta4
+    https://nncp.mirrors.quux.org/download/"$tarball" <"$tarball" >"$tarball".meta4
 
 size=$(( $(stat -f %z $tarball) / 1024 ))
 release_date=$(date "+%Y-%m-%d")
