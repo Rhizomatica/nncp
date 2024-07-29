@@ -7,14 +7,14 @@ located in Moscow and Saint-Petersburg regions, Russian Federation.
 
 @cindex DANE
 @cindex DNSCurve
-@cindex ca.cypherpunks.ru
+@cindex ca.cypherpunks.su
 It can be authenticated with
-@url{http://www.ca.cypherpunks.ru/, ca.cypherpunks.ru} certificate, through the
+@url{http://www.ca.cypherpunks.su/, ca.cypherpunks.su} certificate, through the
 @url{https://datatracker.ietf.org/doc/html/rfc6698, DANE} record, that
 in turn can be authenticated with
 @url{https://dnscurve.org/, DNSCurve}-secured
 @url{http://www.stargrave.org/Trust-anchor.html, trust anchors}.
-Both @code{ca.cypherpunks.ru} and DNSCurve trust anchors are
+Both @code{ca.cypherpunks.su} and DNSCurve trust anchors are
 signed with @code{12AD 3268 9C66 0D42 6967  FD75 CB82 0563 2107 AD8A}
 @url{https://en.wikipedia.org/wiki/OpenPGP, OpenPGP} public key.
 
