@@ -2,7 +2,7 @@
 @cindex news
 @unnumbered News
 
-See also this page @ref{Новости, on russian}.
+See also this page @ref{Новости, in russian}.
 
 @node Release 8_11_0
 @section Release 8.11.0
