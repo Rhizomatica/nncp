@@ -24,7 +24,7 @@ import (
 	"os"
 
 	"go.cypherpunks.su/nncp/v8"
-	"go.cypherpunks.su/recfile/v2"
+	"go.cypherpunks.su/recfile/v3"
 )
 
 func usage() {

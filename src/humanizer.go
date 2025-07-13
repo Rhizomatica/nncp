@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"go.cypherpunks.su/recfile/v2"
+	"go.cypherpunks.su/recfile/v3"
 )
 
 func (ctx *Ctx) HumanizeRec(rec string) string {
