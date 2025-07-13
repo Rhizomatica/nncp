@@ -12,7 +12,7 @@ require (
 	github.com/klauspost/compress v1.17.9
 	github.com/yggdrasil-network/yggdrasil-go v0.5.6
 	go.cypherpunks.ru/balloon v1.1.1
-	go.cypherpunks.su/recfile/v2 v2.0.0
+	go.cypherpunks.su/recfile/v3 v3.0.0
 	golang.org/x/crypto v0.25.0
 	golang.org/x/net v0.27.0
 	golang.org/x/sys v0.22.0
