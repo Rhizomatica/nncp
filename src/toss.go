@@ -312,6 +312,17 @@ func jobProcess(
 			return err
 		}
 		dir := filepath.Join(*incoming, path.Dir(dst))
+		if !strings.HasPrefix(dir, *incoming) {
+			err = errors.New("incoming path traversal")
+			ctx.LogE("rx-traversal", les, err, func(les LEs) string {
+				return fmt.Sprintf(
+					"Tossing file %s/%s (%s): %s: traversal",
+					sender.Name, pktName,
+					humanize.IBytes(pktSize), dst,
+				)
+			})
+			return err
+		}
 		if err = os.MkdirAll(dir, os.FileMode(0777)); err != nil {
 			ctx.LogE("rx-mkdir", les, err, func(les LEs) string {
 				return fmt.Sprintf(
@@ -542,11 +553,26 @@ func jobProcess(
 			)
 			return err
 		}
+		srcPath := filepath.Join(*freqPath, src)
+		if !strings.HasPrefix(srcPath, *freqPath) {
+			err = errors.New("freqing path traversal")
+			ctx.LogE(
+				"rx-no-freq", les, err,
+				func(les LEs) string {
+					return fmt.Sprintf(
+						"Tossing freq %s/%s (%s): %s -> %s",
+						sender.Name, pktName,
+						humanize.IBytes(pktSize), src, dst,
+					)
+				},
+			)
+			return err
+		}
 		if !opts.DryRun {
 			err = ctx.TxFile(
 				sender,
 				pkt.Nice,
-				filepath.Join(*freqPath, src),
+				srcPath,
 				dst,
 				sender.FreqChunked,
 				sender.FreqMinSize,
