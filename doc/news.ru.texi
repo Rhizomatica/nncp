@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.12.0
+@subsection Релиз 8.12.0
+@itemize
+
+@item
+Объединить все исполняемые файлы в одну @command{nncp} команду.
+Вам стоит добавить символические ссылки всех @command{nncp-*} команд на неё.
+
+@end itemize
+
 @node Релиз 8.11.0
 @subsection Релиз 8.11.0
 @itemize

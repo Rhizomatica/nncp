@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.`
 )
 
 var (
-	Version string = "8.11.0"
+	Version string = "8.12.0"
 
 	Base32Codec *base32.Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)
 )
