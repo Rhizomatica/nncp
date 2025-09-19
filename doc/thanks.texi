@@ -16,7 +16,7 @@ feedback and NixOS package maintenance.
 suggestions, bugreports, Debian package and mirror maintenance, and the
 whole project popularization.
 
-@item Eugene Medvedev for finding a serious patch traversal issue,
+@item Eugene Medvedev for finding a serious path traversal issue,
 allowing malicious packet to bypass freq/incoming directories boundaries.
 
 @end itemize
