@@ -4,9 +4,10 @@ cd "$(realpath -- $(dirname "$0"))"
 . ./config
 
 mkdir -p "$BINDIR"
-for cmd in `cat bin/cmd.list` ; do
-    cp -f bin/$cmd "$BINDIR"
-    chmod 755 "$BINDIR"/$cmd
+cp -f bin/nncp "$BINDIR"
+chmod 755 "$BINDIR"/nncp
+for cmd in `cat cmd.list` ; do
+    ln -fs nncp "$BINDIR"/$cmd
 done
 
 mkdir -p "$INFODIR"

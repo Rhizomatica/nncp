@@ -66,14 +66,14 @@ $ wget [--page-requisites] [--recursive] \
 
 @pindex crawl
 Or even more simpler @url{https://git.jordan.im/crawl/tree/README.md, crawl}
-utility written on Go too.
+utility written in Go too.
 
 @pindex tofuproxy
 That command will create @file{www.example.com-XXX.warc} web archive.
 It could produce specialized segmented
 @url{https://en.wikipedia.org/wiki/Gzip, gzip} and
-@url{https://en.wikipedia.org/wiki/Zstandard, Zstandard}
+@url{https://facebook.github.io/zstd/, Zstandard}
 indexing/searching-friendly compressed archives. I can advise my own
 @url{http://www.tofuproxy.stargrave.org/WARCs.html, tofuproxy} software
-(also written on Go) to index, browse and extract those archives
+(also written in Go) to index, browse and extract those archives
 conveniently.

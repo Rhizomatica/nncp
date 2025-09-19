@@ -3,6 +3,7 @@
 root="$(realpath -- $(dirname "$0"))"
 . "$root"/config
 cd "$BINDIR"
-rm -f `cat "$root"/bin/cmd.list`
+xargs rm -f <"$root"/cmd.list
+rm -f nncp
 rm -f "$INFODIR"/nncp.info
 rm -fr "$DOCDIR"

@@ -14,6 +14,10 @@ $ git clone --branch develop git://git.cypherpunks.su/nncp.git nncp
 @end example
 
 You can also use
-@url{https://git.cypherpunks.su/nncp.git},
-@url{http://git.cypherpunks.su/nncp.git},
-@url{http://y.git.cypherpunks.su/nncp.git} URLs instead.
+@code{anongit@@master.git.stargrave.org:cypherpunks.su/nncp.git},
+@code{anongit@@slave.git.stargrave.org:cypherpunks.su/nncp.git},
+@code{anongit@@master.git.cypherpunks.su:cypherpunks.su/nncp.git},
+@code{anongit@@slave.git.cypherpunks.su:cypherpunks.su/nncp.git},
+@url{git://git.stargrave.org/nncp.git},
+@url{git://y.git.stargrave.org/nncp.git},
+@url{git://y.git.cypherpunks.su/nncp.git} URLs instead.

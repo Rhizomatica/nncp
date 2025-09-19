@@ -5,7 +5,7 @@
 This manual is for NNCP (Node to Node copy) -- collection of utilities
 simplifying secure store-and-forward files and mail exchanging.
 
-Copyright @copyright{} 2016-2024 @email{stargrave@@stargrave.org, Sergey Matveev}
+Copyright @copyright{} 2016-2025 @email{stargrave@@stargrave.org, Sergey Matveev}
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -28,11 +28,11 @@ There are also articles about its usage outside this website:
 
 @itemize
 @item @url{https://www.complete.org/nncp/, Various related articles} by John Goerzen
-@item @url{https://habr.com/ru/articles/330712/, NNCP: лечение online- и цензуро- зависимости store-and-forward методом} (on russian)
+@item @url{https://habr.com/ru/articles/330712/, NNCP: лечение online- и цензуро- зависимости store-and-forward методом} (in russian)
 @item @url{https://changelog.complete.org/archives/tag/nncp, Series of descriptive articles} by John Goerzen
-@item @url{https://www.youtube.com/watch?v=0i3r63pnyHM, Presentation of NNCP on Internet Freedom Conference 2019} (on russian)
+@item @url{https://www.youtube.com/watch?v=0i3r63pnyHM, Presentation of NNCP on Internet Freedom Conference 2019} (in russian)
     (@url{http://www.stargrave.org/20191207-Internet_Freedom_Conference-NNCP.webm.torrent, torrent})
-@item @url{https://habr.com/ru/articles/692254/, Неужто так сложно передать зашифрованный файл? Эволюция формата пакетов NNCP} (on russian)
+@item @url{https://habr.com/ru/articles/692254/, Неужто так сложно передать зашифрованный файл? Эволюция формата пакетов NNCP} (in russian)
 @end itemize
 
 @center Interested? @ref{Tarballs, @strong{Download it}}!

@@ -1,5 +1,7 @@
 module go.cypherpunks.su/nncp/v8
 
+go 1.22.0
+
 require (
 	github.com/Arceliar/ironwood v0.0.0-20240529054413-b8e59574e2b2
 	github.com/davecgh/go-xdr v0.0.0-20161123171359-e6a2ba005892
@@ -12,7 +14,7 @@ require (
 	github.com/klauspost/compress v1.17.9
 	github.com/yggdrasil-network/yggdrasil-go v0.5.6
 	go.cypherpunks.ru/balloon v1.1.1
-	go.cypherpunks.su/recfile/v2 v2.0.0
+	go.cypherpunks.su/recfile/v3 v3.1.0
 	golang.org/x/crypto v0.25.0
 	golang.org/x/net v0.27.0
 	golang.org/x/sys v0.22.0
@@ -38,7 +40,3 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 )
-
-go 1.22.0
-
-toolchain go1.22.5
