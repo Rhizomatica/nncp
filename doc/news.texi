@@ -2,7 +2,22 @@
 @cindex news
 @unnumbered News
 
-See also this page @ref{Новости, on russian}.
+See also this page @ref{Новости, in russian}.
+
+@node Release 8_12_0
+@section Release 8.12.0
+@itemize
+
+@item
+Combine all executables in single @command{nncp}.
+You should symlink all @command{nncp-*} commands to it.
+
+@item
+Prevent path traversal during freqing and file saving. Previously
+malicious paths in packets may request or overwrite file outside
+freq or incoming directories.
+
+@end itemize
 
 @node Release 8_11_0
 @section Release 8.11.0

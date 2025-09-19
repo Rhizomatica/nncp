@@ -2,7 +2,7 @@
 @strong{NNCP} (Node to Node copy) is a collection of utilities
 simplifying secure store-and-forward files, mail and command exchanging.
 
-See also this page @ref{Об утилитах, on russian}.
+See also this page @ref{Об утилитах, in russian}.
 
 @cindex F2F
 @cindex friend-to-friend

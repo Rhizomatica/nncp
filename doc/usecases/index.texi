@@ -2,7 +2,7 @@
 @cindex use cases
 @unnumbered Use cases
 
-See also this page @ref{Сценарии, on russian}.
+See also this page @ref{Сценарии, in russian}.
 
 @menu
 * Occasional connection to mail server: UsecaseMail

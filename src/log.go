@@ -1,5 +1,5 @@
 // NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-// Copyright (C) 2016-2024 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2016-2025 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import (
 	"sync"
 	"time"
 
-	"go.cypherpunks.su/recfile/v2"
+	"go.cypherpunks.su/recfile/v3"
 	"golang.org/x/sys/unix"
 )
 
@@ -47,8 +47,8 @@ func (les LEs) Rec() string {
 		panic(err)
 	}
 	_, err = w.WriteFields(recfile.Field{
-		Name:  "When",
-		Value: time.Now().UTC().Format(time.RFC3339Nano),
+		F:  "When",
+		V: time.Now().UTC().Format(time.RFC3339Nano),
 	})
 	if err != nil {
 		panic(err)
@@ -57,22 +57,22 @@ func (les LEs) Rec() string {
 		switch v := le.V.(type) {
 		case int, int8, uint8, int64, uint64:
 			_, err = w.WriteFields(recfile.Field{
-				Name:  le.K,
-				Value: fmt.Sprintf("%d", v),
+				F:  le.K,
+				V: fmt.Sprintf("%d", v),
 			})
 		case bool:
 			_, err = w.WriteFields(recfile.Field{
-				Name:  le.K,
-				Value: fmt.Sprintf("%v", v),
+				F:  le.K,
+				V: fmt.Sprintf("%v", v),
 			})
 		case []string:
 			if len(v) > 0 {
-				_, err = w.WriteFieldMultiline(le.K, v)
+				_, err = w.WriteField(le.K, v)
 			}
 		default:
 			_, err = w.WriteFields(recfile.Field{
-				Name:  le.K,
-				Value: fmt.Sprintf("%s", v),
+				F:  le.K,
+				V: fmt.Sprintf("%s", v),
 			})
 		}
 		if err != nil {

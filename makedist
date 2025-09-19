@@ -109,7 +109,7 @@ redo-cleanup full
 find . -type d -exec chmod 755 {} +
 find . -type f -exec chmod 644 {} +
 find . -type f -name "*.sh" -exec chmod +x {} +
-chmod +x bin/build install install-strip uninstall
+chmod +x build install install-strip uninstall
 
 cd ..
 detpax nncp-"$release" | xz -9v >nncp-"$release".tar.xz
