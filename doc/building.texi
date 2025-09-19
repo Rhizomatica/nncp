@@ -20,7 +20,7 @@ $ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz.@{asc,
 $ xz -d <nncp-@value{VERSION}.tar.xz | tar xf -
 $ cd nncp-@value{VERSION}
 [optionally edit config]
-$ bin/build
+$ ./build
 @end example
 
 @pindex info
@@ -77,7 +77,7 @@ either broken or unsupported ones. You can still build NNCP with
 usage at all:
 
 @example
-$ GO_CFLAGS="-tags nofsnotify" bin/build
+$ GO_CFLAGS="-tags nofsnotify" ./build
 @end example
 
 @vindex noyggdrasil
