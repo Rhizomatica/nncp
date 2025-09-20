@@ -5,13 +5,19 @@ mkdir -p ../bin
 GO=${GO:-go}
 . ../config
 [ -d vendor ] && vendor="-mod=vendor" || :
+
 mod=`$GO list $vendor -m`
 GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultCfgPath=$CFGPATH"
 GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultSendmailPath=$SENDMAIL"
 GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultSpoolPath=$SPOOLPATH"
 GO_LDFLAGS="$GO_LDFLAGS -X $mod.DefaultLogPath=$LOGPATH"
 $GO build $vendor -o ../bin/nncp $GO_CFLAGS -ldflags "$GO_LDFLAGS" ./cmd/nncp
-$GO build $vendor -o ../bin/hjson-cli $GO_CFLAGS github.com/hjson/hjson-go/v4/hjson-cli
+
+hjsonVersion=v$(sed -n "s/^.*hjson-go.* v\(.*\)$/\1/p" <go.mod)
+GO_LDFLAGS="$GO_LDFLAGS -X main.Version=$hjsonVersion"
+$GO build $vendor -o ../bin/hjson-cli $GO_CFLAGS -ldflags "$GO_LDFLAGS" \
+    github.com/hjson/hjson-go/v4/hjson-cli
+
 cd ../bin
 for cmd in `cat ../cmd.list` ; do
     ln -fs nncp $cmd
