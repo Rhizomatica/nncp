@@ -10,7 +10,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gologme/log v1.3.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
-	github.com/hjson/hjson-go/v4 v4.4.0
+	github.com/hjson/hjson-go/v4 v4.5.0
 	github.com/klauspost/compress v1.17.9
 	github.com/yggdrasil-network/yggdrasil-go v0.5.6
 	go.cypherpunks.ru/balloon v1.1.1
