@@ -6,7 +6,7 @@
 @unnumbered Contacts
 
 Please send questions regarding the use of NNCP, bug reports and patches to
-@url{http://lists.cypherpunks.su/nncp_002ddevel.html, nncp-devel}
+@url{http://lists.cypherpunks.su/nncp-devel.html, nncp-devel}
 mailing list. Announcements also go to this mailing list.
 
 There are also community-supported @code{#nncp:matrix.org} Matrix
