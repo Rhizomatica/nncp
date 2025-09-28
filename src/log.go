@@ -47,7 +47,7 @@ func (les LEs) Rec() string {
 		panic(err)
 	}
 	_, err = w.WriteFields(recfile.Field{
-		F:  "When",
+		F: "When",
 		V: time.Now().UTC().Format(time.RFC3339Nano),
 	})
 	if err != nil {
@@ -57,12 +57,12 @@ func (les LEs) Rec() string {
 		switch v := le.V.(type) {
 		case int, int8, uint8, int64, uint64:
 			_, err = w.WriteFields(recfile.Field{
-				F:  le.K,
+				F: le.K,
 				V: fmt.Sprintf("%d", v),
 			})
 		case bool:
 			_, err = w.WriteFields(recfile.Field{
-				F:  le.K,
+				F: le.K,
 				V: fmt.Sprintf("%v", v),
 			})
 		case []string:
@@ -71,7 +71,7 @@ func (les LEs) Rec() string {
 			}
 		default:
 			_, err = w.WriteFields(recfile.Field{
-				F:  le.K,
+				F: le.K,
 				V: fmt.Sprintf("%s", v),
 			})
 		}
