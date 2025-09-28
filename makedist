@@ -29,7 +29,6 @@ rm -r \
 find github.com/klauspost/compress golang.org/x/sys -name "*_test.go" -delete
 find . -type d -exec rmdir {} + 2>/dev/null || :
 cd ../..
-rm -r ports
 find . \( \
     -name .gitignore -o \
     -name .travis.yml -o \
@@ -184,7 +183,7 @@ There are mirrors where you can also get the source code tarballs:
 http://www.nncpgo.org/Mirrors.html
 
 Please send questions regarding the use of NNCP, bug reports and patches
-to mailing list: http://lists.cypherpunks.su/nncp_002ddevel.html
+to mailing list: http://lists.cypherpunks.su/nncp-devel.html
 EOF
 echo mutt -s \"[EN] NNCP $release release announcement\" \
     nncp-devel@lists.cypherpunks.su \
@@ -241,7 +240,7 @@ http://www.nncpgo.org/Mirrors.html
 
 Пожалуйста, все вопросы касающиеся использования NNCP, отчёты об ошибках
 и патчи отправляйте в nncp-devel почтовую рассылку:
-http://lists.cypherpunks.su/nncp_002ddevel.html
+http://lists.cypherpunks.su/nncp-devel.html
 EOF
 echo mutt -s \"[RU] Состоялся релиз NNCP $release\" \
     nncp-devel@lists.cypherpunks.su \

@@ -18,6 +18,7 @@ package nncp
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -26,6 +27,8 @@ import (
 
 	"syscall"
 )
+
+const FdPrefix = "FD:"
 
 type Ctx struct {
 	Self   *NodeOur
@@ -95,6 +98,21 @@ func (ctx *Ctx) ensureRxDir(nodeId *NodeId) error {
 	return err
 }
 
+func openPossibleFd(pth, name string) (*os.File, error) {
+	if !strings.HasPrefix(pth, FdPrefix) {
+		return nil, nil
+	}
+	ptr, err := strconv.ParseUint(strings.TrimPrefix(pth, FdPrefix), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	fd := os.NewFile(uintptr(ptr), name)
+	if fd == nil {
+		err = fmt.Errorf("can not open: %s: %s", name, pth)
+	}
+	return fd, err
+}
+
 func CtxFromCmdline(
 	cfgPath, spoolPath, logPath string,
 	quiet, showPrgrs, omitPrgrs, debug bool,
@@ -106,25 +124,41 @@ func CtxFromCmdline(
 	if showPrgrs && omitPrgrs {
 		return nil, errors.New("simultaneous -progress and -noprogress")
 	}
-	fi, err := os.Stat(cfgPath)
-	if err != nil {
-		return nil, err
-	}
 	var cfg *CfgJSON
-	if fi.IsDir() {
-		cfg, err = DirToCfg(cfgPath)
-		if err != nil {
-			return nil, err
+	if fd, err := openPossibleFd(cfgPath, CfgPathEnv); err == nil {
+		if fd == nil {
+			fi, err := os.Stat(cfgPath)
+			if err != nil {
+				return nil, err
+			}
+			if fi.IsDir() {
+				cfg, err = DirToCfg(cfgPath)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				cfgRaw, err := os.ReadFile(cfgPath)
+				if err != nil {
+					return nil, err
+				}
+				cfg, err = CfgParse(cfgRaw)
+				if err != nil {
+					return nil, err
+				}
+			}
+		} else {
+			cfgRaw, err := io.ReadAll(fd)
+			fd.Close()
+			if err != nil {
+				return nil, err
+			}
+			cfg, err = CfgParse(cfgRaw)
+			if err != nil {
+				return nil, err
+			}
 		}
 	} else {
-		cfgRaw, err := os.ReadFile(cfgPath)
-		if err != nil {
-			return nil, err
-		}
-		cfg, err = CfgParse(cfgRaw)
-		if err != nil {
-			return nil, err
-		}
+		return nil, err
 	}
 	ctx, err := Cfg2Ctx(cfg)
 	if err != nil {
@@ -146,17 +180,12 @@ func CtxFromCmdline(
 	} else {
 		ctx.LogPath = logPath
 	}
-	if strings.HasPrefix(ctx.LogPath, LogFdPrefix) {
-		ptr, err := strconv.ParseUint(
-			strings.TrimPrefix(ctx.LogPath, LogFdPrefix), 10, 64,
-		)
-		if err != nil {
-			return nil, err
+	if fd, err := openPossibleFd(ctx.LogPath, CfgLogEnv); err == nil {
+		if fd != nil {
+			LogFd = fd
 		}
-		LogFd = os.NewFile(uintptr(ptr), CfgLogEnv)
-		if LogFd == nil {
-			return nil, errors.New("can not open:" + ctx.LogPath)
-		}
+	} else {
+		return nil, err
 	}
 	if showPrgrs {
 		ctx.ShowPrgrs = true
