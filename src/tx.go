@@ -59,9 +59,6 @@ func (ctx *Ctx) Tx(
 	var area *Area
 	if areaId != nil {
 		area = ctx.AreaId2Area[*areaId]
-		if area.Prv == nil {
-			return nil, 0, "", errors.New("area has no encryption keys")
-		}
 	}
 	hops := make([]*Node, 0, 1+len(node.Via))
 	hops = append(hops, node)

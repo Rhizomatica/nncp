@@ -4,6 +4,19 @@
 
 See also this page @ref{Новости, in russian}.
 
+@node Release 8_13_0
+@section Release 8.13.0
+@itemize
+
+@item
+Ability to pass configuration file through opened file descriptor
+(@env{$NNCPCFG=FD:0} for example to read it from stdin).
+
+@item
+Removed excess requirement of having area's private key to send to it.
+
+@end itemize
+
 @node Release 8_12_1
 @section Release 8.12.1
 @itemize

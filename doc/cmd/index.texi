@@ -8,8 +8,10 @@ Nearly all commands have the following common options:
 @vindex NNCPCFG
 @item -cfg
     Path to configuration file. May be overridden by @env{$NNCPCFG}
-    environment variable. If file file is an encrypted @ref{EBlob,
-    eblob}, then ask for passphrase to decrypt it first.
+    environment variable. If file file is an encrypted @ref{EBlob, eblob},
+    then ask for passphrase to decrypt it first.
+    If it equals to @code{FD:x}, then read configration file from opened
+    file descriptor @code{x}.
 @item -debug
     Print debug messages. Normally this option should not be used.
 @item -minsize
