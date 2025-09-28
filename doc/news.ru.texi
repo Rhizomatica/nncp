@@ -1,6 +1,16 @@
 @node Новости
 @section Новости
 
+@node Релиз 8.13.0
+@subsection Релиз 8.13.0
+@itemize
+
+@item
+Возможно передавать конфигурационный факт через открытый файловый
+дескриптор (@env{$NNCPCFG=FD:0} например для чтения из stdin).
+
+@end itemize
+
 @node Релиз 8.12.1
 @subsection Релиз 8.12.1
 @itemize

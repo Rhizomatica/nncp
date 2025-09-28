@@ -26,8 +26,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-const LogFdPrefix = "FD:"
-
 var (
 	LogFd     *os.File
 	LogFdLock sync.Mutex
