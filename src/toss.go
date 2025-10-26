@@ -185,8 +185,10 @@ func jobProcess(
 		}
 		if !opts.DryRun {
 			cmd := exec.Command(cmdline[0], append(cmdline[1:], args...)...)
-			origin := sender.Id.String()
-			if sender.Origin != nil {
+			var origin string
+			if sender.Origin == nil {
+				origin = sender.Id.String()
+			} else {
 				origin = sender.Origin.String()
 			}
 			cmd.Env = append(
