@@ -185,10 +185,16 @@ func jobProcess(
 		}
 		if !opts.DryRun {
 			cmd := exec.Command(cmdline[0], append(cmdline[1:], args...)...)
+			origin := sender.Id.String()
+			if sender.Origin != nil {
+				origin = sender.Origin.String()
+			}
 			cmd.Env = append(
 				cmd.Env,
 				"NNCP_SELF="+ctx.Self.Id.String(),
 				"NNCP_SENDER="+sender.Id.String(),
+				"NNCP_PACKET="+pktName,
+				"NNCP_ORIGIN="+origin,
 				"NNCP_NICE="+strconv.Itoa(int(pkt.Nice)),
 			)
 			if pkt.Type == PktTypeExec {
@@ -903,6 +909,7 @@ func jobProcess(
 				Name:     area.Name,
 				Incoming: area.Incoming,
 				Exec:     area.Exec,
+				Origin:   pktEnc.Sender,
 			}
 			copy(areaNode.Id[:], area.Id[:])
 			pktName := fmt.Sprintf(

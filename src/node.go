@@ -57,6 +57,7 @@ type Node struct {
 	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
 	Calls          []*Call
+	Origin         *NodeId
 
 	Busy bool
 	sync.Mutex
