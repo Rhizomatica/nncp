@@ -23,12 +23,12 @@ that you retrieved trusted and untampered software. There are two options:
 @verbatim
 pub   rsa2048/0x2B25868E75A1A953 2017-01-10
       92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
-uid   NNCP releases <releases at nncpgo dot org>
+uid   NNCP releases <releases@nncpgo.org>
 @end verbatim
 
 @example
-$ gpg --auto-key-locate dane --locate-keys releases at nncpgo dot org
-$ gpg --auto-key-locate  wkd --locate-keys releases at nncpgo dot org
+$ gpg --auto-key-locate dane --locate-keys releases@@nncpgo.org
+$ gpg --auto-key-locate  wkd --locate-keys releases@@nncpgo.org
 @end example
 
 @item @url{https://www.openssh.com/, OpenSSH} @file{.sig} signature
