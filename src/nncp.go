@@ -1,5 +1,5 @@
 // NNCP -- Node to Node copy, utilities for store-and-forward data exchange
-// Copyright (C) 2016-2025 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2016-2026 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	Warranty = `Copyright (C) 2016-2025 Sergey Matveev
+	Warranty = `Copyright (C) 2016-2026 Sergey Matveev
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
