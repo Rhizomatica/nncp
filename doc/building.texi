@@ -14,8 +14,8 @@ Go can be installed from packages or
 @end table
 
 @example
-$ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz
-$ [fetch|wget] http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz.@{asc,sig@}
+$ fetch http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz
+$ fetch http://www.nncpgo.org/download/nncp-@value{VERSION}.tar.xz.@{asc,sig@}
 [verify signature]
 $ xz -d <nncp-@value{VERSION}.tar.xz | tar xf -
 $ cd nncp-@value{VERSION}
