@@ -26,7 +26,7 @@ very high delay links.
 SP works on top of
 @url{http://noiseprotocol.org/noise.html#interactive-patterns,
 @code{Noise_IK_25519_ChaChaPoly_BLAKE2b}} protocol. Each Noise packet
-is sent inside an @url{https://tools.ietf.org/html/rfc4506, XDR} envelope:
+is sent inside an @url{https://datatracker.ietf.org/doc/html/rfc4506, XDR} envelope:
 
 @verbatim
 +-----------------+

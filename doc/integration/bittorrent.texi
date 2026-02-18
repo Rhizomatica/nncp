@@ -11,7 +11,7 @@ queue them after.
 @url{http://aria2.github.io/, aria2} multi-protocol download utility
 could be used for solving that issue conveniently. It supports HTTP,
 HTTPS, FTP, SFTP and BitTorrent protocols, together with
-@url{http://tools.ietf.org/html/rfc5854, Metalink} format. BitTorrent
+@url{http://datatracker.ietf.org/doc/html/rfc5854, Metalink} format. BitTorrent
 support is fully-featured: UDP trackers, DHT, PEX, encryption, magnet
 URIs, Web-seeding, selective downloads, LPD. @command{aria2} can
 accelerate HTTP*/*FTP downloads by segmented multiple parallel

@@ -34,7 +34,7 @@ attacks and seems more secure than Argon2
 (@url{https://password-hashing.net/, Password Hashing Competition}
 winner).
 
-EBlob is an @url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structure:
+EBlob is an @url{https://datatracker.ietf.org/doc/html/rfc4506, XDR}-encoded structure:
 
 @verbatim
 +-------+------------------+------+
