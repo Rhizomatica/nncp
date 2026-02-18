@@ -1,5 +1,4 @@
 redo-ifchange makeinfo.rc
-rm -fr nncp.html
 MAKEINFO_OPTS="$MAKEINFO_OPTS --html"
 MAKEINFO_OPTS="$MAKEINFO_OPTS --set-customization-variable NO_CSS=1"
 MAKEINFO_OPTS="$MAKEINFO_OPTS --set-customization-variable FORMAT_MENU=menu"

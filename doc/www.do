@@ -1,4 +1,5 @@
 html=nncp.html
+rm -r $html
 redo $html
 cp -a .well-known $html/
 cp -a download $html/
