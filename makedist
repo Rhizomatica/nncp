@@ -114,27 +114,41 @@ cd ..
 detpax nncp-"$release" | xz -9v >nncp-"$release".tar.xz
 tarball=nncp-"$release".tar.xz
 ssh-keygen -Y sign -f ~/.ssh/sign/releases@nncpgo.org -n file $tarball
-gpg --armor --detach-sign --sign --local-user releases@nncpgo.org "$tarball"
-meta4ra-create -fn "$tarball" -mtime "$tarball" \
-    -sig-pgp "$tarball".asc -sig-ssh "$tarball".sig \
+gpg --armor --detach-sign --sign --local-user releases@nncpgo.org $tarball
+meta4ra-create -fn $tarball -mtime $tarball \
+    -sig-pgp $tarball.asc -sig-ssh $tarball.sig \
     "1|ru|http://www.nncpgo.org/download/$tarball" \
     "1|ca|https://nncp.mirrors.quux.org/download/$tarball" \
     "2|ru|https://www.nncpgo.org/download/$tarball" \
-    "|ru|http://y.www.nncpgo.org/download/$tarball" <"$tarball" >"$tarball".meta4
+    "|ru|http://y.www.nncpgo.org/download/$tarball" \
+    "ipfs://TODO/$tarball" <$tarball >$tarball.meta4_
+meta4ra-create -add $tarball.meta4 -fn $tarball.asc -hashes "" \
+    -id "LibrePGP detached signature" \
+    "1|ru|http://www.nncpgo.org/download/$tarball.asc" \
+    "1|ca|https://nncp.mirrors.quux.org/download/$tarball.asc" \
+    "2|ru|https://www.nncpgo.org/download/$tarball.asc" \
+    "|ru|http://y.www.nncpgo.org/download/$tarball.asc" \
+    "ipfs://TODO/$tarball.asc" <$tarball.asc >$tarball.meta4_
+mv $tarball.meta4_ $tarball.meta4
+meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashes "" \
+    -id "OpenSSH signature" \
+    "1|ru|http://www.nncpgo.org/download/$tarball.sig" \
+    "1|ca|https://nncp.mirrors.quux.org/download/$tarball.sig" \
+    "2|ru|https://www.nncpgo.org/download/$tarball.sig" \
+    "|ru|http://y.www.nncpgo.org/download/$tarball.sig" \
+    "ipfs://TODO/$tarball.sig" <$tarball.sig >$tarball.meta4_
+mv $tarball.meta4_ $tarball.meta4
 
 size=$(( $(stat -f %z $tarball) / 1024 ))
 release_date=$(date "+%Y-%m-%d")
 
-mv -v $tmp/"$tarball" $tmp/"$tarball".asc $tmp/"$tarball".sig $tmp/"$tarball".meta4 $cur/doc/download
+mv -v $tmp/$tarball $tmp/$tarball.asc $tmp/$tarball.sig $tmp/$tarball.meta4 $cur/doc/download
 
 release_underscored=`echo $release | tr . _`
 cat <<EOF
 An entry for documentation:
 @item @ref{Release $release_underscored, $release} @tab $release_date @tab $size KiB @tab
 @url{download/nncp-${release}.tar.xz.meta4, meta4}
-@url{download/nncp-${release}.tar.xz, tar}
-@url{download/nncp-${release}.tar.xz.asc, pgp}
-@url{download/nncp-${release}.tar.xz.sig, ssh}
 EOF
 
 cd $cur
@@ -188,7 +202,7 @@ to mailing list: http://lists.cypherpunks.su/nncp-devel.html
 EOF
 echo mutt -s \"[EN] NNCP $release release announcement\" \
     nncp-devel@lists.cypherpunks.su \
-    -a $cur/doc/download/"$tarball".meta4
+    -a $cur/doc/download/$tarball.meta4
 
 cat <<EOF
 Subject: [RU] Состоялся релиз NNCP $release
@@ -245,4 +259,4 @@ http://lists.cypherpunks.su/nncp-devel.html
 EOF
 echo mutt -s \"[RU] Состоялся релиз NNCP $release\" \
     nncp-devel@lists.cypherpunks.su \
-    -a $cur/doc/download/"$tarball".meta4
+    -a $cur/doc/download/$tarball.meta4
