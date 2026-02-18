@@ -23,7 +23,7 @@ Chunked @file{FILE} produces @file{FILE.nncp.meta},
 
 @file{.nncp.meta} contains information about file/chunk
 size and their hash checksums. This is
-@url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structure:
+@url{https://datatracker.ietf.org/doc/html/rfc4506, XDR}-encoded structure:
 
 @verbatim
 +------------------------------+---------------------+

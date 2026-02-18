@@ -4,7 +4,7 @@
 @unnumbered Packet format
 
 All packets are
-@url{https://tools.ietf.org/html/rfc4506, XDR}-encoded structures.
+@url{https://datatracker.ietf.org/doc/html/rfc4506, XDR}-encoded structures.
 
 @menu
 * Plain packet: Plain
