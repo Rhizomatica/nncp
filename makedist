@@ -117,9 +117,10 @@ ssh-keygen -Y sign -f ~/.ssh/sign/releases@nncpgo.org -n file $tarball
 gpg --armor --detach-sign --sign --local-user releases@nncpgo.org "$tarball"
 meta4ra-create -fn "$tarball" -mtime "$tarball" \
     -sig-pgp "$tarball".asc -sig-ssh "$tarball".sig \
-    http://www.nncpgo.org/download/"$tarball" \
-    http://y.www.nncpgo.org/download/"$tarball" \
-    https://nncp.mirrors.quux.org/download/"$tarball" <"$tarball" >"$tarball".meta4
+    "1|ru|http://www.nncpgo.org/download/$tarball" \
+    "1|ca|https://nncp.mirrors.quux.org/download/$tarball" \
+    "2|ru|https://www.nncpgo.org/download/$tarball" \
+    "|ru|http://y.www.nncpgo.org/download/$tarball" <"$tarball" >"$tarball".meta4
 
 size=$(( $(stat -f %z $tarball) / 1024 ))
 release_date=$(date "+%Y-%m-%d")
