@@ -148,6 +148,7 @@ release_underscored=`echo $release | tr . _`
 cat <<EOF
 An entry for documentation:
 @item @ref{Release $release_underscored, $release} @tab $release_date @tab $size KiB @tab
+@url{download/nncp-${release}.tar.xz, tar}
 @url{download/nncp-${release}.tar.xz.meta4, meta4}
 EOF
 
