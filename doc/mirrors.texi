@@ -19,7 +19,8 @@ signed with @code{12AD 3268 9C66 0D42 6967  FD75 CB82 0563 2107 AD8A}
 @url{https://en.wikipedia.org/wiki/OpenPGP, OpenPGP} public key.
 
 Also there is @url{https://yggdrasil-network.github.io/, Yggdrasil}
-accessible address: @url{http://y.www.nncpgo.org/}.
+accessible address: @url{http://y.www.nncpgo.org/},
+@url{http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/}.
 
 @table @asis
 

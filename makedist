@@ -120,14 +120,16 @@ meta4ra-create -fn $tarball -mtime $tarball \
     "1|ru|http://www.nncpgo.org/download/$tarball" \
     "1|ca|https://nncp.mirrors.quux.org/download/$tarball" \
     "2|ru|https://www.nncpgo.org/download/$tarball" \
-    "|ru|http://y.www.nncpgo.org/download/$tarball" \
+    "3|ru|http://y.www.nncpgo.org/download/$tarball" \
+    "3|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball" \
     "ipfs://TODO/$tarball" <$tarball >$tarball.meta4_
 meta4ra-create -add $tarball.meta4 -fn $tarball.asc -hashes "" \
     -id "LibrePGP detached signature" \
     "1|ru|http://www.nncpgo.org/download/$tarball.asc" \
     "1|ca|https://nncp.mirrors.quux.org/download/$tarball.asc" \
     "2|ru|https://www.nncpgo.org/download/$tarball.asc" \
-    "|ru|http://y.www.nncpgo.org/download/$tarball.asc" \
+    "3|ru|http://y.www.nncpgo.org/download/$tarball.asc" \
+    "3|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.asc" \
     "ipfs://TODO/$tarball.asc" <$tarball.asc >$tarball.meta4_
 mv $tarball.meta4_ $tarball.meta4
 meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashes "" \
@@ -135,7 +137,8 @@ meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashes "" \
     "1|ru|http://www.nncpgo.org/download/$tarball.sig" \
     "1|ca|https://nncp.mirrors.quux.org/download/$tarball.sig" \
     "2|ru|https://www.nncpgo.org/download/$tarball.sig" \
-    "|ru|http://y.www.nncpgo.org/download/$tarball.sig" \
+    "3|ru|http://y.www.nncpgo.org/download/$tarball.sig" \
+    "3|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.sig" \
     "ipfs://TODO/$tarball.sig" <$tarball.sig >$tarball.meta4_
 mv $tarball.meta4_ $tarball.meta4
 
