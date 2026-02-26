@@ -1,7 +1,7 @@
 @node Integrity
 @cindex integrity check
 @cindex authenticity check
-@cindex OpenPGP
+@cindex LibrePGP
 @cindex gpg
 @cindex GnuPG
 @cindex WKD
@@ -13,7 +13,7 @@ that you retrieved trusted and untampered software. There are two options:
 
 @table @asis
 
-@item @url{https://www.openpgp.org/, OpenPGP} @file{.asc} signature
+@item @url{https://librepgp.org/, LibrePGP} @file{.asc} signature
     Use @url{https://www.gnupg.org/, GNU Privacy Guard} free software
     implementation.
     For the very first time it is necessary to get signing public key and
@@ -32,7 +32,7 @@ $ gpg --auto-key-locate  wkd --locate-keys releases@@nncpgo.org
 @end example
 
 @item @url{https://www.openssh.com/, OpenSSH} @file{.sig} signature
-    @url{PUBKEY-SSH.pub, Public key} and its OpenPGP
+    @url{PUBKEY-SSH.pub, Public key} and its LibrePGP
     @url{PUBKEY-SSH.pub.asc, signature} made with the key above.
     Its fingerprint: @code{SHA256:FRiWawVNBkyS3jFn8uZ/JlT+PWKSFbhWe5XSixp1+SY}.
 
