@@ -1271,7 +1271,7 @@ common prefix and are grouped together for convenience.
 
 @item
 @command{nncp-cfgenc} command appeared, allowing configuration file
-encryption/decryption, for keeping it safe without any either OpenPGP or
+encryption/decryption, for keeping it safe without any either LibrePGP or
 similar tools usage.
 
 @item
