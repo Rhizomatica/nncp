@@ -25,6 +25,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/gorhill/cronexpr"
+	nncpHFModem "go.cypherpunks.su/nncp/v8/hfmodem"
 	nncpYggdrasil "go.cypherpunks.su/nncp/v8/yggdrasil"
 )
 
@@ -87,6 +88,8 @@ func (ctx *Ctx) CallNode(
 			}
 		} else if strings.HasPrefix(addr, "yggdrasilc://") {
 			conn, err = nncpYggdrasil.NewConn(ctx.YggdrasilAliases, addr)
+		} else if strings.HasPrefix(addr, "vara://") || strings.HasPrefix(addr, "mercury://") {
+			conn, err = nncpHFModem.NewConn(addr)
 		} else {
 			conn, err = net.Dial("tcp", addr)
 		}
