@@ -29,6 +29,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"go.cypherpunks.su/nncp/v8"
+	nncpHFModem "go.cypherpunks.su/nncp/v8/hfmodem"
 	nncpYggdrasil "go.cypherpunks.su/nncp/v8/yggdrasil"
 	"golang.org/x/net/netutil"
 )
@@ -137,6 +138,8 @@ func mainDaemon() {
 		inetd     = flag.Bool("inetd", false, "Obsolete, use -ucspi")
 		yggdrasil = flag.String("yggdrasil", "",
 			"Start Yggdrasil listener: yggdrasils://PRV[:PORT]?[bind=BIND][&pub=PUB][&peer=PEER][&mcast=REGEX[:PORT]]")
+		hfmodem = flag.String("hfmodem", "",
+			"Start HF modem listener: vara://tnc_ip:port/?mycall=CALL&bw=2300")
 		maxConn   = flag.Int("maxconn", 128, "Maximal number of simultaneous connections")
 		noCK      = flag.Bool("nock", false, "Do no checksum checking")
 		mcdOnce   = flag.Bool("mcd-once", false, "Send MCDs once and quit")
@@ -286,6 +289,22 @@ func mainDaemon() {
 				conn, err := ln.Accept()
 				if err != nil {
 					log.Fatalln("Can not accept connection on Yggdrasil:", err)
+				}
+				conns <- conn
+			}
+		}()
+	}
+
+	if *hfmodem != "" {
+		ln, err := nncpHFModem.NewListener(*hfmodem)
+		if err != nil {
+			log.Fatalln("Can not listen on HF modem:", err)
+		}
+		go func() {
+			for {
+				conn, err := ln.Accept()
+				if err != nil {
+					log.Fatalln("Can not accept connection on HF modem:", err)
 				}
 				conns <- conn
 			}
