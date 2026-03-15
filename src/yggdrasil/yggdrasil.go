@@ -1,5 +1,4 @@
 //go:build !noyggdrasil
-// +build !noyggdrasil
 
 // NNCP -- Node to Node copy, utilities for store-and-forward data exchange
 // Copyright (C) 2016-2026 Sergey Matveev <stargrave@stargrave.org>
@@ -207,7 +206,7 @@ func NewConn(aliases map[string]string, in string) (net.Conn, error) {
 	cfg := ycfg.NodeConfig{
 		PrivateKey:      prvRaw,
 		Peers:           peers,
-		NodeInfo:        map[string]interface{}{"name": "NNCP"},
+		NodeInfo:        map[string]any{"name": "NNCP"},
 		NodeInfoPrivacy: true,
 	}
 	core, err := ycoreStart(&cfg, port, mcasts)
@@ -299,7 +298,7 @@ func NewListener(aliases map[string]string, in string) (net.Listener, error) {
 		Listen:            binds,
 		AllowedPublicKeys: pubs,
 		Peers:             peers,
-		NodeInfo:          map[string]interface{}{"name": "NNCP"},
+		NodeInfo:          map[string]any{"name": "NNCP"},
 		NodeInfoPrivacy:   true,
 	}
 	core, err := ycoreStart(&cfg, port, mcasts)

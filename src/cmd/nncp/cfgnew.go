@@ -119,7 +119,7 @@ func mainCfgNew() {
 				nncp.DefaultSendmailPath,
 			)
 		}
-		var cfgGeneral map[string]interface{}
+		var cfgGeneral map[string]any
 		if err = hjson.Unmarshal([]byte(cfgRaw), &cfgGeneral); err != nil {
 			panic(err)
 		}

@@ -30,7 +30,7 @@ func cfgDirMkdir(dst ...string) error {
 	return os.MkdirAll(filepath.Join(dst...), os.FileMode(0777))
 }
 
-func cfgDirSave(v interface{}, dst ...string) error {
+func cfgDirSave(v any, dst ...string) error {
 	var r string
 	switch v := v.(type) {
 	case *string:

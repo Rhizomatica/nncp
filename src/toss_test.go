@@ -137,10 +137,10 @@ func TestTossExec(t *testing.T) {
 			return false
 		}
 		expected := make([]byte, 0, 16)
-		for i := 0; i < 16; i++ {
+		for range 16 {
 			expected = append(
 				expected,
-				[]byte(fmt.Sprintf("%d arg0 arg1\n", replyNice))...,
+				fmt.Appendf(nil, "%d arg0 arg1\n", replyNice)...,
 			)
 			expected = append(expected, []byte("BODY\n")...)
 		}
@@ -276,7 +276,7 @@ func TestTossFileSameName(t *testing.T) {
 			return false
 		}
 		incomingPath := filepath.Join(spool, "incoming")
-		for i := 0; i < files; i++ {
+		for range files {
 			if err := ctx.TxFile(
 				ctx.Neigh[*nodeOur.Id],
 				DefaultNiceFile,

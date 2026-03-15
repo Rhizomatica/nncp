@@ -33,7 +33,7 @@ var (
 
 type LE struct {
 	K string
-	V interface{}
+	V any
 }
 type LEs []LE
 

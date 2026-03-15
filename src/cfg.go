@@ -508,7 +508,7 @@ func CfgParse(data []byte) (*CfgJSON, error) {
 	} else if bytes.Equal(data[:8], MagicNNCPBv1.B[:]) {
 		log.Fatalln(MagicNNCPBv1.TooOld())
 	}
-	var cfgGeneral map[string]interface{}
+	var cfgGeneral map[string]any
 	if err = hjson.Unmarshal(data, &cfgGeneral); err != nil {
 		return nil, err
 	}

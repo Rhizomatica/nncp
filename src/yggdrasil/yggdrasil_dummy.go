@@ -1,5 +1,4 @@
 //go:build noyggdrasil
-// +build noyggdrasil
 
 // NNCP -- Node to Node copy, utilities for store-and-forward data exchange
 // Copyright (C) 2016-2026 Sergey Matveev <stargrave@stargrave.org>
