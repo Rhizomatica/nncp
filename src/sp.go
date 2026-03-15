@@ -179,7 +179,7 @@ func init() {
 	spCheckerTasks = make(chan SPCheckerTask)
 }
 
-func MarshalSP(typ SPType, sp interface{}) []byte {
+func MarshalSP(typ SPType, sp any) []byte {
 	var buf bytes.Buffer
 	if _, err := xdr.Marshal(&buf, SPHead{typ}); err != nil {
 		panic(err)

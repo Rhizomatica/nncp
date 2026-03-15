@@ -182,13 +182,10 @@ func sizeWithTags(size int64) (fullSize int64) {
 
 func sizePadCalc(sizePayload, minSize int64, wrappers int) (sizePad int64) {
 	expectedSize := sizePayload - PktOverhead
-	for i := 0; i < wrappers; i++ {
+	for range wrappers {
 		expectedSize = PktEncOverhead + sizeWithTags(PktOverhead+expectedSize)
 	}
-	sizePad = minSize - expectedSize
-	if sizePad < 0 {
-		sizePad = 0
-	}
+	sizePad = max(minSize-expectedSize, 0)
 	return
 }
 
