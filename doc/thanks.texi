@@ -19,4 +19,7 @@ whole project popularization.
 @item Eugene Medvedev for finding a serious path traversal issue,
 allowing malicious packet to bypass freq/incoming directories boundaries.
 
+@item @url{mailto:rafael@@riseup.net, Rafael Diniz} for HF modem transport
+implementation.
+
 @end itemize
