@@ -67,8 +67,8 @@ github.com/yggdrasil-network/yggdrasil-go v0.5.6/go.mod h1:WAqMZ4e1QSf/EKbzfD77X
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 go.cypherpunks.ru/balloon v1.1.1 h1:ypHM1DRf/XuCrp9pDkTHg00CqZX/Np/APb//iHvDJTA=
 go.cypherpunks.ru/balloon v1.1.1/go.mod h1:k4s4ozrIrhpBjj78Z7LX8ZHxMQ+XE7DZUWl8gP2ojCo=
-go.cypherpunks.su/recfile/v3 v3.1.0 h1:hv5eEDp8k3bifavzLtxBRlPNTF9JPcOyv6a3kxxbK5o=
-go.cypherpunks.su/recfile/v3 v3.1.0/go.mod h1:dnITG9xsCtSSaMhVqpkox3DjOjimlJPcvc2HcL5tmAc=
+go.cypherpunks.su/recfile/v3 v3.1.0 h1:ZWO7Q6taGkaEl5X0oL+/5LOyoufzH0LRU2dee7RwZFg=
+go.cypherpunks.su/recfile/v3 v3.1.0/go.mod h1:KK9cp7tYNWcHnTIaGso2H6PCJne8cVWk5VYB02b9ffI=
 go.uber.org/mock v0.4.0 h1:VcM4ZOtdbR4f6VXfiOpwpVJDL6lCReaZ6mw31wqh7KU=
 go.uber.org/mock v0.4.0/go.mod h1:a6FSlNadKUHUa9IP5Vyt1zh4fC7uAwxMutEAscFbkZc=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
