@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+
+export CFGPATH = /etc/nncp.hjson
+export SPOOLPATH = /var/spool/nncp
+export LOGPATH = /var/spool/nncp/log
+export PREFIX = /usr
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	true
+
+override_dh_auto_build:
+	cd src && . ../config && \
+	go build -mod=vendor -o ../bin/nncp \
+		-ldflags "-X go.cypherpunks.su/nncp/v8.DefaultCfgPath=$(CFGPATH) \
+		-X go.cypherpunks.su/nncp/v8.DefaultSendmailPath=/usr/sbin/sendmail \
+		-X go.cypherpunks.su/nncp/v8.DefaultSpoolPath=$(SPOOLPATH) \
+		-X go.cypherpunks.su/nncp/v8.DefaultLogPath=$(LOGPATH)" \
+		./cmd/nncp
+	cd bin && for cmd in $$(cat ../cmd.list); do ln -fs nncp $$cmd; done
+
+override_dh_auto_install:
+	mkdir -p debian/nncp/usr/bin
+	cp -f bin/nncp debian/nncp/usr/bin/
+	chmod 755 debian/nncp/usr/bin/nncp
+	for cmd in $$(cat cmd.list); do ln -fs nncp debian/nncp/usr/bin/$$cmd; done
+
+override_dh_auto_test:
+	true
+
+override_dh_auto_clean:
+	rm -rf bin/
+
+# dwz generates errors for go-built executables
+override_dh_dwz:
+	true

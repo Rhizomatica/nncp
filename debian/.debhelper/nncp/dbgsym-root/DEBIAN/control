@@ -1,0 +1,12 @@
+Package: nncp-dbgsym
+Source: nncp
+Version: 8.13.0-1rhizomatica1
+Auto-Built-Package: debug-symbols
+Architecture: amd64
+Maintainer: Rafael Diniz <rafael@rhizomatica.org>
+Installed-Size: 12076
+Depends: nncp (= 8.13.0-1rhizomatica1)
+Section: debug
+Priority: optional
+Description: debug symbols for nncp
+Build-Ids: db6681e78ac94d0401bab974d7aea18cc01524b6

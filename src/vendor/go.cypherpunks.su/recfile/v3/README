@@ -1,0 +1,17 @@
+GNU recutils'es recfile parser/writer on pure Go.
+recfiles are human-editable, plaintext databases. This library allows
+you to read records and their fields from it. Look for cmd/gorecsel as
+an example usage.
+
+* iterate through the records and their fields
+* ignore comments
+* support continuation lines (\$) and multilines (^+)
+
+Limitations:
+* leading spaces in the first line of the value are ignored
+* trailing backslash at the end of lines is followed by space
+
+Also there is go.cypherpunks.su/recfile/v2/slog.NewRecfileHandler log/slog
+handler to write your logs in recfile format directly.
+
+It is free software: see the file COPYING for copying conditions.

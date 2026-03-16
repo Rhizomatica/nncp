@@ -1,0 +1,17 @@
+Source: nncp
+Maintainer: Rafael Diniz <rafael@rhizomatica.org>
+Section: net
+Build-Depends: debhelper-compat (= 13), golang-go (>= 2:1.22~0)
+Standards-Version: 4.7.2
+Homepage: http://www.nncpgo.org/
+
+Package: nncp
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Conflicts: nncp
+Description: Secure store-and-forward files, mail, and commands
+ NNCP is a package facilitating secure store-and-forward file and mail
+ exchange. It can be thought of as a modern UUCP with Internet smarts.
+ .
+ This build includes native HF modem transport (VARA/Mercury) for
+ Hermes radio stations, with Hermes SHM PTT and hamlib PTT support.

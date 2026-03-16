@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        mkdir -p /var/spool/nncp
+        mkdir -p /var/spool/nncp/incoming
+        chmod 755 /var/spool/nncp
+        chmod 755 /var/spool/nncp/incoming
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

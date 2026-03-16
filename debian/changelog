@@ -1,0 +1,8 @@
+nncp (8.13.0-1rhizomatica1) unstable; urgency=medium
+
+  * New upstream release 8.13.0.
+  * Add native HF modem transport (VARA/Mercury) for Hermes radio.
+  * Add Hermes SHM PTT keyer and hamlib PTT support.
+  * Built from Rhizomatica fork with hfmodem support.
+
+ -- Rafael Diniz <rafael@rhizomatica.org>  Mon, 16 Mar 2026 12:00:00 +0000

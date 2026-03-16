@@ -65,9 +65,9 @@ github.com/twmb/murmur3 v1.1.6/go.mod h1:Qq/R7NUyOfr65zD+6Q5IHKsJLwP7exErjN6lyyq
 github.com/yggdrasil-network/yggdrasil-go v0.5.6 h1:thh5YQYXQgkhkSO6v2D9Ya9fLHXfY38VfsCTZTIbIeI=
 github.com/yggdrasil-network/yggdrasil-go v0.5.6/go.mod h1:WAqMZ4e1QSf/EKbzfD77XXTSAIRO/0nWKCVpHsKLg40=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
-go.cypherpunks.ru/balloon v1.1.1 h1:ypHM1DRf/XuCrp9pDkTHg00CqZX/Np/APb//iHvDJTA=
+go.cypherpunks.ru/balloon v1.1.1 h1:SlSpwm5umV6U1578TQDmN7GowKGLfX3c1Om2QiYpRR4=
 go.cypherpunks.ru/balloon v1.1.1/go.mod h1:k4s4ozrIrhpBjj78Z7LX8ZHxMQ+XE7DZUWl8gP2ojCo=
-go.cypherpunks.su/recfile/v3 v3.1.0 h1:ZWO7Q6taGkaEl5X0oL+/5LOyoufzH0LRU2dee7RwZFg=
+go.cypherpunks.su/recfile/v3 v3.1.0 h1:Mu5QiKc3damGYmbK0lkkaK3ZqvYsBGNBl6x0PppaOj4=
 go.cypherpunks.su/recfile/v3 v3.1.0/go.mod h1:KK9cp7tYNWcHnTIaGso2H6PCJne8cVWk5VYB02b9ffI=
 go.uber.org/mock v0.4.0 h1:VcM4ZOtdbR4f6VXfiOpwpVJDL6lCReaZ6mw31wqh7KU=
 go.uber.org/mock v0.4.0/go.mod h1:a6FSlNadKUHUa9IP5Vyt1zh4fC7uAwxMutEAscFbkZc=

@@ -1,0 +1,16 @@
+Package: nncp
+Version: 8.13.0-1rhizomatica1
+Architecture: amd64
+Maintainer: Rafael Diniz <rafael@rhizomatica.org>
+Installed-Size: 13033
+Depends: libc6 (>= 2.34)
+Conflicts: nncp
+Section: net
+Priority: optional
+Homepage: http://www.nncpgo.org/
+Description: Secure store-and-forward files, mail, and commands
+ NNCP is a package facilitating secure store-and-forward file and mail
+ exchange. It can be thought of as a modern UUCP with Internet smarts.
+ .
+ This build includes native HF modem transport (VARA/Mercury) for
+ Hermes radio stations, with Hermes SHM PTT and hamlib PTT support.
