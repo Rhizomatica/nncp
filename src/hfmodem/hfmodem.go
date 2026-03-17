@@ -54,6 +54,8 @@ type HFConn struct {
 
 	closed int32 // atomic
 
+	listenerOwned bool // true if TCP connections belong to a listener
+
 	writeDeadline time.Time
 
 	ctrlDone    chan struct{} // closed when control reader goroutine exits
@@ -129,6 +131,10 @@ func (c *HFConn) Close() error {
 	select {
 	case <-c.ctrlDone:
 	case <-time.After(5 * time.Second):
+	}
+	if c.listenerOwned {
+		// TCP connections and PTT keyer belong to the listener
+		return nil
 	}
 	if c.pttKeyer != nil {
 		c.pttKeyer.Close()
