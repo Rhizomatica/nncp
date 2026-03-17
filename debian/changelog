@@ -1,3 +1,11 @@
+nncp (8.13.0-2rhizomatica1) unstable; urgency=medium
+
+  * Fix hfmodem: persistent TNC connection across HF sessions.
+  * Fix hfmodem: start control reader before sending init commands.
+  * Listener-accepted connections no longer close shared TCP sockets.
+
+ -- Rafael Diniz <rafael@rhizomatica.org>  Mon, 17 Mar 2026 00:15:00 +0000
+
 nncp (8.13.0-1rhizomatica1) unstable; urgency=medium
 
   * New upstream release 8.13.0.
