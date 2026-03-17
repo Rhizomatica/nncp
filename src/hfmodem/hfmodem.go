@@ -240,7 +240,17 @@ func parseAddr(addr string) (*addrConfig, error) {
 }
 
 // NewConn establishes an outbound HF modem connection.
+// If nncp-daemon is running with -hfmodem (and has created a proxy socket),
+// the call is routed through the daemon's existing TNC connection.
+// Otherwise, it connects directly to the TNC.
 func NewConn(addr string) (net.Conn, error) {
+	// Try proxy first — daemon may hold the TNC connection
+	conn, err := proxyDial(addr)
+	if err == nil {
+		return conn, nil
+	}
+
+	// No proxy available — connect directly to TNC
 	cfg, err := parseAddr(addr)
 	if err != nil {
 		return nil, err

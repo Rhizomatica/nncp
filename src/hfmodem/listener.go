@@ -33,6 +33,11 @@ import (
 // commands (including LISTEN ON), and waits for incoming CONNECTED events.
 // Multiple HF radio sessions are handled within a single TNC TCP session,
 // matching the behavior of the reference C client (mercury-connector/vara.c).
+//
+// The listener also supports outgoing calls via Dial(), which sends CONNECT
+// on the existing TNC control channel. This is essential because Mercury/VARA
+// TNCs only allow a single control client TCP connection — if a separate
+// process connects, it kicks the existing client.
 type HFListener struct {
 	cfg      *addrConfig
 	mu       sync.Mutex
@@ -40,6 +45,14 @@ type HFListener struct {
 	acceptCh chan *HFConn
 	closeCh  chan struct{}
 	pttKeyer PTTKeyer
+
+	// TNC session state (protected by tncMu)
+	tncMu    sync.Mutex
+	ctrlConn net.Conn // current TNC control connection (nil when not connected)
+
+	// Dial synchronization: when non-nil, the next CONNECTED event is
+	// routed to dialCh instead of acceptCh. Protected by mu.
+	dialCh chan *HFConn
 }
 
 // hfListenerAddr implements net.Addr for the listener.
@@ -73,6 +86,10 @@ func NewListener(addr string) (*HFListener, error) {
 		acceptCh: make(chan *HFConn),
 		closeCh:  make(chan struct{}),
 	}
+
+	// Start Unix socket proxy so nncp-call can dial through this
+	// listener's TNC connection instead of opening a competing one.
+	l.startProxyServer()
 
 	go l.listenLoop()
 	return l, nil
@@ -109,6 +126,76 @@ func (l *HFListener) Close() error {
 // Addr returns the listener's address.
 func (l *HFListener) Addr() net.Addr {
 	return hfListenerAddr{l.cfg.tncHost}
+}
+
+// CloseCh returns a channel that is closed when the listener shuts down.
+func (l *HFListener) CloseCh() <-chan struct{} {
+	return l.closeCh
+}
+
+// Dial initiates an outgoing HF call through the listener's existing TNC
+// connection. This avoids creating a second TCP connection to the TNC,
+// which would kick the listener (Mercury/VARA only allow one control client).
+//
+// addr format: vara://tnc_ip:port/REMOTE_CALL?mycall=X&bw=2300
+// Only the remote callsign is extracted; the TNC connection is reused.
+func (l *HFListener) Dial(addr string) (net.Conn, error) {
+	cfg, err := parseAddr(addr)
+	if err != nil {
+		return nil, err
+	}
+	if cfg.remoteCall == "" {
+		return nil, fmt.Errorf("remote callsign required for outbound connection")
+	}
+
+	l.mu.Lock()
+	if l.closed {
+		l.mu.Unlock()
+		return nil, net.ErrClosed
+	}
+	l.mu.Unlock()
+
+	l.tncMu.Lock()
+	ctrl := l.ctrlConn
+	l.tncMu.Unlock()
+	if ctrl == nil {
+		return nil, fmt.Errorf("TNC not connected")
+	}
+
+	// Set up channel to receive the CONNECTED event from controlReader
+	dialCh := make(chan *HFConn, 1)
+	l.mu.Lock()
+	if l.dialCh != nil {
+		l.mu.Unlock()
+		return nil, fmt.Errorf("another dial is already in progress")
+	}
+	l.dialCh = dialCh
+	l.mu.Unlock()
+
+	defer func() {
+		l.mu.Lock()
+		l.dialCh = nil
+		l.mu.Unlock()
+	}()
+
+	// Send CONNECT command on the existing control channel
+	cmd := fmt.Sprintf("CONNECT %s %s", l.cfg.localCall, cfg.remoteCall)
+	log.Printf("hfmodem: dial: sending %q", cmd)
+	if err := sendCtrlCmd(ctrl, cmd); err != nil {
+		return nil, fmt.Errorf("sending CONNECT: %w", err)
+	}
+
+	// Wait for CONNECTED response or failure
+	select {
+	case conn := <-dialCh:
+		log.Printf("hfmodem: dial: connected to %s", cfg.remoteCall)
+		return conn, nil
+	case <-time.After(120 * time.Second):
+		sendCtrlCmd(ctrl, "DISCONNECT")
+		return nil, fmt.Errorf("dial to %s timed out", cfg.remoteCall)
+	case <-l.closeCh:
+		return nil, net.ErrClosed
+	}
 }
 
 // listenLoop manages the TNC TCP connection lifecycle. It connects to the
@@ -173,6 +260,11 @@ func (l *HFListener) runTNCSession() error {
 
 	log.Printf("hfmodem: listener: connected to TNC at %s", l.cfg.tncHost)
 
+	// Store ctrlConn for Dial() to use
+	l.tncMu.Lock()
+	l.ctrlConn = ctrlConn
+	l.tncMu.Unlock()
+
 	// Start control reader BEFORE sending init commands.
 	// This matches the C reference client which starts the RX thread
 	// before the TX thread that sends commands.
@@ -193,6 +285,9 @@ func (l *HFListener) runTNCSession() error {
 			ctrlConn.Close()
 			dataConn.Close()
 			<-readerDone
+			l.tncMu.Lock()
+			l.ctrlConn = nil
+			l.tncMu.Unlock()
 			return fmt.Errorf("TNC init %q: %w", cmd, err)
 		}
 		time.Sleep(50 * time.Millisecond)
@@ -203,11 +298,17 @@ func (l *HFListener) runTNCSession() error {
 	select {
 	case <-readerDone:
 		// Control reader exited — TCP connection dropped
+		l.tncMu.Lock()
+		l.ctrlConn = nil
+		l.tncMu.Unlock()
 		ctrlConn.Close()
 		dataConn.Close()
 		return fmt.Errorf("TNC connection lost")
 	case <-l.closeCh:
 		// Listener is shutting down — close TCP to unblock reader
+		l.tncMu.Lock()
+		l.ctrlConn = nil
+		l.tncMu.Unlock()
 		ctrlConn.Close()
 		dataConn.Close()
 		<-readerDone
@@ -219,6 +320,9 @@ func (l *HFListener) runTNCSession() error {
 // varaControlReader in vara.go, this reader does NOT exit on DISCONNECTED —
 // it continues reading so the same TNC TCP session can handle multiple HF
 // radio connections sequentially.
+//
+// When a Dial() is pending (l.dialCh != nil), CONNECTED events are routed
+// to the dial channel instead of the accept channel.
 func (l *HFListener) controlReader(
 	ctrlConn, dataConn net.Conn,
 	done chan struct{},
@@ -248,7 +352,7 @@ func (l *HFListener) controlReader(
 			if len(parts) >= 2 {
 				remoteCall = parts[1]
 			}
-			log.Printf("hfmodem: listener: incoming connection from %s", remoteCall)
+			log.Printf("hfmodem: listener: connection established with %s", remoteCall)
 
 			// Close any lingering previous connection
 			connMu.Lock()
@@ -289,11 +393,19 @@ func (l *HFListener) controlReader(
 				}
 			}
 
-			// Deliver to Accept()
-			select {
-			case l.acceptCh <- conn:
-			case <-l.closeCh:
-				return
+			// Route to Dial() if pending, otherwise to Accept()
+			l.mu.Lock()
+			dialCh := l.dialCh
+			l.mu.Unlock()
+
+			if dialCh != nil {
+				dialCh <- conn
+			} else {
+				select {
+				case l.acceptCh <- conn:
+				case <-l.closeCh:
+					return
+				}
 			}
 
 		case strings.HasPrefix(line, "DISCONNECTED"):

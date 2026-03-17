@@ -1,3 +1,12 @@
+nncp (8.13.0-3rhizomatica1) unstable; urgency=medium
+
+  * Add Unix socket proxy for shared TNC connection between daemon and
+    nncp-call. Mercury/VARA only support one control client; nncp-call
+    now routes through the daemon's existing connection automatically.
+  * Add Dial() support to HFListener for outgoing calls via shared TNC.
+
+ -- Rafael Diniz <rafael@rhizomatica.org>  Mon, 17 Mar 2026 14:00:00 +0000
+
 nncp (8.13.0-2rhizomatica1) unstable; urgency=medium
 
   * Fix hfmodem: persistent TNC connection across HF sessions.
