@@ -113,6 +113,7 @@ func (ctx *Ctx) CallNode(
 			txRate:         txRate,
 			listOnly:       listOnly,
 			NoCK:           noCK,
+			NoPad:          node.NoPad,
 			onlyPkts:       onlyPkts,
 		}
 		if err = state.StartI(conn); err == nil {

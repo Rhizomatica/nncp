@@ -54,6 +54,8 @@ type HFConn struct {
 
 	closed int32 // atomic
 
+	listenerOwned bool // true if TCP connections belong to a listener
+
 	writeDeadline time.Time
 
 	ctrlDone    chan struct{} // closed when control reader goroutine exits
@@ -88,36 +90,57 @@ func (c *HFConn) Write(p []byte) (int, error) {
 		return 0, net.ErrClosed
 	}
 
-	// Flow control: block while TNC buffer is too full
-	for {
-		c.mu.Lock()
-		bufLevel := c.tncBuffer
-		c.mu.Unlock()
-
-		if bufLevel+int64(len(p)) <= MaxVARABuffer {
-			break
+	// Write in chunks to respect TNC buffer flow control.
+	// The TNC reports its buffer level via BUFFER messages; we must not
+	// queue more than MaxVARABuffer bytes at a time.
+	totalWritten := 0
+	for len(p) > 0 {
+		chunk := p
+		if len(chunk) > MaxVARABuffer {
+			chunk = chunk[:MaxVARABuffer]
 		}
 
-		if !c.writeDeadline.IsZero() && time.Now().After(c.writeDeadline) {
-			return 0, os.ErrDeadlineExceeded
+		// Flow control: block while TNC buffer is too full for this chunk
+		for {
+			c.mu.Lock()
+			bufLevel := c.tncBuffer
+			c.mu.Unlock()
+
+			if bufLevel+int64(len(chunk)) <= MaxVARABuffer {
+				break
+			}
+
+			if !c.writeDeadline.IsZero() && time.Now().After(c.writeDeadline) {
+				if totalWritten > 0 {
+					return totalWritten, os.ErrDeadlineExceeded
+				}
+				return 0, os.ErrDeadlineExceeded
+			}
+
+			select {
+			case <-c.ctrlDone:
+				if totalWritten > 0 {
+					return totalWritten, net.ErrClosed
+				}
+				return 0, net.ErrClosed
+			default:
+			}
+			time.Sleep(100 * time.Millisecond)
 		}
 
-		// Check if connection closed before sleeping
-		select {
-		case <-c.ctrlDone:
-			return 0, net.ErrClosed
-		default:
+		n, err := c.dataConn.Write(chunk)
+		if err == nil {
+			c.mu.Lock()
+			c.tncBuffer += int64(n)
+			c.mu.Unlock()
 		}
-		time.Sleep(100 * time.Millisecond)
+		totalWritten += n
+		if err != nil {
+			return totalWritten, err
+		}
+		p = p[n:]
 	}
-
-	n, err := c.dataConn.Write(p)
-	if err == nil {
-		c.mu.Lock()
-		c.tncBuffer += int64(n)
-		c.mu.Unlock()
-	}
-	return n, err
+	return totalWritten, nil
 }
 
 func (c *HFConn) Close() error {
@@ -129,6 +152,10 @@ func (c *HFConn) Close() error {
 	select {
 	case <-c.ctrlDone:
 	case <-time.After(5 * time.Second):
+	}
+	if c.listenerOwned {
+		// TCP connections and PTT keyer belong to the listener
+		return nil
 	}
 	if c.pttKeyer != nil {
 		c.pttKeyer.Close()
@@ -234,7 +261,17 @@ func parseAddr(addr string) (*addrConfig, error) {
 }
 
 // NewConn establishes an outbound HF modem connection.
+// If nncp-daemon is running with -hfmodem (and has created a proxy socket),
+// the call is routed through the daemon's existing TNC connection.
+// Otherwise, it connects directly to the TNC.
 func NewConn(addr string) (net.Conn, error) {
+	// Try proxy first — daemon may hold the TNC connection
+	conn, err := proxyDial(addr)
+	if err == nil {
+		return conn, nil
+	}
+
+	// No proxy available — connect directly to TNC
 	cfg, err := parseAddr(addr)
 	if err != nil {
 		return nil, err

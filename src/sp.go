@@ -240,6 +240,7 @@ type SPState struct {
 	txRate         int
 	isDead         chan struct{}
 	listOnly       bool
+	NoPad          bool // skip first-message padding (for low-bandwidth transports like HF)
 	onlyPkts       map[[MTHSize]byte]bool
 	writeSPBuf     bytes.Buffer
 	fds            map[string]FdAndFullSize
@@ -428,9 +429,12 @@ func (state *SPState) StartI(conn ConnDeadlined) error {
 	if len(infosPayloads) > 0 {
 		firstPayload = infosPayloads[0]
 	}
-	// Pad first payload, to hide actual number of existing files
-	for i := 0; i < (MaxSPSize-len(firstPayload))/SPHeadOverhead; i++ {
-		firstPayload = append(firstPayload, SPHaltMarshalized...)
+	// Pad first payload, to hide actual number of existing files.
+	// Skip padding for low-bandwidth transports (HF modem).
+	if !state.NoPad {
+		for i := 0; i < (MaxSPSize-len(firstPayload))/SPHeadOverhead; i++ {
+			firstPayload = append(firstPayload, SPHaltMarshalized...)
+		}
 	}
 
 	var buf []byte
@@ -574,6 +578,7 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 		return err
 	}
 	state.Node = node
+	state.NoPad = node.NoPad
 	state.rxRate = node.RxRate
 	state.txRate = node.TxRate
 	state.onlineDeadline = node.OnlineDeadline
@@ -608,9 +613,12 @@ func (state *SPState) StartR(conn ConnDeadlined) error {
 	if len(infosPayloads) > 0 {
 		firstPayload = infosPayloads[0]
 	}
-	// Pad first payload, to hide actual number of existing files
-	for i := 0; i < (MaxSPSize-len(firstPayload))/SPHeadOverhead; i++ {
-		firstPayload = append(firstPayload, SPHaltMarshalized...)
+	// Pad first payload, to hide actual number of existing files.
+	// Skip padding for low-bandwidth transports (HF modem).
+	if !state.NoPad {
+		for i := 0; i < (MaxSPSize-len(firstPayload))/SPHeadOverhead; i++ {
+			firstPayload = append(firstPayload, SPHaltMarshalized...)
+		}
 	}
 
 	state.Ctx.LogD("sp-startR-write", les, func(les LEs) string {
