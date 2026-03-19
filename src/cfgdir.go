@@ -308,6 +308,11 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 		if err = cfgDirSave(n.MaxOnlineTime, dst, "neigh", name, "maxonlinetime"); err != nil {
 			return
 		}
+		if n.NoPad {
+			if err = cfgDirTouch(dst, "neigh", name, "nopad"); err != nil {
+				return
+			}
+		}
 
 		for i, call := range n.Calls {
 			is := strconv.Itoa(i)
@@ -790,6 +795,8 @@ func DirToCfg(src string) (*CfgJSON, error) {
 			i := uint(*i64)
 			node.MaxOnlineTime = &i
 		}
+
+		node.NoPad = cfgDirExists(src, "neigh", n, "nopad")
 
 		fis2, err = os.ReadDir(filepath.Join(src, "neigh", n, "calls"))
 		if err != nil && !errors.Is(err, fs.ErrNotExist) {

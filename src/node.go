@@ -56,6 +56,7 @@ type Node struct {
 	TxRate         int
 	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
+	NoPad          bool
 	Calls          []*Call
 	Origin         *NodeId
 

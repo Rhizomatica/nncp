@@ -112,15 +112,19 @@ func varaDial(cfg *addrConfig) (*HFConn, error) {
 		pttKeyer:    ptt,
 	}
 
+	// Start control reader FIRST, before sending init commands.
+	// This matches the C reference client (mercury-connector/vara.c)
+	// which starts the RX thread before the TX thread sends commands.
+	// Mercury sends OK\r responses that must be consumed promptly.
+	go varaControlReader(conn)
+
 	// Send initialization commands
 	if err := varaInit(conn, cfg); err != nil {
 		ctrlConn.Close()
 		dataConn.Close()
+		<-conn.ctrlDone // wait for control reader to exit
 		return nil, err
 	}
-
-	// Start control reader goroutine
-	go varaControlReader(conn)
 
 	return conn, nil
 }
@@ -134,16 +138,15 @@ func varaInit(conn *HFConn, cfg *addrConfig) error {
 		"COMPRESSION OFF",
 		fmt.Sprintf("BW%s", cfg.bw),
 	}
-	if cfg.p2p {
-		cmds = append(cmds, "P2P SESSION")
-	}
 
 	for _, cmd := range cmds {
+		log.Printf("hfmodem: init: sending %q", cmd)
 		if err := sendCtrlCmd(conn.ctrlConn, cmd); err != nil {
 			return fmt.Errorf("TNC init command %q: %w", cmd, err)
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
+	log.Printf("hfmodem: init: all commands sent")
 	return nil
 }
 
@@ -155,8 +158,10 @@ func varaControlReader(conn *HFConn) {
 	scanner := bufio.NewScanner(conn.ctrlConn)
 	scanner.Split(scanCR)
 
+	log.Printf("hfmodem: control reader started for %s", conn.localCall)
 	for scanner.Scan() {
 		if atomic.LoadInt32(&conn.closed) != 0 {
+			log.Printf("hfmodem: control reader: conn closed, exiting")
 			return
 		}
 
@@ -164,6 +169,7 @@ func varaControlReader(conn *HFConn) {
 		if line == "" {
 			continue
 		}
+		log.Printf("hfmodem: ctrl-raw: [%s]", line)
 
 		switch {
 		case strings.HasPrefix(line, "CONNECTED"):
@@ -249,6 +255,8 @@ func varaControlReader(conn *HFConn) {
 
 	if err := scanner.Err(); err != nil {
 		log.Printf("hfmodem: control reader error: %v", err)
+	} else {
+		log.Printf("hfmodem: control reader: scanner.Scan() returned false (EOF/conn closed)")
 	}
 }
 

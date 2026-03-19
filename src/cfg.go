@@ -64,6 +64,7 @@ type NodeJSON struct {
 	TxRate         *int  `json:"txrate,omitempty"`
 	OnlineDeadline *uint `json:"onlinedeadline,omitempty"`
 	MaxOnlineTime  *uint `json:"maxonlinetime,omitempty"`
+	NoPad          bool  `json:"nopad,omitempty"`
 }
 
 type NodeFreqJSON struct {
@@ -362,6 +363,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		TxRate:         defTxRate,
 		OnlineDeadline: defOnlineDeadline,
 		MaxOnlineTime:  defMaxOnlineTime,
+		NoPad:          cfg.NoPad,
 	}
 	copy(node.ExchPub[:], exchPub)
 	if len(noisePub) > 0 {
