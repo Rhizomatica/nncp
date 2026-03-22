@@ -27,7 +27,6 @@ import (
 	"testing"
 	"testing/quick"
 
-	xdr "github.com/davecgh/go-xdr/xdr2"
 )
 
 var (
@@ -400,15 +399,15 @@ func TestTossFreq(t *testing.T) {
 				t.Error(err)
 				return false
 			}
-			var pkt Pkt
-			if _, err = xdr.Unmarshal(&buf, &pkt); err != nil {
+			pkt, err := PktRead(&buf)
+			if err != nil {
 				t.Error(err)
 				return false
 			}
 			if pkt.Nice != replyNice {
 				return false
 			}
-			if !bytes.Equal(buf.Bytes(), files[string(pkt.Path[:int(pkt.PathLen)])]) {
+			if !bytes.Equal(buf.Bytes(), files[string(pkt.Path)]) {
 				return false
 			}
 		}
@@ -458,17 +457,16 @@ func TestTossTrns(t *testing.T) {
 		txPath := filepath.Join(spool, ctx.Self.Id.String(), string(TTx))
 		os.MkdirAll(txPath, os.FileMode(0700))
 		for _, data := range datum {
-			pktTrans := Pkt{
-				Magic:   MagicNNCPPv3.B,
-				Type:    PktTypeTrns,
-				PathLen: MTHSize,
+			pktTrans, err := NewPkt(PktTypeTrns, 0, nodeOur.Id[:])
+			if err != nil {
+				t.Error(err)
+				return false
 			}
-			copy(pktTrans.Path[:], nodeOur.Id[:])
 			var dst bytes.Buffer
 			if _, _, err := PktEncWrite(
 				ctx.Self,
 				ctx.Neigh[*nodeOur.Id],
-				&pktTrans,
+				pktTrans,
 				123,
 				0, MaxFileSize, 1,
 				bytes.NewReader(data),

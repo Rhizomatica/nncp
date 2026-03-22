@@ -37,7 +37,7 @@ func usagePkt() {
 	fmt.Fprintln(os.Stderr, "Packet is read from stdin.")
 }
 
-func doPlain(ctx *nncp.Ctx, pkt nncp.Pkt, dump, decompress bool) {
+func doPlain(ctx *nncp.Ctx, pkt *nncp.PktV4, dump, decompress bool) {
 	if dump {
 		bufW := bufio.NewWriter(os.Stdout)
 		var r io.Reader
@@ -78,23 +78,23 @@ func doPlain(ctx *nncp.Ctx, pkt nncp.Pkt, dump, decompress bool) {
 	switch pkt.Type {
 	case nncp.PktTypeExec, nncp.PktTypeExecFat:
 		path = string(bytes.Replace(
-			pkt.Path[:pkt.PathLen], []byte{0}, []byte(" "), -1,
+			pkt.Path, []byte{0}, []byte(" "), -1,
 		))
 	case nncp.PktTypeTrns:
-		path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
+		path = nncp.Base32Codec.EncodeToString(pkt.Path)
 		node, err := ctx.FindNode(path)
 		if err == nil {
 			path = fmt.Sprintf("%s (%s)", path, node.Name)
 		}
 	case nncp.PktTypeArea:
-		path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
+		path = nncp.Base32Codec.EncodeToString(pkt.Path)
 		if areaId, err := nncp.AreaIdFromString(path); err == nil {
 			path = fmt.Sprintf("%s (%s)", path, ctx.AreaName(areaId))
 		}
 	case nncp.PktTypeACK:
-		path = nncp.Base32Codec.EncodeToString(pkt.Path[:pkt.PathLen])
+		path = nncp.Base32Codec.EncodeToString(pkt.Path)
 	default:
-		path = string(pkt.Path[:pkt.PathLen])
+		path = string(pkt.Path)
 	}
 	fmt.Printf(
 		"Packet type: plain\nPayload type: %s\nNiceness: %s (%d)\nPath: %s\n",
@@ -226,20 +226,14 @@ func mainPkt() {
 		}
 	}
 
-	if _, err := io.ReadFull(os.Stdin, beginning[nncp.PktEncOverhead:]); err != nil {
-		log.Fatalln("Not enough data to read")
+	// Try reading as plain packet (v3 or v4) using PktRead
+	stdinR := io.MultiReader(
+		bytes.NewReader(beginning[:nncp.PktEncOverhead]),
+		bufio.NewReader(os.Stdin),
+	)
+	pkt, err := nncp.PktRead(stdinR)
+	if err != nil {
+		log.Fatalln("Unable to determine packet type:", err)
 	}
-	var pkt nncp.Pkt
-	if _, err := xdr.Unmarshal(bytes.NewReader(beginning), &pkt); err == nil {
-		switch pkt.Magic {
-		case nncp.MagicNNCPPv1.B:
-			log.Fatalln(nncp.MagicNNCPPv1.TooOld())
-		case nncp.MagicNNCPPv2.B:
-			log.Fatalln(nncp.MagicNNCPPv2.TooOld())
-		case nncp.MagicNNCPPv3.B:
-			doPlain(ctx, pkt, *dump, *decompress)
-			return
-		}
-	}
-	log.Fatalln("Unable to determine packet type")
+	doPlain(ctx, pkt, *dump, *decompress)
 }

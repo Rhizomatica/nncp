@@ -27,7 +27,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	xdr "github.com/davecgh/go-xdr/xdr2"
 	"go.cypherpunks.su/nncp/v8"
 )
 
@@ -223,8 +222,7 @@ func mainACK() {
 				bufio.NewReaderSize(fd, nncp.MTHBlockSize),
 				pipeW, true, nil,
 			)
-			var pkt nncp.Pkt
-			_, err = xdr.Unmarshal(pipeR, &pkt)
+			pkt, err := nncp.PktRead(pipeR)
 			fd.Close()
 			pipeW.Close()
 			if err != nil {

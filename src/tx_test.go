@@ -24,7 +24,6 @@ import (
 	"testing"
 	"testing/quick"
 
-	xdr "github.com/davecgh/go-xdr/xdr2"
 )
 
 func TestTx(t *testing.T) {
@@ -134,8 +133,8 @@ func TestTx(t *testing.T) {
 			}
 			bufR, bufW = bufW, bufR
 			bufW.Reset()
-			var pkt Pkt
-			if _, err = xdr.Unmarshal(&bufR, &pkt); err != nil {
+			pkt, err := PktRead(&bufR)
+			if err != nil {
 				return false
 			}
 			if *hopId == *nodeTgt.Id {
@@ -145,7 +144,7 @@ func TestTx(t *testing.T) {
 				if pkt.Nice != replyNice {
 					return false
 				}
-				if !bytes.HasPrefix(pkt.Path[:], []byte(pathSrc)) {
+				if !bytes.HasPrefix(pkt.Path, []byte(pathSrc)) {
 					return false
 				}
 				if !bytes.Equal(bufR.Bytes(), []byte(data)) {

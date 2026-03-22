@@ -139,11 +139,11 @@ func TestPktEncRead(t *testing.T) {
 		if *node.Id != *node1.Id {
 			return false
 		}
-		if sizeGot != int64(len(data)+int(PktOverhead)) {
+		if sizeGot != int64(len(data))+PktV4Overhead(len(pkt.Path)) {
 			return false
 		}
 		var pktBuf bytes.Buffer
-		xdr.Marshal(&pktBuf, &pkt)
+		xdr.Marshal(&pktBuf, pkt)
 		return bytes.Equal(pt.Bytes(), append(pktBuf.Bytes(), data...))
 	}
 	if err := quick.Check(f, nil); err != nil {

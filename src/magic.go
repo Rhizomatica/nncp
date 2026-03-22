@@ -93,7 +93,11 @@ var (
 	}
 	MagicNNCPPv3 = Magic{
 		B:    [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 3},
-		Name: "NNCPPv3 (plain packet v3)", Till: "now",
+		Name: "NNCPPv3 (plain packet v3)", Till: "8.13.0",
+	}
+	MagicNNCPPv4 = Magic{
+		B:    [8]byte{'N', 'N', 'C', 'P', 'P', 0, 0, 4},
+		Name: "NNCPPv4 (plain packet v4)", Till: "now",
 	}
 
 	BadMagic error = errors.New("Unknown magic number")
