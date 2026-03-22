@@ -33,7 +33,6 @@ import (
 	"strings"
 	"time"
 
-	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/dustin/go-humanize"
 	"github.com/klauspost/compress/zstd"
 	"golang.org/x/crypto/blake2b"
@@ -107,8 +106,7 @@ func jobProcess(
 ) error {
 	defer pipeR.Close()
 	sendmail := ctx.Neigh[*ctx.SelfId].Exec["sendmail"]
-	var pkt Pkt
-	_, err := xdr.Unmarshal(pipeR, &pkt)
+	pkt, err := PktRead(pipeR)
 	if err != nil {
 		ctx.LogE("rx-unmarshal", les, err, func(les LEs) string {
 			return fmt.Sprintf("Tossing %s/%s: unmarshal", sender.Name, pktName)
@@ -155,7 +153,7 @@ func jobProcess(
 		if opts.NoExec {
 			return nil
 		}
-		path := bytes.Split(pkt.Path[:int(pkt.PathLen)], []byte{0})
+		path := bytes.Split(pkt.Path, []byte{0})
 		handle := string(path[0])
 		args := make([]string, 0, len(path)-1)
 		for _, p := range path[1:] {
@@ -288,7 +286,7 @@ func jobProcess(
 		if opts.NoFile {
 			return nil
 		}
-		dst := string(pkt.Path[:int(pkt.PathLen)])
+		dst := string(pkt.Path)
 		les = append(les, LE{"Type", "file"}, LE{"Dst", dst})
 		if filepath.IsAbs(dst) {
 			err = errors.New("non-relative destination path")
@@ -517,7 +515,7 @@ func jobProcess(
 		if opts.NoFreq {
 			return nil
 		}
-		src := string(pkt.Path[:int(pkt.PathLen)])
+		src := string(pkt.Path)
 		les := append(les, LE{"Type", "freq"}, LE{"Src", src})
 		if filepath.IsAbs(src) {
 			err = errors.New("non-relative source path")
@@ -660,7 +658,7 @@ func jobProcess(
 			return nil
 		}
 		dst := new([MTHSize]byte)
-		copy(dst[:], pkt.Path[:int(pkt.PathLen)])
+		copy(dst[:], pkt.Path)
 		nodeId := NodeId(*dst)
 		les := append(les, LE{"Type", "trns"}, LE{"Dst", nodeId})
 		logMsg := func(les LEs) string {
@@ -758,7 +756,7 @@ func jobProcess(
 			return nil
 		}
 		areaId := new(AreaId)
-		copy(areaId[:], pkt.Path[:int(pkt.PathLen)])
+		copy(areaId[:], pkt.Path)
 		les := append(les, LE{"Type", "area"}, LE{"Area", areaId})
 		logMsg := func(les LEs) string {
 			return fmt.Sprintf(
@@ -827,7 +825,7 @@ func jobProcess(
 					ctx.LogI("rx-area-echo", lesEcho, logMsgNode)
 					if _, _, _, err = ctx.Tx(
 						node,
-						&pkt,
+						pkt,
 						nice,
 						int64(pktSize), 0, MaxFileSize,
 						fullPipeR,
@@ -986,7 +984,7 @@ func jobProcess(
 		if opts.NoACK {
 			return nil
 		}
-		hsh := Base32Codec.EncodeToString(pkt.Path[:MTHSize])
+		hsh := Base32Codec.EncodeToString(pkt.Path)
 		les := append(les, LE{"Type", "ack"}, LE{"Pkt", hsh})
 		logMsg := func(les LEs) string {
 			return fmt.Sprintf("Tossing ack %s/%s: %s", sender.Name, pktName, hsh)

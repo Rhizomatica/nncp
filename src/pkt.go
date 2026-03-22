@@ -63,12 +63,30 @@ var (
 	TooBig = errors.New("Too big than allowed")
 )
 
+// Pkt is the v3 plain packet format (fixed 255-byte Path). Kept for reading old packets.
 type Pkt struct {
 	Magic   [8]byte
 	Type    PktType
 	Nice    uint8
 	PathLen uint8
 	Path    [MaxPathSize]byte
+}
+
+// PktV4 is the v4 plain packet format with variable-length Path.
+type PktV4 struct {
+	Magic [8]byte
+	Type  PktType
+	Nice  uint8
+	Path  []byte
+}
+
+// PktV4Overhead returns the XDR-encoded size of a PktV4 with the given path length.
+func PktV4Overhead(pathLen int) int64 {
+	padded := pathLen
+	if pathLen%4 != 0 {
+		padded += 4 - (pathLen % 4)
+	}
+	return int64(8 + 4 + 4 + 4 + padded)
 }
 
 type PktTbs struct {
@@ -93,18 +111,52 @@ type PktSize struct {
 	Pad     uint64
 }
 
-func NewPkt(typ PktType, nice uint8, path []byte) (*Pkt, error) {
+func NewPkt(typ PktType, nice uint8, path []byte) (*PktV4, error) {
 	if len(path) > MaxPathSize {
 		return nil, errors.New("Too long path")
 	}
-	pkt := Pkt{
-		Magic:   MagicNNCPPv3.B,
-		Type:    typ,
-		Nice:    nice,
-		PathLen: uint8(len(path)),
+	pkt := PktV4{
+		Magic: MagicNNCPPv4.B,
+		Type:  typ,
+		Nice:  nice,
+		Path:  make([]byte, len(path)),
 	}
-	copy(pkt.Path[:], path)
+	copy(pkt.Path, path)
 	return &pkt, nil
+}
+
+// PktRead reads a plain packet from r, detecting v3 or v4 format by magic bytes.
+func PktRead(r io.Reader) (*PktV4, error) {
+	var magic [8]byte
+	if _, err := io.ReadFull(r, magic[:]); err != nil {
+		return nil, err
+	}
+	combined := io.MultiReader(bytes.NewReader(magic[:]), r)
+	switch magic {
+	case MagicNNCPPv4.B:
+		var pkt PktV4
+		if _, err := xdr.Unmarshal(combined, &pkt); err != nil {
+			return nil, err
+		}
+		return &pkt, nil
+	case MagicNNCPPv3.B:
+		var pktV3 Pkt
+		if _, err := xdr.Unmarshal(combined, &pktV3); err != nil {
+			return nil, err
+		}
+		return &PktV4{
+			Magic: MagicNNCPPv4.B,
+			Type:  pktV3.Type,
+			Nice:  pktV3.Nice,
+			Path:  pktV3.Path[:int(pktV3.PathLen)],
+		}, nil
+	case MagicNNCPPv1.B:
+		return nil, MagicNNCPPv1.TooOld()
+	case MagicNNCPPv2.B:
+		return nil, MagicNNCPPv2.TooOld()
+	default:
+		return nil, BadMagic
+	}
 }
 
 func init() {
@@ -180,10 +232,10 @@ func sizeWithTags(size int64) (fullSize int64) {
 	return
 }
 
-func sizePadCalc(sizePayload, minSize int64, wrappers int) (sizePad int64) {
-	expectedSize := sizePayload - PktOverhead
+func sizePadCalc(sizePayload, minSize int64, wrappers int, pktOverhead int64) (sizePad int64) {
+	expectedSize := sizePayload - pktOverhead
 	for range wrappers {
-		expectedSize = PktEncOverhead + sizeWithTags(PktOverhead+expectedSize)
+		expectedSize = PktEncOverhead + sizeWithTags(pktOverhead+expectedSize)
 	}
 	sizePad = max(minSize-expectedSize, 0)
 	return
@@ -191,7 +243,7 @@ func sizePadCalc(sizePayload, minSize int64, wrappers int) (sizePad int64) {
 
 func PktEncWrite(
 	our *NodeOur, their *Node,
-	pkt *Pkt, nice uint8,
+	pkt *PktV4, nice uint8,
 	minSize, maxSize int64, wrappers int,
 	r io.Reader, w io.Writer,
 ) (pktEncRaw []byte, size int64, err error) {
@@ -290,7 +342,7 @@ func PktEncWrite(
 		break
 	}
 
-	sizePad := sizePadCalc(sizePayload, minSize, wrappers)
+	sizePad := sizePadCalc(sizePayload, minSize, wrappers, int64(len(pktRaw)))
 	_, err = xdr.Marshal(&buf, &PktSize{uint64(sizePayload), uint64(sizePad)})
 	if err != nil {
 		return

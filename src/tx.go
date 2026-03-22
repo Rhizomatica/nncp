@@ -49,7 +49,7 @@ type PktEncWriteResult struct {
 
 func (ctx *Ctx) Tx(
 	node *Node,
-	pkt *Pkt,
+	pkt *PktV4,
 	nice uint8,
 	srcSize, minSize, maxSize int64,
 	src io.Reader,
@@ -73,8 +73,8 @@ func (ctx *Ctx) Tx(
 	}
 	var expectedSize int64
 	if srcSize > 0 {
-		expectedSize = srcSize + PktOverhead
-		expectedSize += sizePadCalc(expectedSize, minSize, wrappers)
+		expectedSize = srcSize + PktV4Overhead(len(pkt.Path))
+		expectedSize += sizePadCalc(expectedSize, minSize, wrappers, PktV4Overhead(len(pkt.Path)))
 		expectedSize = PktEncOverhead + sizeWithTags(expectedSize)
 		if maxSize != 0 && expectedSize > maxSize {
 			return nil, 0, "", TooBig
@@ -167,7 +167,7 @@ func (ctx *Ctx) Tx(
 		}
 		pipeRPrev = pipeR
 		pipeR, pipeW = io.Pipe()
-		go func(node *Node, pkt *Pkt, src io.Reader, dst io.WriteCloser) {
+		go func(node *Node, pkt *PktV4, src io.Reader, dst io.WriteCloser) {
 			ctx.LogD("tx", LEs{
 				{"Node", node.Id},
 				{"Nice", int(nice)},
@@ -510,7 +510,7 @@ func (ctx *Ctx) TxFile(
 			return err
 		}
 
-		sizeFull += size - PktOverhead
+		sizeFull += size - PktV4Overhead(len(pkt.Path))
 		var checksum [MTHSize]byte
 		hsh.Sum(checksum[:0])
 		checksums = append(checksums, checksum)
