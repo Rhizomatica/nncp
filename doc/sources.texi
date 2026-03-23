@@ -10,14 +10,12 @@ libraries source code. Because of that, it is recommended for porters
 to use @ref{Tarballs, tarballs} instead.
 
 @example
-$ git clone --branch develop git://git.cypherpunks.su/nncp.git nncp
+$ git clone --branch develop git://git.stargrave.org/nncp.git nncp
 @end example
 
 You can also use
-@code{anongit@@master.git.stargrave.org:cypherpunks.su/nncp.git},
-@code{anongit@@slave.git.stargrave.org:cypherpunks.su/nncp.git},
-@code{anongit@@master.git.cypherpunks.su:cypherpunks.su/nncp.git},
-@code{anongit@@slave.git.cypherpunks.su:cypherpunks.su/nncp.git},
+@code{anongit@@master.git.stargrave.org:stargrave.org/nncp.git},
+@code{anongit@@slave.git.stargrave.org:stargrave.org/nncp.git},
 @url{git://git.stargrave.org/nncp.git},
-@url{git://y.git.stargrave.org/nncp.git},
-@url{git://y.git.cypherpunks.su/nncp.git} URLs instead.
+@url{git://y.git.stargrave.org/nncp.git}.
+@url{git://[322:3bd:cc26:9545:b00b:5e3c:7a5d:bb97]/nncp.git}.

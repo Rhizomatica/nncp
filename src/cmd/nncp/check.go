@@ -24,7 +24,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"go.cypherpunks.su/nncp/v8"
+	"go.stargrave.org/nncp/v8"
 )
 
 func usageCheck() {

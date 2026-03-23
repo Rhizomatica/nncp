@@ -43,7 +43,6 @@ You can obtain releases source code prepared tarballs from
 @url{http://www.nncpgo.org/Mirrors.html, mirrors}.
 EOF
 perl -i -ne 'print unless /include pedro/' doc/index.texi doc/about.ru.texi
-mv doc/.well-known/openpgpkey/nncpgo.org/hu/i4cdqgcarfjdjnba6y4jnf498asg8c6p.asc PUBKEY-PGP.asc
 redo doc/all
 
 ########################################################################
@@ -98,7 +97,6 @@ EOF
 mkinfo --output THANKS $texi
 
 rm -f $texi
-rm -r doc/.well-known
 
 ########################################################################
 
@@ -119,26 +117,44 @@ meta4ra-create -fn $tarball -mtime $tarball \
     -sig-pgp $tarball.asc -sig-ssh $tarball.sig \
     "1|ru|http://www.nncpgo.org/download/$tarball" \
     "1|ca|https://nncp.mirrors.quux.org/download/$tarball" \
-    "2|ru|https://www.nncpgo.org/download/$tarball" \
-    "3|ru|http://y.www.nncpgo.org/download/$tarball" \
-    "3|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball" \
-    "ipfs://TODO/$tarball" <$tarball >$tarball.meta4_
-meta4ra-create -add $tarball.meta4 -fn $tarball.asc -hashes "" \
+    "2|ru|http://msk.www.nncpgo.org/download/$tarball" \
+    "2|ru|http://spb.www.nncpgo.org/download/$tarball" \
+    "3|ru|https://www.nncpgo.org/download/$tarball" \
+    "4|ru|https://msk.www.nncpgo.org/download/$tarball" \
+    "4|ru|https://spb.www.nncpgo.org/download/$tarball" \
+    "5|ru|http://y.www.nncpgo.org/download/$tarball" \
+    "5|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball" \
+    "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball" \
+    "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball" \
+    "ipfs://TODO/$tarball" <$tarball >$tarball.meta4
+meta4ra-create -add $tarball.meta4 -fn $tarball.asc -hashers "" \
     -id "LibrePGP detached signature" \
     "1|ru|http://www.nncpgo.org/download/$tarball.asc" \
     "1|ca|https://nncp.mirrors.quux.org/download/$tarball.asc" \
-    "2|ru|https://www.nncpgo.org/download/$tarball.asc" \
-    "3|ru|http://y.www.nncpgo.org/download/$tarball.asc" \
-    "3|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.asc" \
+    "2|ru|http://msk.www.nncpgo.org/download/$tarball.asc" \
+    "2|ru|http://spb.www.nncpgo.org/download/$tarball.asc" \
+    "3|ru|https://www.nncpgo.org/download/$tarball.asc" \
+    "4|ru|https://msk.www.nncpgo.org/download/$tarball.asc" \
+    "4|ru|https://spb.www.nncpgo.org/download/$tarball.asc" \
+    "5|ru|http://y.www.nncpgo.org/download/$tarball.asc" \
+    "5|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.asc" \
+    "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball.asc" \
+    "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball.asc" \
     "ipfs://TODO/$tarball.asc" <$tarball.asc >$tarball.meta4_
 mv $tarball.meta4_ $tarball.meta4
-meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashes "" \
+meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashers "" \
     -id "OpenSSH signature" \
     "1|ru|http://www.nncpgo.org/download/$tarball.sig" \
     "1|ca|https://nncp.mirrors.quux.org/download/$tarball.sig" \
-    "2|ru|https://www.nncpgo.org/download/$tarball.sig" \
-    "3|ru|http://y.www.nncpgo.org/download/$tarball.sig" \
-    "3|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.sig" \
+    "2|ru|http://msk.www.nncpgo.org/download/$tarball.sig" \
+    "2|ru|http://spb.www.nncpgo.org/download/$tarball.sig" \
+    "3|ru|https://www.nncpgo.org/download/$tarball.sig" \
+    "4|ru|https://msk.www.nncpgo.org/download/$tarball.sig" \
+    "4|ru|https://spb.www.nncpgo.org/download/$tarball.sig" \
+    "5|ru|http://y.www.nncpgo.org/download/$tarball.sig" \
+    "5|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.sig" \
+    "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball.sig" \
+    "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball.sig" \
     "ipfs://TODO/$tarball.sig" <$tarball.sig >$tarball.meta4_
 mv $tarball.meta4_ $tarball.meta4
 
@@ -202,10 +218,10 @@ There are mirrors where you can also get the source code tarballs:
 http://www.nncpgo.org/Mirrors.html
 
 Please send questions regarding the use of NNCP, bug reports and patches
-to mailing list: http://lists.cypherpunks.su/nncp-devel.html
+to mailing list: http://lists.stargrave.org/nncp-devel.html
 EOF
 echo mutt -s \"[EN] NNCP $release release announcement\" \
-    nncp-devel@lists.cypherpunks.su \
+    nncp-devel@lists.stargrave.org \
     -a $cur/doc/download/$tarball.meta4
 
 cat <<EOF
@@ -259,8 +275,8 @@ http://www.nncpgo.org/Mirrors.html
 
 Пожалуйста, все вопросы касающиеся использования NNCP, отчёты об ошибках
 и патчи отправляйте в nncp-devel почтовую рассылку:
-http://lists.cypherpunks.su/nncp-devel.html
+http://lists.stargrave.org/nncp-devel.html
 EOF
 echo mutt -s \"[RU] Состоялся релиз NNCP $release\" \
-    nncp-devel@lists.cypherpunks.su \
+    nncp-devel@lists.stargrave.org \
     -a $cur/doc/download/$tarball.meta4

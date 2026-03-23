@@ -28,9 +28,9 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"go.cypherpunks.su/nncp/v8"
-	nncpHFModem "go.cypherpunks.su/nncp/v8/hfmodem"
-	nncpYggdrasil "go.cypherpunks.su/nncp/v8/yggdrasil"
+	"go.stargrave.org/nncp/v8"
+	nncpHFModem "go.stargrave.org/nncp/v8/hfmodem"
+	nncpYggdrasil "go.stargrave.org/nncp/v8/yggdrasil"
 	"golang.org/x/net/netutil"
 )
 

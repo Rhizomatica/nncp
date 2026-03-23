@@ -22,7 +22,7 @@ import (
 	"sync"
 	"time"
 
-	"go.cypherpunks.su/recfile/v3"
+	"go.stargrave.org/recfile/v4"
 	"golang.org/x/sys/unix"
 )
 

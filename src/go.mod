@@ -1,4 +1,4 @@
-module go.cypherpunks.su/nncp/v8
+module go.stargrave.org/nncp/v8
 
 go 1.22.0
 
@@ -13,8 +13,7 @@ require (
 	github.com/hjson/hjson-go/v4 v4.5.0
 	github.com/klauspost/compress v1.18.0
 	github.com/yggdrasil-network/yggdrasil-go v0.5.6
-	go.cypherpunks.ru/balloon v1.1.1
-	go.cypherpunks.su/recfile/v3 v3.1.0
+	go.stargrave.org/recfile/v4 v4.0.0
 	golang.org/x/crypto v0.25.0
 	golang.org/x/net v0.27.0
 	golang.org/x/sys v0.22.0

@@ -25,8 +25,8 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/gorhill/cronexpr"
-	nncpHFModem "go.cypherpunks.su/nncp/v8/hfmodem"
-	nncpYggdrasil "go.cypherpunks.su/nncp/v8/yggdrasil"
+	nncpHFModem "go.stargrave.org/nncp/v8/hfmodem"
+	nncpYggdrasil "go.stargrave.org/nncp/v8/yggdrasil"
 )
 
 type Call struct {

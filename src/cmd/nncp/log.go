@@ -23,8 +23,8 @@ import (
 	"log"
 	"os"
 
-	"go.cypherpunks.su/nncp/v8"
-	"go.cypherpunks.su/recfile/v3"
+	"go.stargrave.org/nncp/v8"
+	"go.stargrave.org/recfile/v4"
 )
 
 func usageLog() {

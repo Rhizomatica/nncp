@@ -30,7 +30,7 @@ import (
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/nacl/box"
 
-	"go.cypherpunks.su/nncp/v8"
+	"go.stargrave.org/nncp/v8"
 )
 
 func usageCfgNew() {

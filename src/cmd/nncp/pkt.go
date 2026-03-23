@@ -27,7 +27,7 @@ import (
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/klauspost/compress/zstd"
-	"go.cypherpunks.su/nncp/v8"
+	"go.stargrave.org/nncp/v8"
 )
 
 func usagePkt() {

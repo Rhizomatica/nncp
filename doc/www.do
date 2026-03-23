@@ -1,7 +1,6 @@
 html=nncp.html
 rm -fr $html
 redo $html
-cp -a .well-known $html/
 cp -a download $html/
 cp ../PUBKEY-* $html/
 (

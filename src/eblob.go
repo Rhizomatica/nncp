@@ -21,7 +21,7 @@ import (
 	"hash"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"go.cypherpunks.ru/balloon"
+	"go.stargrave.org/nncp/v8/balloon"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/chacha20poly1305"
 )
