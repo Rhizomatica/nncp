@@ -30,7 +30,7 @@ NNCP это свободное программное обеспечением: 
 http://lists.stargrave.org/nncp-devel.html
 
 Исходный код для разработчика находится в Git репозитории:
-http://www.git.stargrave.org/?p=nncp.git;a=summary
+http://www.git.stargrave.org/?p=nncp.git
 
 Для дополнительной информации пожалуйста читайте или doc/nncp.info
 или doc/nncp.texi.
