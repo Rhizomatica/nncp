@@ -210,9 +210,8 @@ Source code and its signature for that version can be found here:
     http://www.nncpgo.org/download/nncp-${release}.tar.xz.asc
     http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
 
-LibrePGP key: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
-              NNCP releases <releases@nncpgo.org>
-OpenSSH key: SHA256:FRiWawVNBkyS3jFn8uZ/JlT+PWKSFbhWe5XSixp1+SY
+OpenSSH key:
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAN9JzbXHVPouT+atdxhcVgVmCWLm9Dx/mhPWfU4Sceb
 
 There are mirrors where you can also get the source code tarballs:
 http://www.nncpgo.org/Mirrors.html
@@ -266,9 +265,8 @@ $(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
     http://www.nncpgo.org/download/nncp-${release}.tar.xz.asc
     http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
 
-LibrePGP ключ: 92C2 F0AE FE73 208E 46BF  F3DE 2B25 868E 75A1 A953
-               NNCP releases <releases@nncpgo.org>
-OpenSSH ключ: SHA256:FRiWawVNBkyS3jFn8uZ/JlT+PWKSFbhWe5XSixp1+SY
+OpenSSH ключ:
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAN9JzbXHVPouT+atdxhcVgVmCWLm9Dx/mhPWfU4Sceb
 
 Есть и зеркала где вы также можете получить архивы с исходным кодом:
 http://www.nncpgo.org/Mirrors.html
