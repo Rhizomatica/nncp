@@ -114,7 +114,7 @@ tarball=nncp-"$release".tar.xz
 ssh-keygen -Y sign -f ~/.ssh/sign/releases@nncpgo.org -n file $tarball
 gpg --armor --detach-sign --sign --local-user releases@nncpgo.org $tarball
 meta4ra-create -fn $tarball -mtime $tarball \
-    -sig-pgp $tarball.asc -sig-ssh $tarball.sig \
+    -sig-ssh $tarball.sig \
     "1|ru|http://www.nncpgo.org/download/$tarball" \
     "1|ca|https://nncp.mirrors.quux.org/download/$tarball" \
     "2|ru|http://msk.www.nncpgo.org/download/$tarball" \
@@ -127,20 +127,6 @@ meta4ra-create -fn $tarball -mtime $tarball \
     "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball" \
     "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball" \
     "ipfs://TODO/$tarball" <$tarball >$tarball.meta4
-meta4ra-create -add $tarball.meta4 -fn $tarball.asc -hashers "" \
-    -id "LibrePGP detached signature" \
-    "1|ru|http://www.nncpgo.org/download/$tarball.asc" \
-    "1|ca|https://nncp.mirrors.quux.org/download/$tarball.asc" \
-    "2|ru|http://msk.www.nncpgo.org/download/$tarball.asc" \
-    "2|ru|http://spb.www.nncpgo.org/download/$tarball.asc" \
-    "3|ru|https://www.nncpgo.org/download/$tarball.asc" \
-    "4|ru|https://msk.www.nncpgo.org/download/$tarball.asc" \
-    "4|ru|https://spb.www.nncpgo.org/download/$tarball.asc" \
-    "5|ru|http://y.www.nncpgo.org/download/$tarball.asc" \
-    "5|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.asc" \
-    "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball.asc" \
-    "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball.asc" \
-    "ipfs://TODO/$tarball.asc" <$tarball.asc >$tarball.meta4_
 mv $tarball.meta4_ $tarball.meta4
 meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashers "" \
     -id "OpenSSH signature" \
@@ -161,7 +147,7 @@ mv $tarball.meta4_ $tarball.meta4
 size=$(( $(stat -f %z $tarball) / 1024 ))
 release_date=$(date "+%Y-%m-%d")
 
-mv -v $tmp/$tarball $tmp/$tarball.asc $tmp/$tarball.sig $tmp/$tarball.meta4 $cur/doc/download
+mv -v $tmp/$tarball $tmp/$tarball.sig $tmp/$tarball.meta4 $cur/doc/download
 
 release_underscored=`echo $release | tr . _`
 cat <<EOF
@@ -204,11 +190,8 @@ $(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 
 NNCP's home page is: http://www.nncpgo.org/
 
-Source code and its signature for that version can be found here:
-
-    http://www.nncpgo.org/download/nncp-${release}.tar.xz ($size KiB)
-    http://www.nncpgo.org/download/nncp-${release}.tar.xz.asc
-    http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
+URLs to source code, its checksums and signatures can be found in an
+attached Metalink4 file.
 
 OpenSSH key:
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAN9JzbXHVPouT+atdxhcVgVmCWLm9Dx/mhPWfU4Sceb
@@ -259,11 +242,8 @@ $(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 Домашняя страница NNCP: http://www.nncpgo.org/
 Коротко об утилитах: http://www.nncpgo.org/Ob-utilitakh.html
 
-Исходный код и его подпись для этой версии находятся здесь:
-
-    http://www.nncpgo.org/download/nncp-${release}.tar.xz ($size KiB)
-    http://www.nncpgo.org/download/nncp-${release}.tar.xz.asc
-    http://www.nncpgo.org/download/nncp-${release}.tar.xz.sig
+Ссылки на исходный код, его контрольные суммы и подписи могут быть
+найдены в приложенном Metalink4 файле.
 
 OpenSSH ключ:
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAN9JzbXHVPouT+atdxhcVgVmCWLm9Dx/mhPWfU4Sceb
