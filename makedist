@@ -128,6 +128,21 @@ meta4ra-create -fn $tarball -mtime $tarball \
     "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball" \
     "ipfs://TODO/$tarball" <$tarball >$tarball.meta4
 mv $tarball.meta4_ $tarball.meta4
+meta4ra-create -add $tarball.meta4 -fn $tarball.cm -hashers "" \
+    -id "KEKS/CM detached signature" \
+    "1|ru|http://www.nncpgo.org/download/$tarball.cm" \
+    "1|ca|https://nncp.mirrors.quux.org/download/$tarball.cm" \
+    "2|ru|http://msk.www.nncpgo.org/download/$tarball.cm" \
+    "2|ru|http://spb.www.nncpgo.org/download/$tarball.cm" \
+    "3|ru|https://www.nncpgo.org/download/$tarball.cm" \
+    "4|ru|https://msk.www.nncpgo.org/download/$tarball.cm" \
+    "4|ru|https://spb.www.nncpgo.org/download/$tarball.cm" \
+    "5|ru|http://y.www.nncpgo.org/download/$tarball.cm" \
+    "5|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.cm" \
+    "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball.cm" \
+    "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball.cm" \
+    "ipfs://TODO/$tarball.cm" <$tarball.cm >$tarball.meta4_
+mv $tarball.meta4_ $tarball.meta4
 meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashers "" \
     -id "OpenSSH signature" \
     "1|ru|http://www.nncpgo.org/download/$tarball.sig" \
