@@ -15,8 +15,7 @@ Postfix}/@url{http://www.exim.org/, Exim} SMTP сервер подключённ
 
 Другая возможность это использовать POP3/IMAP4 сервер, но это слишком
 переусложнённо и громоздко для такой простой задачи. Не вариант.
-@url{https://ru.wikipedia.org/wiki/KISS_(%D0%BF%D1%80%D0%B8%D0%BD%D1%86%D0%B8%D0%BF),
-KISS}!
+@url{https://ru.wikipedia.org/wiki/KISS_(принцип), KISS}!
 
 Просто скажите вашим обоим Postfix/Exim-ам (на сервере и ноутбуке)
 отправлять сообщения через NNCP (@command{@ref{nncp-exec}}) на заданный узел.

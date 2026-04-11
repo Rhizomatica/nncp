@@ -3,7 +3,7 @@
 
 Это сравнение @url{https://ru.wikipedia.org/wiki/Uucp, UUCP}
 (Unix to Unix copy), @url{https://ru.wikipedia.org/wiki/FTN, FTN}
-(@url{https://ru.wikipedia.org/wiki/%D0%A4%D0%B8%D0%B4%D0%BE, FidoNet})
+(@url{https://ru.wikipedia.org/wiki/Фидо, FidoNet})
 и @url{https://ru.wikipedia.org/wiki/SMTP, SMTP} (так как это тоже
 сохранить-и-переслать режим).
 
