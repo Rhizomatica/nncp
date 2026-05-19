@@ -126,7 +126,7 @@ meta4ra-create -fn $tarball -mtime $tarball \
     "5|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball" \
     "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball" \
     "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball" \
-    "ipfs://TODO/$tarball" <$tarball >$tarball.meta4
+    <$tarball >$tarball.meta4
 mv $tarball.meta4_ $tarball.meta4
 meta4ra-create -add $tarball.meta4 -fn $tarball.cm -hashers "" \
     -id "KEKS/CM detached signature" \
@@ -141,7 +141,7 @@ meta4ra-create -add $tarball.meta4 -fn $tarball.cm -hashers "" \
     "5|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.cm" \
     "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball.cm" \
     "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball.cm" \
-    "ipfs://TODO/$tarball.cm" <$tarball.cm >$tarball.meta4_
+    <$tarball.cm >$tarball.meta4_
 mv $tarball.meta4_ $tarball.meta4
 meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashers "" \
     -id "OpenSSH signature" \
@@ -156,7 +156,7 @@ meta4ra-create -add $tarball.meta4 -fn $tarball.sig -hashers "" \
     "5|ru|http://[322:3bd:cc26:9545:b00b:ec74:34f6:bf47]/download/$tarball.sig" \
     "6|ru|sftp://anonwww@msk.www.stargrave.org/nncpgo.org/download/$tarball.sig" \
     "6|ru|sftp://anonwww@spb.www.stargrave.org/nncpgo.org/download/$tarball.sig" \
-    "ipfs://TODO/$tarball.sig" <$tarball.sig >$tarball.meta4_
+    <$tarball.sig >$tarball.meta4_
 mv $tarball.meta4_ $tarball.meta4
 
 size=$(( $(stat -f %z $tarball) / 1024 ))
