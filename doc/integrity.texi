@@ -10,7 +10,7 @@ that you retrieved trusted and untampered software.
 @url{https://www.openssh.com/, OpenSSH} @file{.sig} signature,
 @url{PUBKEY-SSH.pub, public key} and its LibrePGP
 @url{PUBKEY-SSH.pub.asc, signature}.
-Its fingerprint: @code{SHA256:FRiWawVNBkyS3jFn8uZ/JlT+PWKSFbhWe5XSixp1+SY}.
+Its fingerprint: @code{SHA256:u1fC9fUIJnQOm+/5oZj94Xn6j76W2nm7hRlPFzpfJdk}.
 
 @example
 $ ssh-keygen -Y verify -f PUBKEY-SSH.pub -I releases@@nncpgo.org -n file \

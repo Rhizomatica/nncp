@@ -208,8 +208,7 @@ NNCP's home page is: http://www.nncpgo.org/
 URLs to source code, its checksums and signatures can be found in an
 attached Metalink4 file.
 
-OpenSSH key:
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAN9JzbXHVPouT+atdxhcVgVmCWLm9Dx/mhPWfU4Sceb
+OpenSSH fingerprint: SHA256:u1fC9fUIJnQOm+/5oZj94Xn6j76W2nm7hRlPFzpfJdk
 
 There are mirrors where you can also get the source code tarballs:
 http://www.nncpgo.org/Mirrors.html
@@ -260,8 +259,7 @@ $(git cat-file -p v$release | sed -n '6,/^.*BEGIN/p' | sed '$d')
 Ссылки на исходный код, его контрольные суммы и подписи могут быть
 найдены в приложенном Metalink4 файле.
 
-OpenSSH ключ:
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAN9JzbXHVPouT+atdxhcVgVmCWLm9Dx/mhPWfU4Sceb
+Отпечаток OpenSSH ключа: SHA256:u1fC9fUIJnQOm+/5oZj94Xn6j76W2nm7hRlPFzpfJdk
 
 Есть и зеркала где вы также можете получить архивы с исходным кодом:
 http://www.nncpgo.org/Mirrors.html
