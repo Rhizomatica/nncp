@@ -23,7 +23,7 @@ quantum resistant SLH-DSA signature,
 @url{PUBKEY-CM.pub.asc, signature}.
 
 @example
-$ fpr=$(kekspp -v -p /data/id <PUBKEY-CM.pub)
+$ fpr=$(kekspp -v -p /id <PUBKEY-CM.pub)
 $ echo $fpr
 54D487664D5C19FE8C63F690155381AD4B0102EB6B9DF5A8DAD7A3B339610608
 $ mkdir -p pubs
