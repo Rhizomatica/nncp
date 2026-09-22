@@ -73,8 +73,13 @@ func (ctx *Ctx) Tx(
 	}
 	var expectedSize int64
 	if srcSize > 0 {
-		expectedSize = srcSize + PktV4Overhead(len(pkt.Path))
-		expectedSize += sizePadCalc(expectedSize, minSize, wrappers, PktV4Overhead(len(pkt.Path)))
+		v4 := hops[0].PktV4
+		if area != nil {
+			v4 = area.PktV4
+		}
+		pktOverhead := PktOverheadFor(v4, len(pkt.Path))
+		expectedSize = srcSize + pktOverhead
+		expectedSize += sizePadCalc(expectedSize, minSize, wrappers, pktOverhead)
 		expectedSize = PktEncOverhead + sizeWithTags(expectedSize)
 		if maxSize != 0 && expectedSize > maxSize {
 			return nil, 0, "", TooBig
@@ -128,6 +133,7 @@ func (ctx *Ctx) Tx(
 			areaNode := Node{Id: new(NodeId), ExchPub: new([32]byte)}
 			copy(areaNode.Id[:], area.Id[:])
 			copy(areaNode.ExchPub[:], area.Pub[:])
+			areaNode.PktV4 = area.PktV4
 			pktEncRaw, size, err := PktEncWrite(
 				ctx.Self, &areaNode, pkt, nice, 0, maxSize, 0, src, dst,
 			)

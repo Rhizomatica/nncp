@@ -57,6 +57,7 @@ type Node struct {
 	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
 	NoPad          bool
+	PktV4          bool
 	Calls          []*Call
 	Origin         *NodeId
 

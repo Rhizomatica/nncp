@@ -65,6 +65,7 @@ type NodeJSON struct {
 	OnlineDeadline *uint `json:"onlinedeadline,omitempty"`
 	MaxOnlineTime  *uint `json:"maxonlinetime,omitempty"`
 	NoPad          bool  `json:"nopad,omitempty"`
+	PktV4          bool  `json:"pktv4,omitempty"`
 }
 
 type NodeFreqJSON struct {
@@ -135,6 +136,7 @@ type AreaJSON struct {
 	Exec     map[string][]string `json:"exec,omitempty"`
 
 	AllowUnknown bool `json:"allow-unknown,omitempty"`
+	PktV4        bool `json:"pktv4,omitempty"`
 }
 
 type CfgJSON struct {
@@ -364,6 +366,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		OnlineDeadline: defOnlineDeadline,
 		MaxOnlineTime:  defMaxOnlineTime,
 		NoPad:          cfg.NoPad,
+		PktV4:          cfg.PktV4,
 	}
 	copy(node.ExchPub[:], exchPub)
 	if len(noisePub) > 0 {
@@ -489,6 +492,7 @@ func NewArea(ctx *Ctx, name string, cfg *AreaJSON) (*Area, error) {
 		copy(area.Prv[:], prv)
 	}
 	area.AllowUnknown = cfg.AllowUnknown
+	area.PktV4 = cfg.PktV4
 	return &area, nil
 }
 

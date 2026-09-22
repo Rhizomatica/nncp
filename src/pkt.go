@@ -80,6 +80,41 @@ type PktV4 struct {
 	Path  []byte
 }
 
+// PktOverheadFor returns the XDR-encoded size of a plain packet with the
+// given path length, in NNCPPv4 or in NNCPPv3 (fixed-size path).
+func PktOverheadFor(v4 bool, pathLen int) int64 {
+	if v4 {
+		return PktV4Overhead(pathLen)
+	}
+	return PktOverhead
+}
+
+// Overhead returns the XDR-encoded size of pkt in the format it was read in.
+func (pkt *PktV4) Overhead() int64 {
+	return PktOverheadFor(pkt.Magic != MagicNNCPPv3.B, len(pkt.Path))
+}
+
+// PktMarshal writes pkt as NNCPPv4 if v4, otherwise as NNCPPv3, which is
+// what every NNCP up to 8.13.0 reads. v4 is opt-in per recipient.
+func PktMarshal(w io.Writer, pkt *PktV4, v4 bool) (int, error) {
+	if len(pkt.Path) > MaxPathSize {
+		return 0, errors.New("Too long path")
+	}
+	if v4 {
+		p := *pkt
+		p.Magic = MagicNNCPPv4.B
+		return xdr.Marshal(w, &p)
+	}
+	p := Pkt{
+		Magic:   MagicNNCPPv3.B,
+		Type:    pkt.Type,
+		Nice:    pkt.Nice,
+		PathLen: uint8(len(pkt.Path)),
+	}
+	copy(p.Path[:], pkt.Path)
+	return xdr.Marshal(w, &p)
+}
+
 // PktV4Overhead returns the XDR-encoded size of a PktV4 with the given path length.
 func PktV4Overhead(pathLen int) int64 {
 	padded := pathLen
@@ -125,7 +160,8 @@ func NewPkt(typ PktType, nice uint8, path []byte) (*PktV4, error) {
 	return &pkt, nil
 }
 
-// PktRead reads a plain packet from r, detecting v3 or v4 format by magic bytes.
+// PktRead reads a plain packet from r, detecting v3 or v4 format by magic
+// bytes. A v3 packet keeps its v3 magic, so its Overhead() is right.
 func PktRead(r io.Reader) (*PktV4, error) {
 	var magic [8]byte
 	if _, err := io.ReadFull(r, magic[:]); err != nil {
@@ -135,8 +171,12 @@ func PktRead(r io.Reader) (*PktV4, error) {
 	switch magic {
 	case MagicNNCPPv4.B:
 		var pkt PktV4
-		if _, err := xdr.Unmarshal(combined, &pkt); err != nil {
+		// the path is variable-length: never allocate more than a path can be
+		if _, err := xdr.UnmarshalLimited(combined, &pkt, MaxPathSize); err != nil {
 			return nil, err
+		}
+		if len(pkt.Path) > MaxPathSize {
+			return nil, errors.New("Too long path")
 		}
 		return &pkt, nil
 	case MagicNNCPPv3.B:
@@ -144,8 +184,11 @@ func PktRead(r io.Reader) (*PktV4, error) {
 		if _, err := xdr.Unmarshal(combined, &pktV3); err != nil {
 			return nil, err
 		}
+		if int(pktV3.PathLen) > MaxPathSize {
+			return nil, errors.New("Too long path")
+		}
 		return &PktV4{
-			Magic: MagicNNCPPv4.B,
+			Magic: MagicNNCPPv3.B,
 			Type:  pktV3.Type,
 			Nice:  pktV3.Nice,
 			Path:  pktV3.Path[:int(pktV3.PathLen)],
@@ -253,7 +296,7 @@ func PktEncWrite(
 	}
 
 	var buf bytes.Buffer
-	_, err = xdr.Marshal(&buf, pkt)
+	_, err = PktMarshal(&buf, pkt, their.PktV4)
 	if err != nil {
 		return
 	}

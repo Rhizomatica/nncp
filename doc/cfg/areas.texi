@@ -51,6 +51,11 @@ node option}.
 You can accept multicast packets from unknown senders, by setting
 @code{allow-unknown} option.
 
+@vindex pktv4
+Setting @code{pktv4} sends the area's multicast packets in the NNCPPv4
+plain packet format (see @ref{CfgPktV4, neigh's node option}). Every
+area member must support it, as they all decrypt the same packet.
+
 In the example above:
 
 @table @code

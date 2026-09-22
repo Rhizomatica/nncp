@@ -313,6 +313,11 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 				return
 			}
 		}
+		if n.PktV4 {
+			if err = cfgDirTouch(dst, "neigh", name, "pktv4"); err != nil {
+				return
+			}
+		}
 
 		for i, call := range n.Calls {
 			is := strconv.Itoa(i)
@@ -424,6 +429,11 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 		}
 		if a.AllowUnknown {
 			if err = cfgDirTouch(dst, "areas", name, "allow-unknown"); err != nil {
+				return
+			}
+		}
+		if a.PktV4 {
+			if err = cfgDirTouch(dst, "areas", name, "pktv4"); err != nil {
 				return
 			}
 		}
@@ -797,6 +807,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 		}
 
 		node.NoPad = cfgDirExists(src, "neigh", n, "nopad")
+		node.PktV4 = cfgDirExists(src, "neigh", n, "pktv4")
 
 		fis2, err = os.ReadDir(filepath.Join(src, "neigh", n, "calls"))
 		if err != nil && !errors.Is(err, fs.ErrNotExist) {
@@ -970,6 +981,7 @@ func DirToCfg(src string) (*CfgJSON, error) {
 		if cfgDirExists(src, "areas", n, "allow-unknown") {
 			area.AllowUnknown = true
 		}
+		area.PktV4 = cfgDirExists(src, "areas", n, "pktv4")
 		cfg.Areas[n] = area
 	}
 

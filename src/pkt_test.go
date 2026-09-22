@@ -93,60 +93,66 @@ func TestPktEncRead(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	f := func(
-		path string,
-		pathSize uint8,
-		dataSize uint32,
-		minSize uint16,
-		wrappers uint8,
-	) bool {
-		dataSize %= 1 << 20
-		data := make([]byte, dataSize)
-		if _, err = io.ReadFull(rand.Reader, data); err != nil {
-			panic(err)
+	for _, v4 := range []bool{false, true} {
+		f := func(
+			path string,
+			pathSize uint8,
+			dataSize uint32,
+			minSize uint16,
+			wrappers uint8,
+		) bool {
+			dataSize %= 1 << 20
+			data := make([]byte, dataSize)
+			if _, err = io.ReadFull(rand.Reader, data); err != nil {
+				panic(err)
+			}
+			var ct bytes.Buffer
+			if len(path) > int(pathSize) {
+				path = path[:int(pathSize)]
+			}
+			nice := uint8(123)
+			pkt, err := NewPkt(PktTypeFile, nice, []byte(path))
+			if err != nil {
+				panic(err)
+			}
+			their := node2.Their()
+			their.PktV4 = v4
+			wrappers %= 8
+			_, _, err = PktEncWrite(
+				node1,
+				their,
+				pkt,
+				nice,
+				int64(minSize),
+				MaxFileSize,
+				int(wrappers),
+				bytes.NewReader(data),
+				&ct,
+			)
+			if err != nil {
+				return false
+			}
+			var pt bytes.Buffer
+			nodes := make(map[NodeId]*Node)
+			nodes[*node1.Id] = node1.Their()
+			_, node, sizeGot, err := PktEncRead(node2, nodes, &ct, &pt, true, nil)
+			if err != nil {
+				return false
+			}
+			if *node.Id != *node1.Id {
+				return false
+			}
+			if sizeGot != int64(len(data))+PktOverheadFor(v4, len(pkt.Path)) {
+				return false
+			}
+			var pktBuf bytes.Buffer
+			if _, err = PktMarshal(&pktBuf, pkt, v4); err != nil {
+				return false
+			}
+			return bytes.Equal(pt.Bytes(), append(pktBuf.Bytes(), data...))
 		}
-		var ct bytes.Buffer
-		if len(path) > int(pathSize) {
-			path = path[:int(pathSize)]
+		if err := quick.Check(f, nil); err != nil {
+			t.Errorf("v4=%v: %v", v4, err)
 		}
-		nice := uint8(123)
-		pkt, err := NewPkt(PktTypeFile, nice, []byte(path))
-		if err != nil {
-			panic(err)
-		}
-		wrappers %= 8
-		_, _, err = PktEncWrite(
-			node1,
-			node2.Their(),
-			pkt,
-			nice,
-			int64(minSize),
-			MaxFileSize,
-			int(wrappers),
-			bytes.NewReader(data),
-			&ct,
-		)
-		if err != nil {
-			return false
-		}
-		var pt bytes.Buffer
-		nodes := make(map[NodeId]*Node)
-		nodes[*node1.Id] = node1.Their()
-		_, node, sizeGot, err := PktEncRead(node2, nodes, &ct, &pt, true, nil)
-		if err != nil {
-			return false
-		}
-		if *node.Id != *node1.Id {
-			return false
-		}
-		if sizeGot != int64(len(data))+PktV4Overhead(len(pkt.Path)) {
-			return false
-		}
-		var pktBuf bytes.Buffer
-		xdr.Marshal(&pktBuf, pkt)
-		return bytes.Equal(pt.Bytes(), append(pktBuf.Bytes(), data...))
-	}
-	if err := quick.Check(f, nil); err != nil {
-		t.Error(err)
 	}
 }

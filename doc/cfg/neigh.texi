@@ -187,6 +187,24 @@ NNCP_NICE=64 \
     If greater than zero, then it is maximal time of single connection.
     Forcefully disconnect if it is exceeded.
 
+@vindex nopad
+@anchor{CfgNoPad}
+@item nopad
+    Do not pad the first message of an online session with that node.
+    The padding (up to 64 KiB) hides how many packets are queued, but
+    takes minutes over slow links such as HF radio. Both sides have to
+    set it for each other.
+
+@vindex pktv4
+@anchor{CfgPktV4}
+@item pktv4
+    Send that node plain packets in the NNCPPv4 format, whose path field
+    has variable length: about 240 bytes less per packet than NNCPPv3,
+    which spends a fixed 255-byte path. Every node reads both formats
+    since the version that introduced it, but older ones only read
+    NNCPPv3, so enable it only for nodes known to support it. It applies
+    to the packets encrypted to that node, including transitional ones.
+
 @anchor{CfgCalls}
 @item calls
     List of @ref{Call, call configuration}s.

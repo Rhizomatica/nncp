@@ -195,8 +195,9 @@ func mainPkt() {
 
 	if *overheads {
 		fmt.Printf(
-			"Plain: %d\nEncrypted: %d\nSize: %d\n",
+			"Plain (v3): %d\nPlain (v4, empty path): %d\nEncrypted: %d\nSize: %d\n",
 			nncp.PktOverhead,
+			nncp.PktV4Overhead(0),
 			nncp.PktEncOverhead,
 			nncp.PktSizeOverhead,
 		)

@@ -43,6 +43,9 @@ type Area struct {
 	Incoming *string
 
 	AllowUnknown bool
+
+	// Every subscriber reads NNCPPv4 plain packets
+	PktV4 bool
 }
 
 func AreaIdFromString(raw string) (*AreaId, error) {

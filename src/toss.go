@@ -80,8 +80,8 @@ func newNotification(fromTo *FromToJSON, subject string, body []byte) io.Reader 
 	return strings.NewReader(strings.Join(lines, "\n"))
 }
 
-func pktSizeWithoutEnc(pktSize int64) int64 {
-	pktSize = pktSize - PktEncOverhead - PktOverhead - PktSizeOverhead
+func pktSizeWithoutEnc(pktSize, pktOverhead int64) int64 {
+	pktSize = pktSize - PktEncOverhead - pktOverhead - PktSizeOverhead
 	pktSizeBlocks := pktSize / (EncBlkSize + poly1305.TagSize)
 	if pktSize%(EncBlkSize+poly1305.TagSize) != 0 {
 		pktSize -= poly1305.TagSize
@@ -99,7 +99,7 @@ func jobProcess(
 	les LEs,
 	sender *Node,
 	nice uint8,
-	pktSize uint64,
+	pktEncSize int64,
 	jobPath string,
 	decompressor *zstd.Decoder,
 	opts *TossOpts,
@@ -113,6 +113,8 @@ func jobProcess(
 		})
 		return err
 	}
+	// v3 and v4 plain packets differ in overhead: size the payload once read
+	pktSize := uint64(pktSizeWithoutEnc(pktEncSize, pkt.Overhead()))
 	les = append(les, LE{"Size", int64(pktSize)})
 	ctx.LogD("rx", les, func(les LEs) string {
 		return fmt.Sprintf(
@@ -927,7 +929,7 @@ func jobProcess(
 					les,
 					&areaNode,
 					nice,
-					uint64(pktSizeWithoutEnc(int64(pktSize))),
+					int64(pktSize),
 					"",
 					decompressor,
 					opts,
@@ -1120,7 +1122,7 @@ func (ctx *Ctx) Toss(nodeId *NodeId, xx TRxTx, opts *TossOpts) bool {
 				les,
 				sender,
 				job.PktEnc.Nice,
-				uint64(pktSizeWithoutEnc(job.Size)),
+				job.Size,
 				job.Path,
 				decompressor,
 				opts,
