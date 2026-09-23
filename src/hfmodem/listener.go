@@ -368,6 +368,8 @@ func (l *HFListener) controlReader(
 			}
 			connMu.Unlock()
 
+			// the previous session may have left a read deadline set
+			dataConn.SetReadDeadline(time.Time{})
 			conn := &HFConn{
 				ctrlConn:      ctrlConn,
 				dataConn:      dataConn,
@@ -423,6 +425,9 @@ func (l *HFListener) controlReader(
 				default:
 					close(c.ctrlDone)
 				}
+				// wake a Read blocked on the shared data channel, so the
+				// session ends now instead of at its online deadline
+				c.dataConn.SetReadDeadline(time.Now())
 			}
 			if l.pttKeyer != nil {
 				if rsk, ok := l.pttKeyer.(RadioStatusKeyer); ok {

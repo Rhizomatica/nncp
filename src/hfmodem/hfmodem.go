@@ -19,6 +19,7 @@ package hfmodem
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"net/url"
 	"os"
@@ -78,15 +79,47 @@ func (a hfAddr) String() string  { return a.callsign }
 func (c *HFConn) LocalAddr() net.Addr  { return hfAddr{c.localAddr} }
 func (c *HFConn) RemoteAddr() net.Addr { return hfAddr{c.remoteAddr} }
 
+// linkDown reports whether the TNC has ended this connection: DISCONNECTED,
+// or its control channel went away.
+func (c *HFConn) linkDown() bool {
+	select {
+	case <-c.ctrlDone:
+		return true
+	default:
+		return false
+	}
+}
+
+// Read returns io.EOF once the radio link is down. The data channel of a
+// listener belongs to the listener and outlives the session, so without this
+// the session never saw an end: it idled until its online deadline and its
+// keepalives went to the TNC with no link up (Mercury then held its modem in
+// ARQ mode and stopped broadcasting).
 func (c *HFConn) Read(p []byte) (int, error) {
 	if atomic.LoadInt32(&c.closed) != 0 {
 		return 0, net.ErrClosed
 	}
-	return c.dataConn.Read(p)
+	if c.linkDown() {
+		return 0, io.EOF
+	}
+	n, err := c.dataConn.Read(p)
+	if err != nil && c.linkDown() {
+		// woken by the listener's read deadline on DISCONNECTED
+		if n > 0 {
+			return n, nil
+		}
+		return 0, io.EOF
+	}
+	return n, err
 }
 
 func (c *HFConn) Write(p []byte) (int, error) {
 	if atomic.LoadInt32(&c.closed) != 0 {
+		return 0, net.ErrClosed
+	}
+	// nothing may reach the TNC once the link is down: it would sit in its
+	// buffer and go out as the first bytes of whatever session comes next
+	if c.linkDown() {
 		return 0, net.ErrClosed
 	}
 
