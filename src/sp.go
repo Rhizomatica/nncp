@@ -27,6 +27,7 @@ import (
 	"sort"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
@@ -224,6 +225,7 @@ type SPState struct {
 	wg             sync.WaitGroup
 	RxBytes        int64
 	RxLastSeen     time.Time
+	rxLastByte     atomic.Int64 // UnixNano of the last byte read from the peer
 	RxLastNonPing  time.Time
 	TxBytes        int64
 	TxLastSeen     time.Time
@@ -304,8 +306,37 @@ func (state *SPState) WriteSP(dst io.Writer, payload []byte, ping bool) error {
 	return nil
 }
 
+// progressReader stamps every successful read, so that liveness follows
+// the bytes arriving and not only whole packets.
+type progressReader struct {
+	r    io.Reader
+	last *atomic.Int64
+}
+
+func (pr progressReader) Read(p []byte) (int, error) {
+	n, err := pr.r.Read(p)
+	if n > 0 {
+		pr.last.Store(time.Now().UnixNano())
+	}
+	return n, err
+}
+
+// rxAlive reports whether anything arrived from the peer within d: a whole
+// packet, or any part of one. On a slow link (HF: tens of bytes per second)
+// a single file packet takes minutes to arrive, and its pings queue behind
+// it in the modem, so going by whole packets alone killed sessions that
+// were still receiving.
+func (state *SPState) rxAlive(now time.Time, d time.Duration) bool {
+	if now.Sub(state.RxLastSeen) < d {
+		return true
+	}
+	last := state.rxLastByte.Load()
+	return last != 0 && now.Sub(time.Unix(0, last)) < d
+}
+
 func (state *SPState) ReadSP(src io.Reader) ([]byte, error) {
 	var sp SPRaw
+	src = progressReader{r: src, last: &state.rxLastByte}
 	n, err := xdr.UnmarshalLimited(src, &sp, 1<<17)
 	if err != nil {
 		ue := err.(*xdr.UnmarshalError)
@@ -767,7 +798,7 @@ func (state *SPState) StartWorkers(
 				if state.maxOnlineTime > 0 && state.mustFinishAt.Before(now) {
 					goto Deadlined
 				}
-				if now.Sub(state.RxLastSeen) >= 2*PingTimeout {
+				if !state.rxAlive(now, 2*PingTimeout) {
 					goto Deadlined
 				}
 				break
