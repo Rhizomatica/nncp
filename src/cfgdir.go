@@ -308,6 +308,9 @@ func CfgToDir(dst string, cfg *CfgJSON) (err error) {
 		if err = cfgDirSave(n.MaxOnlineTime, dst, "neigh", name, "maxonlinetime"); err != nil {
 			return
 		}
+		if err = cfgDirSave(n.PingInterval, dst, "neigh", name, "pinginterval"); err != nil {
+			return
+		}
 		if n.NoPad {
 			if err = cfgDirTouch(dst, "neigh", name, "nopad"); err != nil {
 				return
@@ -804,6 +807,15 @@ func DirToCfg(src string) (*CfgJSON, error) {
 		if i64 != nil {
 			i := uint(*i64)
 			node.MaxOnlineTime = &i
+		}
+
+		i64, err = cfgDirLoadIntOpt(src, "neigh", n, "pinginterval")
+		if err != nil {
+			return nil, err
+		}
+		if i64 != nil {
+			i := uint(*i64)
+			node.PingInterval = &i
 		}
 
 		node.NoPad = cfgDirExists(src, "neigh", n, "nopad")

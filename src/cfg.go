@@ -64,6 +64,7 @@ type NodeJSON struct {
 	TxRate         *int  `json:"txrate,omitempty"`
 	OnlineDeadline *uint `json:"onlinedeadline,omitempty"`
 	MaxOnlineTime  *uint `json:"maxonlinetime,omitempty"`
+	PingInterval   *uint `json:"pinginterval,omitempty"`
 	NoPad          bool  `json:"nopad,omitempty"`
 	PktV4          bool  `json:"pktv4,omitempty"`
 }
@@ -263,6 +264,13 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 	if cfg.MaxOnlineTime != nil {
 		defMaxOnlineTime = time.Duration(*cfg.MaxOnlineTime) * time.Second
 	}
+	pingInterval := PingTimeout
+	if cfg.PingInterval != nil {
+		if *cfg.PingInterval == 0 {
+			return nil, errors.New("PingInterval must be at least 1 second")
+		}
+		pingInterval = time.Duration(*cfg.PingInterval) * time.Second
+	}
 
 	var calls []*Call
 	for _, callCfg := range cfg.Calls {
@@ -365,6 +373,7 @@ func NewNode(name string, cfg NodeJSON) (*Node, error) {
 		TxRate:         defTxRate,
 		OnlineDeadline: defOnlineDeadline,
 		MaxOnlineTime:  defMaxOnlineTime,
+		PingInterval:   pingInterval,
 		NoPad:          cfg.NoPad,
 		PktV4:          cfg.PktV4,
 	}

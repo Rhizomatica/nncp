@@ -32,6 +32,7 @@ nncp-cfg-dir
 │   │   ├── id
 │   │   ├── incoming
 │   │   ├── noisepub
+│   │   ├── pinginterval
 │   │   ├── pktv4
 │   │   ├── signpub
 │   │   └── via

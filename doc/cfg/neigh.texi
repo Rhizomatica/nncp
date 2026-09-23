@@ -187,6 +187,17 @@ NNCP_NICE=64 \
     If greater than zero, then it is maximal time of single connection.
     Forcefully disconnect if it is exceeded.
 
+@vindex pinginterval
+@anchor{CfgPingInterval}
+@item pinginterval
+    Seconds of silence after which a PING is sent to that node during an
+    online session; the node is considered dead after twice that without
+    receiving anything from it. 60 by default. On slow links, where every
+    PING costs airtime (an HF modem needs a turn and a whole frame to send
+    one), a higher value keeps idle sessions quiet; together with a short
+    @ref{CfgOnlineDeadline, @emph{onlinedeadline}}, an idle session then
+    ends without any PING at all.
+
 @vindex nopad
 @anchor{CfgNoPad}
 @item nopad

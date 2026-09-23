@@ -56,6 +56,7 @@ type Node struct {
 	TxRate         int
 	OnlineDeadline time.Duration
 	MaxOnlineTime  time.Duration
+	PingInterval   time.Duration
 	NoPad          bool
 	PktV4          bool
 	Calls          []*Call

@@ -326,6 +326,16 @@ func (pr progressReader) Read(p []byte) (int, error) {
 // a single file packet takes minutes to arrive, and its pings queue behind
 // it in the modem, so going by whole packets alone killed sessions that
 // were still receiving.
+// pingInterval is how long we stay silent before sending a PING, per node
+// (pinginterval); the peer is taken for dead after twice that without a
+// byte from it. On HF every PING costs a modem turn and a frame of airtime.
+func (state *SPState) pingInterval() time.Duration {
+	if state.Node != nil && state.Node.PingInterval > 0 {
+		return state.Node.PingInterval
+	}
+	return PingTimeout
+}
+
 func (state *SPState) rxAlive(now time.Time, d time.Duration) bool {
 	if now.Sub(state.RxLastSeen) < d {
 		return true
@@ -782,7 +792,8 @@ func (state *SPState) StartWorkers(
 	state.wg.Add(1)
 	go func() {
 		deadlineTicker := time.NewTicker(time.Second)
-		pingTicker := time.NewTicker(PingTimeout)
+		pingEvery := state.pingInterval()
+		pingTicker := time.NewTicker(pingEvery)
 		for {
 			select {
 			case <-state.isDead:
@@ -798,7 +809,7 @@ func (state *SPState) StartWorkers(
 				if state.maxOnlineTime > 0 && state.mustFinishAt.Before(now) {
 					goto Deadlined
 				}
-				if !state.rxAlive(now, 2*PingTimeout) {
+				if !state.rxAlive(now, 2*pingEvery) {
 					goto Deadlined
 				}
 				break
@@ -806,7 +817,7 @@ func (state *SPState) StartWorkers(
 				state.SetDead()
 				conn.Close()
 			case now := <-pingTicker.C:
-				if now.After(state.TxLastSeen.Add(PingTimeout)) {
+				if now.After(state.TxLastSeen.Add(pingEvery)) {
 					state.wg.Add(1)
 					go func() {
 						state.pings <- struct{}{}
