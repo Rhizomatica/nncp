@@ -18,6 +18,7 @@
 package hfmodem
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -303,8 +304,13 @@ func NewConn(addr string) (net.Conn, error) {
 	if err == nil {
 		return conn, nil
 	}
+	if !errors.Is(err, errNoProxy) {
+		// The daemon holds the TNC and tried: do not open a second control
+		// client next to its listener (the TNC serves one).
+		return nil, err
+	}
 
-	// No proxy available — connect directly to TNC
+	// No daemon — connect directly to the TNC
 	cfg, err := parseAddr(addr)
 	if err != nil {
 		return nil, err
@@ -313,5 +319,11 @@ func NewConn(addr string) (net.Conn, error) {
 		return nil, fmt.Errorf("remote callsign required for outbound connection")
 	}
 
-	return varaConnect(cfg)
+	// Not "return varaConnect(cfg)": on failure that is a non-nil net.Conn
+	// holding a nil *HFConn, and a caller testing conn != nil crashes.
+	c, err := varaConnect(cfg)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }

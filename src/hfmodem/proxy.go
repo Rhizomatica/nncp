@@ -18,6 +18,7 @@
 package hfmodem
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -28,7 +29,13 @@ import (
 	"time"
 )
 
-const ProxySocketPath = "/tmp/nncp-hfmodem.sock"
+var ProxySocketPath = "/tmp/nncp-hfmodem.sock"
+
+// errNoProxy means no nncp-daemon serves the proxy socket. Only then may a
+// caller open the TNC itself: Mercury and VARA serve a single control client,
+// and a second one next to the daemon's listener competes with it for the
+// TNC. A dial the daemon attempted and failed is final.
+var errNoProxy = errors.New("no nncp-daemon proxy")
 
 // startProxyServer starts a Unix socket server on the HFListener.
 // When nncp-call needs to make an outgoing HF call, it connects to this
@@ -161,7 +168,7 @@ func (l *HFListener) handleProxyClient(clientConn net.Conn) {
 func proxyDial(addr string) (net.Conn, error) {
 	conn, err := net.DialTimeout("unix", ProxySocketPath, 5*time.Second)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", errNoProxy, err)
 	}
 
 	// Send dial request
