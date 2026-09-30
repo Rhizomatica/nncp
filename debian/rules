@@ -1,0 +1,40 @@
+#!/usr/bin/make -f
+
+# Go modules are fetched at build time (as for mercury-ui), into the build
+# tree. recfile is served only by stargrave's own module proxy; go.sum
+# still pins every module's hash.
+export GOPATH := $(CURDIR)/debian/.gopath
+export GOCACHE := $(CURDIR)/debian/.gocache
+export GOPROXY := https://proxy.golang.org,http://proxy.go.stargrave.org
+export GONOSUMDB := go.stargrave.org
+export GOFLAGS := -trimpath -mod=readonly
+# cgo: the Hermes PTT keyer uses SysV shared memory
+export CGO_ENABLED := 1
+
+MOD := go.stargrave.org/nncp/v8
+LDFLAGS := -s -w \
+	-X $(MOD).DefaultCfgPath=/etc/nncp.hjson \
+	-X $(MOD).DefaultSendmailPath=/usr/sbin/sendmail \
+	-X $(MOD).DefaultSpoolPath=/var/spool/nncp \
+	-X $(MOD).DefaultLogPath=/var/spool/nncp/log
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+override_dh_auto_build:
+	cd src && go build -ldflags "$(LDFLAGS)" -o $(CURDIR)/debian/build/nncp ./cmd/nncp
+
+# upstream's tests need its own test tree and take minutes; run them in the
+# fork (cd src && go test ./...) before tagging a package
+override_dh_auto_test:
+
+override_dh_auto_install:
+	install -D -m 0755 debian/build/nncp debian/nncp/usr/bin/nncp
+	for cmd in $$(cat cmd.list); do ln -s nncp debian/nncp/usr/bin/$$cmd; done
+
+override_dh_auto_clean:
+	# the module cache is read-only
+	[ ! -d debian/.gopath ] || chmod -R u+w debian/.gopath
+	rm -rf debian/.gopath debian/.gocache debian/build

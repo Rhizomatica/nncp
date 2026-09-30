@@ -1,0 +1,21 @@
+Source: nncp
+Section: net
+Priority: optional
+Maintainer: Rafael Diniz <rafael@rhizomatica.org>
+Build-Depends: debhelper-compat (= 13), golang-go (>= 2:1.22~), ca-certificates
+Standards-Version: 4.6.2
+Homepage: http://www.nncpgo.org/
+Vcs-Git: https://github.com/Rhizomatica/nncp.git -b hermes
+Rules-Requires-Root: no
+
+Package: nncp
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: secure store-and-forward files, mail, and commands
+ NNCP is a package facilitating secure store-and-forward file and mail
+ exchange. It can be thought of as a modern UUCP with Internet smarts.
+ .
+ Rhizomatica build for HERMES radio stations, from upstream develop
+ (git.stargrave.org) plus the fork's HF modem work: native VARA/Mercury
+ transport, Hermes SHM and hamlib PTT, per-node nopad, pktv4 and
+ pinginterval.

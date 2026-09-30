@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+# Create the spool when missing; never change an existing one, whose owner,
+# group and modes the HERMES installer sets (an old postinst reset it to 755
+# root on every upgrade).
+case "$1" in
+    configure)
+        [ -d /var/spool/nncp ] || install -d -m 0755 /var/spool/nncp
+        [ -d /var/spool/nncp/incoming ] || install -d -m 0755 /var/spool/nncp/incoming
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

@@ -1,0 +1,54 @@
+nncp (8.13.0+git20260925132658.f28c62f-1rhizomatica2) unstable; urgency=medium
+
+  * Packaged from the fork's own debian/ directory, on branch hermes, so
+    the HERMES repository builds nncp with scripts/build-repo.sh like its
+    other packages (it used to be built by a script in hermes-repo).
+  * Same code as -1rhizomatica1 (Rhizomatica/nncp f28c62f6).
+
+ -- Rafael Diniz <rafael@rhizomatica.org>  Wed, 30 Sep 2026 23:30:00 +0100
+
+nncp (8.13.0+git20260925132658.f28c62f-1rhizomatica1) unstable; urgency=medium
+
+  * sp: per-node pinginterval (seconds). An HF neighbour can send the SP
+    keepalive rarely, since each one costs a modem turn; others keep the
+    default. The HERMES mesh sets 600 s. pinginterval: 0 is rejected.
+  * hfmodem: never open the TNC next to a daemon that holds it. When the
+    hfmodem proxy daemon is running and its dial fails, nncp-call now
+    reports the daemon's error instead of opening a second control
+    connection to Mercury, which serves one client and lost the TNC to
+    it. Direct TNC dialling remains when no daemon is running.
+
+ -- Rafael Diniz <rafael@rhizomatica.org>  Tue, 29 Sep 2026 12:00:00 +0100
+
+nncp (8.13.0+git20260923205140.04147c2-1rhizomatica1) unstable; urgency=medium
+
+  * sp: keep a session alive while a packet is still arriving. A session
+    was dropped when no whole SP packet had arrived for 2 min; on HF one
+    file packet takes minutes, so calls ended at 2:00 after the handshake
+    with no file delivered. Liveness now also follows the bytes; a silent
+    peer is still dropped at 2 min.
+
+ -- Rafael Diniz <rafael@rhizomatica.org>  Wed, 23 Sep 2026 23:00:00 +0100
+
+nncp (8.13.0+git20260923.7290b51-1rhizomatica1) unstable; urgency=medium
+
+  * Rebuilt on upstream develop (git.stargrave.org, module
+    go.stargrave.org/nncp/v8), which now carries the HF modem transport
+    and per-node nopad. Fork-only changes on top:
+  * NNCPPv4 plain packets with a variable-length path (~240 B less per
+    packet), opt-in per node and per area (pktv4); everything else still
+    gets NNCPPv3, byte-identical to 8.13.0.
+  * hfmodem: an answered session ends when the TNC reports DISCONNECTED,
+    instead of idling to its online deadline; nothing is written to the
+    TNC between sessions (stray bytes stalled Mercury's broadcasts).
+  * postinst no longer resets the spool to 755 root: it only creates it.
+
+ -- Rafael Diniz <rafael@rhizomatica.org>  Wed, 23 Sep 2026 12:00:00 +0000
+
+nncp (8.13.0-6rhizomatica1) unstable; urgency=medium
+
+  * Make nopad a per-node config option (nopad: true in nncp.hjson)
+    instead of auto-detecting from HF connection type. Both initiator
+    and responder now honor the config. Also adds cfgdir save/load support.
+
+ -- Rafael Diniz <rafael@rhizomatica.org>  Wed, 19 Mar 2026 00:00:00 +0000
